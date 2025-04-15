@@ -1,4 +1,5 @@
-﻿using CapstoneProject_SP25_IPAS_API.Payload;
+﻿using CapstoneProject_SP25_IPAS_API.Middleware;
+using CapstoneProject_SP25_IPAS_API.Payload;
 using CapstoneProject_SP25_IPAS_API.ProgramConfig.AuthorizeConfig;
 using CapstoneProject_SP25_IPAS_BussinessObject.Payloads.Response;
 using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.GraftedRequest;
@@ -26,8 +27,10 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
         }
 
         // Lấy cây ghép theo ID
-        //[HybridAuthorize($"{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)},{nameof(RoleEnum.EMPLOYEE)}")]
         [HttpGet(APIRoutes.GraftedPlant.getGraftedById + "/{graftedPlantId}", Name = "getGraftedById")]
+        [HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)},{nameof(RoleEnum.EMPLOYEE)}")]
+        [CheckUserFarmAccess]
+        //[FarmExpired]
         public async Task<IActionResult> GetGraftedByIdAsync([FromRoute] int graftedPlantId)
         {
             try
@@ -46,8 +49,10 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
         }
 
         // Lấy danh sách cây ghép theo phân trang
-        //[HybridAuthorize($"{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)},{nameof(RoleEnum.EMPLOYEE)}")]
         [HttpGet(APIRoutes.GraftedPlant.getAllGraftedPagin, Name = "getAllGraftedPagin")]
+        [HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)},{nameof(RoleEnum.EMPLOYEE)}")]
+        [CheckUserFarmAccess]
+        //[FarmExpired]
         public async Task<IActionResult> getAllGraftedPagin([FromQuery] GetGraftedPaginRequest getRequest, PaginationParameter paginationParameter)
         {
             try
@@ -78,8 +83,10 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
         }
 
 
-        //[HybridAuthorize($"{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)},{nameof(RoleEnum.EMPLOYEE)}")]
         [HttpGet(APIRoutes.GraftedPlant.getAllGraftedByPlantPagin, Name = "getAllGraftedByPlantPagin")]
+        [HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)},{nameof(RoleEnum.EMPLOYEE)}")]
+        [CheckUserFarmAccess]
+        //[FarmExpired]
         public async Task<IActionResult> getAllGraftedByPlantPagin([FromQuery] GetGraftedByPlantRequest getRequest, PaginationParameter paginationParameter)
         {
             try
@@ -97,8 +104,11 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             }
         }
         // Tạo mới cây ghép
-        //[HybridAuthorize($"{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)}")]
+
         [HttpPost(APIRoutes.GraftedPlant.createGrafted, Name = "createGraftedPlant")]
+        [HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)}")]
+        [CheckUserFarmAccess]
+        //[FarmExpired]
         public async Task<IActionResult> CreateGraftedPlantAsync([FromBody] CreateGraftedPlantRequest createRequest)
         {
             try
@@ -128,8 +138,10 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             }
         }
 
-        //[HybridAuthorize($"{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)}")]
         [HttpPost(APIRoutes.GraftedPlant.CreatePlantFromGrafted, Name = "CreatePlantFromGrafted")]
+        [HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)}")]
+        [CheckUserFarmAccess]
+        //[FarmExpired]
         public async Task<IActionResult> CreatePlantFromGrafted([FromBody] CreatePlantFromGraftedRequest createRequest)
         {
             if (!createRequest.FarmId.HasValue)
@@ -139,8 +151,10 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
         }
 
         // Cập nhật thông tin cây ghép
-        //[HybridAuthorize($"{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)}")]
         [HttpPut(APIRoutes.GraftedPlant.updateGraftedInfo, Name = "updateGraftedPlant")]
+        [HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)}")]
+        [CheckUserFarmAccess]
+        //[FarmExpired]
         public async Task<IActionResult> UpdateGraftedPlantAsync([FromBody] UpdateGraftedPlantRequest updateRequest)
         {
             try
@@ -158,16 +172,20 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             }
         }
 
-        //[HybridAuthorize($"{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)}")]
         [HttpPut(APIRoutes.GraftedPlant.GroupGraftedPlantsIntoPlantLot, Name = "GroupGraftedPlantsIntoPlantLot")]
+        [HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)}")]
+        [CheckUserFarmAccess]
+        //[FarmExpired]
         public async Task<IActionResult> GroupGraftedPlantsIntoPlantLot([FromBody] GroupingGraftedRequest createRequest)
         {
             var result = await _graftedPlantService.GroupGraftedPlantsIntoPlantLot(createRequest);
             return Ok(result);
         }
 
-        //[HybridAuthorize($"{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)}")]
         [HttpPut(APIRoutes.GraftedPlant.UnGroupGraftedPlantsIntoPlantLot, Name = "UnGroupGraftedPlantsIntoPlantLot")]
+        [HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)}")]
+        [CheckUserFarmAccess]
+        //[FarmExpired]
         public async Task<IActionResult> UnGroupGraftedPlantsIntoPlantLot(List<int> graftPlantsId)
         {
             var result = await _graftedPlantService.UngroupGraftedPlants(graftPlantsId);
@@ -175,8 +193,10 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
         }
 
         // Xóa mềm cây ghép (chuyển trạng thái đã xóa)
-        //[HybridAuthorize($"{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)}")]
         [HttpPatch(APIRoutes.GraftedPlant.deleteSoftedGrafted, Name = "softDeleteGraftedPlant")]
+        [HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)}")]
+        [CheckUserFarmAccess]
+        //[FarmExpired]
         public async Task<IActionResult> SoftDeleteGraftedAsync([FromBody] List<int> graftedPlantIds)
         {
             try
@@ -195,8 +215,10 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
         }
 
         // Xóa vĩnh viễn cây ghép
-        //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)}")]
         [HttpDelete(APIRoutes.GraftedPlant.deletePermanentlyGrafted, Name = "permanentDeleteGraftedPlant")]
+        [HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)}")]
+        [CheckUserFarmAccess]
+        //[FarmExpired]
         public async Task<IActionResult> PermanentDeleteGraftedAsync([FromBody] List<int> graftedPlantIds)
         {
             try
@@ -216,8 +238,10 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
 
         // get for selected
         // Lấy cây ghép theo ID khong lay cay chet va da su dung
-        //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)}")]
         [HttpGet(APIRoutes.GraftedPlant.getGraftedForSelectedByFarmId + "/{farm-id}", Name = "getGraftedForSelectedByFarmIdAsync")]
+        [HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)},{nameof(RoleEnum.EMPLOYEE)}")]
+        [CheckUserFarmAccess]
+        //[FarmExpired]
         public async Task<IActionResult> getGraftedForSelectedByFarmIdAsync([FromRoute(Name = "farm-id")] int farmId)
         {
             try
@@ -234,8 +258,10 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
                 });
             }
         }
-        //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)},{nameof(RoleEnum.EMPLOYEE)}")]
         [HttpGet(APIRoutes.GraftedPlant.checkGraftedHasApplyCriteria, Name = "checkGraftedHasApplyCriteria")]
+        [HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)},{nameof(RoleEnum.EMPLOYEE)}")]
+        [CheckUserFarmAccess]
+        //[FarmExpired]
         public async Task<IActionResult> checkGraftedHasApplyCriteria([FromQuery] int? plantId, int? graftedPlantId)
         {
             try
@@ -261,8 +287,10 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             }
         }
 
-        //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)},{nameof(RoleEnum.EMPLOYEE)}")]
         [HttpGet(APIRoutes.GraftedPlant.getHistoryOfGraftedPlantById, Name = "getHistoryOfGraftedPlantById")]
+        [HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)},{nameof(RoleEnum.EMPLOYEE)}")]
+        [CheckUserFarmAccess]
+        //[FarmExpired]
         public async Task<IActionResult> getHistoryOfGraftedByPlantId([FromQuery] int? farmId, int plantId)
         {
             try
@@ -284,8 +312,10 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             }
         }
 
-        //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)}")]
         [HttpPut(APIRoutes.GraftedPlant.CompleteGraftedPlant, Name = "CompleteGraftedPlant")]
+        [HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)}")]
+        [CheckUserFarmAccess]
+        //[FarmExpired]
         public async Task<IActionResult> CompleteGraftedPlant([FromBody] CompletedGraftedPlantRequest Request)
         {
             try
@@ -313,8 +343,10 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             }
         }
 
-        //[HybridAuthorize($"{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)}")]
         [HttpPut(APIRoutes.GraftedPlant.MarkDeadGraftedPlants, Name = "MarkDeadGraftedPlants")]
+        [HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)}")]
+        [CheckUserFarmAccess]
+        //[FarmExpired]
         public async Task<IActionResult> MarkDeadGraftedPlants(List<int> graftPlantsId)
         {
             var result = await _graftedPlantService.markDeadGraftedAsync(graftPlantsId);
@@ -322,6 +354,9 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
         }
 
         [HttpGet(APIRoutes.GraftedPlant.exportCSV)]
+        [HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)},{nameof(RoleEnum.EMPLOYEE)}")]
+        [CheckUserFarmAccess]
+        //[FarmExpired]
         public async Task<IActionResult> ExportCriteriaObject([FromQuery] GetGraftedPaginRequest getRequest)
         {
             if (!getRequest.FarmId.HasValue)

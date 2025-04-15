@@ -6,6 +6,9 @@ using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.UserBsModels;
 using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.UserRequest;
+using CapstoneProject_SP25_IPAS_API.Middleware;
+using CapstoneProject_SP25_IPAS_API.ProgramConfig.AuthorizeConfig;
+using CapstoneProject_SP25_IPAS_Common.Enum;
 
 namespace CapstoneProject_SP25_IPAS_API.Controllers
 {
@@ -42,6 +45,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
         }
 
         [HttpGet(APIRoutes.User.getUserById, Name = "getUserById")]
+        [HybridAuthorize($"{nameof(RoleEnum.ADMIN)}")]
         public async Task<IActionResult> GetUserById([FromRoute] int userId)
         {
             try
@@ -81,6 +85,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             }
         }
         [HttpPost(APIRoutes.User.createUser, Name = "createUser")]
+        [HybridAuthorize($"{nameof(RoleEnum.ADMIN)}")]
         public async Task<IActionResult> CreateUserInternal([FromBody] CreateAccountModel createAccountRequestModel)
         {
             try
@@ -100,6 +105,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
         }
 
         [HttpPut(APIRoutes.User.updateUserInfo, Name = "updateUser")]
+        [HybridAuthorize($"{nameof(RoleEnum.ADMIN)}")]
         public async Task<IActionResult> UpdateUser([FromBody] UpdateUserModel updateUserRequestModel)
         {
             try
@@ -118,6 +124,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             }
         }
         [HttpPut(APIRoutes.User.bannedUser, Name = "bannedUser")]
+        [HybridAuthorize($"{nameof(RoleEnum.ADMIN)}")]
         public async Task<IActionResult> BannedUser([FromBody] List<int> userId)
         {
             try
@@ -137,6 +144,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
         }
 
         [HttpPut(APIRoutes.User.unBannedUser, Name = "UnbannedUser")]
+        [HybridAuthorize($"{nameof(RoleEnum.ADMIN)}")]
         public async Task<IActionResult> UnBannedUser([FromBody] List<int> userId)
         {
             try
@@ -156,6 +164,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
         }
 
         [HttpPatch(APIRoutes.User.softedDeleteUser, Name = "softedDeleteUser")]
+        [HybridAuthorize($"{nameof(RoleEnum.ADMIN)}")]
         public async Task<IActionResult> SoftDeleteUser([FromBody] List<int> userIds)
         {
             try
@@ -175,6 +184,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
         }
 
         [HttpDelete(APIRoutes.User.permanenlyDelete, Name = "deletedUser")]
+        [HybridAuthorize($"{nameof(RoleEnum.ADMIN)}")]
         public async Task<IActionResult> DeleteUser([FromRoute] int userId)
         {
             try
@@ -195,6 +205,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
         }
 
         [HttpPut(APIRoutes.User.updateUserAvatar, Name = "updateAvatarUser")]
+        [HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.USER)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)},{nameof(RoleEnum.EMPLOYEE)},{nameof(RoleEnum.EXPERT)}")]
         public async Task<IActionResult> UpdateAvatarOfUser(IFormFile avatarOfUser, [FromRoute] int userId)
         {
             try
@@ -215,6 +226,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
         }
 
         [HttpGet(APIRoutes.User.getAllUserByRole, Name = "getAllUserByRole")]
+        [HybridAuthorize($"{nameof(RoleEnum.ADMIN)}")]
         public async Task<IActionResult> GetAllUserByRoleName([FromRoute] string roleName)
         {
             try
@@ -234,6 +246,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
         }
 
         [HttpGet(APIRoutes.User.searchUserByEmail, Name = "searchUserByEmail")]
+        [HybridAuthorize($"{nameof(RoleEnum.ADMIN)}")]
         public async Task<IActionResult> searchUserByEmail([FromQuery] string? emailSearch)
         {
             try

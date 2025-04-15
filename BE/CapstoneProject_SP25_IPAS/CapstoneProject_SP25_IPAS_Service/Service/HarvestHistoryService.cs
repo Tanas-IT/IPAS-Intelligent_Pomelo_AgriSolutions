@@ -1218,13 +1218,13 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 //if (!landPlotCrops.Any())
                 //    return new BusinessResult(Const.WARNING_CROP_OF_FARM_EMPTY_CODE, Const.WARNING_CROP_OF_FARM_EMPTY_MSG);
                 //var mappedResult = _mapper.Map<IEnumerable<HarvestHistoryModel>>(landPlotCrops);
-                var mappedResult = _mapper.Map<IEnumerable<HarvestHistoryModel>>(landPlotCrops);
-                //pagin.List.ToList().ForEach(h => h.ProductHarvestHistory.Where(x => x.PlantId == null));
-                foreach (var havest in mappedResult)
+                foreach (var havest in landPlotCrops)
                 {
-                    havest.ProductHarvestHistory = havest.ProductHarvestHistory.Where(x => x.PlantId == null).ToList();
+                    havest.ProductHarvestHistories = havest.ProductHarvestHistories.Where(x => x.PlantId == null).ToList();
                     havest.CarePlanSchedules = null!;
                 }
+                var mappedResult = _mapper.Map<IEnumerable<HarvestHistoryModel>>(landPlotCrops);
+                //pagin.List.ToList().ForEach(h => h.ProductHarvestHistory.Where(x => x.PlantId == null));
                 return new BusinessResult(Const.SUCCESS_GET_ALL_CROP_CODE, "Get all Harvest plant can record success", mappedResult);
             }
             catch (Exception ex)
