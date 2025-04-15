@@ -1222,7 +1222,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 //pagin.List.ToList().ForEach(h => h.ProductHarvestHistory.Where(x => x.PlantId == null));
                 foreach (var havest in mappedResult)
                 {
-                    havest.ProductHarvestHistory = null!;
+                    havest.ProductHarvestHistory = havest.ProductHarvestHistory.Where(x => x.PlantId == null).ToList();
                     havest.CarePlanSchedules = null!;
                 }
                 return new BusinessResult(Const.SUCCESS_GET_ALL_CROP_CODE, "Get all Harvest plant can record success", mappedResult);
