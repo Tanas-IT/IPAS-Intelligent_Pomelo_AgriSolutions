@@ -629,6 +629,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Mapping
                .ForMember(dest => dest.CreatedDate, opt => opt.MapFrom(src => src.CreatedDate))
                .ForMember(dest => dest.IsTrainned, opt => opt.MapFrom(src => src.IsTrainned))
                .ForMember(dest => dest.ImageURL, opt => opt.MapFrom(src => src.ImageURL))
+               .ForMember(dest => dest.AvatarOfQuestioner, opt => opt.MapFrom(src => src.Questioner.AvatarURL))
+               .ForMember(dest => dest.AvatarOfAnswer, opt => opt.MapFrom(src => src.Answerer.AvatarURL))
                .ForMember(dest => dest.AnswererID, opt => opt.MapFrom(src => src.AnswererID))
                .ForMember(dest => dest.AnswererName, opt => opt.MapFrom(src => src.Answerer.FullName))
                .ForMember(dest => dest.QuestionerID, opt => opt.MapFrom(src => src.QuestionerID))
