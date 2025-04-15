@@ -4,8 +4,10 @@ import {
   GetData,
   GetPlantDetail,
   GetPlantGrowthHistory,
+  GetPlantRecord,
   PlantGrowthHistoryRequest,
 } from "@/payloads";
+import { HarvestRecord } from "@/types/harvest";
 
 export const getPlant = async (
   plantId: number
@@ -68,5 +70,37 @@ export const createPlantGrowthHistory = async (
     formData
   );
   const apiResponse = res.data as ApiResponse<Object>;
+  return apiResponse;
+};
+
+export const deletePlantGrowthHistory = async (id: number): Promise<ApiResponse<Object>> => {
+  const res = await axiosAuth.axiosJsonRequest.delete(`plant-growth-history/${id}`);
+  const apiResponse = res.data as ApiResponse<Object>;
+  return apiResponse;
+};
+
+export const getPlantRecordHarvest = async (
+  plantId: number,
+  pageSize: number,
+  pageIndex: number,
+  dateHarvestFrom?: string,
+  dateHarvestTo?: string,
+  productIds?: number,
+  totalQuantityFrom?: number | null,
+  totalQuantityTo?: number | null,
+): Promise<ApiResponse<GetData<HarvestRecord>>> => {
+  const res = await axiosAuth.axiosJsonRequest.get("harvests/plants/record", {
+    params: {
+      plantId,
+      pageSize,
+      pageIndex,
+      dateHarvestFrom,
+      dateHarvestTo,
+      productIds,
+      totalQuantityFrom: totalQuantityFrom ?? undefined,
+      totalQuantityTo: totalQuantityTo ?? undefined,
+    },
+  });
+  const apiResponse = res.data as ApiResponse<GetData<HarvestRecord>>;
   return apiResponse;
 };

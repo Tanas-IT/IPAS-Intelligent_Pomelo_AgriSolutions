@@ -10,13 +10,13 @@ import {
 } from "react-native";
 import CustomIcon from "./CustomIcon";
 import { useVideoPlayer, VideoView } from "expo-video";
-import { ResourceItem } from "@/types/worklog";
+import { GetPlantGrowthHistory, FileResource } from "@/payloads";
 import TextCustom from "./TextCustom";
 import theme from "@/theme";
 
 interface NoteDetailModalProps {
   visible: boolean;
-  resources: ResourceItem[] | string[];
+  history: GetPlantGrowthHistory | null;
   onClose: () => void;
 }
 
@@ -51,7 +51,7 @@ const VideoThumbnail: React.FC<{
 
 const NoteDetailModal: React.FC<NoteDetailModalProps> = ({
   visible,
-  resources,
+  history,
   onClose,
 }) => {
   const flatListRef = useRef<FlatList>(null);
@@ -59,18 +59,35 @@ const NoteDetailModal: React.FC<NoteDetailModalProps> = ({
   const [selectedVideoUrl, setSelectedVideoUrl] = useState<string | null>(null);
 
   // Phân loại resources thành images và videos
-  const processResources = (resources: ResourceItem[] | string[]) => {
-    if (!resources) return { images: [], videos: [] };
-    const urls = resources.map((resource) =>
-      typeof resource === "string" ? resource : resource.resourceURL
-    );
+  const processResources = (resources: FileResource[] | undefined) => {
+    if (!resources || resources.length === 0) return { images: [], videos: [] };
 
-    const images = urls.filter((url) => /\.(jpg|jpeg|png|gif)$/i.test(url));
-    const videos = urls.filter((url) => /\.(mp4|mov|avi)$/i.test(url));
+    const images: string[] = [];
+    const videos: string[] = [];
+
+    resources.forEach((res) => {
+      const format = res.fileFormat.toLowerCase();
+      const url = res.resourceURL.toLowerCase();
+
+      // Kiểm tra fileFormat cụ thể
+      if (["jpg", "jpeg", "png", "gif"].includes(format)) {
+        images.push(res.resourceURL);
+      } else if (["mp4", "mov", "avi"].includes(format)) {
+        videos.push(res.resourceURL);
+      }
+      // Kiểm tra fileFormat chung ("image", "video") và xác nhận bằng URL
+      else if (format === "image" && /\.(jpg|jpeg|png|gif)$/i.test(url)) {
+        images.push(res.resourceURL);
+      } else if (format === "video" && /\.(mp4|mov|avi)$/i.test(url)) {
+        videos.push(res.resourceURL);
+      }
+    });
+
+    console.log("Processed resources:", { images, videos });
     return { images, videos };
   };
 
-  const { images, videos } = processResources(resources);
+  const { images, videos } = processResources(history?.resources);
 
   const player = useVideoPlayer(selectedVideoUrl || "", (player) => {
     player.loop = false;

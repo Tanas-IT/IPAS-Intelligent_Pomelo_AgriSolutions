@@ -19,6 +19,8 @@ import {
 import { harvestRecordSchema } from "@/validations/harvestSchema";
 import theme from "@/theme";
 import { CustomDropdown, CustomIcon, TextCustom } from "@/components";
+import useMasterTypeOptions from "@/hooks/useMasterTypeOptions";
+import { MASTER_TYPE } from "@/constants";
 
 interface AddRecordModalProps {
   visible: boolean;
@@ -44,7 +46,7 @@ const AddRecordModal: React.FC<AddRecordModalProps> = ({
   plantId,
 }) => {
   const [modalVisible, setModalVisible] = useState<string | null>(null);
-
+  const { options: productOptions } = useMasterTypeOptions("Product");
   const {
     control,
     handleSubmit,
@@ -95,9 +97,9 @@ const AddRecordModal: React.FC<AddRecordModalProps> = ({
                 name="masterTypeId"
                 control={control}
                 errors={errors}
-                options={masterTypeOptions}
-                valueKey="id"
-                displayKey="name"
+                options={productOptions}
+                valueKey="value"
+                displayKey="label"
                 placeholder="Select Product Type"
                 modalVisible={modalVisible}
                 setModalVisible={setModalVisible}

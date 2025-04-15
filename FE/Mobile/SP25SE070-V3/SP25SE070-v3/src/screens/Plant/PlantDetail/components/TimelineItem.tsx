@@ -29,7 +29,7 @@ const TimelineItem: React.FC<TimelineItemProps> = ({ record, isLast }) => {
             <View style={styles.dateContainer}>
               <Image source={avt} style={styles.avatar} />
               <View>
-                <TextCustom style={styles.recordDate}>Recorder</TextCustom>
+                <TextCustom style={styles.recordDate}>{record.recordBy}</TextCustom>
               </View>
             </View>
             <TouchableOpacity

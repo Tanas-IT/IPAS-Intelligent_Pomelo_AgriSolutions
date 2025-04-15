@@ -6,14 +6,15 @@ import {
   Image,
   TouchableOpacity,
   ActivityIndicator,
+  Alert,
 } from "react-native";
 import Toast from "react-native-toast-message";
 import { useIsFocused, useNavigation } from "@react-navigation/native";
 import { RootStackNavigationProp } from "@/constants/Types";
 import { styles } from "./GrowthHistoryTab.styles";
-import { CustomIcon, Loading, TextCustom } from "@/components";
+import { CustomIcon, Loading, NoteDetailModal, TextCustom } from "@/components";
 import { avt } from "@/assets/images";
-import { usePlantStore } from "@/store";
+import { useAuthStore, usePlantStore } from "@/store";
 import { GetPlantGrowthHistory, FileResource } from "@/payloads";
 import { DEFAULT_RECORDS_IN_DETAIL, ROUTE_NAMES } from "@/constants";
 import { PlantService } from "@/services";
@@ -27,6 +28,8 @@ interface TimelineItemProps {
   totalItems: number;
   onEdit: (history: GetPlantGrowthHistory) => void;
   onDelete: (historyId: number) => void;
+  userId: number | null;
+  showDetailModal: (history: GetPlantGrowthHistory) => void;
 }
 
 const TimelineItem: React.FC<TimelineItemProps> = ({
@@ -35,6 +38,8 @@ const TimelineItem: React.FC<TimelineItemProps> = ({
   totalItems,
   onEdit,
   onDelete,
+  userId,
+  showDetailModal
 }) => (
   <View style={styles.timelineItem}>
     <View style={styles.timelineLeft}>
@@ -44,7 +49,7 @@ const TimelineItem: React.FC<TimelineItemProps> = ({
     <View style={styles.timelineContent}>
       <View style={styles.timelineHeader}>
         <View style={styles.timelineDateContainer}>
-        <Image source={{ uri: history.noteTakerAvatar }} style={styles.avatar} />
+          <Image source={{ uri: history.noteTakerAvatar }} style={styles.avatar} />
           <View style={{ flexDirection: "column" }}>
             <View style={{ flexDirection: "row", gap: 10 }}>
               <TextCustom style={styles.timelineAuthor}>
@@ -57,7 +62,7 @@ const TimelineItem: React.FC<TimelineItemProps> = ({
             </TextCustom>
           </View>
         </View>
-        {history.noteTakerName === currentUser && (
+        {history.userId === userId && (
           <View style={styles.actionButtons}>
             <TouchableOpacity onPress={() => onEdit(history)}>
               <CustomIcon
@@ -94,12 +99,24 @@ const TimelineItem: React.FC<TimelineItemProps> = ({
             <TextCustom style={styles.issueText}>{history.content}</TextCustom>
           </View>
         )}
+        {history.resources &&
+          history.resources.length > 0 && (
+            <TouchableOpacity
+              style={styles.detailButton}
+              onPress={() => showDetailModal(history)}
+            >
+              <TextCustom style={styles.detailButtonText}>
+                View Details
+              </TextCustom>
+            </TouchableOpacity>
+          )}
       </View>
     </View>
   </View>
 );
 
 const GrowthHistoryTab: React.FC = () => {
+  const { userId } = useAuthStore();
   const [data, setData] = useState<GetPlantGrowthHistory[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [isFirstLoad, setIsFirstLoad] = useState<boolean>(true);
@@ -110,6 +127,9 @@ const GrowthHistoryTab: React.FC = () => {
     null,
   ]);
   const navigation = useNavigation<RootStackNavigationProp>();
+  const [modalVisible, setModalVisible] = useState(false);
+  const [selectedHistory, setSelectedHistory] =
+    useState<GetPlantGrowthHistory | null>(null);
   const isFocused = useIsFocused();
   const { plant } = usePlantStore();
   const pageSize = DEFAULT_RECORDS_IN_DETAIL || 10;
@@ -118,17 +138,35 @@ const GrowthHistoryTab: React.FC = () => {
 
   const processResourcesToImages = (resources?: FileResource[]) => {
     if (!resources || resources.length === 0) return [];
-    return resources
-      .filter((res) => ["jpeg", "jpg", "png", "gif"].includes(res.fileFormat.toLowerCase()))
-      .map((res, index) => ({
-        uri: res.resourceURL,
-        type: res.fileFormat.toLowerCase() === "png"
-          ? "image/png"
-          : res.fileFormat.toLowerCase() === "gif"
-          ? "image/gif"
-          : "image/jpeg",
-        name: res.resourceURL.split("/").pop() || `image_${index + 1}.${res.fileFormat}`,
-      }));
+
+    const images = resources
+      .filter((res) => {
+        const format = res.fileFormat.toLowerCase();
+        const url = res.resourceURL.toLowerCase();
+        return (
+          ["jpeg", "jpg", "png", "gif"].includes(format) ||
+          (format === "image" && /\.(jpg|jpeg|png|gif)$/i.test(url))
+        );
+      })
+      .map((res, index) => {
+        const format = res.fileFormat.toLowerCase();
+        return {
+          uri: res.resourceURL,
+          type:
+            format === "png"
+              ? "image/png"
+              : format === "gif"
+              ? "image/gif"
+              : format === "image" && res.resourceURL.toLowerCase().endsWith(".png")
+              ? "image/png"
+              : format === "image" && res.resourceURL.toLowerCase().endsWith(".gif")
+              ? "image/gif"
+              : "image/jpeg",
+          name: res.resourceURL.split("/").pop() || `image_${index + 1}.${format === "image" ? "jpg" : format}`,
+        };
+      });
+
+    return images;
   };
 
   const fetchData = useCallback(
@@ -196,13 +234,61 @@ const GrowthHistoryTab: React.FC = () => {
     setDateRange(updatedRange);
   };
 
+  const showDetailModal = (history: GetPlantGrowthHistory) => {
+    setSelectedHistory({
+      ...history,
+      // ...processResources(history.resources),
+    });
+    setModalVisible(true);
+  };
+
   const handleResetDates = () => {
     setDateRange([null, null]);
   };
 
-  const handleDelete = async (historyId: number) => {
-    
-  };
+
+const handleDelete = (historyId: number) => {
+  Alert.alert(
+    "Confirm deletion",
+    "Are you sure you want to delete this note?",
+    [
+      {
+        text: "Cancel",
+        style: "cancel",
+      },
+      {
+        text: "Yes",
+        style: "destructive",
+        onPress: async () => {
+          try {
+            const res = await PlantService.deletePlantGrowthHistory(historyId);
+            if (res.statusCode === 200) {
+              setData((prevData) =>
+                prevData.filter((item) => item.plantGrowthHistoryId !== historyId)
+              );
+              Toast.show({
+                type: "success",
+                text1: "Note Deleted",
+                text2: "The note has been successfully deleted.",
+              });
+            } else {
+              throw new Error(res.message || "Delete failed");
+            }
+          } catch (error: any) {
+            console.error("Error deleting note:", error);
+            Toast.show({
+              type: "error",
+              text1: "Delete Failed",
+              text2: error.message || "Could not delete the note.",
+            });
+          }
+        },
+      },
+    ],
+    { cancelable: true }
+  );
+};
+
 
   const renderFooter = () => {
     if (!isLoading || isFirstLoad) return null;
@@ -310,6 +396,8 @@ const GrowthHistoryTab: React.FC = () => {
                 })
               }
               onDelete={handleDelete}
+              userId={Number(userId)}
+              showDetailModal={showDetailModal}
             />
           )
         }
@@ -324,6 +412,11 @@ const GrowthHistoryTab: React.FC = () => {
         initialNumToRender={pageSize}
         maxToRenderPerBatch={pageSize}
         windowSize={10}
+      />
+      <NoteDetailModal
+        visible={modalVisible}
+        history={selectedHistory}
+        onClose={() => setModalVisible(false)}
       />
     </View>
   );

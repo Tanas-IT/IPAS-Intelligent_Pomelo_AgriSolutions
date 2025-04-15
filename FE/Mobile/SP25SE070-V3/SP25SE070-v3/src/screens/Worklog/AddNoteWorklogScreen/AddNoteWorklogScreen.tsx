@@ -109,6 +109,8 @@ const AddNoteWorklogScreen: React.FC = () => {
         payload
       );
       const res = await worklogService.addWorklogNote(payload);
+      console.log("kì", res);
+      
       if (res.statusCode === 200) {
         Toast.show({
           type: "success",
