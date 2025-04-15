@@ -12,19 +12,28 @@ using CapstoneProject_SP25_IPAS_Common.Enum;
 
 namespace CapstoneProject_SP25_IPAS_API.Middleware
 {
+    public class FarmExpiredAttribute : TypeFilterAttribute
+    {
+        public FarmExpiredAttribute() : base(typeof(FarmExpiredFilter)) { }
+    }
+
     public class FarmExpiredFilter : IAsyncActionFilter
     {
-        private readonly IpasContext _context;
+        private readonly IServiceScopeFactory _scopeFactory;
+        //private readonly IpasContext _context;
         private readonly IHttpContextAccessor _httpContextAccessor;
 
-        public FarmExpiredFilter(IpasContext context, IHttpContextAccessor httpContextAccessor)
+        public FarmExpiredFilter(/*IpasContext context,*/ IHttpContextAccessor httpContextAccessor, IServiceScopeFactory scopeFactory)
         {
-            _context = context;
+            //_context = context;
             _httpContextAccessor = httpContextAccessor;
+            _scopeFactory = scopeFactory;
         }
 
         public async Task OnActionExecutionAsync(ActionExecutingContext context, ActionExecutionDelegate next)
         {
+            using var scope = _scopeFactory.CreateScope();
+            var _context = scope.ServiceProvider.GetRequiredService<IpasContext>();
             var httpContext = _httpContextAccessor.HttpContext;
             var jwtToken = httpContext!.User;
 
@@ -32,20 +41,20 @@ namespace CapstoneProject_SP25_IPAS_API.Middleware
             var roleClaim = jwtToken.Claims.FirstOrDefault(c => c.Type == ClaimTypes.Role)?.Value;
             var farmIdClaim = jwtToken.Claims.FirstOrDefault(c => c.Type == TokenClaimKeyConst.FARMID_KEY)?.Value;
 
-            //  Nếu không có farmId => Bắt buộc chọn farm
-            if (string.IsNullOrEmpty(farmIdClaim))
-            {
-                context.Result = new ObjectResult(new
-                {
-                    StatusCode = StatusCodes.Status400BadRequest,
-                    Message = "You need to select a farm before accessing this feature.",
-                    IsSuccess = false
-                })
-                {
-                    StatusCode = StatusCodes.Status400BadRequest
-                };
-                return;
-            }
+            ////  Nếu không có farmId => Bắt buộc chọn farm
+            //if (string.IsNullOrEmpty(farmIdClaim))
+            //{
+            //    context.Result = new ObjectResult(new
+            //    {
+            //        StatusCode = StatusCodes.Status400BadRequest,
+            //        Message = "You need to select a farm before accessing this feature.",
+            //        IsSuccess = false
+            //    })
+            //    {
+            //        StatusCode = StatusCodes.Status400BadRequest
+            //    };
+            //    return;
+            //}
 
             int.TryParse(farmIdClaim, out int farmId);
 
@@ -58,7 +67,7 @@ namespace CapstoneProject_SP25_IPAS_API.Middleware
 
             // Kiểm tra farm có bị expired không
             var expiredDate = await _context.Orders
-                .Where(o => o.FarmId == farmId && o.Farm.IsDeleted == false)
+                .Where(o => o.FarmId == farmId && o.Farm!.IsDeleted == false)
                 .MaxAsync(o => o.ExpiredDate);
 
             if (expiredDate.HasValue && expiredDate <= DateTime.Now)
@@ -67,6 +76,18 @@ namespace CapstoneProject_SP25_IPAS_API.Middleware
                 {
                     StatusCode = StatusCodes.Status402PaymentRequired,
                     Message = "Your farm has expired. Please renew your package to continue.",
+                    IsSuccess = false
+                })
+                {
+                    StatusCode = StatusCodes.Status402PaymentRequired
+                };
+                return;
+            } else if (!expiredDate.HasValue )
+            {
+                context.Result = new ObjectResult(new
+                {
+                    StatusCode = StatusCodes.Status402PaymentRequired,
+                    Message = "Your farm not yet buy a package. Please package to continue.",
                     IsSuccess = false
                 })
                 {

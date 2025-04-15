@@ -13,5 +13,6 @@ namespace CapstoneProject_SP25_IPAS_Common.Constants
         public static string USERID_KEY = "UserId";
         public static string STATUS = "Status";
         public static string ROLEID_KEY = "roleId";
+        public static string ROLE_KEY = "role";
     }
 }

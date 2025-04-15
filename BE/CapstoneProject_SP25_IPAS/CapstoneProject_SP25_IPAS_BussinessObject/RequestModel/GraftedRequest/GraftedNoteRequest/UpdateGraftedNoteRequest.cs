@@ -17,6 +17,6 @@ namespace CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.GraftedRequest.
 
         public string? IssueName { get; set; }
 
-        public List<ResourceCrUpRequest> PlantResource = new();
+        public List<ResourceCrUpRequest> Resource { get; set; } = new();
     }
 }
