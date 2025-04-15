@@ -10,13 +10,18 @@ import {
 } from "react-native";
 import CustomIcon from "./CustomIcon";
 import { useVideoPlayer, VideoView } from "expo-video";
-import { GetPlantGrowthHistory, FileResource } from "@/payloads";
 import TextCustom from "./TextCustom";
 import theme from "@/theme";
 
+interface CommonResource {
+  resourceID: number;
+  resourceURL: string;
+  fileFormat: string;
+}
+
 interface NoteDetailModalProps {
   visible: boolean;
-  history: GetPlantGrowthHistory | null;
+  resources: CommonResource[] | null;
   onClose: () => void;
 }
 
@@ -51,22 +56,33 @@ const VideoThumbnail: React.FC<{
 
 const NoteDetailModal: React.FC<NoteDetailModalProps> = ({
   visible,
-  history,
+  resources,
   onClose,
 }) => {
   const flatListRef = useRef<FlatList>(null);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [selectedVideoUrl, setSelectedVideoUrl] = useState<string | null>(null);
 
+  const getFormat = (res: CommonResource): string => {
+    if (res.fileFormat) {
+      return res.fileFormat.toLowerCase();
+    }
+    const url = res.resourceURL.toLowerCase();
+    const match = url.match(/\.([a-z0-9]+)(?:[\?#]|$)/i);
+    return match && match[1] ? match[1] : "unknown";
+  };
   // Phân loại resources thành images và videos
-  const processResources = (resources: FileResource[] | undefined) => {
+  const processResources = (resources: CommonResource[] | null) => {
     if (!resources || resources.length === 0) return { images: [], videos: [] };
 
     const images: string[] = [];
     const videos: string[] = [];
+    console.log("resources",resources);
+    
 
     resources.forEach((res) => {
-      const format = res.fileFormat.toLowerCase();
+      // const format = res.fileFormat.toLowerCase();
+      const format = getFormat(res);
       const url = res.resourceURL.toLowerCase();
 
       // Kiểm tra fileFormat cụ thể
@@ -87,7 +103,7 @@ const NoteDetailModal: React.FC<NoteDetailModalProps> = ({
     return { images, videos };
   };
 
-  const { images, videos } = processResources(history?.resources);
+  const { images, videos } = processResources(resources);
 
   const player = useVideoPlayer(selectedVideoUrl || "", (player) => {
     player.loop = false;
@@ -313,12 +329,6 @@ const styles = StyleSheet.create({
     width: 100,
     height: 60,
     borderRadius: 8,
-  },
-  playIcon: {
-    position: "absolute",
-    top: "50%",
-    left: "50%",
-    transform: [{ translateX: -15 }, { translateY: -15 }],
   },
   noMediaText: {
     color: "#999",

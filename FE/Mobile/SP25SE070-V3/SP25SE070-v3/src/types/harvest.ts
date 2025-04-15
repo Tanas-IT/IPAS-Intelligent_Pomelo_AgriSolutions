@@ -12,6 +12,7 @@ export interface HarvestRecord {
     cropName: string;
     recordDate: string;
     recordBy?: string;
+    avartarRecord: string;
   }
   
   export interface HarvestResponse {

@@ -408,10 +408,10 @@ const handleDelete = (historyId: number) => {
         windowSize={10}
       />
       <NoteDetailModal
-        visible={modalVisible}
-        history={selectedHistory}
-        onClose={() => setModalVisible(false)}
-      />
+      visible={modalVisible}
+      resources={selectedHistory?.resources || null}
+      onClose={() => setModalVisible(false)}
+    />
     </View>
   );
 };
