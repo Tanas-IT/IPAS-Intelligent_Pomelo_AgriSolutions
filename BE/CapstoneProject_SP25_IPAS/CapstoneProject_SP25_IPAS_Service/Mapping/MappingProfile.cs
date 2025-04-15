@@ -636,6 +636,12 @@ namespace CapstoneProject_SP25_IPAS_Service.Mapping
                .ForMember(dest => dest.QuestionOfUser, opt => opt.MapFrom(src => src.QuestionOfUser))
                .ForMember(dest => dest.AnswerFromExpert, opt => opt.MapFrom(src => src.AnswerFromExpert))
                 .ReverseMap();
+
+            CreateMap<Farm, ForSelectedModels>()
+               .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.FarmId))
+               .ForMember(dest => dest.Code, opt => opt.MapFrom(src => src.FarmCode))
+               .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.FarmName))
+                .ReverseMap();
         }
     }
 }
