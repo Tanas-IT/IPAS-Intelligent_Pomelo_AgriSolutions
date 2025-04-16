@@ -1081,6 +1081,15 @@ ADD CONSTRAINT FK_SystemConfiguration_Reference
 FOREIGN KEY (ReferenceConfigId)
 REFERENCES SystemConfiguration(ConfigID);
 GO
+CREATE TABLE EmployeeSkill (
+    EmployeeSkillID INT IDENTITY(1,1) PRIMARY KEY,
+    EmployeeID INT NULL,  
+	FarmID INT NULL,
+    WorkTypeID INT NULL,      
+    ScoreOfSkill float NULL,    
+    CONSTRAINT EmployeeSkill_Employee_FK FOREIGN KEY (EmployeeID,FarmID) REFERENCES ipas.dbo.[UserFarm](UserID, FarmID),
+    CONSTRAINT  EmployeeSkill_WorkType_FK_1 FOREIGN KEY (WorkTypeID) REFERENCES ipas.dbo.[MasterType](MasterTypeID)    
+);
 GO
 INSERT INTO [ipas].[dbo].[Farm] 
 ([FarmCode], [FarmName], [Address], [Longitude], [Latitude], [LogoURL], [Ward], [Province], [District], [Area], [SoilType], [ClimateZone], [CreateDate], [UpdateDate], [IsDeleted], [Status], [Length], [Width], [Description])
