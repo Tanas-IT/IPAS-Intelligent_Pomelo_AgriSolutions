@@ -25,6 +25,7 @@ namespace CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.ReportModel
     public class StatisticRevenueYear
     {
         public double? TotalRevenueYear { get; set; }
+        public int? Year { get; set; }
         public List<RevenueMonth>? revenueMonths { get; set; } = new();
     }
 
@@ -39,6 +40,8 @@ namespace CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.ReportModel
     public class StatisticFarmYear
     {
         public double? TotalRevenueYear { get; set; }
+        public int? Year { get; set; }
+
         public List<RevenueMonth>? revenueMonths { get; set; } = new();
     }
 

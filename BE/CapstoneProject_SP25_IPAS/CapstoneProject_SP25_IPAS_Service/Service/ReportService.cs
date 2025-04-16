@@ -842,6 +842,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             return new StatisticRevenueYear
             {
                 TotalRevenueYear = revenueData.Sum(x => x.TotalRevenue),
+                Year = year,
                 revenueMonths = revenueData
             };
         }
@@ -863,6 +864,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             return new StatisticFarmYear
             {
                 TotalRevenueYear = farmData.Sum(x => x.TotalRevenue),
+                Year = year,
                 revenueMonths = farmData
             };
         }
