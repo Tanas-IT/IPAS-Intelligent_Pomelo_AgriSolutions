@@ -300,7 +300,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
         }
 
 
-        [HttpPost(APIRoutes.Report.AdminReport, Name = "AdminReport")]
+        [HttpGet(APIRoutes.Report.AdminReport, Name = "AdminReport")]
         //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)}")]
         public async Task<IActionResult> AdminReport([FromQuery]GetAdminDashBoardRequest request)
         {
