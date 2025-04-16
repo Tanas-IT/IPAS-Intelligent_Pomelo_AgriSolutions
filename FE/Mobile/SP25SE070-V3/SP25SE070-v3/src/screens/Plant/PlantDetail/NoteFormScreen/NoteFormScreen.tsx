@@ -33,7 +33,7 @@ const NoteFormScreen: React.FC = () => {
   const route = useRoute();
   const { plantId, historyId, initialData } = route.params as {
     plantId: number;
-    historyId?: string;
+    historyId?: number;
     initialData?: NoteFormData;
   };
 
@@ -46,10 +46,14 @@ const NoteFormScreen: React.FC = () => {
     watch,
     setValue,
   } = useForm<NoteFormData>({
-    resolver: yupResolver(isEditMode ? addNoteSchema : addNoteSchema),
+    resolver: yupResolver(addNoteSchema),
     defaultValues:
       isEditMode && initialData
-        ? initialData
+        ? {
+            content: initialData.content || "",
+            issueName: initialData.issueName || "",
+            images: initialData.images || [],
+          }
         : {
             content: "",
             issueName: "",

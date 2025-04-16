@@ -131,6 +131,7 @@ var webSocketOptions = new WebSocketOptions()
 };
 // filter check farm expired
 builder.Services.AddScoped<FarmExpiredFilter>();
+builder.Services.AddScoped<FarmAccessFilter>();
 
 var app = builder.Build();
 

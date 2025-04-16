@@ -47,6 +47,7 @@ export default function CustomDrawerContent(
           },
         ]
       : []),
+    { label: "Expert Response", icon: "message-text", screen: ROUTE_NAMES.EXPERT_RESPONSE },
     { label: "Profile", icon: "account", screen: "Profile" },
     { label: "Settings", icon: "cog", screen: "Settings" },
   ];

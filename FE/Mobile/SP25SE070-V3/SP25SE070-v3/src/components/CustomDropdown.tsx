@@ -17,6 +17,7 @@ interface CustomDropdownProps<T> {
   modalVisible: string | null;
   setModalVisible: React.Dispatch<React.SetStateAction<string | null>>;
   modalKey: string;
+  disabled?: boolean;
 }
 
 const CustomDropdown = <T extends Record<string, any>>({
@@ -31,6 +32,7 @@ const CustomDropdown = <T extends Record<string, any>>({
   modalVisible,
   setModalVisible,
   modalKey,
+  disabled = false,
 }: CustomDropdownProps<T>) => {
   return (
     <Controller
@@ -46,10 +48,20 @@ const CustomDropdown = <T extends Record<string, any>>({
               {label} <TextCustom style={{ color: 'red' }}>*</TextCustom>
             </TextCustom>
             <TouchableOpacity
-              style={[styles.dropdownButton, errors[name] && { borderColor: 'red', borderWidth: 1 }]}
+              style={[
+                styles.dropdownButton,
+                errors[name] && { borderColor: 'red', borderWidth: 1 },
+                disabled && styles.disabledDropdown,
+              ]}
               onPress={() => setModalVisible(modalKey)}
             >
-              <TextCustom style={styles.dropdownText}>{displayValue}</TextCustom>
+              <TextCustom
+                style={[
+                  styles.dropdownText,
+                  disabled && { color: '#A0A0A0' }
+                ]}>
+                {displayValue}
+              </TextCustom>
               <CustomIcon
                 name="chevron-down"
                 size={20}
@@ -148,6 +160,9 @@ const styles = StyleSheet.create({
     fontSize: 12,
     color: 'red',
     marginBottom: 10,
+  },
+  disabledDropdown: {
+    backgroundColor: '#EAEAEA',
   },
 });
 

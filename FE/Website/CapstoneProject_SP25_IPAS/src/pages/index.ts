@@ -70,6 +70,8 @@ export { default as EmployeeDashboard } from "@/pages/EmployeeView/EmployeeDashb
 export { default as CropList } from "@/pages/Crop/CropList/CropList";
 export { default as HarvestDays } from "@/pages/Crop/CropDetails/HarvestDays/HarvestDays";
 export { default as ChatBox } from "@/pages/ChatBox/ChatBox";
+export { default as AdminDashboard } from "@/pages/Admin/AdminDashboard/AdminDashboard";
 export { default as User } from "@/pages/Admin/User/User";
 export { default as Farm } from "@/pages/Admin/Farm/Farm";
+export { default as PaymentHistory } from "@/pages/Admin/PaymentHistory/PaymentHistory";
 export { default as SystemConfiguration } from "@/pages/Admin/SystemConfiguration/SystemConfiguration";

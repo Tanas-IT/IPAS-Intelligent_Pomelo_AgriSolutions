@@ -22,23 +22,28 @@ export const getPackage = async (
     // brandId,
     additionalParams,
   );
-  
+
   const res = await axiosAuth.axiosJsonRequest.get(`packages`);
-  
+
   const apiResponse = res.data as ApiResponse<Object>;
-  
+
   return apiResponse.data as GetData<GetPackage>;
 };
 
-
 export const getPackagePurchase = async (): Promise<ApiResponse<GetPackage[]>> => {
   const res = await axiosNoAuth.get(`packages`);
-  const apiResponse = res.data as ApiResponse<GetPackage[]>
+  const apiResponse = res.data as ApiResponse<GetPackage[]>;
   return apiResponse;
-}
+};
 
 export const getPackageById = async (packageId: number): Promise<ApiResponse<GetPackage>> => {
   const res = await axiosAuth.axiosJsonRequest.get(`packages/${packageId}`);
-  const apiResponse = res.data as ApiResponse<GetPackage>
+  const apiResponse = res.data as ApiResponse<GetPackage>;
   return apiResponse;
-}
+};
+
+export const getPackageSelected = async (): Promise<ApiResponse<GetPackage[]>> => {
+  const res = await axiosAuth.axiosJsonRequest.get(`packages`);
+  const apiResponse = res.data as ApiResponse<GetPackage[]>;
+  return apiResponse;
+};

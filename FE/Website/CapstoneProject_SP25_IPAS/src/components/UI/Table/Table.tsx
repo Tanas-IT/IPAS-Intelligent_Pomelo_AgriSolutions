@@ -38,6 +38,7 @@ interface TableProps<T, E = T> {
   onRowDoubleClick?: (record: T) => void;
   isOnRowEvent?: boolean;
   isViewCheckbox?: boolean;
+  noDelete?: boolean;
 }
 const TableComponent = <T, E = T>({
   columns,
@@ -69,6 +70,7 @@ const TableComponent = <T, E = T>({
   onRowDoubleClick,
   isOnRowEvent = false,
   isViewCheckbox = true,
+  noDelete = false,
 }: TableProps<T, E>) => {
   const { styles } = useStyle();
 
@@ -335,6 +337,7 @@ const TableComponent = <T, E = T>({
       )}
 
       <ActionBar
+        noDelete={noDelete}
         selectedCount={selection.length}
         deleteSelectedItems={deleteSelectedItems}
         {...(onApplyCriteria && { onApplyCriteria: applyCriteriaSelectedItems })}

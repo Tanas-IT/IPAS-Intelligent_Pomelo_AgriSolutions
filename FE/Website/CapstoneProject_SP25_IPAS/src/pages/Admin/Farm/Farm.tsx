@@ -3,44 +3,41 @@ import {
   useFilters,
   useHasChanges,
   useModal,
-  useTableAdd,
   useTableDelete,
   useTableUpdate,
 } from "@/hooks";
 import style from "./Farm.module.scss";
-import { GetEmployee, GetFarmInfo, GetUser2, UserRequest } from "@/payloads";
-import { employeeService, farmService, userService } from "@/services";
+import { AdminFarmRequest, GetFarmInfo } from "@/payloads";
+import { farmService } from "@/services";
 import { useEffect, useState } from "react";
-import { FilterEmployeeState, FilterUserState } from "@/types";
-import { DEFAULT_EMPLOYEE_FILTERS, DEFAULT_USER_FILTERS, getOptions } from "@/utils";
+import { FilterFarmState } from "@/types";
+import { DEFAULT_FARM_FILTERS, getOptions } from "@/utils";
 import { Flex } from "antd";
 import {
-  ActionMenuEmployee,
   ActionMenuFarm,
-  ActionMenuUser,
   ConfirmModal,
   NavigationDot,
   SectionTitle,
   Table,
   TableTitle,
-  UserModal,
 } from "@/components";
 import { toast } from "react-toastify";
 import { FarmColumns } from "./FarmColumns";
+import FarmFilter from "./FarmFilter";
+import FarmModal from "./FarmModal";
 
 function Farm() {
-  //   const [isActionLoading, setIsActionLoading] = useState(false);
-  //   const formModal = useModal<GetUser2>();
-  //   const updateConfirmModal = useModal<{ user: UserRequest }>();
-  //   const banConfirmModal = useModal<{ ids: number[] }>();
-  //   const unbanConfirmModal = useModal<{ ids: number[] }>();
-  //   const deleteConfirmModal = useModal<{ ids: number[] }>();
-  //   const cancelConfirmModal = useModal();
+  const [isActionLoading, setIsActionLoading] = useState(false);
+  const formModal = useModal<GetFarmInfo>();
+  const updateConfirmModal = useModal<{ farm: AdminFarmRequest }>();
+  const changeStatusConfirmModal = useModal<{ ids: number[]; type: "activate" | "deactivate" }>();
+  const deleteConfirmModal = useModal<{ ids: number[] }>();
+  const cancelConfirmModal = useModal();
 
-  //   const { filters, updateFilters, applyFilters, clearFilters } = useFilters<FilterUserState>(
-  //     DEFAULT_USER_FILTERS,
-  //     () => fetchData(1),
-  //   );
+  const { filters, updateFilters, applyFilters, clearFilters } = useFilters<FilterFarmState>(
+    DEFAULT_FARM_FILTERS,
+    () => fetchData(1),
+  );
 
   const {
     data,
@@ -60,60 +57,60 @@ function Farm() {
     isLoading,
   } = useFetchData<GetFarmInfo>({
     fetchFunction: (page, limit, sortField, sortDirection, searchValue) =>
-      farmService.getFarms(page, limit, sortField, sortDirection, searchValue),
+      farmService.getFarms(page, limit, sortField, sortDirection, searchValue, filters),
   });
 
   useEffect(() => {
     fetchData();
   }, [currentPage, rowsPerPage, sortField, sortDirection, searchValue]);
 
-  //   const { handleDelete } = useTableDelete(
-  //     {
-  //       deleteFunction: userService.deleteUsers,
-  //       fetchData,
-  //       onSuccess: () => {
-  //         deleteConfirmModal.hideModal();
-  //       },
-  //     },
-  //     {
-  //       currentPage,
-  //       rowsPerPage,
-  //       totalRecords,
-  //       handlePageChange,
-  //     },
-  //   );
+  const { handleDelete } = useTableDelete(
+    {
+      deleteFunction: farmService.deleteFarm,
+      fetchData,
+      onSuccess: () => {
+        deleteConfirmModal.hideModal();
+      },
+    },
+    {
+      currentPage,
+      rowsPerPage,
+      totalRecords,
+      handlePageChange,
+    },
+  );
 
-  //   const hasChanges = useHasChanges<UserRequest>(data);
+  const hasChanges = useHasChanges<AdminFarmRequest>(data);
 
-  //   const handleUpdateConfirm = (user: UserRequest) => {
-  //     if (hasChanges(user, "userId")) {
-  //       updateConfirmModal.showModal({ user });
-  //     } else {
-  //       formModal.hideModal();
-  //     }
-  //   };
+  const handleUpdateConfirm = (farm: AdminFarmRequest) => {
+    if (hasChanges(farm, "farmId")) {
+      updateConfirmModal.showModal({ farm });
+    } else {
+      formModal.hideModal();
+    }
+  };
 
-  //   const handleCancelConfirm = (user: UserRequest, isUpdate: boolean) => {
-  //     const hasUnsavedChanges = isUpdate ? hasChanges(user, "userId") : hasChanges(user);
+  const handleCancelConfirm = (farm: AdminFarmRequest, isUpdate: boolean) => {
+    const hasUnsavedChanges = isUpdate ? hasChanges(farm, "farmId") : hasChanges(farm);
 
-  //     if (hasUnsavedChanges) {
-  //       cancelConfirmModal.showModal();
-  //     } else {
-  //       formModal.hideModal();
-  //     }
-  //   };
+    if (hasUnsavedChanges) {
+      cancelConfirmModal.showModal();
+    } else {
+      formModal.hideModal();
+    }
+  };
 
-  //   const { handleUpdate, isUpdating } = useTableUpdate<UserRequest>({
-  //     updateService: userService.updateUser,
-  //     fetchData: fetchData,
-  //     onSuccess: () => {
-  //       formModal.hideModal();
-  //       updateConfirmModal.hideModal();
-  //     },
-  //     onError: () => {
-  //       updateConfirmModal.hideModal();
-  //     },
-  //   });
+  const { handleUpdate, isUpdating } = useTableUpdate<AdminFarmRequest>({
+    updateService: farmService.updateFarm,
+    fetchData: fetchData,
+    onSuccess: () => {
+      formModal.hideModal();
+      updateConfirmModal.hideModal();
+    },
+    onError: () => {
+      updateConfirmModal.hideModal();
+    },
+  });
 
   //   const { handleAdd, isAdding } = useTableAdd({
   //     addService: userService.createUser,
@@ -121,46 +118,36 @@ function Farm() {
   //     onSuccess: () => formModal.hideModal(),
   //   });
 
-  //   const handleBanUsers = async (ids?: number[] | string[]) => {
-  //     if (!ids) return;
+  const handleChangeStatus = async (
+    ids?: number[] | string[],
+    type?: "activate" | "deactivate",
+  ) => {
+    if (!ids || !type) return;
+    setIsActionLoading(true);
+    try {
+      var res = await farmService.updateStatusFarm(ids);
+      if (res.statusCode === 200) {
+        toast.success(
+          type === "deactivate"
+            ? "Farm(s) deactivated successfully."
+            : "Farm(s) activated successfully.",
+        );
+        changeStatusConfirmModal.hideModal();
+        fetchData();
+      }
+    } finally {
+      setIsActionLoading(false);
+    }
+  };
 
-  //     setIsActionLoading(true);
-  //     try {
-  //       var res = await userService.banUsers(ids);
-  //       if (res.statusCode === 200) {
-  //         toast.success(res.message);
-  //         banConfirmModal.hideModal();
-  //         fetchData();
-  //       }
-  //     } finally {
-  //       setIsActionLoading(false);
-  //     }
-  //   };
-
-  //   const handleUnBanUsers = async (ids?: number[] | string[]) => {
-  //     if (!ids) return;
-
-  //     setIsActionLoading(true);
-  //     try {
-  //       var res = await userService.unBanUsers(ids);
-  //       if (res.statusCode === 200) {
-  //         toast.success(res.message);
-  //         unbanConfirmModal.hideModal();
-  //         fetchData();
-  //       }
-  //     } finally {
-  //       setIsActionLoading(false);
-  //     }
-  //   };
-
-  //   const filterContent = (
-  //     <UserFilter
-  //       filters={filters}
-  //       updateFilters={updateFilters}
-  //       onClear={clearFilters}
-  //       onApply={applyFilters}
-  //     />
-  //   );
+  const filterContent = (
+    <FarmFilter
+      filters={filters}
+      updateFilters={updateFilters}
+      onClear={clearFilters}
+      onApply={applyFilters}
+    />
+  );
 
   return (
     <Flex className={style.container}>
@@ -171,14 +158,7 @@ function Farm() {
           rows={data}
           rowKey="farmCode"
           idName="farmId"
-          title={
-            <TableTitle
-              onSearch={handleSearch}
-              //   filterContent={filterContent}
-              addLabel="Add New Farm"
-              //   onAdd={() => formModal.showModal()}
-            />
-          }
+          title={<TableTitle onSearch={handleSearch} filterContent={filterContent} noAdd />}
           handleSortClick={handleSortChange}
           selectedColumn={sortField}
           sortDirection={sortDirection}
@@ -186,17 +166,26 @@ function Farm() {
           currentPage={currentPage}
           rowsPerPage={rowsPerPage}
           isViewCheckbox={false}
-          //   handleDelete={(ids) => handleDelete(ids)}
           isLoading={isLoading}
           caption="Farm Management Board"
           notifyNoData="No farms to display"
           renderAction={(farm: GetFarmInfo) => (
             <ActionMenuFarm
               farm={farm}
-              onEdit={() => {}}
-              onDeactivate={() => {}}
-              onActivate={() => {}}
-              onDelete={() => {}}
+              onEdit={() => formModal.showModal(farm)}
+              onDeactivate={() =>
+                changeStatusConfirmModal.showModal({
+                  ids: [farm.farmId],
+                  type: "deactivate",
+                })
+              }
+              onActivate={() =>
+                changeStatusConfirmModal.showModal({
+                  ids: [farm.farmId],
+                  type: "activate",
+                })
+              }
+              onDelete={() => deleteConfirmModal.showModal({ ids: [farm.farmId] })}
             />
           )}
         />
@@ -209,55 +198,63 @@ function Farm() {
           rowsPerPageOptions={getOptions(totalRecords)}
           onRowsPerPageChange={handleRowsPerPageChange}
         />
-        {/* <UserModal
+        <FarmModal
           isOpen={formModal.modalState.visible}
           onClose={handleCancelConfirm}
-          onSave={formModal.modalState.data ? handleUpdateConfirm : handleAdd}
-          isLoadingAction={formModal.modalState.data ? isUpdating : isAdding}
-          userData={formModal.modalState.data}
-        /> */}
+          onSave={handleUpdateConfirm}
+          isLoadingAction={isUpdating}
+          farmData={formModal.modalState.data}
+        />
         {/* Confirm Delete Modal */}
-        {/* <ConfirmModal
+        <ConfirmModal
           visible={deleteConfirmModal.modalState.visible}
           onConfirm={() => handleDelete(deleteConfirmModal.modalState.data?.ids)}
           onCancel={deleteConfirmModal.hideModal}
-          itemName="User"
+          itemName="Farm"
           actionType="delete"
-        /> */}
+        />
         {/* Confirm Update Modal */}
-        {/* <ConfirmModal
+        <ConfirmModal
           visible={updateConfirmModal.modalState.visible}
-          onConfirm={() => handleUpdate(updateConfirmModal.modalState.data?.user)}
+          onConfirm={() => handleUpdate(updateConfirmModal.modalState.data?.farm)}
           onCancel={updateConfirmModal.hideModal}
-          itemName="User"
+          itemName="Farm"
           actionType="update"
         />
         <ConfirmModal
-          visible={banConfirmModal.modalState.visible}
-          onConfirm={() => handleBanUsers(banConfirmModal.modalState.data?.ids)}
-          onCancel={banConfirmModal.hideModal}
-          itemName="selected user(s)"
-          title="Ban Users"
-          description={`Are you sure you want to ban ${
-            banConfirmModal.modalState.data?.ids.length || 0
-          } user(s)? They will not be able to access the system.`}
-          confirmText="Ban"
-          isDanger
-        /> */}
+          visible={changeStatusConfirmModal.modalState.visible}
+          onConfirm={() =>
+            handleChangeStatus(
+              changeStatusConfirmModal.modalState.data?.ids,
+              changeStatusConfirmModal.modalState.data?.type,
+            )
+          }
+          onCancel={changeStatusConfirmModal.hideModal}
+          itemName="selected farm(s)"
+          title={
+            changeStatusConfirmModal.modalState.data?.type === "deactivate"
+              ? "Deactivate Farms"
+              : "Activate Farms"
+          }
+          description={`Are you sure you want to ${
+            changeStatusConfirmModal.modalState.data?.type === "deactivate"
+              ? "deactivate"
+              : "activate"
+          } ${changeStatusConfirmModal.modalState.data?.ids.length || 0} farm(s)? ${
+            changeStatusConfirmModal.modalState.data?.type === "deactivate"
+              ? "They will no longer be accessible until reactivated."
+              : "They will be re-enabled and accessible again."
+          }`}
+          confirmText={
+            changeStatusConfirmModal.modalState.data?.type === "deactivate"
+              ? "Deactivate"
+              : "Activate"
+          }
+          isDanger={changeStatusConfirmModal.modalState.data?.type === "deactivate"}
+        />
 
-        {/* <ConfirmModal
-          visible={unbanConfirmModal.modalState.visible}
-          onConfirm={() => handleUnBanUsers(unbanConfirmModal.modalState.data?.ids)}
-          onCancel={unbanConfirmModal.hideModal}
-          itemName="selected user(s)"
-          title="Unban Users"
-          description={`Are you sure you want to unban ${
-            unbanConfirmModal.modalState.data?.ids.length || 0
-          } user(s)? They will regain access to the system.`}
-          confirmText="Unban"
-        /> */}
         {/* Confirm Cancel Modal */}
-        {/* <ConfirmModal
+        <ConfirmModal
           visible={cancelConfirmModal.modalState.visible}
           actionType="unsaved"
           onConfirm={() => {
@@ -265,7 +262,7 @@ function Farm() {
             formModal.hideModal();
           }}
           onCancel={cancelConfirmModal.hideModal}
-        /> */}
+        />
       </Flex>
     </Flex>
   );

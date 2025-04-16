@@ -14,7 +14,7 @@ import { LinearGradient } from "expo-linear-gradient";
 import { Controller, useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { ResourceItem, WorklogNoteFormData } from "@/types/worklog";
-import { addNoteWorklogSchema } from "@/validations/noteWorklogSchema";
+import { addNoteWorklogSchema, worklogNoteSchemas } from "@/validations/noteWorklogSchema";
 import { styles } from "./AddNoteWorklogScreen.styles";
 import theme from "@/theme";
 import { CustomIcon, TextCustom } from "@/components";
@@ -44,10 +44,18 @@ const AddNoteWorklogScreen: React.FC = () => {
     resolver: yupResolver(addNoteWorklogSchema),
     defaultValues:
       isEditMode && initialData
-        ? initialData
+        ? {
+          note: initialData.note || "",
+          issue: initialData.issue || "",
+          userId: initialData.userId || 1,
+          workLogId: initialData.workLogId,
+          resources: initialData.resources || [],
+        }
         : {
             note: "",
             issue: "",
+            userId: 0,
+            workLogId: 0,
             resources: [],
           },
   });
@@ -72,15 +80,24 @@ const AddNoteWorklogScreen: React.FC = () => {
     });
 
     if (!result.canceled && result.assets) {
-      const currentResources = watch("resources") || [];
-      const newResource: ResourceItem = {
-        resourceID: 0,
-        description: "",
-        resourceURL: result.assets[0].uri,
-        fileFormat: result.assets[0].type || "image/jpeg", // Lấy type từ ImagePicker
-        file: "",
+      // const currentResources = watch("resources") || [];
+      // const newResource: ResourceItem = {
+      //   resourceID: 0,
+      //   description: "",
+      //   resourceURL: result.assets[0].uri,
+      //   fileFormat: result.assets[0].type || "image/jpeg", // Lấy type từ ImagePicker
+      //   file: "",
+      // };
+      // const newResources = [...currentResources, newResource];
+      // setValue("resources", newResources, { shouldValidate: true });
+      const asset = result.assets[0];
+      const currentImages = watch("resources") || [];
+      const newResource = {
+        uri: asset.uri,
+        type: asset.mimeType || "image/jpeg",
+        name: asset.fileName || `photo_${Date.now()}.jpg`,
       };
-      const newResources = [...currentResources, newResource];
+      const newResources = [...currentImages, newResource];
       setValue("resources", newResources, { shouldValidate: true });
     }
   };
@@ -102,6 +119,8 @@ const AddNoteWorklogScreen: React.FC = () => {
       issue: data.issue || "",
       resources: data.resources || [],
     };
+    console.log("add worklog note", payload);
+    
 
     try {
       console.log(
@@ -109,6 +128,8 @@ const AddNoteWorklogScreen: React.FC = () => {
         payload
       );
       const res = await worklogService.addWorklogNote(payload);
+      console.log("kìiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii", res);
+      
       if (res.statusCode === 200) {
         Toast.show({
           type: "success",
@@ -240,10 +261,10 @@ const AddNoteWorklogScreen: React.FC = () => {
 
                 {(value || []).length > 0 && (
                   <View style={styles.imageGrid}>
-                    {value?.map((resource: ResourceItem, index: number) => (
+                    {value?.map((resource, index: number) => (
                       <View key={index} style={styles.imageContainer}>
                         <Image
-                          source={{ uri: resource.resourceURL }}
+                          source={{ uri: resource.uri }}
                           style={styles.image}
                         />
                         <TouchableOpacity

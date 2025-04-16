@@ -17,6 +17,24 @@ export interface FarmRequest {
   climateZone: string;
 }
 
+export interface AdminFarmRequest {
+  farmCode: string;
+  farmId: number;
+  farmName: string;
+  description: string;
+  address: string;
+  district: string;
+  ward: string;
+  province: string;
+  longitude: number;
+  latitude: number;
+  area: string;
+  length: string;
+  width: string;
+  soilType: string;
+  climateZone: string;
+}
+
 interface DocumentResource {
   resourceID: string;
   file: File;

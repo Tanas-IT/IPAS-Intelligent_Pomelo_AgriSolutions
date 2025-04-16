@@ -1,4 +1,5 @@
-﻿using CapstoneProject_SP25_IPAS_API.Payload;
+﻿using CapstoneProject_SP25_IPAS_API.Middleware;
+using CapstoneProject_SP25_IPAS_API.Payload;
 using CapstoneProject_SP25_IPAS_API.ProgramConfig.AuthorizeConfig;
 using CapstoneProject_SP25_IPAS_BussinessObject.Payloads.Response;
 using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.TaskFeedbackRequest;
@@ -21,8 +22,10 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             _taskFeedbackService = taskFeedbackService;
         }
 
-        //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)},{nameof(RoleEnum.EMPLOYEE)}")]
         [HttpGet(APIRoutes.TaskFeedback.getTaskFeedbackWithPagination, Name = "GetAllTaskFeedback")]
+        [HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)},{nameof(RoleEnum.EMPLOYEE)}")]
+        [CheckUserFarmAccess]
+        //[FarmExpired]
         public async Task<IActionResult> GetAllTaskFeedback(PaginationParameter paginationParameter, TaskFeedbackFilter taskFeedbackFilter)
         {
             try
@@ -42,8 +45,10 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             }
         }
 
-        //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)},{nameof(RoleEnum.EMPLOYEE)}")]
         [HttpGet(APIRoutes.TaskFeedback.getTaskFeedbackById, Name = "GetTaskFeedbackById")]
+        [HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)},{nameof(RoleEnum.EMPLOYEE)}")]
+        [CheckUserFarmAccess]
+        //[FarmExpired]
         public async Task<IActionResult> GetTaskFeedbackById([FromRoute] int id)
         {
             try
@@ -63,8 +68,10 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             }
         }
 
-        //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)},{nameof(RoleEnum.EMPLOYEE)}")]
         [HttpGet(APIRoutes.TaskFeedback.getTaskFeedbackByManagerId, Name = "GetTaskFeedbackByManagerId")]
+        [HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)},{nameof(RoleEnum.EMPLOYEE)}")]
+        [CheckUserFarmAccess]
+        //[FarmExpired]
         public async Task<IActionResult> GetTaskFeedbackByManagerId([FromRoute] int id)
         {
             try
@@ -84,8 +91,10 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             }
         }
 
-        //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)},{nameof(RoleEnum.EMPLOYEE)}")]
         [HttpGet(APIRoutes.TaskFeedback.getTaskFeedbackByWorkLogId, Name = "GetTaskFeedbackByWorkLogId")]
+        [HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)},{nameof(RoleEnum.EMPLOYEE)}")]
+        [CheckUserFarmAccess]
+        //[FarmExpired]
         public async Task<IActionResult> GetTaskFeedbackByWorkLogId([FromRoute] int id)
         {
             try
@@ -105,8 +114,10 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             }
         }
 
-        //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)},{nameof(RoleEnum.EMPLOYEE)}")]
         [HttpPost(APIRoutes.TaskFeedback.createTaskFeedback, Name = "createTaskFeedback")]
+        [HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)}")]
+        [CheckUserFarmAccess]
+        //[FarmExpired]
         public async Task<IActionResult> CreateTaskFeedback([FromBody] CreateTaskFeedbackModel createTaskFeedbackModel)
         {
             try
@@ -126,8 +137,10 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             }
         }
 
-        //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)},{nameof(RoleEnum.EMPLOYEE)}")]
         [HttpPut(APIRoutes.TaskFeedback.updateTaskFeedbackInfo, Name = "updateTaskFeedback")]
+        [HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)}")]
+        [CheckUserFarmAccess]
+        //[FarmExpired]
         public async Task<IActionResult> UpdateTaskFeedback([FromBody] UpdateTaskFeedbackModel updateTaskFeedbackModel)
         {
             try
@@ -147,8 +160,10 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             }
         }
 
-        //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)}")]
         [HttpDelete(APIRoutes.TaskFeedback.deleteTaskFeedback, Name = "deleteTaskFeedback")]
+        [HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)}")]
+        [CheckUserFarmAccess]
+        //[FarmExpired]
         public async Task<IActionResult> DeleteTaskFeedback([FromRoute] int id)
         {
             try

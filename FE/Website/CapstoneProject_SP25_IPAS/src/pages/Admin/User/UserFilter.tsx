@@ -82,7 +82,7 @@ const UserFilter = ({ filters, updateFilters, onClear, onApply }: FilterProps) =
           fieldType="radio"
           options={[
             { value: "Active", label: "Active" },
-            { value: "Inactive", label: "Inactive" },
+            { value: "Banned", label: "Banned" },
           ]}
           onChange={(value) => updateFilters("status", value)}
           direction="row"

@@ -219,3 +219,17 @@ export const USER_ROLE_OPTIONS = [
   { label: "User", value: 2 },
   { label: "Expert", value: 6 },
 ];
+
+export const PAYMENT_STATUS = {
+  PAID: "Paid",
+  PENDING: "Pending",
+  FAIL: "Fail",
+  CANCELLED: "Cancelled",
+} as const;
+
+export const paymentStatusColors: Record<string, string> = {
+  [PAYMENT_STATUS.PAID]: "green",
+  [PAYMENT_STATUS.PENDING]: "orange",
+  [PAYMENT_STATUS.FAIL]: "red",
+  [PAYMENT_STATUS.CANCELLED]: "default",
+};

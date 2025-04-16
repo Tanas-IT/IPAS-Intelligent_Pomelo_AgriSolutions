@@ -13,8 +13,10 @@ export const PATHS = {
 
   // Admin Management Only
   ADMIN: {
+    DASHBOARD: "/admin/dashboard",
     USER_LIST: "/admin/users",
     FARM_LIST: "/admin/farms",
+    PAYMENT_HISTORY: "/admin/payment-history",
     SYSTEM_CONFIG: "/admin/system-configuration",
   },
 

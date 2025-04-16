@@ -10,7 +10,6 @@ import {
   LandPlotUpdateCoordinationRequest,
   LandPlotUpdateRequest,
 } from "@/payloads";
-import { getFarmId } from "@/utils";
 
 export const getLandPlotsOfFarmForSelect = async (farmId: number) => {
   const res = await axiosAuth.axiosJsonRequest.get(`landplots/get-for-selected?farmId=${farmId}`);

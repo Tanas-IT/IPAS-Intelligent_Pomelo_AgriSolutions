@@ -66,6 +66,26 @@ export type FilterUserState = {
   status: string;
 };
 
+export type FilterFarmState = {
+  createDateFrom: string;
+  createDateTo: string;
+  status: string;
+};
+
+export type FilterPaymentHistoryState = {
+  orderDateFrom: string;
+  orderDateTo: string;
+  enrolledDateFrom: string;
+  enrolledDateTo: string;
+  expiredDateFrom: string;
+  expiredDateTo: string;
+  totalPriceFrom: number | undefined;
+  totalPriceTo: number | undefined;
+  packageIds: string[];
+  farmIds: string[];
+  status: string;
+};
+
 export type FilterMasterTypeState = {
   createDateFrom: string;
   createDateTo: string;

@@ -10,6 +10,7 @@ using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.WorkLogRequest;
 using CapstoneProject_SP25_IPAS_Common;
 using CapstoneProject_SP25_IPAS_Common.Constants;
 using CapstoneProject_SP25_IPAS_Common.Enum;
+using CapstoneProject_SP25_IPAS_Common.Upload;
 using CapstoneProject_SP25_IPAS_Common.Utils;
 using CapstoneProject_SP25_IPAS_Repository.UnitOfWork;
 using CapstoneProject_SP25_IPAS_Service.Base;
@@ -738,58 +739,37 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     findWorkLog.Notes = createNoteModel.Note;
                     findWorkLog.Issue = createNoteModel.Issue;
                     findWorkLog.CreateDate = DateTime.Now;
-                    if (createNoteModel.Resources != null)
-                    {
-                        foreach (var fileNote in createNoteModel.Resources)
-                        {
-                            var getLink = "";
-                            if (fileNote.File != null)
-                            {
-                                if (IsImageFile(fileNote.File))
-                                {
-                                    getLink = await _cloudinaryService.UploadImageAsync(fileNote.File, "worklog/note");
-                                    var newResource = new Resource()
-                                    {
-                                        CreateDate = DateTime.Now,
-                                        FileFormat = "image",
-                                        ResourceURL = getLink,
-                                        Description = "note for worklog",
-                                        UpdateDate = DateTime.Now,
-                                        UserWorkLogID = findWorkLog.UserWorkLogID
-                                    };
-                                    await _unitOfWork.ResourceRepository.Insert(newResource);
+                   
+                    // Khởi tạo đối tượng Resource
+                   
 
-                                }
-                                else
-                                {
-                                    getLink = await _cloudinaryService.UploadVideoAsync(fileNote.File, "worklog/note");
-                                    var newResourceVideo = new Resource()
-                                    {
-                                        CreateDate = DateTime.Now,
-                                        FileFormat = "image",
-                                        ResourceURL = getLink,
-                                        Description = "note for worklog",
-                                        UpdateDate = DateTime.Now,
-                                        UserWorkLogID = findWorkLog.UserWorkLogID
-                                    };
-                                    await _unitOfWork.ResourceRepository.Insert(newResourceVideo);
-                                }
-                            }
-                            if (fileNote.ResourceURL != null)
+                    // Xử lý tài nguyên (hình ảnh/video) nếu có
+                    if (createNoteModel.Resources?.Any() == true)
+                    {
+                        foreach (var resource in createNoteModel.Resources)
+                        {
+                            if (resource.File != null)
                             {
-                                var newResourceURL = new Resource()
+                                var cloudinaryUrl = await _cloudinaryService.UploadResourceAsync(resource.File, CloudinaryPath.PLANT_GROWTH_HISTORY);
+                                if (cloudinaryUrl.Data == null) continue;
+                                if (Util.IsVideo(Path.GetExtension(resource.File.FileName)?.TrimStart('.').ToLower()))
+                                    resource.FileFormat = FileFormatConst.VIDEO.ToLower();
+                                else resource.FileFormat = FileFormatConst.IMAGE.ToLower();
+                                var newResource = new Resource()
                                 {
+                                    ResourceCode = CodeAliasEntityConst.RESOURCE + CodeHelper.GenerateCode(),
+                                    ResourceURL = (string)cloudinaryUrl.Data,
+                                    ResourceType = ResourceTypeConst.PLANT_GROWTH_HISTORY,
+                                    FileFormat = resource.FileFormat,
                                     CreateDate = DateTime.Now,
-                                    FileFormat = "link",
-                                    ResourceURL = fileNote.ResourceURL,
-                                    Description = "note for worklog",
-                                    UpdateDate = DateTime.Now,
-                                    UserWorkLogID = findWorkLog.UserWorkLogID
+                                    Description = resource.Description,
                                 };
-                                await _unitOfWork.ResourceRepository.Insert(newResourceURL);
+                                findWorkLog.Resources.Add(newResource);
                             }
                         }
                     }
+                    _unitOfWork.UserWorkLogRepository.Update(findWorkLog);
+                    await _unitOfWork.SaveAsync();
                     var addNotification = new Notification()
                     {
                         Content = getUser.FullName + " has create note on " + getWorklog.WorkLogName + ". Please check it",

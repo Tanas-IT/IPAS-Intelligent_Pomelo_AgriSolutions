@@ -14,6 +14,6 @@ namespace CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.WorkLogRequest
         public int WorkLogId { get; set; }
         public string? Note { get; set; }
         public string? Issue { get; set; }
-        public List<ResourceCrUpRequest>? Resources { get; set; }
+        public ICollection<ResourceCrUpRequest> Resources { get; set; } = new List<ResourceCrUpRequest>();
     }
 }

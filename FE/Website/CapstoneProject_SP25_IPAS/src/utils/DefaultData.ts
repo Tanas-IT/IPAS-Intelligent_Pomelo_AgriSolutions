@@ -13,11 +13,13 @@ import {
   FilterCriteriaState,
   FilterCropState,
   FilterEmployeeState,
+  FilterFarmState,
   FilterGraftedPlantState,
   FilterHarvestDayState,
   FilterLandRowState,
   FilterMasterTypeState,
   FilterPartnerState,
+  FilterPaymentHistoryState,
   FilterPlantLotState,
   FilterPlantState,
   FilterUserState,
@@ -115,6 +117,26 @@ export const DEFAULT_USER_FILTERS: FilterUserState = {
   genders: "",
   status: "",
   roleIds: [] as string[],
+};
+
+export const DEFAULT_FARM_FILTERS: FilterFarmState = {
+  createDateFrom: "",
+  createDateTo: "",
+  status: "",
+};
+
+export const DEFAULT_PAYMENT_HISTORY_FILTERS: FilterPaymentHistoryState = {
+  createDateFrom: "",
+  createDateTo: "",
+  enrolledDateFrom: "",
+  enrolledDateTo: "",
+  expiredDateFrom: "",
+  expiredDateTo: "",
+  totalPriceFrom: undefined,
+  totalPriceTo: undefined,
+  packageIds: [] as string[],
+  farmIds: [] as string[],
+  status: "",
 };
 
 export const DEFAULT_LOT_FILTERS: FilterPlantLotState = {

@@ -18,7 +18,6 @@ interface PlantHealthStatus {
   [status: string]: number;
 }
 
-
 interface TaskStatusDistribution {
   totalTask: number;
   taskStatus: Record<string, number>;
@@ -34,26 +33,23 @@ interface MaterialInStoreModel {
   }[];
 }
 
-interface PomeloQualityBreakDown {
-}
+interface PomeloQualityBreakDown {}
 
 export interface ProductivityByPlotResponse {
-  harvestSeason: string
-  year: number
-  landPlots: LandPlot[]
+  harvestSeason: string;
+  year: number;
+  landPlots: LandPlot[];
 }
 
 export interface LandPlot {
-  landPlotId: number
-  landPlotName: string
-  totalPlantOfLandPlot: number
-  quantity: number
-  status: string
+  landPlotId: number;
+  landPlotName: string;
+  totalPlantOfLandPlot: number;
+  quantity: number;
+  status: string;
 }
 
-
-interface WorkProgressOverview {
-}
+interface WorkProgressOverview {}
 
 export interface DashboardResponses {
   totalPlant: number;
@@ -71,19 +67,53 @@ export interface DashboardResponses {
   workProgressOverviews: WorkProgressOverview[];
 }
 
+export interface RevenueByMonth {
+  month: number;
+  totalRevenue: number;
+}
+
+export interface FarmCountByMonth {
+  month: number;
+  totalFarms: number;
+}
+
+interface User {
+  fullname: string;
+  userName: string;
+  createDate: string;
+}
+
+interface Transaction {
+  email: string;
+  paymentDate: string;
+  amount: number;
+  status: any;
+}
+
+export interface AdminDashboardResponses {
+  totalUser: number;
+  totalRevenue: number;
+  totalFarm: number;
+  weatherPropertyModel: WeatherPropertyModel;
+  listRevenue: RevenueByMonth[];
+  listFarmCounts: FarmCountByMonth[];
+  latestUsers: User[];
+  recentTransactions: Transaction[];
+}
+
 export interface MaterialInstore {
-  month: string
-  materials: Material[]
+  month: string;
+  materials: Material[];
 }
 
 export interface Material {
-  productType: string
-  unitOfMaterials: UnitOfMaterials
+  productType: string;
+  unitOfMaterials: UnitOfMaterials;
 }
 
 export interface UnitOfMaterials {
-  value: number
-  unit: string
+  value: number;
+  unit: string;
 }
 
 export interface SeasonalYieldResponse {

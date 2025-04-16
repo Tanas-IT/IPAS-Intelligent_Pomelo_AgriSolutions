@@ -1,5 +1,6 @@
 import { axiosAuth } from "@/api";
 import {
+  AdminFarmRequest,
   ApiResponse,
   FarmDocumentRequest,
   FarmRequest,
@@ -52,6 +53,12 @@ export const updateFarmInfo = async (farm: FarmRequest): Promise<ApiResponse<Get
   return apiResponse;
 };
 
+export const updateFarm = async (farm: AdminFarmRequest): Promise<ApiResponse<GetFarmInfo>> => {
+  const res = await axiosAuth.axiosJsonRequest.put("farms/update-farm-info", farm);
+  const apiResponse = res.data as ApiResponse<GetFarmInfo>;
+  return apiResponse;
+};
+
 export const updateFarmLogo = async (image: File): Promise<ApiResponse<{ logoUrl: string }>> => {
   const formData = new FormData();
   formData.append("FarmLogo", image);
@@ -77,6 +84,18 @@ export const createFarm = async (farm: FarmRequest): Promise<ApiResponse<Object>
   formData.append("Latitude", farm.latitude.toString());
 
   const res = await axiosAuth.axiosMultipartForm.post(`farms`, formData);
+  const apiResponse = res.data as ApiResponse<Object>;
+  return apiResponse;
+};
+
+export const deleteFarm = async (ids: number[] | string[]): Promise<ApiResponse<GetFarmInfo>> => {
+  const res = await axiosAuth.axiosJsonRequest.patch(`farms/softed-delete-farm/${ids[0]}`);
+  const apiResponse = res.data as ApiResponse<GetFarmInfo>;
+  return apiResponse;
+};
+
+export const updateStatusFarm = async (ids: number[] | string[]): Promise<ApiResponse<Object>> => {
+  const res = await axiosAuth.axiosJsonRequest.put(`farms/activate`, ids);
   const apiResponse = res.data as ApiResponse<Object>;
   return apiResponse;
 };

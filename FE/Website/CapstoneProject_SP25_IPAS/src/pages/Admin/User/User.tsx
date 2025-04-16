@@ -8,14 +8,13 @@ import {
   useTableUpdate,
 } from "@/hooks";
 import style from "./User.module.scss";
-import { GetEmployee, GetUser2, UserRequest } from "@/payloads";
-import { employeeService, userService } from "@/services";
+import { GetUser2, UserRequest } from "@/payloads";
+import { userService } from "@/services";
 import { useEffect, useState } from "react";
-import { FilterEmployeeState, FilterUserState } from "@/types";
-import { DEFAULT_EMPLOYEE_FILTERS, DEFAULT_USER_FILTERS, getOptions } from "@/utils";
+import { FilterUserState } from "@/types";
+import { DEFAULT_USER_FILTERS, getOptions } from "@/utils";
 import { Flex } from "antd";
 import {
-  ActionMenuEmployee,
   ActionMenuUser,
   ConfirmModal,
   NavigationDot,

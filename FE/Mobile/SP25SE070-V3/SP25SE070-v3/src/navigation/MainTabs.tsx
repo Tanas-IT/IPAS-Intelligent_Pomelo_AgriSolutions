@@ -84,8 +84,8 @@ export default function MainTabs() {
     >
       <Tab.Screen
         name="Home"
-        // component={EmployeeHomeScreen}
-        component={ManagerHomeScreen}
+        component={EmployeeHomeScreen}
+        // component={ManagerHomeScreen}
         options={{
           tabBarLabel: "Home",
           headerShown: false,

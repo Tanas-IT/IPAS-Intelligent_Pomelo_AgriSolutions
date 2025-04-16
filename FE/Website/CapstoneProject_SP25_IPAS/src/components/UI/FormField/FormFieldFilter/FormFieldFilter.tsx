@@ -94,8 +94,8 @@ const FormFieldFilter: React.FC<FormFieldFilterProps> = ({
         );
       case "numberRange":
         return (
-          <Flex gap={24} align="center" style={{ width: "100%" }}>
-            <Flex vertical align="start">
+          <Flex gap={20} align="center" justify="space-between" style={{ width: "100%" }}>
+            <Flex vertical align="start" style={{ width: "100%" }}>
               <span className={style.label}>From</span>
               <InputNumber
                 className={styles.customInput}
@@ -106,7 +106,7 @@ const FormFieldFilter: React.FC<FormFieldFilterProps> = ({
                 min={1}
               />
             </Flex>
-            <Flex vertical align="start">
+            <Flex vertical align="start" style={{ width: "100%" }}>
               <span className={style.label}>To</span>
               <InputNumber
                 className={styles.customInput}

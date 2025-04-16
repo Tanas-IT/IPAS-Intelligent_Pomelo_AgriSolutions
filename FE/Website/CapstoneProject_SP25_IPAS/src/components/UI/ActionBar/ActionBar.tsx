@@ -6,6 +6,7 @@ import ConfirmModal from "../ConfirmModal/ConfirmModal";
 import { useModal } from "@/hooks";
 
 interface ActionBarProps {
+  noDelete?: boolean;
   selectedCount: number;
   deleteSelectedItems: () => void;
   onApplyCriteria?: () => void;
@@ -16,6 +17,7 @@ interface ActionBarProps {
 }
 
 const ActionBar: React.FC<ActionBarProps> = ({
+  noDelete = false,
   selectedCount,
   deleteSelectedItems,
   onApplyCriteria,
@@ -108,13 +110,15 @@ const ActionBar: React.FC<ActionBarProps> = ({
             <Divider className={style.divider} type="vertical" />
           </Flex>
           <Flex gap={20}>
-            <Button
-              className={style.action_bar_btn_delete}
-              icon={<Icons.delete />}
-              onClick={showModal}
-            >
-              Delete items
-            </Button>
+            {!noDelete && (
+              <Button
+                className={style.action_bar_btn_delete}
+                icon={<Icons.delete />}
+                onClick={showModal}
+              >
+                Delete items
+              </Button>
+            )}
 
             {/* More Actions - Dropdown */}
             {moreActionsItems && moreActionsItems.length > 0 && (
