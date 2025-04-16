@@ -1,18 +1,25 @@
 ﻿using AutoMapper;
+using CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.FarmBsModels;
+using CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.OrderModels;
 using CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.ReportModel;
+using CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.UserBsModels;
 using CapstoneProject_SP25_IPAS_BussinessObject.Entities;
 using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.ReportModel;
 using CapstoneProject_SP25_IPAS_Common;
 using CapstoneProject_SP25_IPAS_Common.Constants;
+using CapstoneProject_SP25_IPAS_Common.Enum;
+using CapstoneProject_SP25_IPAS_Common.Utils;
 using CapstoneProject_SP25_IPAS_Repository.UnitOfWork;
 using CapstoneProject_SP25_IPAS_Service.Base;
 using CapstoneProject_SP25_IPAS_Service.IService;
+using GenerativeAI.Types;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Net.Http;
 using System.Text;
 using System.Threading.Tasks;
@@ -197,7 +204,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                     {
                                         Month = g.Key,  // Key là mùa
                                         Materials = g.SelectMany(h => h.ProductHarvestHistories)
-                                        .GroupBy(ht => new { ht.MasterTypeId})
+                                        .GroupBy(ht => new { ht.MasterTypeId })
                                         .Select(x => new Materials
                                         {
                                             ProductType = x.FirstOrDefault().Product.MasterTypeName,
@@ -278,7 +285,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             var rawData = await _unitOfWork.ProductHarvestHistoryRepository.GetHarvestDataByYear(year.Value, farmId);
 
             // Nhóm dữ liệu theo mùa vụ và loại sản phẩm
-           
+
 
             // Nhóm dữ liệu theo mùa vụ
             var result = rawData
@@ -328,7 +335,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
         {
 
             var getListLandPlot = await _unitOfWork.LandPlotRepository.GetLandPlotInclude();
-           
+
             var result = getListLandPlot
                                     .Where(lp => lp.Farm.FarmId == farmId && lp.LandPlotCrops.Any(x => x.Crop.StartDate.Value.Year == year))
                                     .SelectMany(lp => lp.LandPlotCrops, (lp, lpc) => new
@@ -389,7 +396,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
         {
             try
             {
-               var result = await GetDataForMaterialsInStore(year, farmId);
+                var result = await GetDataForMaterialsInStore(year, farmId);
                 if (result != null)
                 {
                     if (result.Count > 0)
@@ -412,7 +419,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             try
             {
                 var result = await GetDataForPomeloQualityBreakDown(year, farmId);
-                if(result != null)
+                if (result != null)
                 {
                     if (result.Count > 0)
                     {
@@ -458,7 +465,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             try
             {
 
-               var result = await GetDataForSeasonYield(year, farmId);
+                var result = await GetDataForSeasonYield(year, farmId);
 
                 if (result != null)
                 {
@@ -475,7 +482,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
                 return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
             }
-        }   
+        }
 
         public async Task<BusinessResult> WorkProgressOverview(int year, int month, int? farmId)
         {
@@ -484,7 +491,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 var result = await GetDataForWorkprogressOverview(year, month, farmId);
                 if (result != null)
                 {
-                    if(result.Count > 0)
+                    if (result.Count > 0)
                     {
                         return new BusinessResult(Const.SUCCESS_GET_WORK_PROGRESS_OVERVIEW_REPORT_CODE, Const.SUCCESS_GET_WORK_PROGRESS_OVERVIEW_REPORT_MSG, result);
                     }
@@ -542,7 +549,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 var filteredTask = toltalTask
                                .Where(p => !string.IsNullOrEmpty(p.Status)) // Bỏ task không có status
                                .Where(p => p.Schedule != null && p.Schedule.CarePlan != null)
-                               .Where(x => x.Schedule.FarmID == farmID || x.Schedule.CarePlan.FarmID == farmID )// Lọc trước khi gọi thuộc tính bên trong
+                               .Where(x => x.Schedule.FarmID == farmID || x.Schedule.CarePlan.FarmID == farmID)// Lọc trước khi gọi thuộc tính bên trong
                                .ToList();
                 var totalFilteredTask = filteredTask.Count(); // Đếm số Task phù hợp
 
@@ -557,7 +564,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     TotalTask = toltalTask.Count(),
                     TaskStatus = listTaskStatusDistribution
                 };
-                if(taskStatusDistribution != null)
+                if (taskStatusDistribution != null)
                 {
                     return new BusinessResult(200, "Statistic Employee Success", taskStatusDistribution);
                 }
@@ -574,7 +581,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
         {
             try
             {
-                var query =  _unitOfWork.PlanRepository.GetAllPlans();
+                var query = _unitOfWork.PlanRepository.GetAllPlans();
 
                 if (farmID.HasValue)
                 {
@@ -628,14 +635,14 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     Status = groupedStatuses
                 };
 
-                var result =  new PlanStatisticsDto
+                var result = new PlanStatisticsDto
                 {
                     PlansByMonth = plansByMonth,
                     StatusDistribution = statusDistribution,
                     PlanByWorkType = planByType,
                     StatusSummary = statusSummary
                 };
-                if(result != null)
+                if (result != null)
                 {
                     return new BusinessResult(200, "Statistic plan success", result);
                 }
@@ -724,7 +731,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 var query = await _unitOfWork.UserWorkLogRepository
                                 .GetUserWorkLogsByEmployeeIds(null, farmId, null);
 
-                if(request.ListEmployee != null)
+                if (request.ListEmployee != null)
                 {
                     query = query.Where(x => request.ListEmployee.Contains(x.UserId)).ToList();
                 }
@@ -745,7 +752,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                 {
                                     var user = g.First().User;
                                     var workLogs = user.UserWorkLogs?.Where(x => x.IsDeleted != true).ToList() ?? new List<UserWorkLog>();
-                                   
+
                                     var totalTasks = workLogs.Count;
                                     var taskSuccess = workLogs.Count(x => x.WorkLog?.Status == getStatusDone);
                                     var taskFail = workLogs.Count(x =>
@@ -777,6 +784,127 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
                 return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
             }
+        }
+
+        public async Task<BusinessResult> AdminDashBoard(GetAdminDashBoardRequest request)
+        {
+            try
+            {
+
+                if (!request.YearRevenue.HasValue)
+                    request.YearRevenue = DateTime.Now.Year;
+                if (!request.YearFarm.HasValue)
+                    request.YearFarm = DateTime.Now.Year;
+                int totalUser = await _unitOfWork.UserRepository.Count(x => x.IsDeleted == false);
+                int totalFarm = await _unitOfWork.FarmRepository.Count(x => x.IsDeleted == false);
+                double totalRevenue = await _unitOfWork.OrdersRepository.GetTotalRevenueAsync();
+                var revenueStatictis = await GetStatisticRevenueYearAsync(request.YearRevenue);
+                var farmStatictis = await GetStatisticFarmYearAsync(request.YearFarm);
+                var NewestFarmsModels = await GetNewestFarmsAsync(request.TopNNewestFarm);
+                var NewestOrderModels = await GetNewestOrdersAsync(request.TopNNewestOrder);
+                var NewestUsersModels = await GetNewestUsersAsync(request.TopNNewestUser);
+
+                var dashboard = new AdminDashBoardModel
+                {
+                    TotalUser = totalUser,
+                    TotalFarm = totalFarm,
+                    TotalRevenue = totalRevenue,
+                    StatisticRevenueYear = revenueStatictis,
+                    StatisticFarmYear = farmStatictis,
+                    NewestUserModels = NewestUsersModels,
+                    NewestOrdersModels = NewestOrderModels,
+                    NewestFarmsModels = NewestFarmsModels,
+                };
+                return new BusinessResult(200, "Get data success", dashboard);
+            }
+            catch (Exception ex)
+            {
+
+                return new BusinessResult(Const.ERROR_EXCEPTION, Const.ERROR_MESSAGE);
+            }
+        }
+
+        private async Task<StatisticRevenueYear> GetStatisticRevenueYearAsync(int? year)
+        {
+            //if (!year.HasValue)
+            //    year = DateTime.Now.Year;
+
+            var revenue = await _unitOfWork.OrdersRepository.GetAllNoPaging(o =>
+            o.OrderDate.HasValue && o.OrderDate.Value.Year == year && o.TotalPrice.HasValue && o.Status!.ToLower().Equals(OrderStatusEnum.Paid.ToString().ToLower()));
+
+            var revenueData = revenue
+            .GroupBy(o => o.OrderDate.Value.Month)
+            .Select(g => new RevenueMonth
+            {
+                Year = year,
+                Month = g.Key,
+                TotalRevenue = g.Sum(x => x.TotalPrice) ?? 0
+            })
+            .ToList();
+
+            return new StatisticRevenueYear
+            {
+                TotalRevenueYear = revenueData.Sum(x => x.TotalRevenue),
+                Year = year,
+                revenueMonths = revenueData
+            };
+        }
+
+        private async Task<StatisticFarmYear> GetStatisticFarmYearAsync(int? year)
+        {
+
+            var farms = await _unitOfWork.FarmRepository.GetAllNoPaging(f => f.CreateDate.HasValue && f.CreateDate.Value.Year == year && f.IsDeleted == false);
+            var farmData = farms
+                .GroupBy(f => f.CreateDate.Value.Month)
+                .Select(g => new RevenueMonth
+                {
+                    Year = year,
+                    Month = g.Key,
+                    TotalRevenue = g.Count()
+                })
+                .ToList();
+
+            return new StatisticFarmYear
+            {
+                TotalRevenueYear = farmData.Sum(x => x.TotalRevenue),
+                Year = year,
+                revenueMonths = farmData
+            };
+        }
+
+        private async Task<List<UserModel>> GetNewestUsersAsync(int? TopN)
+        {
+            if (!TopN.HasValue)
+                TopN = 10;
+            Expression<Func<User, bool>> filter = x => x.IsDeleted == false! && !x.Role!.RoleName!.ToLower().Equals(RoleEnum.ADMIN.ToString().ToLower());
+            Func<IQueryable<User>, IOrderedQueryable<User>> orderBy = x => x.OrderByDescending(o => o.CreateDate).ThenByDescending(x => x.UserId);
+            string includeProperties = "Role";
+            var entities = await _unitOfWork.UserRepository.Get(filter, orderBy, includeProperties, pageIndex: 1, pageSize: TopN);
+            var mappedResult = _mapper.Map<List<UserModel>>(entities).ToList();
+            return mappedResult;
+        }
+
+        private async Task<List<FarmModel>> GetNewestFarmsAsync(int? TopN)
+        {
+            if (!TopN.HasValue)
+                TopN = 10;
+            Expression<Func<Farm, bool>> filter = x => x.IsDeleted == false;
+            Func<IQueryable<Farm>, IOrderedQueryable<Farm>> orderBy = x => x.OrderByDescending(o => o.CreateDate).ThenByDescending(o => o.FarmId);
+            var entities = await _unitOfWork.FarmRepository.Get(filter, orderBy, pageIndex: 1!, pageSize: TopN);
+            var mappedResult = _mapper.Map<IEnumerable<FarmModel>>(entities).ToList();
+            return mappedResult;
+        }
+
+        private async Task<List<OrderModel>> GetNewestOrdersAsync(int? TopN)
+        {
+            if (!TopN.HasValue)
+                TopN = 10;
+            Expression<Func<Order, bool>> filter = null!;
+            Func<IQueryable<Order>, IOrderedQueryable<Order>> orderBy = x => x.OrderByDescending(o => o.OrderDate).ThenByDescending(o => o.OrderId);
+            string includeProperties = "Package,Farm,Payment";
+            var entities = await _unitOfWork.OrdersRepository.Get(filter, orderBy, includeProperties, pageIndex: 1!, pageSize: TopN);
+            var mappedResult = _mapper.Map<IEnumerable<OrderModel>>(entities).ToList();
+            return mappedResult;
         }
     }
 }
