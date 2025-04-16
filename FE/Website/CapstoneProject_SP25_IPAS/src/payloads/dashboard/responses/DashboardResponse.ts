@@ -1,3 +1,6 @@
+import { GetPaymentHistory } from "@/payloads/payment";
+import { GetUser } from "@/payloads/user";
+
 export interface WeatherPropertyModel {
   currentTemp: number;
   tempMax: number;
@@ -67,38 +70,37 @@ export interface DashboardResponses {
   workProgressOverviews: WorkProgressOverview[];
 }
 
+export interface RevenueMonth {
+  year: number;
+  month: number;
+  totalRevenue: number;
+}
+
 export interface RevenueByMonth {
+  totalRevenueYear: number;
+  revenueMonths: RevenueMonth[];
+}
+
+export interface FarmMonth {
+  year: number;
   month: number;
   totalRevenue: number;
 }
 
 export interface FarmCountByMonth {
-  month: number;
-  totalFarms: number;
-}
-
-interface User {
-  fullname: string;
-  userName: string;
-  createDate: string;
-}
-
-interface Transaction {
-  email: string;
-  paymentDate: string;
-  amount: number;
-  status: any;
+  totalRevenueYear: number;
+  year: number;
+  revenueMonths: FarmMonth[];
 }
 
 export interface AdminDashboardResponses {
   totalUser: number;
   totalRevenue: number;
   totalFarm: number;
-  weatherPropertyModel: WeatherPropertyModel;
-  listRevenue: RevenueByMonth[];
-  listFarmCounts: FarmCountByMonth[];
-  latestUsers: User[];
-  recentTransactions: Transaction[];
+  statisticRevenueYear: RevenueByMonth[];
+  statisticFarmYear: FarmCountByMonth[];
+  newestUserModels: GetUser[];
+  newestOrdersModels: GetPaymentHistory[];
 }
 
 export interface MaterialInstore {

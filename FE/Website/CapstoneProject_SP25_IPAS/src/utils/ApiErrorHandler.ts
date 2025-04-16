@@ -45,11 +45,13 @@ export const handleApiError = async (error: any) => {
         break;
       case 403:
         const errorStatusCode = error.response.data.StatusCode;
-        if (errorStatusCode === 401) {
-          redirectToHomeWithMessage(error.response.data.Message);
-        } else {
-          redirectToHomeWithMessage(MESSAGES.NO_PERMISSION);
-        }
+        console.log(error);
+        
+        // if (errorStatusCode === 401) {
+        //   redirectToHomeWithMessage(error.response.data.Message);
+        // } else {
+        //   redirectToHomeWithMessage(MESSAGES.NO_PERMISSION);
+        // }
         break;
       case 400:
         toast.error(MESSAGES.BAD_REQUEST);

@@ -4,113 +4,95 @@ import { Badge, Card, Col, Flex, Row, Segmented, Table, Typography } from "antd"
 import { useState } from "react";
 import style from "./AdminDashboard.module.scss";
 import StatBox from "@/pages/Dashboard/components/StatBox/StatBox";
-import WeatherCard from "@/pages/Dashboard/components/WeatherCard/WeatherCard";
-import LineChart from "@/components/UI/Dashboard/LineChart/LineChart";
-import BarChart from "@/components/UI/Dashboard/BarChart/BarChart";
 import { ChartOptions } from "chart.js";
 import { themeColors } from "@/styles";
 import { formatCurrencyVND, formatDate, formatDateAndTime } from "@/utils";
+import { BarChart, LineChart, UserAvatar } from "@/components";
+import dayjs from "dayjs";
 const { Title } = Typography;
 
-const weatherData = {
-  currentTemp: 29.04,
-  tempMax: 29.04,
-  tempMin: 29.04,
-  status: "Clouds",
-  description: "broken clouds",
-  humidity: 51,
-  visibility: 10000,
-  windSpeed: "2.02 m/s",
-  clouds: 55,
-};
 
-export const adminDashboardMockData: AdminDashboardResponses & {
-  listRevenue: { month: number; totalRevenue: number }[];
-  listFarmCounts: { month: number; totalFarms: number }[];
-} = {
-  totalUser: 120,
-  totalRevenue: 350000000,
-  totalFarm: 18,
-  weatherPropertyModel: {
-    currentTemp: 30,
-    tempMax: 32,
-    tempMin: 27,
-    status: "Sunny",
-    description: "clear sky",
-    humidity: 45,
-    visibility: 10000,
-    windSpeed: "3.2 m/s",
-    clouds: 10,
-  },
-  listRevenue: [
-    { month: 1, totalRevenue: 10000000 },
-    { month: 2, totalRevenue: 12000000 },
-    { month: 3, totalRevenue: 18000000 },
-    { month: 4, totalRevenue: 22000000 },
-    { month: 5, totalRevenue: 25000000 },
-    { month: 6, totalRevenue: 28000000 },
-    { month: 7, totalRevenue: 32000000 },
-    { month: 8, totalRevenue: 34000000 },
-    { month: 9, totalRevenue: 36000000 },
-    { month: 10, totalRevenue: 40000000 },
-    { month: 11, totalRevenue: 42000000 },
-    { month: 12, totalRevenue: 45000000 },
-  ],
-  listFarmCounts: [
-    { month: 1, totalFarms: 2 },
-    { month: 2, totalFarms: 2 },
-    { month: 3, totalFarms: 3 },
-    { month: 4, totalFarms: 4 },
-    { month: 5, totalFarms: 4 },
-    { month: 6, totalFarms: 5 },
-    { month: 7, totalFarms: 6 },
-    { month: 8, totalFarms: 6 },
-    { month: 9, totalFarms: 7 },
-    { month: 10, totalFarms: 8 },
-    { month: 11, totalFarms: 9 },
-    { month: 12, totalFarms: 10 },
-  ],
-  latestUsers: [
-    {
-      fullname: "Alice Johnson",
-      userName: "alicej",
-      createDate: "2025-04-15T10:45:00",
-    },
-    {
-      fullname: "Bob Smith",
-      userName: "bobsmith",
-      createDate: "2025-04-14T14:20:00",
-    },
-    {
-      fullname: "Charlie Nguyen",
-      userName: "charlien",
-      createDate: "2025-04-13T09:10:00",
-    },
-  ],
-  recentTransactions: [
-    {
-      email: "alicej@example.com",
-      paymentDate: "2025-04-15T11:00:00",
-      amount: 1500000,
-      status: "Succeed",
-    },
-    {
-      email: "bobsmith@example.com",
-      paymentDate: "2025-04-14T15:00:00",
-      amount: 950000,
-      status: "Pending",
-    },
-    {
-      email: "charlien@example.com",
-      paymentDate: "2025-04-13T10:00:00",
-      amount: 500000,
-      status: "Failed",
-    },
-  ],
-};
+
+// export const adminDashboardMockData: AdminDashboardResponses & {
+//   listRevenue: { month: number; totalRevenue: number }[];
+//   listFarmCounts: { month: number; totalFarms: number }[];
+// } = {
+//   totalUser: 120,
+//   totalRevenue: 350000000,
+//   totalFarm: 18,
+//   listRevenue: [
+//     { month: 1, totalRevenue: 10000000 },
+//     { month: 2, totalRevenue: 12000000 },
+//     { month: 3, totalRevenue: 18000000 },
+//     { month: 4, totalRevenue: 22000000 },
+//     { month: 5, totalRevenue: 25000000 },
+//     { month: 6, totalRevenue: 28000000 },
+//     { month: 7, totalRevenue: 32000000 },
+//     { month: 8, totalRevenue: 34000000 },
+//     { month: 9, totalRevenue: 36000000 },
+//     { month: 10, totalRevenue: 40000000 },
+//     { month: 11, totalRevenue: 42000000 },
+//     { month: 12, totalRevenue: 45000000 },
+//   ],
+//   listFarmCounts: [
+//     { month: 1, totalFarms: 2 },
+//     { month: 2, totalFarms: 2 },
+//     { month: 3, totalFarms: 3 },
+//     { month: 4, totalFarms: 4 },
+//     { month: 5, totalFarms: 4 },
+//     { month: 6, totalFarms: 5 },
+//     { month: 7, totalFarms: 6 },
+//     { month: 8, totalFarms: 6 },
+//     { month: 9, totalFarms: 7 },
+//     { month: 10, totalFarms: 8 },
+//     { month: 11, totalFarms: 9 },
+//     { month: 12, totalFarms: 10 },
+//   ],
+//   latestUsers: [
+//     {
+//       fullname: "Alice Johnson",
+//       userName: "alicej",
+//       createDate: "2025-04-15T10:45:00",
+//     },
+//     {
+//       fullname: "Bob Smith",
+//       userName: "bobsmith",
+//       createDate: "2025-04-14T14:20:00",
+//     },
+//     {
+//       fullname: "Charlie Nguyen",
+//       userName: "charlien",
+//       createDate: "2025-04-13T09:10:00",
+//     },
+//   ],
+//   recentTransactions: [
+//     {
+//       email: "alicej@example.com",
+//       paymentDate: "2025-04-15T11:00:00",
+//       amount: 1500000,
+//       status: "Succeed",
+//     },
+//     {
+//       email: "bobsmith@example.com",
+//       paymentDate: "2025-04-14T15:00:00",
+//       amount: 950000,
+//       status: "Pending",
+//     },
+//     {
+//       email: "charlien@example.com",
+//       paymentDate: "2025-04-13T10:00:00",
+//       amount: 500000,
+//       status: "Failed",
+//     },
+//   ],
+// };
 
 function AdminDashboard() {
-  const [data, setData] = useState<AdminDashboardResponses>(adminDashboardMockData);
+  const [data, setData] = useState<AdminDashboardResponses>();
+  const currentYear = dayjs();
+  const [yearRevenue, setYearRevenue] = useState<dayjs.Dayjs>(currentYear);
+  const [yearFarms, setYearFarms] = useState<dayjs.Dayjs>(currentYear);
+
   const statsData = [
     {
       title: "Users",
@@ -193,25 +175,15 @@ function AdminDashboard() {
       dataIndex: "user",
       key: "user",
       render: (text: string, record: any) => (
-        <div>
-          <div
-            style={{
-              backgroundColor: "#55AD9B",
-              color: "white",
-              borderRadius: "50%",
-              display: "inline-block",
-              padding: "8px",
-            }}
-          >
-            {record.fullname.charAt(0)}
-          </div>
+        <Flex gap={20}>
+          <UserAvatar avatarURL={record.avatarURL} />
           <div>
             <p>
               {record.fullname} - {formatDate(record.createDate)}
             </p>
             <p>{record.userName}</p>
           </div>
-        </div>
+        </Flex>
       ),
     },
   ];
@@ -268,7 +240,7 @@ function AdminDashboard() {
       <Flex className={style.container}>
         <Flex className={style.statBoxContainer}>
           {statsData.map((stat, index) => (
-            <Flex key={index} style={{ flex: 2 }}>
+            <Flex key={index} style={{ width: "100%" }} justify="space-between">
               <StatBox
                 title={stat.title}
                 subtitle={stat.subtitle}
@@ -277,16 +249,25 @@ function AdminDashboard() {
               />
             </Flex>
           ))}
-          <Flex style={{ flex: 2 }}>
-            <WeatherCard weather={data?.weatherPropertyModel || weatherData} />
-          </Flex>
         </Flex>
         <Row gutter={[16, 16]} style={{ marginTop: 16 }}>
           <Col xs={24} md={12}>
-            <LineChart title="Revenue by Month" data={lineChartData} options={lineChartOptions} />
+            <LineChart
+              title="Revenue by Month"
+              year={yearRevenue}
+              onYearChange={(newYear) => setYearRevenue(newYear)}
+              data={lineChartData}
+              options={lineChartOptions}
+            />
           </Col>
           <Col xs={24} md={12}>
-            <BarChart title="Farms by Month" data={barChartData} options={barChartProductOptions} />
+            <BarChart
+              title="Farms by Month"
+              year={yearFarms}
+              onYearChange={(newYear) => setYearFarms(newYear)}
+              data={barChartData}
+              options={barChartProductOptions}
+            />
           </Col>
         </Row>
 
@@ -294,7 +275,7 @@ function AdminDashboard() {
           <Col xs={24} md={8}>
             <Card>
               <Title level={5}>New Users</Title>
-              <div style={{ maxHeight: "300px", overflowY: "auto" }}>
+              <div style={{ minHeight: "300px", maxHeight: "500px", overflowY: "auto" }}>
                 <Table
                   columns={userColumns}
                   dataSource={data.latestUsers}
@@ -308,7 +289,7 @@ function AdminDashboard() {
           <Col xs={24} md={16}>
             <Card>
               <Title level={5}>Transaction History</Title>
-              <div style={{ maxHeight: "300px", overflowY: "auto" }}>
+              <div style={{ minHeight: "300px", maxHeight: "500px", overflowY: "auto" }}>
                 <Table
                   columns={transactionColumns}
                   dataSource={data.recentTransactions}

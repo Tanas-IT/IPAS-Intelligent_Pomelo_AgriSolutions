@@ -103,7 +103,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             }
         }
         [HttpPost(APIRoutes.Farm.createFarm, Name = "createFarmAsync")]
-        [HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.USER)}")]
+        //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.USER)}")]
         public async Task<IActionResult> CreateFarmAsync([FromForm] FarmCreateRequest farmCreateModel)
         {
             try
