@@ -970,5 +970,83 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             var mappedResult = _mapper.Map<IEnumerable<OrderModel>>(entities).ToList();
             return mappedResult;
         }
+
+        public async Task<BusinessResult> EmployeeTodayTask(int userId)
+        {
+            try
+            {
+                var getEmployeeTodayTask = await _unitOfWork.UserWorkLogRepository.GetEmployeeToDayTask(userId);
+                if (getEmployeeTodayTask.Any())
+                {
+                    var result = _mapper.Map<List<EmployeeTodayTask>>(getEmployeeTodayTask);
+
+                    for (int i = 0; i < result.Count; i++)
+                    {
+                        var actualStart = getEmployeeTodayTask[i].WorkLog?.ActualStartTime;
+                        var actualEnd = getEmployeeTodayTask[i].WorkLog?.ActualEndTime;
+
+                        result[i].Time = $"{actualStart} - {actualEnd}";
+                    }
+
+                    return new BusinessResult(200, "Get employee today task success", result);
+                }
+                return new BusinessResult(400, "Do not have any task today");
+            }
+            catch (Exception ex)
+            {
+
+                return new BusinessResult(Const.ERROR_EXCEPTION, Const.ERROR_MESSAGE);
+            }
+        }
+
+        public async Task<BusinessResult> EmployeeProductivity(int userId, string? timeRange)
+        {
+            try
+            {
+                var now = DateTime.Now.Date;
+                DateTime from, to;
+
+                if (timeRange == "month")
+                {
+                    from = new DateTime(now.Year, now.Month, 1);
+                    to = from.AddMonths(1).AddDays(-1); // đến cuối tháng
+                }
+                else // "week"
+                {
+                    // Lấy thứ Hai của tuần hiện tại
+                    int diff = (7 + (now.DayOfWeek - DayOfWeek.Monday)) % 7;
+                    from = now.AddDays(-1 * diff);
+                    to = from.AddDays(6); // Chủ nhật tuần đó
+                }
+                var getStatusDone = await _unitOfWork.SystemConfigRepository
+                                       .GetConfigValue(SystemConfigConst.DONE.Trim(), "Done");
+                var completed = await _unitOfWork.UserWorkLogRepository.GetTasksCompletedAsync(userId, getStatusDone, from, to);
+                var hours = await _unitOfWork.UserWorkLogRepository.GetHoursWorkedAsync(userId, from, to);
+                var skill = await _unitOfWork.UserWorkLogRepository.GetSkillScoreAsync(userId, getStatusDone);
+                var aiReports = await _unitOfWork.UserWorkLogRepository.GetAiReportsSubmittedAsync(userId, from, to);
+                var pendingToday = await _unitOfWork.UserWorkLogRepository.GetPendingTasksTodayAsync(userId, getStatusDone, now.Date);
+                var chart = await _unitOfWork.UserWorkLogRepository.GetChartDataAsync(userId, from, to, timeRange);
+
+                var result =  new EmployeeProductivityResponse
+                {
+                    TasksCompleted = completed,
+                    HoursWorked = hours,
+                    SkillScore = skill,
+                    AiReportsSubmitted = aiReports,
+                    TasksPendingToday = pendingToday,
+                    ChartData = new ProductivityChart { Tasks = chart }
+                };
+                if(result != null)
+                {
+                    return new BusinessResult(200, "Get Employee Productivity Success", result);
+                }
+                return new BusinessResult(400, "Get Employee Productivity Failed");
+            }
+            catch (Exception ex)
+            {
+
+                return new BusinessResult(Const.ERROR_EXCEPTION, Const.ERROR_MESSAGE);
+            }
+        }
     }
 }
