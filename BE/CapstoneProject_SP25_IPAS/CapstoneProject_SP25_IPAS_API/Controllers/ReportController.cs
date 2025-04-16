@@ -29,7 +29,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
         [HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)}")]
         [CheckUserFarmAccess]
         //[FarmExpired]
-        public async Task<IActionResult> CropCareReport([FromQuery]int landPlotId, [FromQuery] int year)
+        public async Task<IActionResult> CropCareReport([FromQuery] int landPlotId, [FromQuery] int year)
         {
             try
             {
@@ -57,7 +57,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             {
                 if (!farmId.HasValue)
                     farmId = _jwtTokenService.GetFarmIdFromToken() ?? 0;
-                var result = await _reportService.Dashboard(year,month,farmId);
+                var result = await _reportService.Dashboard(year, month, farmId);
                 return Ok(result);
             }
             catch (Exception ex)
@@ -228,7 +228,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
                 if (!farmId.HasValue)
                     farmId = _jwtTokenService.GetFarmIdFromToken() ?? 0;
 
-               
+
                 var result = await _reportService.StatisticPlan(month, year, farmId);
                 return Ok(result);
             }
@@ -299,6 +299,74 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             }
         }
 
+
+        [HttpGet(APIRoutes.Report.AdminReport, Name = "AdminReport")]
+        //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)}")]
+        public async Task<IActionResult> AdminReport([FromQuery]GetAdminDashBoardRequest request)
+        {
+            try
+            {
+                var result = await _reportService.AdminDashBoard(request);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                var response = new BaseResponse()
+                {
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    Message = ex.Message
+                };
+                return BadRequest(response);
+            }
+        }
+
+        [HttpGet(APIRoutes.Report.EmployeeTodayTask, Name = "EmployeeTodayTask")]
+        //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)}")]
+        //[CheckUserFarmAccess]
+        //[FarmExpired]
+        public async Task<IActionResult> EmployeeTodayTask([FromQuery] int? userId)
+        {
+            try
+            {
+                if (!userId.HasValue)
+                    userId = _jwtTokenService.GetUserIdFromToken() ?? 0;
+                var result = await _reportService.EmployeeTodayTask(userId.Value);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                var response = new BaseResponse()
+                {
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    Message = ex.Message
+                };
+                return BadRequest(response);
+            }
+        }
+
+        [HttpGet(APIRoutes.Report.EmployeeProductivity, Name = "EmployeeProductivity")]
+        //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)}")]
+        //[CheckUserFarmAccess]
+        //[FarmExpired]
+        public async Task<IActionResult> EmployeeProductivity([FromQuery] int? userId, [FromQuery] string? timeRange)
+        {
+            try
+            {
+                if (!userId.HasValue)
+                    userId = _jwtTokenService.GetUserIdFromToken() ?? 0;
+                var result = await _reportService.EmployeeProductivity(userId.Value, timeRange);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                var response = new BaseResponse()
+                {
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    Message = ex.Message
+                };
+                return BadRequest(response);
+            }
+        }
     }
 
 }

@@ -50,7 +50,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     // Khởi tạo đối tượng PlantGrowthHistory
                     var plantGrowthHistoryEntity = new PlantGrowthHistory()
                     {
-                        PlantGrowthHistoryCode = $"{CodeAliasEntityConst.PLANT_GROWTH_HISTORY}{CodeHelper.GenerateCode()}-{DateTime.Now.ToString("ddMMyy")}-{Util.SplitByComma(checkPlantExist.PlantCode!).First().ToUpper()}",
+                        PlantGrowthHistoryCode = $"{CodeAliasEntityConst.PLANT_GROWTH_HISTORY}{CodeHelper.GenerateCode()}-{DateTime.Now.ToString("ddMMyy")}-{Util.SplitByDash(checkPlantExist.PlantCode!).First().ToUpper()}",
                         Content = historyCreateRequest.Content,
                         //NoteTaker = historyCreateRequest.NoteTaker,
                         PlantId = historyCreateRequest.PlantId,
