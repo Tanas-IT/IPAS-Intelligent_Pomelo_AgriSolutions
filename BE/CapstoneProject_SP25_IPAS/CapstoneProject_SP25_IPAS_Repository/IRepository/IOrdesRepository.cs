@@ -8,5 +8,7 @@ namespace CapstoneProject_SP25_IPAS_Repository.IRepository
 {
     public interface IOrdesRepository
     {
+        public Task<double> GetTotalRevenueAsync();
+
     }
 }
