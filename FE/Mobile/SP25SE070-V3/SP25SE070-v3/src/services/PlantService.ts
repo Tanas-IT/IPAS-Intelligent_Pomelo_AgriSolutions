@@ -4,8 +4,10 @@ import {
   GetData,
   GetPlantDetail,
   GetPlantGrowthHistory,
+  GetPlantRecord,
   PlantGrowthHistoryRequest,
 } from "@/payloads";
+import { AvailableHarvest, CreateHarvestRecordRequest, HarvestRecord } from "@/types/harvest";
 
 export const getPlant = async (
   plantId: number
@@ -62,6 +64,8 @@ export const createPlantGrowthHistory = async (
       );
     });
   }
+  console.log("payload add gr his", formData);
+  
 
   const res = await axiosAuth.axiosMultipartNoErrorHandler.post(
     "plant-growth-history",
@@ -69,4 +73,57 @@ export const createPlantGrowthHistory = async (
   );
   const apiResponse = res.data as ApiResponse<Object>;
   return apiResponse;
+};
+
+export const deletePlantGrowthHistory = async (id: number): Promise<ApiResponse<Object>> => {
+  const res = await axiosAuth.axiosJsonRequest.delete(`plant-growth-history/${id}`);
+  const apiResponse = res.data as ApiResponse<Object>;
+  return apiResponse;
+};
+
+export const getPlantRecordHarvest = async (
+  plantId: number,
+  pageSize: number,
+  pageIndex: number,
+  dateHarvestFrom?: string,
+  dateHarvestTo?: string,
+  productIds?: number,
+  totalQuantityFrom?: number | null,
+  totalQuantityTo?: number | null,
+): Promise<ApiResponse<GetData<HarvestRecord>>> => {
+  const res = await axiosAuth.axiosJsonRequest.get("harvests/plants/record", {
+    params: {
+      plantId,
+      pageSize,
+      pageIndex,
+      dateHarvestFrom,
+      dateHarvestTo,
+      productIds,
+      totalQuantityFrom: totalQuantityFrom ?? undefined,
+      totalQuantityTo: totalQuantityTo ?? undefined,
+    },
+  });
+  const apiResponse = res.data as ApiResponse<GetData<HarvestRecord>>;
+  return apiResponse;
+};
+
+export const getAvailableHarvestsForPlant = async ( plantId: number ): Promise<ApiResponse<AvailableHarvest[]>> => {
+  const res = await axiosAuth.axiosJsonNoErrorHandler.get(`harvests/plants/can-harvert?PlantId=${plantId}`);
+  return res.data as ApiResponse<AvailableHarvest[]>;
+};
+
+export const createPlantHarvestRecord = async (
+  data: CreateHarvestRecordRequest
+): Promise<ApiResponse<null>> => {
+  try {
+    const res = await axiosAuth.axiosJsonRequest.post("harvests/plants/record", data);
+    return res.data as ApiResponse<null>;
+  } catch (error: any) {
+    console.error("record error:", {
+      message: error.message,
+      status: error.response?.status,
+      data: error.response?.data,
+    });
+    throw error;
+  }
 };

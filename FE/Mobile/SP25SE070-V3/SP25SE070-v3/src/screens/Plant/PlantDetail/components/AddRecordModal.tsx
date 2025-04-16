@@ -1,37 +1,36 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Modal,
   TouchableOpacity,
-  StyleSheet,
   TextInput,
   TouchableWithoutFeedback,
   Keyboard,
+  StyleSheet,
 } from "react-native";
 import { Controller, useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
-
 import {
   CreateHarvestRecordRequest,
-  MasterTypeOption,
-  HarvestHistoryOption,
+  AvailableHarvest,
+  ProductHarvest,
 } from "@/types/harvest";
 import { harvestRecordSchema } from "@/validations/harvestSchema";
-import theme from "@/theme";
 import { CustomDropdown, CustomIcon, TextCustom } from "@/components";
+import { PlantService } from "@/services";
+import theme from "@/theme";
+import { useAuthStore } from "@/store";
 
 interface AddRecordModalProps {
   visible: boolean;
   onClose: () => void;
   onSubmit: (data: CreateHarvestRecordRequest) => void;
-  masterTypeOptions: MasterTypeOption[];
-  harvestHistoryOptions: HarvestHistoryOption[];
   plantId: number;
 }
 
 interface FormData {
-  masterTypeId: number;
   harvestHistoryId: number;
+  masterTypeId: number;
   quantity: number;
 }
 
@@ -39,36 +38,86 @@ const AddRecordModal: React.FC<AddRecordModalProps> = ({
   visible,
   onClose,
   onSubmit,
-  masterTypeOptions,
-  harvestHistoryOptions,
   plantId,
 }) => {
+  const {userId} = useAuthStore();
   const [modalVisible, setModalVisible] = useState<string | null>(null);
-
+  const [availableHarvests, setAvailableHarvests] = useState<AvailableHarvest[]>([]);
+  const [productOptions, setProductOptions] = useState<
+    { id: number; name: string }[]
+  >([]);
   const {
     control,
     handleSubmit,
     formState: { errors },
     reset,
+    watch,
+    setValue,
   } = useForm<FormData>({
     resolver: yupResolver(harvestRecordSchema),
     defaultValues: {
-      masterTypeId: 0,
       harvestHistoryId: 0,
+      masterTypeId: 0,
       quantity: 0,
     },
   });
 
+  const selectedHarvestId = watch("harvestHistoryId");
+
+  useEffect(() => {
+    if (visible) {
+      const fetchHarvests = async () => {
+        try {
+          const response = await PlantService.getAvailableHarvestsForPlant(plantId);
+          setAvailableHarvests(response.data);
+        } catch (error) {
+          console.error("Fetch harvests error:", error);
+        }
+      };
+      fetchHarvests();
+    }
+  }, [visible, plantId]);
+
+  useEffect(() => {
+    if (selectedHarvestId) {
+      const selectedHarvest = availableHarvests.find(
+        (h) => h.harvestHistoryId === selectedHarvestId
+      );
+      if (selectedHarvest) {
+        const products = selectedHarvest.productHarvestHistory.map((p) => ({
+          id: p.masterTypeId,
+          name: p.productName,
+        }));
+        setProductOptions(products);
+        setValue("masterTypeId", 0);
+      } else {
+        setProductOptions([]);
+      }
+    } else {
+      setProductOptions([]);
+    }
+  }, [selectedHarvestId, availableHarvests, setValue]);
+
   const handleFormSubmit = (data: FormData) => {
     const recordData: CreateHarvestRecordRequest = {
       masterTypeId: data.masterTypeId,
-      plantId,
-      quantity: data.quantity,
       harvestHistoryId: data.harvestHistoryId,
+      userId: Number(userId) || 1,
+      plantHarvestRecords: [
+        {
+          plantId,
+          quantity: data.quantity,
+        },
+      ],
     };
     onSubmit(recordData);
     reset();
   };
+
+  const harvestOptions = availableHarvests.map((h) => ({
+    id: h.harvestHistoryId,
+    code: h.harvestHistoryCode,
+  }));
 
   return (
     <Modal visible={visible} transparent animationType="fade">
@@ -91,24 +140,11 @@ const AddRecordModal: React.FC<AddRecordModalProps> = ({
 
             <View style={styles.form}>
               <CustomDropdown
-                label="Product Type"
-                name="masterTypeId"
-                control={control}
-                errors={errors}
-                options={masterTypeOptions}
-                valueKey="id"
-                displayKey="name"
-                placeholder="Select Product Type"
-                modalVisible={modalVisible}
-                setModalVisible={setModalVisible}
-                modalKey="product"
-              />
-              <CustomDropdown
                 label="Harvest Session"
                 name="harvestHistoryId"
                 control={control}
                 errors={errors}
-                options={harvestHistoryOptions}
+                options={harvestOptions}
                 valueKey="id"
                 displayKey="code"
                 placeholder="Select Harvest Session"
@@ -116,7 +152,20 @@ const AddRecordModal: React.FC<AddRecordModalProps> = ({
                 setModalVisible={setModalVisible}
                 modalKey="harvest"
               />
-
+              <CustomDropdown
+                label="Product Type"
+                name="masterTypeId"
+                control={control}
+                errors={errors}
+                options={productOptions}
+                valueKey="id"
+                displayKey="name"
+                placeholder="Select Product Type"
+                modalVisible={modalVisible}
+                setModalVisible={setModalVisible}
+                modalKey="product"
+                disabled={!selectedHarvestId} // Vô hiệu hóa nếu chưa chọn harvest
+              />
               <TextCustom style={styles.label}>
                 Quantity <TextCustom style={{ color: "red" }}>*</TextCustom>
               </TextCustom>

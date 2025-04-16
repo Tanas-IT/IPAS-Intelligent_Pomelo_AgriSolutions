@@ -36,7 +36,8 @@ export interface WorklogNoteFormData {
   workLogId?: number;
   note: string;
   issue?: string;
-  resources?: ResourceItem[];
+  // resources?: ResourceItem[];
+  resources?: { uri: string; type: string; name: string }[];
 }
 
 export interface GetWorklogByStatus {

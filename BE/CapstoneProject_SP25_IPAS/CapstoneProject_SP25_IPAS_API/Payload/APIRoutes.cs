@@ -423,6 +423,7 @@ namespace CapstoneProject_SP25_IPAS_API.Payload
             public const string StatisticPlan = prefix + "/dashboard/statistic-plan";
             public const string WorkPerformance = prefix + "/dashboard/work-performance";
             public const string CompareWorkPerformance = prefix + "/dashboard/compare-work-performance";
+            public const string AdminReport = prefix + "/admin/dashboard/";
         }
 
         public static class TaskFeedback

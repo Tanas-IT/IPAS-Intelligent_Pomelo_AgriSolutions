@@ -12,8 +12,10 @@ import { styles } from "./EmployeeHomeScreen.styles";
 import { AvatarList } from "../components/AvatarList";
 import { StatusBadge, TextCustom } from "@/components";
 import { formatTime } from "@/utils";
+import { useAuthStore } from "@/store";
 
 const EmployeeHomeScreen = () => {
+  const { fullName } = useAuthStore();
   const navigation = useNavigation<RootStackNavigationProp>();
   // fake data
   const upcomingTasks: GetWorklogByStatus[] = [
@@ -126,7 +128,7 @@ const EmployeeHomeScreen = () => {
         style={styles.header}
       >
         <View style={styles.headerContainer}>
-          <TextCustom style={styles.headerUserText}>Laggg</TextCustom>
+          <TextCustom style={styles.headerUserText}>{fullName}</TextCustom>
           <TextCustom style={styles.headerText}>Welcome Back!</TextCustom>
         </View>
         <TextCustom style={styles.subHeaderText}>

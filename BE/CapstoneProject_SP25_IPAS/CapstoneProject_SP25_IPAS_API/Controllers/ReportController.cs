@@ -29,7 +29,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
         [HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)}")]
         [CheckUserFarmAccess]
         //[FarmExpired]
-        public async Task<IActionResult> CropCareReport([FromQuery]int landPlotId, [FromQuery] int year)
+        public async Task<IActionResult> CropCareReport([FromQuery] int landPlotId, [FromQuery] int year)
         {
             try
             {
@@ -57,7 +57,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             {
                 if (!farmId.HasValue)
                     farmId = _jwtTokenService.GetFarmIdFromToken() ?? 0;
-                var result = await _reportService.Dashboard(year,month,farmId);
+                var result = await _reportService.Dashboard(year, month, farmId);
                 return Ok(result);
             }
             catch (Exception ex)
@@ -228,7 +228,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
                 if (!farmId.HasValue)
                     farmId = _jwtTokenService.GetFarmIdFromToken() ?? 0;
 
-               
+
                 var result = await _reportService.StatisticPlan(month, year, farmId);
                 return Ok(result);
             }
@@ -299,6 +299,26 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             }
         }
 
+
+        [HttpPost(APIRoutes.Report.AdminReport, Name = "AdminReport")]
+        //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)}")]
+        public async Task<IActionResult> AdminReport([FromQuery]GetAdminDashBoardRequest request)
+        {
+            try
+            {
+                var result = await _reportService.AdminDashBoard(request);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                var response = new BaseResponse()
+                {
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    Message = ex.Message
+                };
+                return BadRequest(response);
+            }
+        }
     }
 
 }
