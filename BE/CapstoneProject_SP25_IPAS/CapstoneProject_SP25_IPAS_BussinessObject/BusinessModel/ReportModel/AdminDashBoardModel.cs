@@ -41,7 +41,6 @@ namespace CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.ReportModel
     {
         public double? TotalRevenueYear { get; set; }
         public int? Year { get; set; }
-
         public List<RevenueMonth>? revenueMonths { get; set; } = new();
     }
 
