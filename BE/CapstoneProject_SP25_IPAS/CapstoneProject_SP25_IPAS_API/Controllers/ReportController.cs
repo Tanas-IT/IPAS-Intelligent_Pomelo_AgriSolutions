@@ -319,6 +319,54 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
                 return BadRequest(response);
             }
         }
+
+        [HttpGet(APIRoutes.Report.EmployeeTodayTask, Name = "EmployeeTodayTask")]
+        //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)}")]
+        //[CheckUserFarmAccess]
+        //[FarmExpired]
+        public async Task<IActionResult> EmployeeTodayTask([FromQuery] int? userId)
+        {
+            try
+            {
+                if (!userId.HasValue)
+                    userId = _jwtTokenService.GetUserIdFromToken() ?? 0;
+                var result = await _reportService.EmployeeTodayTask(userId.Value);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                var response = new BaseResponse()
+                {
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    Message = ex.Message
+                };
+                return BadRequest(response);
+            }
+        }
+
+        [HttpGet(APIRoutes.Report.EmployeeProductivity, Name = "EmployeeProductivity")]
+        //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)}")]
+        //[CheckUserFarmAccess]
+        //[FarmExpired]
+        public async Task<IActionResult> EmployeeProductivity([FromQuery] int? userId, [FromQuery] string? timeRange)
+        {
+            try
+            {
+                if (!userId.HasValue)
+                    userId = _jwtTokenService.GetUserIdFromToken() ?? 0;
+                var result = await _reportService.EmployeeProductivity(userId.Value, timeRange);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                var response = new BaseResponse()
+                {
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    Message = ex.Message
+                };
+                return BadRequest(response);
+            }
+        }
     }
 
 }

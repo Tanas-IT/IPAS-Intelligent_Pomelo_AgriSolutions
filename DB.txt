@@ -2138,6 +2138,7 @@ VALUES
 ('WorkLog', 'Received', 'Received', 'string', N'Tr?ng thái c?a employee khi làm workLog'),
 ('WorkLog', 'Replaced', 'Replaced', 'string', N'Tr?ng thái c?a employee khi làm workLog thay ngu?i khác'),
 ('WorkLog', 'BeReplaced', 'BeReplaced', 'string', N'Tr?ng thái c?a employee khi không b?n mà b? thay b?i employee khác'),
+('WorkLog', 'TimeToTakeAttendance', '120', 'double', N'Thời gian điểm danh'),
 ('WorkLog For Manager', 'Failed', 'Failed', 'string', N'Tr?ng thái c?a worklog khi th?c hi?n công vi?c th?t b?i'),
 ('AI', 'PredictPercent', '0.75', 'double', N'T? l? ph?n tram chính xác');
 -- Insert WorkLog

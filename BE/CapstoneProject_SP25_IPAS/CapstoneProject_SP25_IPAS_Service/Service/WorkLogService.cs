@@ -2502,7 +2502,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             try
             {
                 var timeToTakeAttendance = await _unitOfWork.SystemConfigRepository
-                                        .GetConfigValue(SystemConfigConst.TIME_TO_TAKE_ATTEDANCE.Trim(), (double)15);
+                                        .GetConfigValue(SystemConfigConst.TIME_TO_TAKE_ATTEDANCE.Trim(), (double)120);
                 var getWorkLog = await _unitOfWork.WorkLogRepository.GetByID(workLogId);
                 var workStart = getWorkLog.Date.Value.Date + getWorkLog.ActualStartTime.Value;
 

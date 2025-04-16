@@ -27,6 +27,7 @@ using CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.SystemModels;
 using CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.ReportOfUserModels;
 using CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.CarePlanScheduleModels;
 using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.AuthensRequest;
+using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.ReportModel;
 
 namespace CapstoneProject_SP25_IPAS_Service.Mapping
 {
@@ -644,6 +645,12 @@ namespace CapstoneProject_SP25_IPAS_Service.Mapping
                .ForMember(dest => dest.Code, opt => opt.MapFrom(src => src.FarmCode))
                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.FarmName))
                 .ReverseMap();
+
+            CreateMap<UserWorkLog, EmployeeTodayTask>()
+              .ForMember(dest => dest.WorkLogId, opt => opt.MapFrom(src => src.WorkLogId))
+              .ForMember(dest => dest.WorkLogName, opt => opt.MapFrom(src => src.WorkLog.WorkLogName))
+              .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.WorkLog.Status))
+               .ReverseMap();
         }
     }
 }

@@ -1,10 +1,12 @@
 ﻿using CapstoneProject_SP25_IPAS_BussinessObject.Entities;
+using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.ReportModel;
 using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.WorkLogRequest;
 using CapstoneProject_SP25_IPAS_Repository.IRepository;
 using CloudinaryDotNet;
 using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.Linq;
 using System.Linq.Expressions;
 using System.Numerics;
@@ -154,6 +156,115 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
                             .Where(x => x.UserId == userId && x.WorkLog.Date != null && x.WorkLog.Date > DateTime.Now)
                             .ToListAsync();
             return result;
+        }
+
+        public async Task<List<UserWorkLog>> GetEmployeeToDayTask(int userId)
+        {
+            var result = await _context.UserWorkLogs
+                .Include(x => x.WorkLog)
+                .Where(x => x.UserId == userId && x.WorkLog.Date != null && x.WorkLog.Date.Value.Date == DateTime.Now.Date)
+                .ToListAsync();
+            return result;
+        }
+
+        public async Task<int> GetTasksCompletedAsync(int userId, string status, DateTime from, DateTime to)
+        {
+            return await _context.UserWorkLogs
+                .Include(x => x.WorkLog)
+                .Where(x => x.UserId == userId && x.WorkLog.Status == status && x.WorkLog.Date != null && x.WorkLog.Date.Value.Date >= from.Date && x.WorkLog.Date <= to.Date)
+                .CountAsync();
+        }
+
+        public async Task<double> GetHoursWorkedAsync(int userId, DateTime from, DateTime to)
+        {
+            return await _context.UserWorkLogs
+                .Include(x => x.WorkLog)
+                .Where(x => x.UserId == userId && x.WorkLog.ActualStartTime != null && x.WorkLog.ActualEndTime != null && x.WorkLog.Date != null && x.WorkLog.Date.Value.Date >= from.Date && x.WorkLog.Date.Value.Date <= to.Date)
+                .SumAsync(x => EF.Functions.DateDiffMinute(x.WorkLog.ActualStartTime.Value, x.WorkLog.ActualEndTime.Value) / 60.0);
+        }
+
+        public async Task<int> GetSkillScoreAsync(int userId, string status)
+        {
+            var totalTasks = await _context.UserWorkLogs.Include(x => x.WorkLog)
+                                .Where(x => x.UserId == userId)
+                                .CountAsync();
+
+            if (totalTasks == 0)
+                return 0;
+
+            var completedTasks = await _context.UserWorkLogs.Include(x => x.WorkLog)
+                .Where(x => x.UserId == userId && x.WorkLog.Status == status)
+                .CountAsync();
+
+            var score = (double)completedTasks / totalTasks * 100;
+            return (int)Math.Round(score);
+        }
+
+        public async Task<int> GetAiReportsSubmittedAsync(int userId, DateTime from, DateTime to)
+        {
+            return await _context.Reports
+                .Where(r => r.QuestionerID == userId && r.CreatedDate != null && r.CreatedDate.Value.Date >= from.Date && r.CreatedDate.Value.Date <= to.Date)
+                .CountAsync();
+        }
+
+        public async Task<int> GetPendingTasksTodayAsync(int userId, string status, DateTime today)
+        {
+            return await _context.UserWorkLogs
+                .Include(x => x.WorkLog)
+                .Where(w => w.UserId == userId && w.WorkLog.Date != null && w.WorkLog.Date.Value.Date == today.Date && w.WorkLog.Status != status)
+                .CountAsync();
+        }
+
+        public async Task<List<ProductivityChartItem>> GetChartDataAsync(int userId, DateTime from, DateTime to, string timeRange)
+        {
+            if (timeRange == "month")
+            {
+                var data = await _context.UserWorkLogs.Include(x => x.WorkLog)
+                    .Where(x => x.UserId == userId && x.WorkLog.Date != null && x.WorkLog.Date.Value.Date >= from.Date && x.WorkLog.Date.Value.Date <= to.Date)
+                    .ToListAsync();
+
+                 var grouped = data
+                                  .GroupBy(x =>
+                                  {
+                                      var day = x.WorkLog.Date.Value.Day;
+                                      if (day <= 7) return 1;
+                                      else if (day <= 14) return 2;
+                                      else if (day <= 21) return 3;
+                                      else if (day <= 31) return 4;
+                                      else return 5;
+                                  })
+                                  .Select(g => new
+                                  {
+                                      WeekNumber = g.Key,
+                                      Item = new ProductivityChartItem
+                                      {
+                                          Label = $"Week {g.Key}",
+                                          Count = g.Count()
+                                      }
+                                  })
+                                  .OrderBy(x => x.WeekNumber)
+                                  .Select(x => x.Item)
+                                  .ToList();
+
+                return grouped;
+            }
+            else
+            {
+                var data = await _context.UserWorkLogs.Include(x => x.WorkLog)
+                    .Where(x => x.UserId == userId && x.WorkLog.Date != null && x.WorkLog.Date.Value.Date >= from.Date && x.WorkLog.Date.Value.Date <= to.Date)
+                    .ToListAsync();
+
+                var grouped = data
+                    .GroupBy(x => x.WorkLog.Date.Value)
+                    .Select(g => new ProductivityChartItem
+                    {
+                        Label = g.Key.ToString("dd/MM"),
+                        Count = g.Count()
+                    })
+                    .ToList();
+
+                return grouped;
+            }
         }
     }
 }
