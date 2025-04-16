@@ -824,23 +824,57 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             }
         }
 
+        //private async Task<StatisticRevenueYear> GetStatisticRevenueYearAsync(int? year)
+        //{
+        //    //if (!year.HasValue)
+        //    //    year = DateTime.Now.Year;
+
+        //    var revenue = await _unitOfWork.OrdersRepository.GetAllNoPaging(o =>
+        //    o.OrderDate.HasValue && o.OrderDate.Value.Year == year && o.TotalPrice.HasValue && o.Status!.ToLower().Equals(OrderStatusEnum.Paid.ToString().ToLower()));
+
+        //    var revenueData = revenue
+        //    .GroupBy(o => o.OrderDate.Value.Month)
+        //    .Select(g => new RevenueMonth
+        //    {
+        //        Year = year,
+        //        Month = g.Key,
+        //        TotalRevenue = g.Sum(x => x.TotalPrice) ?? 0
+        //    })
+        //    .ToList();
+
+        //    return new StatisticRevenueYear
+        //    {
+        //        TotalRevenueYear = revenueData.Sum(x => x.TotalRevenue),
+        //        Year = year,
+        //        revenueMonths = revenueData
+        //    };
+        //}
+
         private async Task<StatisticRevenueYear> GetStatisticRevenueYearAsync(int? year)
         {
-            //if (!year.HasValue)
-            //    year = DateTime.Now.Year;
+            if (!year.HasValue)
+                year = DateTime.Now.Year;
 
+            // Lấy dữ liệu đơn hàng đã thanh toán trong năm
             var revenue = await _unitOfWork.OrdersRepository.GetAllNoPaging(o =>
-            o.OrderDate.HasValue && o.OrderDate.Value.Year == year && o.TotalPrice.HasValue && o.Status!.ToLower().Equals(OrderStatusEnum.Paid.ToString().ToLower()));
+                o.OrderDate.HasValue &&
+                o.OrderDate.Value.Year == year &&
+                o.TotalPrice.HasValue &&
+                o.Status!.ToLower() == OrderStatusEnum.Paid.ToString().ToLower()
+            );
 
-            var revenueData = revenue
-            .GroupBy(o => o.OrderDate.Value.Month)
-            .Select(g => new RevenueMonth
+            // Gom nhóm theo tháng có dữ liệu
+            var revenueGrouped = revenue
+                .GroupBy(o => o.OrderDate.Value.Month)
+                .ToDictionary(g => g.Key, g => g.Sum(x => x.TotalPrice ?? 0));
+
+            // Tạo đủ 12 tháng
+            var revenueData = Enumerable.Range(1, 12).Select(month => new RevenueMonth
             {
                 Year = year,
-                Month = g.Key,
-                TotalRevenue = g.Sum(x => x.TotalPrice) ?? 0
-            })
-            .ToList();
+                Month = month,
+                TotalRevenue = revenueGrouped.ContainsKey(month) ? revenueGrouped[month] : 0
+            }).ToList();
 
             return new StatisticRevenueYear
             {
@@ -850,19 +884,49 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             };
         }
 
+        //private async Task<StatisticFarmYear> GetStatisticFarmYearAsync(int? year)
+        //{
+
+        //    var farms = await _unitOfWork.FarmRepository.GetAllNoPaging(f => f.CreateDate.HasValue && f.CreateDate.Value.Year == year && f.IsDeleted == false);
+        //    var farmData = farms
+        //        .GroupBy(f => f.CreateDate.Value.Month)
+        //        .Select(g => new RevenueMonth
+        //        {
+        //            Year = year,
+        //            Month = g.Key,
+        //            TotalRevenue = g.Count()
+        //        })
+        //        .ToList();
+
+        //    return new StatisticFarmYear
+        //    {
+        //        TotalRevenueYear = farmData.Sum(x => x.TotalRevenue),
+        //        Year = year,
+        //        revenueMonths = farmData
+        //    };
+        //}
+
         private async Task<StatisticFarmYear> GetStatisticFarmYearAsync(int? year)
         {
+            if (!year.HasValue)
+                year = DateTime.Now.Year;
 
-            var farms = await _unitOfWork.FarmRepository.GetAllNoPaging(f => f.CreateDate.HasValue && f.CreateDate.Value.Year == year && f.IsDeleted == false);
-            var farmData = farms
+            var farms = await _unitOfWork.FarmRepository.GetAllNoPaging(f =>
+                f.CreateDate.HasValue &&
+                f.CreateDate.Value.Year == year &&
+                f.IsDeleted == false
+            );
+
+            var farmGrouped = farms
                 .GroupBy(f => f.CreateDate.Value.Month)
-                .Select(g => new RevenueMonth
-                {
-                    Year = year,
-                    Month = g.Key,
-                    TotalRevenue = g.Count()
-                })
-                .ToList();
+                .ToDictionary(g => g.Key, g => g.Count());
+
+            var farmData = Enumerable.Range(1, 12).Select(month => new RevenueMonth
+            {
+                Year = year,
+                Month = month,
+                TotalRevenue = farmGrouped.ContainsKey(month) ? farmGrouped[month] : 0
+            }).ToList();
 
             return new StatisticFarmYear
             {
