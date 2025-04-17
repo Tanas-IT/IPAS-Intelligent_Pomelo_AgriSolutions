@@ -2575,7 +2575,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 }
                 if (endTime <= startTime)
                 {
-                    throw new Exception("EndTime must be greater than startTime);
+                    throw new Exception("EndTime must be greater than startTime");
                 }
                 await _unitOfWork.WorkLogRepository.CheckWorkLogAvailabilityWhenAddPlan(
                                                                       startTime,
