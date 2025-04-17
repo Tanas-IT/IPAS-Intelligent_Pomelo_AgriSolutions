@@ -395,7 +395,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             }
         }
 
-        public async Task<BusinessResult> getAllGraftedByPlantPagin(GetGraftedByPlantRequest getRequest, PaginationParameter paginationParameter)
+        public async Task<BusinessResult> getAllGraftedByPlantSumary(GetGraftedByPlantRequest getRequest, PaginationParameter paginationParameter)
         {
             try
             {
@@ -1262,6 +1262,112 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             catch (Exception ex)
             {
                 return new BusinessResult(Const.ERROR_EXCEPTION, Const.ERROR_MESSAGE);
+            }
+        }
+
+        public async Task<BusinessResult> getGraftedByPlant(GetGraftedByPlantRequest getRequest, PaginationParameter paginationParameter)
+        {
+            try
+            {
+                var checkFarmExist = await _unitOfWork.PlantRepository.GetByID(getRequest.PlantId!);
+                if (checkFarmExist == null)
+                    return new BusinessResult(Const.WARNING_GET_FARM_NOT_EXIST_CODE, Const.WARNING_GET_PLANTS_NOT_EXIST_MSG);
+
+                Expression<Func<GraftedPlant, bool>> filter = x => !x.IsDeleted!.Value && x.MotherPlantId == getRequest.PlantId && x.Plant!.IsDeleted == false;
+
+                if (getRequest.GraftedDateFrom.HasValue && getRequest.GraftedDateTo.HasValue)
+                {
+                    if (getRequest.GraftedDateFrom > getRequest.GraftedDateTo)
+                        return new BusinessResult(Const.WARNING_INVALID_DATE_FILTER_CODE, Const.WARNING_INVALID_DATE_FILTER_MSG);
+
+                    filter = filter.And(x => x.GraftedDate >= getRequest.GraftedDateFrom && x.GraftedDate <= getRequest.GraftedDateTo);
+                }
+
+                Func<IQueryable<GraftedPlant>, IOrderedQueryable<GraftedPlant>> orderBy = x => x.OrderByDescending(x => x.GraftedPlantId);
+
+                if (!string.IsNullOrEmpty(paginationParameter.SortBy))
+                {
+                    switch (paginationParameter.SortBy.ToLower())
+                    {
+                        case "graftedplantid":
+                            orderBy = paginationParameter.Direction!.ToLower() == "desc"
+                                ? x => x.OrderByDescending(x => x.GraftedPlantId)
+                                : x => x.OrderBy(x => x.GraftedPlantId);
+                            break;
+                        case "graftedplantcode":
+                            orderBy = paginationParameter.Direction!.ToLower() == "desc"
+                                ? x => x.OrderByDescending(x => x.GraftedDate)
+                                : x => x.OrderBy(x => x.GraftedDate);
+                            break;
+                        case "grafteddate":
+                            orderBy = paginationParameter.Direction!.ToLower() == "desc"
+                                ? x => x.OrderByDescending(x => x.GraftedDate)
+                                : x => x.OrderBy(x => x.GraftedDate);
+                            break;
+                        //case "growthstage":
+                        //    orderBy = paginationParameter.Direction!.ToLower() == "desc"
+                        //        ? x => x.OrderByDescending(x => x.GrowthStage)
+                        //        : x => x.OrderBy(x => x.GrowthStage);
+                        //    break;
+                        case "status":
+                            orderBy = paginationParameter.Direction!.ToLower() == "desc"
+                                ? x => x.OrderByDescending(x => x.Status)
+                                : x => x.OrderBy(x => x.Status);
+                            break;
+                        case "plantlotid":
+                            orderBy = paginationParameter.Direction!.ToLower() == "desc"
+                                ? x => x.OrderByDescending(x => x.PlantLotId)
+                                : x => x.OrderBy(x => x.PlantLotId);
+                            break;
+                        case "plantlotname":
+                            orderBy = paginationParameter.Direction!.ToLower() == "desc"
+                                ? x => x.OrderByDescending(x => x.PlantLot!.PlantLotName)
+                                : x => x.OrderBy(x => x.PlantLot!.PlantLotName);
+                            break;
+                        case "iscompleted":
+                            orderBy = paginationParameter.Direction!.ToLower() == "desc"
+                                ? x => x.OrderByDescending(x => x.IsCompleted)
+                                : x => x.OrderBy(x => x.IsCompleted);
+                            break;
+                        case "plantid":
+                            orderBy = paginationParameter.Direction!.ToLower() == "desc"
+                                ? x => x.OrderByDescending(x => x.MotherPlantId)
+                                : x => x.OrderBy(x => x.MotherPlantId);
+                            break;
+                        case "cultivarid":
+                            orderBy = paginationParameter.Direction!.ToLower() == "desc"
+                                ? x => x.OrderByDescending(x => x.Plant!.MasterTypeId)
+                                : x => x.OrderBy(x => x.PlantLotId);
+                            break;
+                        case "cultivarname":
+                            orderBy = paginationParameter.Direction!.ToLower() == "desc"
+                                ? x => x.OrderByDescending(x => x.Plant!.MasterType!.MasterTypeName)
+                                : x => x.OrderBy(x => x.PlantLotId);
+                            break;
+                        default:
+                            orderBy = x => x.OrderBy(x => x.GraftedPlantId);
+                            break;
+                    }
+                }
+                //string includeProperties = "PlantLot,Plant";
+                var entities = await _unitOfWork.GraftedPlantRepository.Get(
+                    filter, orderBy, /*includeProperties,*/ paginationParameter.PageIndex, paginationParameter.PageSize);
+
+                var pagin = new PageEntity<GraftedPlantModels>
+                {
+                    List = _mapper.Map<IEnumerable<GraftedPlantModels>>(entities).ToList(),
+                    TotalRecord = await _unitOfWork.GraftedPlantRepository.Count(filter),
+                    TotalPage = PaginHelper.PageCount(await _unitOfWork.GraftedPlantRepository.Count(filter), paginationParameter.PageSize)
+                };
+
+                if (pagin.List.Any())
+                    return new BusinessResult(Const.SUCCESS_GET_GRAFTED_PLANT_CODE, Const.SUCCESS_GET_GRAFTED_OF_PLANT_MSG, pagin);
+                else
+                    return new BusinessResult(Const.SUCCESS_GET_GRAFTED_PLANT_CODE, Const.WARNING_GET_GRAFTED_EMPTY_MSG, new PageEntity<GraftedPlantModels>());
+            }
+            catch (Exception ex)
+            {
+                return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
             }
         }
 
