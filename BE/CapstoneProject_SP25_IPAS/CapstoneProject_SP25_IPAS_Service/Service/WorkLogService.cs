@@ -339,6 +339,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                       .GetConfigValue(SystemConfigConst.NOT_STARTED.Trim(), "Not Started");
                 var getStatusInProgress = await _unitOfWork.SystemConfigRepository
                                        .GetConfigValue(SystemConfigConst.IN_PROGRESS.Trim(), "In Progress");
+                var getStatusOverdue = await _unitOfWork.SystemConfigRepository
+                                       .GetConfigValue(SystemConfigConst.OVERDUE.Trim(), "Overdue");
                 if (getDetailWorkLog.Date != null)
                 {
                     if (getDetailWorkLog.Date.Value.Date == DateTime.Now.Date)
@@ -348,6 +350,12 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                             if (getDetailWorkLog.ActualStartTime <= DateTime.Now.TimeOfDay)
                             {
                                 getDetailWorkLog.Status = getStatusInProgress;
+                                _unitOfWork.WorkLogRepository.Update(getDetailWorkLog);
+                                await _unitOfWork.SaveAsync();
+                            }
+                            if (getDetailWorkLog.ActualEndTime <= DateTime.Now.TimeOfDay)
+                            {
+                                getDetailWorkLog.Status = getStatusOverdue;
                                 _unitOfWork.WorkLogRepository.Update(getDetailWorkLog);
                                 await _unitOfWork.SaveAsync();
                             }
