@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -11,11 +11,31 @@ import { styles } from "./GraftedPlantsTab.styles";
 import { CustomIcon, TextCustom } from "@/components";
 import { GetPlantDetail } from "@/payloads";
 import { PlantDetailData } from "@/types";
+import { usePlantStore } from "@/store";
+import { PlantService } from "@/services";
 
-const GraftedPlantsTab: React.FC<{ plant: PlantDetailData }> = ({ plant }) => {
+const GraftedPlantsTab: React.FC<{ plantId: number }> = ({ plantId }) => {
+  const { plant, setPlant } = usePlantStore();
+    const [isLoading, setIsLoading] = useState(true);
+  
+    const fetchPlant = async () => {
+      await new Promise((resolve) => setTimeout(resolve, 500)); // ⏳ Delay 1 giây
+      try {
+        const res = await PlantService.getPlant(plantId);
+        if (res.statusCode === 200) {
+          setPlant(res.data);
+        }
+      } finally {
+        setIsLoading(false);
+      }
+    };
+  
+    useEffect(() => {
+      fetchPlant();
+    }, []);
   return (
     <ScrollView style={styles.container} contentContainerStyle={styles.content}>
-      {plant.graftedPlants.length > 0 ? (
+      {plant && plant.graftedPlants.length > 0 ? (
         plant.graftedPlants.map((grafted) => (
           <TouchableOpacity
             key={grafted.graftedPlantID}

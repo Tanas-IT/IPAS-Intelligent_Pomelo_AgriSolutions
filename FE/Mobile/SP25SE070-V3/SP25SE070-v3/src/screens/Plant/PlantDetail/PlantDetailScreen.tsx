@@ -124,7 +124,7 @@ const PlantDetailScreen: React.FC = () => {
       case "growth":
         return <GrowthHistoryTab />;
       case "grafted":
-        return <GraftedPlantsTab plant={plant} />;
+        return <GraftedPlantsTab plantId={Number(plantId)} />;
       case "record":
         return <RecordYieldTab plant={plant} />;
       case "harvest":

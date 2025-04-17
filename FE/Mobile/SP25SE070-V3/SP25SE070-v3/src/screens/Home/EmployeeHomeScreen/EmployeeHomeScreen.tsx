@@ -11,97 +11,58 @@ import {
 import { LinearGradient } from "expo-linear-gradient";
 import { LineChart, BarChart } from "react-native-chart-kit";
 import Toast from "react-native-toast-message";
-import { TextCustom, CustomIcon } from "@/components";
+import { TextCustom, CustomIcon, StatusBadge } from "@/components";
 import theme from "@/theme";
 import TimeFilterModal from "./TimeFilterModal";
 import { StatBox } from "../components/StatBox";
+import { reportService } from "@/services";
+import { useAuthStore } from "@/store";
 
 const { width, height } = Dimensions.get("window");
 
-const mockTodaysTasks = {
-  statusCode: 200,
-  message: "Success",
-  data: [
-    {
-      worklogId: 104,
-      worklogName: "Harvest Block A",
-      status: "pending",
-      priority: "high",
-      timeSlot: "08:00-10:00",
-    },
-    {
-      worklogId: 105,
-      worklogName: "Tưới cây khu B",
-      status: "pending",
-      priority: "medium",
-      timeSlot: "14:00-15:00",
-    },
-    {
-      worklogId: 106,
-      worklogName: "Kiểm tra sâu bệnh khu C",
-      status: "done",
-      priority: "low",
-      timeSlot: "10:30-11:00",
-    },
-  ],
-};
-
 const EmployeeHomeScreen = () => {
+  const { userId, fullName } = useAuthStore();
   const [metrics, setMetrics] = useState<any>(null);
   const [todaysTasks, setTodaysTasks] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
   const [timeFilterVisible, setTimeFilterVisible] = useState(false);
   const scrollY = useRef(new Animated.Value(0)).current;
 
-  const fullName = "Tran Van B";
-
   const fetchData = async (filters: { timeRange?: string } = {}) => {
     setLoading(true);
     try {
-      const metricsResponse = {
-        statusCode: 200,
-        message: "Success",
-        data: {
-          tasksCompleted: filters.timeRange === "today" ? 3 : filters.timeRange === "month" ? 50 : 18,
-          hoursWorked: filters.timeRange === "today" ? 6.0 : filters.timeRange === "month" ? 120.0 : 42.5,
-          skillScore: filters.timeRange === "today" ? 90 : filters.timeRange === "month" ? 88 : 90,
-          aiReportsSubmitted: filters.timeRange === "today" ? 1 : filters.timeRange === "month" ? 30 : 12,
-          aiReportsAnswered: filters.timeRange === "today" ? 0 : filters.timeRange === "month" ? 25 : 10,
-          tasksPendingToday: 5,
-          chartData: {
-            tasks: filters.timeRange === "month"
-              ? [
-                { label: "Tuần 1", count: 12 },
-                { label: "Tuần 2", count: 10 },
-                { label: "Tuần 3", count: 15 },
-                { label: "Tuần 4", count: 13 },
-              ]
-              : [
-                { label: "09/04", count: 3 },
-                { label: "10/04", count: 2 },
-                { label: "11/04", count: 4 },
-                { label: "12/04", count: 1 },
-                { label: "13/04", count: 3 },
-                { label: "14/04", count: 2 },
-                { label: "15/04", count: 3 },
-              ],
-          },
-        },
-      };
+      const tasksResponse = await reportService.getTodayTaskEmployee(Number(userId));
+      if (tasksResponse.statusCode !== 200) {
+        throw new Error(tasksResponse.message || "Failed to fetch tasks");
+      }
 
-      const todaysTasksResponse = mockTodaysTasks;
+      const metricsResponse = await reportService.getEmployeeProductivity(Number(userId), filters.timeRange || "week");
+      if (metricsResponse.statusCode !== 200) {
+        throw new Error(metricsResponse.message || "Failed to fetch metrics");
+      }
 
       setMetrics(metricsResponse.data);
-      setTodaysTasks(todaysTasksResponse.data);
-    } catch (error) {
+      setTodaysTasks(tasksResponse.data);
+    } catch (error: any) {
       Toast.show({
         type: "error",
-        text1: "Lỗi",
-        text2: "Không tải được dữ liệu",
+        text1: "Error",
+        text2: error.message || "Failed to fetch",
       });
     } finally {
       setLoading(false);
     }
+  };
+
+  const statusMap: Record<string, { color: string; label: string }> = {
+    done: { color: "#34D399", label: "Completed" },
+    not_started: { color: "#9CA3AF", label: "Not Started" },
+    in_progress: { color: "#3B82F6", label: "In Progress" },
+    cancelled: { color: "#F87171", label: "Cancelled" },
+    overdue: { color: "#F97316", label: "Overdue" },
+    reviewing: { color: "#FACC15", label: "Reviewing" },
+    redo: { color: "#E879F9", label: "Redo" },
+    onredo: { color: "#C084FC", label: "On Redo" },
   };
 
   useEffect(() => {
@@ -140,27 +101,23 @@ const EmployeeHomeScreen = () => {
                 : item.priority === "medium"
                   ? "#FBBF24"
                   : "#34D399";
-            const statusColor = item.status === "done" ? "#34D399" : "#9CA3AF";
-            const statusText = item.status === "done" ? "Completed" : "Pending";
+            const statusKey = item.status?.toLowerCase().replace(/\s+/g, "_");
+            const statusInfo = statusMap[statusKey] || {
+              color: "#9CA3AF",
+              label: item.status || "Unknown",
+            };
 
             return (
-              <View key={`task-${item.worklogId}`} style={styles.taskCard}>
+              <View key={`task-${item.workLogId}`} style={styles.taskCard}>
                 <View style={styles.taskHeader}>
-                  <View style={[styles.taskStatusDot, { backgroundColor: statusColor }]} />
-                  <TextCustom style={styles.taskTime}>{item.timeSlot || "Flexible"}</TextCustom>
+                  <View style={[styles.taskStatusDot, { backgroundColor: statusInfo.color }]} />
+                  <TextCustom style={styles.taskTime}>{item.time || "Flexible"}</TextCustom>
                 </View>
                 <TextCustom style={styles.taskTitle} numberOfLines={2}>
-                  {item.worklogName}
+                  {item.workLogName}
                 </TextCustom>
                 <View style={styles.taskFooter}>
-                  <View style={[styles.priorityBadge, { backgroundColor: priorityColor }]}>
-                    <TextCustom style={styles.priorityText}>
-                      {item.priority === "high" ? "High" : item.priority === "medium" ? "Medium" : "Low"}
-                    </TextCustom>
-                  </View>
-                  <TextCustom style={[styles.taskStatus, { color: statusColor }]}>
-                    {statusText}
-                  </TextCustom>
+                  <StatusBadge status={item.status}/>
                 </View>
               </View>
             );
@@ -178,7 +135,7 @@ const EmployeeHomeScreen = () => {
       datasets: [
         {
           data: metrics.chartData.tasks.map((d: any) => d.count),
-          colors: metrics.chartData.tasks.map((_: any, i: any) => 
+          colors: metrics.chartData.tasks.map((_: any, i: any) =>
             `rgba(99, 102, 241, ${0.7 + (i * 0.05)})`
           ),
         },
@@ -506,7 +463,6 @@ const styles = StyleSheet.create({
     fontSize: 15,
     fontWeight: '500',
     color: '#111827',
-    marginBottom: 12,
     height: 40,
   },
   taskFooter: {

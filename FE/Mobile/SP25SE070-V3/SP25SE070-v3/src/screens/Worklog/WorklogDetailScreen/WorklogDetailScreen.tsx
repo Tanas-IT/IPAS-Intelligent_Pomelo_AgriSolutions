@@ -18,6 +18,7 @@ import { ROUTE_NAMES } from "@/constants/RouteNames";
 import {
   CancelWorklogRequest,
   ResourceItem,
+  StatusType,
   UpdateStatusWorklogRequest,
   WorklogDetail,
   WorklogNoteFormData,
@@ -29,6 +30,7 @@ import {
   BackButton,
   CustomIcon,
   NoteDetailModal,
+  StatusBadge,
   TextCustom,
 } from "@/components";
 import { worklogService } from "@/services";
@@ -295,9 +297,10 @@ const WorklogDetailScreen: React.FC<WorklogDetailScreenProps> = ({ route }) => {
           <TextCustom style={styles.worklogCode}>
             Code: {worklog.workLogCode}
           </TextCustom>
-          <View style={styles.statusTag}>
+          <StatusBadge status={worklog.status as StatusType} />
+          {/* <View style={styles.statusTag}>
             <TextCustom style={styles.statusText}>{worklog.status}</TextCustom>
-          </View>
+          </View> */}
           {/* </View> */}
         </View>
 
