@@ -149,7 +149,6 @@ includeProperties, orderBy: orderBy, pageIndex: 1, pageSize: 3);
         {
             try
             {
-
                 var package = await _unitOfWork.PackageRepository
                     .GetByCondition(p => p.PackageId == request.PackageId, includeProperties: "PackageDetails");
 
@@ -161,36 +160,37 @@ includeProperties, orderBy: orderBy, pageIndex: 1, pageSize: 3);
                     package.PackageName = request.PackageName;
                 if (request.PackagePrice.HasValue)
                     package.PackagePrice = request.PackagePrice;
-                if (request.PackagePrice.HasValue)
+                if (request.Duration.HasValue)
                     package.Duration = request.Duration;
-                if (!string.IsNullOrEmpty(request.PackageName))
+                if (!string.IsNullOrEmpty(request.Status))
                     package.Status = request.Status;
                 if (request.IsActive.HasValue)
                     package.IsActive = request.IsActive;
                 package.UpdateDate = DateTime.Now;
 
-                // Danh sách detail cũ
                 var existingDetails = package.PackageDetails.ToList();
 
-                // Xử lý thêm/sửa
+                var updateDetails = new List<PackageDetail>();
+                var insertDetails = new List<PackageDetail>();
+
                 foreach (var detailDto in request.PackageDetails)
                 {
                     if (detailDto.PackageDetailId.HasValue)
                     {
-                        // Sửa
+                        // Update
                         var existingDetail = existingDetails
                             .FirstOrDefault(d => d.PackageDetailId == detailDto.PackageDetailId.Value);
 
                         if (existingDetail != null)
                         {
-                            //existingDetail.PackageDetailCode = detailDto.PackageDetailCode;
                             existingDetail.FeatureName = detailDto.FeatureName;
                             existingDetail.FeatureDescription = detailDto.FeatureDescription;
+                            updateDetails.Add(existingDetail);
                         }
                     }
                     else
                     {
-                        // Thêm mới
+                        // Insert
                         var newDetail = new PackageDetail
                         {
                             PackageDetailCode = CodeAliasEntityConst.PACKAGE_DETAIL + CodeHelper.GenerateCode(),
@@ -198,7 +198,7 @@ includeProperties, orderBy: orderBy, pageIndex: 1, pageSize: 3);
                             FeatureDescription = detailDto.FeatureDescription,
                             PackageId = package.PackageId
                         };
-                        package.PackageDetails.Add(newDetail);
+                        insertDetails.Add(newDetail);
                     }
                 }
 
@@ -212,8 +212,16 @@ includeProperties, orderBy: orderBy, pageIndex: 1, pageSize: 3);
                     .Where(d => !requestDetailIds.Contains(d.PackageDetailId))
                     .ToList();
 
-                _unitOfWork.PackageDetailRepository.RemoveRange(toRemove);
+                // Các thao tác với repository
+                if (updateDetails.Any())
+                    _unitOfWork.PackageDetailRepository.UpdateRange(updateDetails);
 
+                if (insertDetails.Any())
+                    await _unitOfWork.PackageDetailRepository.InsertRangeAsync(insertDetails);
+
+                if (toRemove.Any())
+                    _unitOfWork.PackageDetailRepository.RemoveRange(toRemove);
+                _unitOfWork.PackageRepository.Update(package);
                 var result = await _unitOfWork.SaveAsync();
                 if (result > 0)
                     return new BusinessResult(200, "Package updated successfully");
@@ -224,6 +232,7 @@ includeProperties, orderBy: orderBy, pageIndex: 1, pageSize: 3);
                 return new BusinessResult(Const.ERROR_EXCEPTION, Const.ERROR_MESSAGE);
             }
         }
+
 
         public async Task<BusinessResult> CreatePackageAsync(CreatePackageRequest request)
         {
