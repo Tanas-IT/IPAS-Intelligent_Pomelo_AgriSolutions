@@ -10,6 +10,9 @@ const colors = {
   black: "#000",
   transparentBlack: "rgba(0, 0, 0, 0.5)", // overlay cho modal
   btnYellow: "#FBBF24",
+  success: "#34D399",
+  warning: "#FBBF24",
+  error: "#F87171",
 
   activeTagBackground: "#eafaf1",
   activeTagBorder: "#27ae60",

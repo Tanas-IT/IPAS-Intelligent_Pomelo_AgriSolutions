@@ -174,9 +174,8 @@ const PestDetectionScreen = () => {
     setIsLoading(true);
 
     try {
-      // Gọi API by-url
       console.log("payload img", selectedImageUrl);
-      
+
       const response = await PestDetectionService.predictDiseaseByUrl(selectedImageUrl);
       console.log("API response:", response);
 
@@ -187,6 +186,15 @@ const PestDetectionScreen = () => {
               b.probability - a.probability
           )
         );
+      } else if (response.statusCode === 500) {
+        Toast.show({
+          type: "error",
+          text1: "Detection Failed",
+          text2: "Please take a clear photo of a pomelo tree (cây bưởi)",
+          visibilityTime: 4000,
+          position: 'bottom'
+        });
+        setDetectionResults(null); // Reset kết quả nếu có
       } else {
         Toast.show({
           type: "error",
@@ -275,6 +283,12 @@ const PestDetectionScreen = () => {
             )}
           </View>
 
+          <View style={styles.tipContainer}>
+            <TextCustom style={styles.tipText}>
+              <TextCustom style={{ fontWeight: 'bold' }}>Tip:</TextCustom> Please take a clear photo of pomelo fruits for accurate detection
+            </TextCustom>
+          </View>
+
           <View style={styles.buttonContainer}>
             <View style={styles.btnPhoto}>
               <TouchableOpacity
@@ -312,97 +326,97 @@ const PestDetectionScreen = () => {
                   Take Photo
                 </TextCustom>
               </TouchableOpacity>
+            </View>
+            <TouchableOpacity style={styles.button} onPress={handleDetectPest}>
+              <TextCustom style={styles.buttonText}>Start Detection</TextCustom>
+            </TouchableOpacity>
+          </View>
+        </>
+      ) : (
+        <Animated.View style={{ opacity: fadeAnim }}>
+          <View style={[styles.resultImageContainer, theme.shadow.default]}>
+            <Image
+              source={{ uri: selectedImageUri! }}
+              style={styles.resultImage}
+            />
+            <TextCustom style={styles.resultTitle}>Results</TextCustom>
+            <TextCustom style={styles.resultSubTitle}>
+              This result is for consultation purposes only. Reporting it as
+              consumed would be inaccurate.
+            </TextCustom>
+          </View>
+          <View style={styles.resultContainer}>
+            {detectionResults.map((result, index) => (
+              <View
+                key={index}
+                style={[styles.resultItem, theme.shadow.default]}
+              >
+                <TextCustom style={styles.resultText}>
+                  {result.tagName}
+                </TextCustom>
+                <Progress.Bar
+                  progress={result.probability}
+                  width={150}
+                  height={7}
+                  color={theme.colors.primary}
+                  unfilledColor={theme.colors.secondary}
+                  borderColor="none"
+                />
+                <TextCustom>
+                  {(result.probability * 100).toFixed(2)}%
+                </TextCustom>
               </View>
-              <TouchableOpacity style={styles.button} onPress={handleDetectPest}>
-                <TextCustom style={styles.buttonText}>Start Detection</TextCustom>
-              </TouchableOpacity>
-            </View>
-          </>
-        ) : (
-          <Animated.View style={{ opacity: fadeAnim }}>
-            <View style={[styles.resultImageContainer, theme.shadow.default]}>
-              <Image
-                source={{ uri: selectedImageUri! }}
-                style={styles.resultImage}
-              />
-              <TextCustom style={styles.resultTitle}>Results</TextCustom>
-              <TextCustom style={styles.resultSubTitle}>
-                This result is for consultation purposes only. Reporting it as
-                consumed would be inaccurate.
+            ))}
+          </View>
+          <View style={styles.actionButtons}>
+            <TouchableOpacity
+              style={[
+                styles.actionButton,
+                { backgroundColor: theme.colors.secondary },
+              ]}
+              onPress={() => setIsReportModalVisible(true)}
+            >
+              <TextCustom
+                style={[
+                  styles.actionButtonText,
+                  { color: theme.colors.primary },
+                ]}
+              >
+                Report
               </TextCustom>
-            </View>
-            <View style={styles.resultContainer}>
-              {detectionResults.map((result, index) => (
-                <View
-                  key={index}
-                  style={[styles.resultItem, theme.shadow.default]}
-                >
-                  <TextCustom style={styles.resultText}>
-                    {result.tagName}
-                  </TextCustom>
-                  <Progress.Bar
-                    progress={result.probability}
-                    width={150}
-                    height={7}
-                    color={theme.colors.primary}
-                    unfilledColor={theme.colors.secondary}
-                    borderColor="none"
-                  />
-                  <TextCustom>
-                    {(result.probability * 100).toFixed(2)}%
-                  </TextCustom>
-                </View>
-              ))}
-            </View>
-            <View style={styles.actionButtons}>
-              <TouchableOpacity
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[
+                styles.actionButton,
+                {
+                  borderColor: theme.colors.primary,
+                  backgroundColor: "white",
+                  borderWidth: 1,
+                },
+              ]}
+              onPress={handleClear}
+            >
+              <TextCustom
                 style={[
-                  styles.actionButton,
-                  { backgroundColor: theme.colors.secondary },
+                  styles.actionButtonText,
+                  { color: theme.colors.primary },
                 ]}
-                onPress={() => setIsReportModalVisible(true)}
               >
-                <TextCustom
-                  style={[
-                    styles.actionButtonText,
-                    { color: theme.colors.primary },
-                  ]}
-                >
-                  Report
-                </TextCustom>
-              </TouchableOpacity>
-              <TouchableOpacity
-                style={[
-                  styles.actionButton,
-                  {
-                    borderColor: theme.colors.primary,
-                    backgroundColor: "white",
-                    borderWidth: 1,
-                  },
-                ]}
-                onPress={handleClear}
-              >
-                <TextCustom
-                  style={[
-                    styles.actionButtonText,
-                    { color: theme.colors.primary },
-                  ]}
-                >
-                  Clear
-                </TextCustom>
-              </TouchableOpacity>
-            </View>
-          </Animated.View>
-        )}
+                Clear
+              </TextCustom>
+            </TouchableOpacity>
+          </View>
+        </Animated.View>
+      )}
 
-        <ReportModal
-          visible={isReportModalVisible}
-          onClose={() => setIsReportModalVisible(false)}
-          onSubmit={handleSubmitReport}
-          imageUrl={selectedImageUrl}
-        />
-      </ScrollView>
-    );
+      <ReportModal
+        visible={isReportModalVisible}
+        onClose={() => setIsReportModalVisible(false)}
+        onSubmit={handleSubmitReport}
+        imageUrl={selectedImageUrl}
+      />
+    </ScrollView>
+  );
 };
 
 export default PestDetectionScreen;
