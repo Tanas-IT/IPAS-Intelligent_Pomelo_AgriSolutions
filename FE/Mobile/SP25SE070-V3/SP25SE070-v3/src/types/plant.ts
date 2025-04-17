@@ -21,8 +21,6 @@ export interface PlantDetailData {
   plantName: string;
   plantIndex: number;
   healthStatus: string;
-  // createDate: string;
-  // updateDate: string;
   plantingDate: string;
   description: string;
   masterTypeId: number;
@@ -33,22 +31,12 @@ export interface PlantDetailData {
   landPlotName: string;
   masterTypeName: string;
   characteristic: string;
-  // growthStageID: number;
   growthStageName: string;
   isDead: boolean;
   isPassed: boolean;
-  // passedDate: string | null;
-  // criteriaSummary: CriteriaSummary[];
   growthHistory: PlantGrowthHistory[];
   graftedPlants: GraftedPlantSummary[];
   harvestHistory: HarvestSummary[];
-}
-
-interface CriteriaSummary {
-  criteriaId: number;
-  criteriaName: string;
-  value: string;
-  unit: string;
 }
 
 export interface PlantGrowthHistory {
@@ -88,4 +76,66 @@ export interface NoteFormData {
   issueName?: string | undefined;
   // images?: string[];
   images: { uri: string; type: string; name: string }[];
+}
+
+export interface GraftedPlant {
+  graftedPlantId: number;
+  graftedPlantCode: string;
+  graftedPlantName: string;
+  separatedDate?: string;
+  status: string;
+  graftedDate: string;
+  note?: string;
+  isCompleted: boolean;
+  isDead: boolean;
+  plantLotId: number;
+  motherPlantId: number;
+  plantCode: string;
+  plantName: string;
+  cultivarId: string;
+  cultivarName: string;
+  plantLotName: string;
+  plantLotCode: string;
+  mortherPlant: MotherPlant;
+}
+
+export interface MotherPlant {
+  plantId: number;
+  plantCode: string;
+  plantName: string;
+  plantIndex: number;
+  healthStatus: string;
+  createDate: string;
+  updateDate: string;
+  plantingDate: string;
+  description: string;
+  masterTypeId: number;
+  imageUrl: string;
+  landRowId: number;
+  masterTypeName: string;
+  characteristic: string;
+  growthStageID: number;
+  isDead: boolean;
+  isPassed: boolean;
+  plantLotId: number;
+  criteriaSummary: any[];
+}
+
+export interface HarvestStatisticResponse {
+  yearFrom: number;
+  yearTo: number;
+  harvestCount: number;
+  masterTypeId: number;
+  masterTypeCode: string;
+  masterTypeName: string;
+  totalYearlyQuantity: number;
+  numberHarvest: number;
+  monthlyData: MonthlyHarvestData[];
+}
+
+export interface MonthlyHarvestData {
+  month: number;
+  year: number;
+  totalQuantity: number;
+  harvestCount: number;
 }

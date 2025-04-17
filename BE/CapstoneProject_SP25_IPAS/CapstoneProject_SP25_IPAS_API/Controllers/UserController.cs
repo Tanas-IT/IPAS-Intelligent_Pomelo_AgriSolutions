@@ -226,7 +226,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
         }
 
         [HttpGet(APIRoutes.User.getAllUserByRole, Name = "getAllUserByRole")]
-        [HybridAuthorize($"{nameof(RoleEnum.ADMIN)}")]
+        [HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.MANAGER)},{nameof(RoleEnum.OWNER)}")]
         public async Task<IActionResult> GetAllUserByRoleName([FromRoute] string roleName)
         {
             try
@@ -246,7 +246,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
         }
 
         [HttpGet(APIRoutes.User.searchUserByEmail, Name = "searchUserByEmail")]
-        [HybridAuthorize($"{nameof(RoleEnum.ADMIN)}")]
+        [HybridAuthorize($"{nameof(RoleEnum.ADMIN)}, {nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)}")]
         public async Task<IActionResult> searchUserByEmail([FromQuery] string? emailSearch)
         {
             try

@@ -199,5 +199,19 @@ export const styles = StyleSheet.create({
     },
     errorText: {
       color: 'red'
-    }
+    },
+    tipContainer: {
+      backgroundColor: '#FFF9E1',
+      padding: 12,
+      borderRadius: 8,
+      marginHorizontal: 20,
+      marginVertical: 10,
+      borderWidth: 1,
+      borderColor: '#FFEBB2'
+    },
+    tipText: {
+      color: '#8B6E00',
+      textAlign: 'center',
+      fontSize: 14
+    },
   });

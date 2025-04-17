@@ -424,6 +424,8 @@ namespace CapstoneProject_SP25_IPAS_API.Payload
             public const string WorkPerformance = prefix + "/dashboard/work-performance";
             public const string CompareWorkPerformance = prefix + "/dashboard/compare-work-performance";
             public const string AdminReport = prefix + "/admin/dashboard/";
+            public const string EmployeeTodayTask = prefix + "/employee/todays-tasks";
+            public const string EmployeeProductivity = prefix + "/employee/productivity";
         }
 
         public static class TaskFeedback
