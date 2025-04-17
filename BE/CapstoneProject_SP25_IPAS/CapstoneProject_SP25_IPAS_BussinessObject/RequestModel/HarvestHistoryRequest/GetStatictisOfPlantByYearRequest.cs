@@ -9,8 +9,8 @@ namespace CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.HarvestHistoryR
     public class GetStatictisOfPlantByYearRequest
     {
         public int plantId { get; set; }
-        public int yearFrom { get; set; }
-        public int yearTo { get; set; }
+        public int yearFrom { get; set; } = DateTime.Now.Year;
+        public int yearTo { get; set; } = DateTime.Now.Year;
         public int productId { get; set; }
     }
 }
