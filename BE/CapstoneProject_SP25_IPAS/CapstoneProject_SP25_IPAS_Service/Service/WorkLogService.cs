@@ -2559,7 +2559,24 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         }
                     }
                 }
+                
+                if (addNewTaskModel.NewDateWork.Date == DateTime.Now.Date)
+                    {
+                        if (startTime <= DateTime.Now.TimeOfDay)
+                        {
+                            throw new Exception("StartTime must be greater than now");
+                        }
 
+                        if (endTime <= DateTime.Now.TimeOfDay)
+                        {
+                            throw new Exception("EndTime must be greater than now");
+                        }
+
+                }
+                if (endTime <= startTime)
+                {
+                    throw new Exception("EndTime must be greater than startTime);
+                }
                 await _unitOfWork.WorkLogRepository.CheckWorkLogAvailabilityWhenAddPlan(
                                                                       startTime,
                                                                        endTime,
