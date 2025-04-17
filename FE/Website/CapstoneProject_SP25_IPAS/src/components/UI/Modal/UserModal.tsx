@@ -1,5 +1,5 @@
 import { Flex, Form } from "antd";
-import { useState, useEffect } from "react";
+import { useEffect } from "react";
 import { FormFieldModal, ModalForm } from "@/components";
 import { formatDateReq, RulesManager } from "@/utils";
 import { USER_ROLE_OPTIONS, userFormFields } from "@/constants";
@@ -42,7 +42,7 @@ const UserModal = ({ isOpen, onClose, onSave, userData, isLoadingAction }: UserM
 
   const handleOk = async () => {
     await form.validateFields();
-    console.log(getFormData());
+    // console.log(getFormData());
     onSave(getFormData());
   };
 

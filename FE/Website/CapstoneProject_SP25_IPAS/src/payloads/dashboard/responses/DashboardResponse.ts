@@ -1,5 +1,5 @@
 import { GetPaymentHistory } from "@/payloads/payment";
-import { GetUser } from "@/payloads/user";
+import { GetUser2 } from "@/payloads/user";
 
 export interface WeatherPropertyModel {
   currentTemp: number;
@@ -97,9 +97,9 @@ export interface AdminDashboardResponses {
   totalUser: number;
   totalRevenue: number;
   totalFarm: number;
-  statisticRevenueYear: RevenueByMonth[];
-  statisticFarmYear: FarmCountByMonth[];
-  newestUserModels: GetUser[];
+  statisticRevenueYear: RevenueByMonth;
+  statisticFarmYear: FarmCountByMonth;
+  newestUserModels: GetUser2[];
   newestOrdersModels: GetPaymentHistory[];
 }
 

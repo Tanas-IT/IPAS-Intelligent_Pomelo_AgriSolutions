@@ -56,7 +56,6 @@ export { default as UpdatePlan } from "@/pages/Plan/PlanList/UpdatePlan";
 export { default as Worklog } from "@/pages/HR/Worklog/WorklogCalendar/Worklog";
 export { default as WorklogDetail } from "@/pages/HR/Worklog/WorklogDetail/WorklogDetail";
 export { default as AssignEmployee } from "@/pages/Plan/PlanList/AssignEmployee";
-export { default as PackageList } from "@/pages/Package/PackageList/PackageList";
 export { default as PackagePurchase } from "@/pages/Package/PackagePurchase/PackagePurchase";
 export { default as PaymentConfirmation } from "@/pages/Package/PaymentConfirmation/PaymentConfirmation";
 export { default as PaymentSuccess } from "@/pages/Package/PaymentResult/PaymentSuccess";
@@ -74,4 +73,5 @@ export { default as AdminDashboard } from "@/pages/Admin/AdminDashboard/AdminDas
 export { default as User } from "@/pages/Admin/User/User";
 export { default as Farm } from "@/pages/Admin/Farm/Farm";
 export { default as PaymentHistory } from "@/pages/Admin/PaymentHistory/PaymentHistory";
+export { default as PackageList } from "@/pages/Admin/PackageList/PackageList";
 export { default as SystemConfiguration } from "@/pages/Admin/SystemConfiguration/SystemConfiguration";

@@ -1,97 +1,41 @@
 import { Icons } from "@/assets";
 import { AdminDashboardResponses } from "@/payloads/dashboard";
-import { Badge, Card, Col, Flex, Row, Segmented, Table, Typography } from "antd";
-import { useState } from "react";
+import { Card, Col, Flex, Row, Table, Tag, Typography } from "antd";
+import { useEffect, useState } from "react";
 import style from "./AdminDashboard.module.scss";
 import StatBox from "@/pages/Dashboard/components/StatBox/StatBox";
 import { ChartOptions } from "chart.js";
-import { themeColors } from "@/styles";
 import { formatCurrencyVND, formatDate, formatDateAndTime } from "@/utils";
-import { BarChart, LineChart, UserAvatar } from "@/components";
+import { BarChart, LineChart, Loading, UserAvatar } from "@/components";
 import dayjs from "dayjs";
+import { dashboardService } from "@/services";
+import { GetPaymentHistory, GetUser2 } from "@/payloads";
+import { paymentStatusColors } from "@/constants";
 const { Title } = Typography;
 
-
-
-// export const adminDashboardMockData: AdminDashboardResponses & {
-//   listRevenue: { month: number; totalRevenue: number }[];
-//   listFarmCounts: { month: number; totalFarms: number }[];
-// } = {
-//   totalUser: 120,
-//   totalRevenue: 350000000,
-//   totalFarm: 18,
-//   listRevenue: [
-//     { month: 1, totalRevenue: 10000000 },
-//     { month: 2, totalRevenue: 12000000 },
-//     { month: 3, totalRevenue: 18000000 },
-//     { month: 4, totalRevenue: 22000000 },
-//     { month: 5, totalRevenue: 25000000 },
-//     { month: 6, totalRevenue: 28000000 },
-//     { month: 7, totalRevenue: 32000000 },
-//     { month: 8, totalRevenue: 34000000 },
-//     { month: 9, totalRevenue: 36000000 },
-//     { month: 10, totalRevenue: 40000000 },
-//     { month: 11, totalRevenue: 42000000 },
-//     { month: 12, totalRevenue: 45000000 },
-//   ],
-//   listFarmCounts: [
-//     { month: 1, totalFarms: 2 },
-//     { month: 2, totalFarms: 2 },
-//     { month: 3, totalFarms: 3 },
-//     { month: 4, totalFarms: 4 },
-//     { month: 5, totalFarms: 4 },
-//     { month: 6, totalFarms: 5 },
-//     { month: 7, totalFarms: 6 },
-//     { month: 8, totalFarms: 6 },
-//     { month: 9, totalFarms: 7 },
-//     { month: 10, totalFarms: 8 },
-//     { month: 11, totalFarms: 9 },
-//     { month: 12, totalFarms: 10 },
-//   ],
-//   latestUsers: [
-//     {
-//       fullname: "Alice Johnson",
-//       userName: "alicej",
-//       createDate: "2025-04-15T10:45:00",
-//     },
-//     {
-//       fullname: "Bob Smith",
-//       userName: "bobsmith",
-//       createDate: "2025-04-14T14:20:00",
-//     },
-//     {
-//       fullname: "Charlie Nguyen",
-//       userName: "charlien",
-//       createDate: "2025-04-13T09:10:00",
-//     },
-//   ],
-//   recentTransactions: [
-//     {
-//       email: "alicej@example.com",
-//       paymentDate: "2025-04-15T11:00:00",
-//       amount: 1500000,
-//       status: "Succeed",
-//     },
-//     {
-//       email: "bobsmith@example.com",
-//       paymentDate: "2025-04-14T15:00:00",
-//       amount: 950000,
-//       status: "Pending",
-//     },
-//     {
-//       email: "charlien@example.com",
-//       paymentDate: "2025-04-13T10:00:00",
-//       amount: 500000,
-//       status: "Failed",
-//     },
-//   ],
-// };
-
 function AdminDashboard() {
+  const [isLoading, setIsLoading] = useState<boolean>(true);
   const [data, setData] = useState<AdminDashboardResponses>();
   const currentYear = dayjs();
   const [yearRevenue, setYearRevenue] = useState<dayjs.Dayjs>(currentYear);
   const [yearFarms, setYearFarms] = useState<dayjs.Dayjs>(currentYear);
+
+  const fetchAdminDashboard = async () => {
+    if (isLoading) await new Promise((resolve) => setTimeout(resolve, 500));
+    try {
+      const res = await dashboardService.getAdminDashboardData(
+        yearRevenue.year(),
+        yearFarms.year(),
+      );
+      setData(res);
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchAdminDashboard();
+  }, [yearRevenue, yearFarms]);
 
   const statsData = [
     {
@@ -101,7 +45,7 @@ function AdminDashboard() {
     },
     {
       title: "Revenue",
-      subtitle: formatCurrencyVND(data?.totalRevenue) || "0",
+      subtitle: data ? formatCurrencyVND(data?.totalRevenue) : formatCurrencyVND(0),
       icon: <Icons.money style={{ fontSize: 24, color: "#faad14" }} />,
     },
     {
@@ -116,7 +60,9 @@ function AdminDashboard() {
     datasets: [
       {
         label: "Revenue",
-        data: data?.listRevenue.sort((a, b) => a.month - b.month).map((rev) => rev.totalRevenue),
+        data: data?.statisticRevenueYear.revenueMonths
+          .sort((a, b) => a.month - b.month)
+          .map((rev) => rev.totalRevenue),
         borderColor: "rgba(75, 192, 192, 1)",
         backgroundColor: "rgba(75, 192, 192, 0.2)",
         fill: true,
@@ -147,11 +93,11 @@ function AdminDashboard() {
     datasets: [
       {
         label: "Farms",
-        data: data?.listFarmCounts
+        data: data?.statisticFarmYear.revenueMonths
           .sort((a, b) => a.month - b.month)
-          .map((brand) => brand.totalFarms),
-        backgroundColor: "rgba(153, 102, 255, 0.6)",
-        borderColor: "rgba(153, 102, 255, 1)",
+          .map((farm) => farm.totalRevenue),
+        backgroundColor: "rgba(34, 139, 34, 0.6)",
+        borderColor: "rgba(34, 139, 34, 1)",
       },
     ],
   };
@@ -172,16 +118,15 @@ function AdminDashboard() {
   const userColumns = [
     {
       title: "User",
-      dataIndex: "user",
       key: "user",
-      render: (text: string, record: any) => (
+      render: (_: any, record: GetUser2) => (
         <Flex gap={20}>
-          <UserAvatar avatarURL={record.avatarURL} />
+          <UserAvatar avatarURL={record?.avatarURL ?? ""} />
           <div>
             <p>
-              {record.fullname} - {formatDate(record.createDate)}
+              {record?.email} - {formatDate(record?.createDate)}
             </p>
-            <p>{record.userName}</p>
+            <p>{record?.fullName}</p>
           </div>
         </Flex>
       ),
@@ -190,67 +135,62 @@ function AdminDashboard() {
 
   const transactionColumns = [
     {
-      title: "User",
-      dataIndex: "user",
-      key: "user",
-      render: (text: string, record: any) => (
-        <Badge
-          color="blue"
-          style={{ maxWidth: "250px", whiteSpace: "normal", textOverflow: "clip" }}
+      title: "Farm",
+      key: "farm",
+      render: (_: any, record: GetPaymentHistory) => (
+        <p
+          style={{
+            maxWidth: "250px",
+            whiteSpace: "nowrap",
+            overflow: "hidden",
+            textOverflow: "ellipsis",
+            display: "inline-block",
+          }}
         >
-          Payment from {record.email}
-        </Badge>
+          Payment from {record.farmName}
+        </p>
       ),
     },
     {
       title: "Date & Time",
-      dataIndex: "paymentDate",
-      key: "paymentDate",
+      key: "orderDate",
+      dataIndex: "orderDate",
       render: (text: string) => formatDateAndTime(text),
     },
     {
       title: "Total Amount",
-      dataIndex: "amount",
-      key: "amount",
-      render: (text: number) => formatCurrencyVND(text),
+      key: "totalPrice",
+      dataIndex: "totalPrice",
+      render: (amount: number) => formatCurrencyVND(amount),
     },
     {
       title: "Status",
       dataIndex: "status",
       key: "status",
-      //     render: (status: PaymentStatus) => {
-      //       switch (status) {
-      //         case PaymentStatus.Succeed:
-      //           return <Badge color="green">Success</Badge>;
-      //         case PaymentStatus.Failed:
-      //           return <Badge color="red">Failed</Badge>;
-      //         case PaymentStatus.Pending:
-      //           return <Badge color="yellow">Pending</Badge>;
-      //         case PaymentStatus.Cancelled:
-      //           return <Badge color="red">Cancelled</Badge>;
-      //         default:
-      //           return <Badge color="red">Error</Badge>;
-      //       }
-      //     },
+      render: (status: string) => {
+        const statusText = status;
+        return (
+          <Tag color={paymentStatusColors[statusText] || "default"}>{statusText || "Unknown"}</Tag>
+        );
+      },
     },
   ];
 
+  if (isLoading) return <Loading />;
   return (
     <>
       <Flex className={style.container}>
         <Flex className={style.statBoxContainer}>
-          {statsData.map((stat, index) => (
-            <Flex key={index} style={{ width: "100%" }} justify="space-between">
-              <StatBox
-                title={stat.title}
-                subtitle={stat.subtitle}
-                icon={stat.icon}
-                // increase={stat.increase}
-              />
-            </Flex>
+          {statsData.map((stat) => (
+            <StatBox
+              title={stat.title}
+              subtitle={stat.subtitle}
+              icon={stat.icon}
+              // increase={stat.increase}
+            />
           ))}
         </Flex>
-        <Row gutter={[16, 16]} style={{ marginTop: 16 }}>
+        <Row gutter={[16, 16]} className={style.chartRow}>
           <Col xs={24} md={12}>
             <LineChart
               title="Revenue by Month"
@@ -271,16 +211,16 @@ function AdminDashboard() {
           </Col>
         </Row>
 
-        <Row gutter={[16, 16]} style={{ marginTop: 16 }}>
+        <Row gutter={[16, 16]} className={style.chartRow}>
           <Col xs={24} md={8}>
             <Card>
               <Title level={5}>New Users</Title>
-              <div style={{ minHeight: "300px", maxHeight: "500px", overflowY: "auto" }}>
+              <div className={style.tableCard}>
                 <Table
                   columns={userColumns}
-                  dataSource={data.latestUsers}
+                  dataSource={data?.newestUserModels}
                   pagination={false}
-                  rowKey="userName"
+                  rowKey="userId"
                 />
               </div>
             </Card>
@@ -289,10 +229,10 @@ function AdminDashboard() {
           <Col xs={24} md={16}>
             <Card>
               <Title level={5}>Transaction History</Title>
-              <div style={{ minHeight: "300px", maxHeight: "500px", overflowY: "auto" }}>
+              <div className={style.tableCard}>
                 <Table
                   columns={transactionColumns}
-                  dataSource={data.recentTransactions}
+                  dataSource={data?.newestOrdersModels}
                   pagination={false}
                   rowKey="paymentDate"
                 />

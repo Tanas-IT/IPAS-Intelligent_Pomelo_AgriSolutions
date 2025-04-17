@@ -1,6 +1,10 @@
+import { PackageDetail } from "../responses";
+
 export interface PackageRequest {
-    packageName: string;
-    packagePrice: number;
-    duration: number;
-    isActive: boolean;
+  packageId?: number;
+  packageName: string;
+  packagePrice: number;
+  duration: number;
+  isActive: boolean;
+  packageDetails: PackageDetail[];
 }

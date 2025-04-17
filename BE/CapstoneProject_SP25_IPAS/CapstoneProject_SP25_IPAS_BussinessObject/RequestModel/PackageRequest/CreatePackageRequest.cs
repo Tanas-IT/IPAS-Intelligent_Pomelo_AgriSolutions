@@ -17,6 +17,7 @@ namespace CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.PackageRequest
 
         [Range(1, int.MaxValue, ErrorMessage = "Duration must be > 0")]
         public double Duration { get; set; }
+        public bool IsActive { get; set; }
 
         public List<CreatePackageDetailDto> PackageDetails { get; set; } = new();
     }
@@ -26,7 +27,6 @@ namespace CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.PackageRequest
         [MinLength(5, ErrorMessage = "Future name must from 1-100 digit")]
         public string FeatureName { get; set; }
 
-        [MinLength(10, ErrorMessage = "Description must from 1-100 digit")]
         public string FeatureDescription { get; set; }
     }
 }

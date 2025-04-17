@@ -189,6 +189,12 @@ export class RulesManager {
       { pattern: /^[1-9]\d*$/, message: "Duration must be a positive integer!" },
     ];
   }
+  static getFeatureNameRules() {
+    return [
+      { required: true, message: "Please input the feature name!" },
+      { min: 5, message: "Feature name must be at least 5 characters long!" },
+    ];
+  }
 
   static getPlanTypeRules = () => this.getRequiredRules("Plan Type");
 

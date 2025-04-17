@@ -32,7 +32,7 @@ const BarChart: React.FC<BarChartProps> = ({ title, year, onYearChange, data, op
         <Title level={5} className={style.barChartTitle}>
           {title}
         </Title>
-        <DatePicker value={year} onChange={onYearChange} picker="year" />
+        <DatePicker value={year} onChange={onYearChange} picker="year" allowClear={false}/>
       </Flex>
 
       <Bar data={data} options={options} />

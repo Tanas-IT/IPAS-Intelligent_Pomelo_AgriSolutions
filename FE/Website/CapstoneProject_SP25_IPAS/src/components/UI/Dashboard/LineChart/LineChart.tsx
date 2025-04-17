@@ -30,7 +30,7 @@ const LineChart: React.FC<LineChartProps> = ({ title, year, onYearChange, data, 
         <Typography.Title level={5} className={style.lineChartTitle}>
           {title}
         </Typography.Title>
-        <DatePicker value={year} onChange={onYearChange} picker="year" />
+        <DatePicker value={year} onChange={onYearChange} picker="year" allowClear={false}/>
       </Flex>
 
       <Line data={data} options={options} />

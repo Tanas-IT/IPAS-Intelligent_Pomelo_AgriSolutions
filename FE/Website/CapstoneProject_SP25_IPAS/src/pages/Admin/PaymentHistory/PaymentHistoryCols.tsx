@@ -1,6 +1,6 @@
 import { TableColumn } from "@/types";
 import { TableCell } from "@/components";
-import { formatDate } from "@/utils";
+import { formatCurrencyVND, formatDate } from "@/utils";
 import { GetPaymentHistory } from "@/payloads";
 import { Tag } from "antd";
 import { paymentStatusColors } from "@/constants";
@@ -22,6 +22,12 @@ export const PaymentHistoryCols: TableColumn<GetPaymentHistory>[] = [
     header: "Farm Name",
     field: "farmName",
     accessor: (item) => <TableCell value={item.farmName} />,
+    width: 150,
+  },
+  {
+    header: "Total Price",
+    field: "totalPrice",
+    accessor: (item) => <TableCell value={formatCurrencyVND(item.totalPrice)} />,
     width: 150,
   },
   {
