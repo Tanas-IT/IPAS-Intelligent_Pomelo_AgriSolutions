@@ -38,6 +38,7 @@ using CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.AuthensModel;
 using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.AuthensRequest;
 using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.UserRequest;
 using CapstoneProject_SP25_IPAS_Service.ConditionBuilder;
+using CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.WorkLogModel;
 
 namespace CapstoneProject_SP25_IPAS_Service.Service
 {
@@ -1485,6 +1486,36 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             if (request.DobFrom.HasValue && request.DobTo.HasValue && request.DobFrom > request.DobTo)
                 return new BusinessResult(400, "Filter CreateDate from must before CreateDate to");
             return new BusinessResult(200, "No error found");
+        }
+
+        public async Task<BusinessResult> ChangePassword(int userId, ChangePasswordModel changePasswordModel)
+        {
+            try
+            {
+                var checkUserExist = await _unitOfWork.UserRepository.GetUserByIdAsync(userId);
+                if(checkUserExist == null)
+                {
+                    return new BusinessResult(400, "User does not exist");
+                }
+                var verifyPassword = PasswordHelper.VerifyPassword(changePasswordModel.OldPassword, checkUserExist.Password);
+                if (!verifyPassword)
+                {
+                    return new BusinessResult(400, "Old password does not correct");
+                }
+                var newPassword = PasswordHelper.HashPassword(changePasswordModel.NewPassword);
+                checkUserExist.Password = newPassword;
+                 _unitOfWork.UserRepository.Update(checkUserExist);
+                var result = await _unitOfWork.SaveAsync();
+                if(result > 0)
+                {
+                    return new BusinessResult(200, "Change password success", true);
+                }
+                return new BusinessResult(400, "Change password failed", false);
+            }
+            catch (Exception ex)
+            {
+                return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
+            }
         }
     }
 }
