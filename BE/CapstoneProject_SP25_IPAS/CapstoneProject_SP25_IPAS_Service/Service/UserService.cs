@@ -524,7 +524,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     };
                     if (model.Password != null)
                     {
-                        model.Password = PasswordHelper.HashPassword(model.Password);
+                        newUser.Password = PasswordHelper.HashPassword(model.Password);
                     }
                     var role = await _unitOfWork.RoleRepository.GetRoleById((int)RoleEnum.USER);
                     if (role != null)
@@ -624,11 +624,14 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 var uploadImageLink = await _cloudinaryService.UploadImageAsync(avatarOfUser, CloudinaryPath.USER_AVARTAR);
                 if (uploadImageLink != null)
                 {
-                    if (checkExistUser.AvatarURL != null || checkExistUser.AvatarURL.Equals(_configuration["SystemDefault:ResourceDefault"]) || checkExistUser.AvatarURL.Equals(_configuration["SystemDefault:AvatarDefault"]))
+                    if (!string.IsNullOrEmpty(checkExistUser.AvatarURL) &&
+                        !string.Equals(checkExistUser.AvatarURL, _configuration["SystemDefault:ResourceDefault"]) &&
+                        !string.Equals(checkExistUser.AvatarURL, _configuration["SystemDefault:AvatarDefault"]))
                     {
                         await _cloudinaryService.DeleteImageByUrlAsync(checkExistUser.AvatarURL);
                     }
                     checkExistUser.AvatarURL = uploadImageLink;
+                     _unitOfWork.UserRepository.Update(checkExistUser);
                     var result = await _unitOfWork.SaveAsync();
                     return new BusinessResult(Const.SUCCESS_UPLOAD_IMAGE_CODE, Const.SUCCESS_UPLOAD_IMAGE_MESSAGE, result > 0);
                 }
