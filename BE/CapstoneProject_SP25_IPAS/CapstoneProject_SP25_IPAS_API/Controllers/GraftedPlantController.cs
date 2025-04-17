@@ -83,15 +83,15 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
         }
 
 
-        [HttpGet(APIRoutes.GraftedPlant.getAllGraftedByPlantPagin, Name = "getAllGraftedByPlantPagin")]
+        [HttpGet(APIRoutes.GraftedPlant.getAllGraftedByPlantSumary, Name = "getAllGraftedByPlantSumary")]
         [HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)},{nameof(RoleEnum.EMPLOYEE)}")]
         [CheckUserFarmAccess]
         //[FarmExpired]
-        public async Task<IActionResult> getAllGraftedByPlantPagin([FromQuery] GetGraftedByPlantRequest getRequest, PaginationParameter paginationParameter)
+        public async Task<IActionResult> getAllGraftedByPlantSumary([FromQuery] GetGraftedByPlantRequest getRequest, PaginationParameter paginationParameter)
         {
             try
             {
-                var result = await _graftedPlantService.getAllGraftedByPlantPagin(getRequest, paginationParameter);
+                var result = await _graftedPlantService.getAllGraftedByPlantSumary(getRequest, paginationParameter);
                 return Ok(result);
             }
             catch (Exception ex)
@@ -275,6 +275,27 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
                     });
                 }
                 var result = await _graftedPlantService.CheckGraftedConditionAppliedAsync(plantId: plantId, graftedId: graftedPlantId);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(new BaseResponse
+                {
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    Message = ex.Message
+                });
+            }
+        }
+
+        [HttpGet(APIRoutes.GraftedPlant.getAllGraftedByPlantPagin, Name = "getAllGraftedByPlantPagin")]
+        //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)},{nameof(RoleEnum.EMPLOYEE)}")]
+        //[CheckUserFarmAccess]
+        //[FarmExpired]
+        public async Task<IActionResult> getAllGraftedByPlantPagin([FromQuery] GetGraftedByPlantRequest getRequest, PaginationParameter paginationParameter)
+        {
+            try
+            {
+                var result = await _graftedPlantService.getGraftedByPlant(getRequest, paginationParameter);
                 return Ok(result);
             }
             catch (Exception ex)

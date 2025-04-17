@@ -460,7 +460,8 @@ namespace CapstoneProject_SP25_IPAS_API.Payload
             public const string getAllGraftedPagin = prefix + "";
             public const string getGraftedForSelectedByFarmId = prefix + "/get-for-selected";
             public const string getHistoryOfGraftedPlantById = prefix + "/history";
-            public const string getAllGraftedByPlantPagin = prefix + "/get-by-plant";
+            public const string getAllGraftedByPlantSumary = prefix + "/get-by-plant";
+            public const string getAllGraftedByPlantPagin = prefix + "/get-all-by-plant";
             public const string exportCSV = prefix + "/export-csv";
 
             public const string checkGraftedHasApplyCriteria = prefix + "/check-apply-criteria";
