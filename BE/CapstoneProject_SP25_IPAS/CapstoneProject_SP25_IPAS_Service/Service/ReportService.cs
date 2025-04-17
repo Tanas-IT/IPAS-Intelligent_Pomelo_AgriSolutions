@@ -1022,7 +1022,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                        .GetConfigValue(SystemConfigConst.DONE.Trim(), "Done");
                 var completed = await _unitOfWork.UserWorkLogRepository.GetTasksCompletedAsync(userId, getStatusDone, from, to);
                 var hours = await _unitOfWork.UserWorkLogRepository.GetHoursWorkedAsync(userId, from, to);
-                var skill = await _unitOfWork.UserWorkLogRepository.GetSkillScoreAsync(userId, getStatusDone);
+                var skill = await _unitOfWork.UserWorkLogRepository.GetSkillScoreAsync(userId, getStatusDone, from, to);
                 var aiReports = await _unitOfWork.UserWorkLogRepository.GetAiReportsSubmittedAsync(userId, from, to);
                 var pendingToday = await _unitOfWork.UserWorkLogRepository.GetPendingTasksTodayAsync(userId, getStatusDone, now.Date);
                 var chart = await _unitOfWork.UserWorkLogRepository.GetChartDataAsync(userId, from, to, timeRange);
