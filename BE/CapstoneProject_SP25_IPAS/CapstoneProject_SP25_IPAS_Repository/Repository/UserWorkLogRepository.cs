@@ -183,17 +183,17 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
                 .SumAsync(x => EF.Functions.DateDiffMinute(x.WorkLog.ActualStartTime.Value, x.WorkLog.ActualEndTime.Value) / 60.0);
         }
 
-        public async Task<int> GetSkillScoreAsync(int userId, string status)
+        public async Task<int> GetSkillScoreAsync(int userId, string status, DateTime from, DateTime to)
         {
             var totalTasks = await _context.UserWorkLogs.Include(x => x.WorkLog)
-                                .Where(x => x.UserId == userId)
+                                .Where(x => x.UserId == userId && x.WorkLog.Date != null && x.WorkLog.Date.Value.Date >= from.Date && x.WorkLog.Date <= to.Date)
                                 .CountAsync();
 
             if (totalTasks == 0)
                 return 0;
 
             var completedTasks = await _context.UserWorkLogs.Include(x => x.WorkLog)
-                .Where(x => x.UserId == userId && x.WorkLog.Status == status)
+                .Where(x => x.UserId == userId && x.WorkLog.Status == status && x.WorkLog.Date != null && x.WorkLog.Date.Value.Date >= from.Date && x.WorkLog.Date <= to.Date)
                 .CountAsync();
 
             var score = (double)completedTasks / totalTasks * 100;
