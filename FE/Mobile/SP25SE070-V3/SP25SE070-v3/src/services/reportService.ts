@@ -1,6 +1,6 @@
 import { axiosAuth } from "@/api";
 import { ApiResponse } from "@/payloads";
-import { ReportResponse } from "@/types";
+import { EmployeeProductivityResponse, ReportResponse, TodayTaskResponse } from "@/types";
 
 interface ReportFilterParams {
     userId: number;
@@ -18,5 +18,22 @@ export const getReportsOfUser = async (
       { params }
     );
     const apiResponse = res.data as ApiResponse<ReportResponse[]>;
+    return apiResponse;
+  };
+
+  export const getTodayTaskEmployee = async (
+    userId: number
+  ): Promise<ApiResponse<TodayTaskResponse[]>> => {
+    const res = await axiosAuth.axiosJsonRequest.get(`/report/employee/todays-tasks?userId=${userId}`);
+    const apiResponse = res.data as ApiResponse<TodayTaskResponse[]>;
+    return apiResponse;
+  };
+
+  export const getEmployeeProductivity = async (
+    userId: number,
+    timeRange: string = "week"
+  ): Promise<ApiResponse<EmployeeProductivityResponse>> => {
+    const res = await axiosAuth.axiosJsonRequest.get(`/report/employee/productivity?userId=${userId}&timeRange=${timeRange}`);
+    const apiResponse = res.data as ApiResponse<EmployeeProductivityResponse>;
     return apiResponse;
   };

@@ -22,7 +22,7 @@ interface RecordYieldTabProps {
   plant: PlantDetailData;
 }
 
-const RecordYieldTab: React.FC<RecordYieldTabProps> = ({ plant }) => {
+const RecordYieldTab: React.FC<{ plantId: number }> = ({ plantId }) => {
   const [records, setRecords] = useState<HarvestRecord[]>([]);
   const [page, setPage] = useState(1);
   const [totalPage, setTotalPage] = useState(0);
@@ -39,14 +39,14 @@ const RecordYieldTab: React.FC<RecordYieldTabProps> = ({ plant }) => {
   useEffect(() => {
     const fetchHarvests = async () => {
       try {
-        const response = await PlantService.getAvailableHarvestsForPlant(plant.plantId);
+        const response = await PlantService.getAvailableHarvestsForPlant(plantId);
         setAvailableHarvests(response.data);
       } catch (error) {
         console.error("Fetch available harvests error:", error);
       }
     };
     fetchHarvests();
-  }, [plant.plantId]);
+  }, [plantId]);
 
   const fetchRecords = useCallback(
     async (pageNum: number, reset: boolean = false) => {
@@ -60,7 +60,7 @@ const RecordYieldTab: React.FC<RecordYieldTabProps> = ({ plant }) => {
           : undefined;
 
         const response = await PlantService.getPlantRecordHarvest(
-          plant.plantId,
+          plantId,
           pageSize,
           pageNum,
           dateHarvestFrom,
@@ -82,7 +82,7 @@ const RecordYieldTab: React.FC<RecordYieldTabProps> = ({ plant }) => {
         setLoading(false);
       }
     },
-    [plant.plantId, startDate, endDate]
+    [plantId, startDate, endDate]
   );
 
   useEffect(() => {
@@ -271,7 +271,7 @@ const RecordYieldTab: React.FC<RecordYieldTabProps> = ({ plant }) => {
         visible={modalVisible}
         onClose={() => setModalVisible(false)}
         onSubmit={handleSubmitRecord}
-        plantId={plant.plantId}
+        plantId={plantId}
       />
 
       <ConfirmModal

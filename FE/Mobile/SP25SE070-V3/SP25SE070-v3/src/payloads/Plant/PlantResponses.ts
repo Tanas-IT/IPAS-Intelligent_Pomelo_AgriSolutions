@@ -7,6 +7,26 @@ export interface FileResource {
   createDate: string;
 }
 
+interface GraftedPlantSummary {
+  graftedPlantID: number;
+  graftedPlantCode: string;
+  graftedPlantName: string;
+  status: string;
+  graftedDate: string;
+  isCompleted: boolean;
+  plantLotID: number;
+}
+
+interface HarvestSummary {
+  productHarvestHistoryId: number;
+  harvestDate: string;
+  quantity: number;
+  unit: string;
+  harvestCount: number;
+  productType: string;
+  marketValue: number;
+}
+
 export interface GetPlant {
   plantId: number;
   plantCode: string;
@@ -28,6 +48,8 @@ export interface GetPlant {
   landPlotName: string;
   isDead: boolean;
   isPassed: boolean;
+  graftedPlants: GraftedPlantSummary[];
+  harvestHistory: HarvestSummary[];
 }
 
 export interface GetPlantDetail extends GetPlant {

@@ -55,7 +55,7 @@ export const styles = StyleSheet.create({
       fontSize: 14,
       color: theme.colors.primary,
       fontWeight: '500',
-      textAlign: 'center', // Căn giữa text
+      textAlign: 'center',
     },
     statusTag: {
       backgroundColor: '#FFD54F',

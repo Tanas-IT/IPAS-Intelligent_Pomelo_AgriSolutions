@@ -213,6 +213,21 @@ export default function WorklogScreen() {
       textColor: "#1B5E20",
       borderColor: "#1B5E20",
     },
+    redo: {
+      backgroundColor: "#FFCDD2",
+      textColor: "#C62828",
+      borderColor: "#C62828",
+    },
+    onRedo: {
+      backgroundColor: "#F3E5F5",
+      textColor: "#6A1B9A",
+      borderColor: "#6A1B9A",
+    },
+    cancelled: {
+      backgroundColor: "#FFE0B2",
+      textColor: "#BF360C",
+      borderColor: "#BF360C",
+    },
   };
 
   const markedDates = eventDates.reduce((acc, date) => {
