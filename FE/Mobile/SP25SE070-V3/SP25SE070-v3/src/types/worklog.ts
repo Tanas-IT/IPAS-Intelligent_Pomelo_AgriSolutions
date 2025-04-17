@@ -75,6 +75,20 @@ interface ReplacementEmployee {
   replaceUserAvatar: string;
 }
 
+export interface TaskFeedback {
+  taskFeedbackId: number;
+  taskFeedbackCode: string;
+  content: string;
+  createDate: string;
+  workLogId: number;
+  managerId: number;
+  workLogName: string;
+  reason?: string;
+  status?: string;
+  avatarURL: string;
+  fullName: string;
+}
+
 export interface WorklogDetail {
   workLogId: number;
   workLogCode: string;
@@ -92,7 +106,7 @@ export interface WorklogDetail {
   planTargetModels: { landPlotId: number; landPlotName: string }[];
   typeWork: string;
   listGrowthStageName: string[];
-  listTaskFeedback: any[];
+  listTaskFeedback: TaskFeedback[];
   listNoteOfWorkLog: ListNoteOfWorkLog[];
   replacementEmployee: ReplacementEmployee[];
   processId: number;

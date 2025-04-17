@@ -1,107 +1,211 @@
-import React, { useEffect, useState } from "react";
+import React, { useEffect, useState, useCallback } from "react";
 import {
   View,
-  Text,
-  StyleSheet,
-  ScrollView,
+  FlatList,
   TouchableOpacity,
+  ActivityIndicator,
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { styles } from "./GraftedPlantsTab.styles";
-import { CustomIcon, TextCustom } from "@/components";
-import { GetPlantDetail } from "@/payloads";
-import { PlantDetailData } from "@/types";
-import { usePlantStore } from "@/store";
+import { CustomIcon, Loading, TextCustom } from "@/components";
 import { PlantService } from "@/services";
+import { GraftedPlant } from "@/types";
+import theme from "@/theme";
+import { RootStackNavigationProp, ROUTE_NAMES } from "@/constants";
+import { useNavigation } from "@react-navigation/native";
 
 const GraftedPlantsTab: React.FC<{ plantId: number }> = ({ plantId }) => {
-  const { plant, setPlant } = usePlantStore();
-    const [isLoading, setIsLoading] = useState(true);
-  
-    const fetchPlant = async () => {
-      await new Promise((resolve) => setTimeout(resolve, 500)); // ⏳ Delay 1 giây
+  const [graftedPlants, setGraftedPlants] = useState<GraftedPlant[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [isFetchingMore, setIsFetchingMore] = useState(false);
+  const [pageIndex, setPageIndex] = useState(1);
+  const [totalPage, setTotalPage] = useState(1);
+  const navigation = useNavigation<RootStackNavigationProp>();
+  const pageSize = 20;
+
+  const fetchGraftedPlants = useCallback(
+    async (page: number, reset: boolean = false) => {
+      if (page > totalPage && !reset) return;
+
       try {
-        const res = await PlantService.getPlant(plantId);
+        if (reset) setIsLoading(true);
+        else setIsFetchingMore(true);
+
+        const res = await PlantService.getGraftedPlantsByPlant(plantId, {
+          pageIndex: page,
+          pageSize,
+        });
+
         if (res.statusCode === 200) {
-          setPlant(res.data);
+          const newPlants = res.data.list;
+          setGraftedPlants((prev) =>
+            reset ? newPlants : [...prev, ...newPlants]
+          );
+          setTotalPage(res.data.totalPage);
+          setPageIndex(page + 1);
+        } else {
+          console.error("Failed to fetch grafted plants:", res.message);
         }
+      } catch (error) {
+        console.error("Error fetching grafted plants:", error);
       } finally {
-        setIsLoading(false);
+        if (reset) setIsLoading(false);
+        else setIsFetchingMore(false);
       }
-    };
-  
-    useEffect(() => {
-      fetchPlant();
-    }, []);
+    },
+    [plantId, totalPage]
+  );
+
+  useEffect(() => {
+    fetchGraftedPlants(1, true);
+  }, [plantId, fetchGraftedPlants]);
+
+  const handleLoadMore = () => {
+    if (!isFetchingMore && pageIndex <= totalPage) {
+      fetchGraftedPlants(pageIndex);
+    }
+  };
+
+  const renderItem = ({ item: grafted }: { item: GraftedPlant }) => (
+    <TouchableOpacity style={styles.card} activeOpacity={0.8}>
+      <View style={styles.tagContainer}>
+        <LinearGradient
+          colors={["#BCD379", "#BCD379"]}
+          start={{ x: 0, y: 0 }}
+          end={{ x: 1, y: 0 }}
+          style={styles.tag}
+        >
+          <TextCustom style={styles.tagText}>
+            {new Date(grafted.graftedDate).toLocaleDateString()}
+          </TextCustom>
+        </LinearGradient>
+      </View>
+      <View style={styles.cardHeader}>
+        <View
+          style={[
+            styles.statusBadge,
+            grafted.status === "Healthy" && styles.healthyStatus,
+            grafted.status === "Used" && styles.usedStatus,
+            grafted.status === "Issue" && styles.issuedStatus,
+          ]}
+        >
+          <TextCustom style={styles.statusText}>{grafted.status}</TextCustom>
+        </View>
+      </View>
+
+      <TextCustom style={styles.plantName} numberOfLines={1}>
+        {grafted.graftedPlantName}
+      </TextCustom>
+      <View style={styles.infoRow}>
+        <CustomIcon
+          name="barcode"
+          size={16}
+          color={theme.colors.primary}
+          type="MaterialCommunityIcons"
+        />
+        <TextCustom style={styles.infoText}>
+          Code: {grafted.graftedPlantCode}
+        </TextCustom>
+      </View>
+      <View style={styles.infoRow}>
+        <CustomIcon
+          name="sprout"
+          size={16}
+          color={theme.colors.primary}
+          type="MaterialCommunityIcons"
+        />
+        <TextCustom style={styles.infoText}>
+          Cultivar: {grafted.cultivarName || "N/A"}
+        </TextCustom>
+      </View>
+      <View style={styles.infoRow}>
+        <CustomIcon
+          name="tag"
+          size={16}
+          color={theme.colors.primary}
+          type="MaterialCommunityIcons"
+        />
+        <TextCustom style={styles.infoText}>
+          Lot: {grafted.plantLotName} ({grafted.plantLotCode})
+        </TextCustom>
+      </View>
+      {grafted.separatedDate && (
+        <View style={styles.infoRow}>
+          <CustomIcon
+            name="calendar"
+            size={16}
+            color={theme.colors.primary}
+            type="MaterialCommunityIcons"
+          />
+          <TextCustom style={styles.infoText}>
+            Separated Date: {new Date(grafted.separatedDate).toLocaleDateString()}
+          </TextCustom>
+        </View>
+      )}
+      {grafted.note && (
+        <View style={styles.infoRow}>
+          <CustomIcon
+            name="note"
+            size={16}
+            color={theme.colors.primary}
+            type="MaterialCommunityIcons"
+          />
+          <TextCustom style={styles.infoText} numberOfLines={2}>
+            Note: {grafted.note}
+          </TextCustom>
+        </View>
+      )}
+
+      <View style={styles.cardFooter}>
+        <View style={styles.badgeContainer}>
+          {grafted.isCompleted && (
+            <View style={styles.completedBadge}>
+              <TextCustom style={styles.badgeText}>Completed</TextCustom>
+            </View>
+          )}
+          {grafted.isDead && (
+            <View style={styles.deadBadge}>
+              <TextCustom style={styles.badgeText}>Dead</TextCustom>
+            </View>
+          )}
+        </View>
+        <TouchableOpacity style={styles.detailButton} onPress={() => navigation.navigate(ROUTE_NAMES.PLANT.PLANT_DETAIL, { plantId: grafted.graftedPlantId.toString() })}>
+          <TextCustom style={styles.detailButtonText}>View Detail</TextCustom>
+          <CustomIcon
+            name="chevron-right"
+            size={16}
+            color={theme.colors.primary}
+            type="MaterialCommunityIcons"
+          />
+        </TouchableOpacity>
+      </View>
+    </TouchableOpacity>
+  );
+
+  const renderFooter = () => {
+    if (!isFetchingMore) return null;
+    return (
+      <View style={styles.footerLoading}>
+        <ActivityIndicator size="small" color={theme.colors.primary} />
+      </View>
+    );
+  };
+
+  if (isLoading) {
+    return (
+      <Loading />
+    );
+  }
+
   return (
-    <ScrollView style={styles.container} contentContainerStyle={styles.content}>
-      {plant && plant.graftedPlants.length > 0 ? (
-        plant.graftedPlants.map((grafted) => (
-          <TouchableOpacity
-            key={grafted.graftedPlantID}
-            style={styles.card}
-            activeOpacity={0.8}
-          >
-            <View style={styles.tagContainer}>
-              <LinearGradient
-                colors={["#BCD379", "#BCD379"]}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 0 }}
-                style={styles.tag}
-              >
-                <TextCustom style={styles.tagText}>
-                  {new Date(grafted.graftedDate).toLocaleDateString()}
-                </TextCustom>
-              </LinearGradient>
-            </View>
-            <View style={styles.cardHeader}>
-              <View
-                style={[
-                  styles.statusBadge,
-                  grafted.status === "Healthy" && styles.healthyStatus,
-                  grafted.status === "Used" && styles.usedStatus,
-                  grafted.status === "Issue" && styles.issuedStatus,
-                ]}
-              >
-                <TextCustom style={styles.statusText}>
-                  {grafted.status}
-                </TextCustom>
-              </View>
-            </View>
-
-            <TextCustom style={styles.plantName}>
-              {grafted.graftedPlantName}
-            </TextCustom>
-            <TextCustom style={styles.plantCode}>
-              Code: {grafted.graftedPlantCode}
-            </TextCustom>
-
-            <View style={styles.detailRow}>
-              <CustomIcon
-                name="tag"
-                size={16}
-                color="#2196F3"
-                type="MaterialCommunityIcons"
-              />
-              <TextCustom style={styles.detailText}>
-                Lot: {grafted.plantLotID || "N/A"}
-              </TextCustom>
-            </View>
-
-            <TouchableOpacity style={styles.detailButton}>
-              <TextCustom style={styles.detailButtonText}>
-                View Details
-              </TextCustom>
-              <CustomIcon
-                name="chevron-right"
-                size={16}
-                color="#064944"
-                type="MaterialCommunityIcons"
-              />
-            </TouchableOpacity>
-          </TouchableOpacity>
-        ))
-      ) : (
+    <FlatList
+      data={graftedPlants}
+      renderItem={renderItem}
+      keyExtractor={(item) => item.graftedPlantId.toString()}
+      contentContainerStyle={styles.content}
+      onEndReached={handleLoadMore}
+      onEndReachedThreshold={0.5}
+      ListEmptyComponent={
         <View style={styles.emptyContainer}>
           <CustomIcon
             name="tree"
@@ -110,11 +214,12 @@ const GraftedPlantsTab: React.FC<{ plantId: number }> = ({ plantId }) => {
             type="MaterialCommunityIcons"
           />
           <TextCustom style={styles.emptyText}>
-            No grafted plants from this plant
+            There are no grafted trees from this tree.
           </TextCustom>
         </View>
-      )}
-    </ScrollView>
+      }
+      ListFooterComponent={renderFooter}
+    />
   );
 };
 

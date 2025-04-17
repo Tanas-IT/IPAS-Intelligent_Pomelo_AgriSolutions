@@ -35,6 +35,7 @@ import {
 } from "@/components";
 import { worklogService } from "@/services";
 import { useAuthStore } from "@/store";
+import FeedbackSection from "../FeedbackSection/FeedbackSection";
 
 const WorklogDetailScreen: React.FC<WorklogDetailScreenProps> = ({ route }) => {
   const { worklogId } = route.params;
@@ -293,26 +294,12 @@ const WorklogDetailScreen: React.FC<WorklogDetailScreenProps> = ({ route }) => {
           <TextCustom style={styles.worklogName}>
             {worklog.workLogName}
           </TextCustom>
-          {/* <View style={styles.headerInfo}> */}
           <TextCustom style={styles.worklogCode}>
             Code: {worklog.workLogCode}
           </TextCustom>
           <StatusBadge status={worklog.status as StatusType} />
-          {/* <View style={styles.statusTag}>
-            <TextCustom style={styles.statusText}>{worklog.status}</TextCustom>
-          </View> */}
-          {/* </View> */}
         </View>
 
-        {/* <TouchableOpacity onPress={handleCancelWorklog} style={styles.delBtn}>
-          <CustomIcon
-            name="delete"
-            size={24}
-            color="red"
-            type="MaterialCommunityIcons"
-          />
-        </TouchableOpacity> */}
-        {/* Điều kiện hiển thị nút Delete hoặc Redo */}
         {!isUserRejected() ? (
           <TouchableOpacity onPress={handleCancelWorklog} style={styles.delBtn}>
             <CustomIcon
@@ -359,47 +346,35 @@ const WorklogDetailScreen: React.FC<WorklogDetailScreenProps> = ({ route }) => {
           </TextCustom>
         </View>
       </View>
-      {/* neu la reporter thi mark */}
-      {/* <TouchableOpacity style={styles.markAsCompleted} onPress={() => handleMarkAsComplete()}>
-        <CustomIcon
-          name="checkmark"
-          type="Ionicons"
-          size={20}
-          color={theme.colors.secondary}
-        />
-        <TextCustom style={styles.markAsCompletedText}>
-          Mark As Completed
-        </TextCustom>
-      </TouchableOpacity> */}
-      {/* Nếu là reporter thì hiển thị nút Mark as Complete, disable nếu status là Reviewing */}
+      
       {isUserReporter() && (
-          <TouchableOpacity
+        <TouchableOpacity
+          style={[
+            styles.markAsCompleted,
+          ]}
+          onPress={() => handleMarkAsComplete()}
+          disabled={worklog.status.toLowerCase() === "reviewing"}
+        >
+          <CustomIcon
+            name="checkmark"
+            type="Ionicons"
+            size={20}
+            color={
+              worklog.status.toLowerCase() === "reviewing"
+                ? theme.colors.gray
+                : theme.colors.secondary
+            }
+          />
+          <TextCustom
             style={[
-              styles.markAsCompleted,
+              styles.markAsCompletedText,
+              worklog.status.toLowerCase() === "reviewing" && { color: theme.colors.gray },
             ]}
-            onPress={() => handleMarkAsComplete()}
-            disabled={worklog.status.toLowerCase() === "reviewing"} // Disable nút
           >
-            <CustomIcon
-              name="checkmark"
-              type="Ionicons"
-              size={20}
-              color={
-                worklog.status.toLowerCase() === "reviewing"
-                  ? theme.colors.gray // Màu xám khi disable
-                  : theme.colors.secondary
-              }
-            />
-            <TextCustom
-              style={[
-                styles.markAsCompletedText,
-                worklog.status.toLowerCase() === "reviewing" && { color: theme.colors.gray }, // Màu xám khi disable
-              ]}
-            >
-              Mark As Completed
-            </TextCustom>
-          </TouchableOpacity>
-        )}
+            Mark As Completed
+          </TextCustom>
+        </TouchableOpacity>
+      )}
 
       {/* Assign Information */}
       <View style={styles.section}>
@@ -494,8 +469,11 @@ const WorklogDetailScreen: React.FC<WorklogDetailScreenProps> = ({ route }) => {
             />
             <TextCustom style={styles.detailLabel}>Crop</TextCustom>
             <TextCustom style={styles.detailValue}>
-              {worklog.listGrowthStageName.join(", ")}
+              {worklog.listGrowthStageName?.length
+                ? worklog.listGrowthStageName.join(", ")
+                : "N/A"}
             </TextCustom>
+
           </View>
           <View style={styles.detailItem}>
             <CustomIcon
@@ -709,15 +687,7 @@ const WorklogDetailScreen: React.FC<WorklogDetailScreenProps> = ({ route }) => {
       {/* Feedback Section */}
       <View style={styles.section}>
         <TextCustom style={styles.sectionTitle}>Feedback</TextCustom>
-        {worklog.listTaskFeedback.length > 0 ? (
-          <TextCustom style={styles.feedbackText}>
-            This worklog has feedback.
-          </TextCustom>
-        ) : (
-          <TextCustom style={styles.feedbackText}>
-            No feedback available.
-          </TextCustom>
-        )}
+        <FeedbackSection feedbacks={worklog?.listTaskFeedback || []} />
       </View>
     </ScrollView>
   );

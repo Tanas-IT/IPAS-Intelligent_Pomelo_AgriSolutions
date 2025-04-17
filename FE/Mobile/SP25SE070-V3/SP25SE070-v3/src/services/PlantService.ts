@@ -7,6 +7,7 @@ import {
   GetPlantRecord,
   PlantGrowthHistoryRequest,
 } from "@/payloads";
+import { GraftedPlant, HarvestStatisticResponse } from "@/types";
 import { AvailableHarvest, CreateHarvestRecordRequest, HarvestRecord } from "@/types/harvest";
 
 export const getPlant = async (
@@ -126,4 +127,52 @@ export const createPlantHarvestRecord = async (
     });
     throw error;
   }
+};
+
+export const getGraftedPlantsByPlant = async (
+  plantId: number,
+  params: {
+    graftedDateFrom?: string;
+    graftedDateTo?: string;
+    pageIndex: number;
+    pageSize: number;
+    searchKey?: string;
+    sortBy?: string;
+    direction?: string;
+  }
+): Promise<ApiResponse<GetData<GraftedPlant>>> => {
+  const res = await axiosAuth.axiosJsonRequest.get("grafted-plant/get-all-by-plant", {
+    params: {
+      PlantId: plantId,
+      GraftedDateFrom: params.graftedDateFrom,
+      GraftedDateTo: params.graftedDateTo,
+      pageIndex: params.pageIndex,
+      pageSize: params.pageSize,
+      searchKey: params.searchKey,
+      sortBy: params.sortBy,
+      direction: params.direction,
+    },
+  });
+  const apiResponse = res.data as ApiResponse<GetData<GraftedPlant>>;
+  return apiResponse;
+};
+
+export const getHarvestStatistics = async (
+  plantId: number,
+  params: {
+    yearFrom: number | string;
+    yearTo: number | string;
+    productId: number | string;
+  }
+): Promise<ApiResponse<HarvestStatisticResponse>> => {
+  const res = await axiosAuth.axiosJsonRequest.get("harvests/statistic/plant-in-year", {
+    params: {
+      plantId,
+      yearFrom: params.yearFrom,
+      yearTo: params.yearTo,
+      productId: params.productId,
+    },
+  });
+  const apiResponse = res.data as ApiResponse<HarvestStatisticResponse>;
+  return apiResponse;
 };
