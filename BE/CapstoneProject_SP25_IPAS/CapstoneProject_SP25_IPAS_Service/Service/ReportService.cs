@@ -990,7 +990,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
                     return new BusinessResult(200, "Get employee today task success", result);
                 }
-                return new BusinessResult(400, "Do not have any task today");
+                return new BusinessResult(200, "Do not have any task today", new List<EmployeeTodayTask>());
             }
             catch (Exception ex)
             {
