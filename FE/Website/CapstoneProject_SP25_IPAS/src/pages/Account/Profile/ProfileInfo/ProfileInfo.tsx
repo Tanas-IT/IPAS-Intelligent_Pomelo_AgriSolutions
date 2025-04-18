@@ -1,4 +1,4 @@
-import { Button, DatePicker, Form, Input, Radio, Typography, Flex, Space } from "antd";
+import { Button, DatePicker, Form, Input, Radio, Typography, Flex } from "antd";
 import { useEffect, useRef, useState } from "react";
 import { toast } from "react-toastify";
 import dayjs from "dayjs";
@@ -9,7 +9,6 @@ import { UserAvatar } from "@/components";
 import style from "./ProfileInfo.module.scss";
 import { GetUser2 } from "@/payloads";
 import { userService } from "@/services";
-import { LOCAL_STORAGE_KEYS } from "@/constants";
 import { useUserStore } from "@/stores";
 
 const { Title } = Typography;
@@ -46,7 +45,6 @@ const ProfileInfo: React.FC = () => {
     setIsUploadingAvatar(true);
     try {
       const res = await userService.updateAvatarUser(file);
-      console.log(res);
 
       if (res.statusCode === 200 && res.data) {
         toast.success(res.message);

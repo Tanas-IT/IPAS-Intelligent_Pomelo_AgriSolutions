@@ -50,6 +50,22 @@ export const updateUser = async (user: UserRequest): Promise<ApiResponse<GetUser
   return apiResponse;
 };
 
+export const changePassword = async (
+  oldPassword: string,
+  newPassword: string,
+): Promise<ApiResponse<GetUser2>> => {
+  const payload = {
+    oldPassword,
+    newPassword,
+  };
+  const res = await axiosAuth.axiosJsonRequest.put(
+    `users/change-password?userId=${getUserId()}`,
+    payload,
+  );
+  const apiResponse = res.data as ApiResponse<GetUser2>;
+  return apiResponse;
+};
+
 export const updateAvatarUser = async (avatarFile: File): Promise<ApiResponse<GetUser2>> => {
   const formData = new FormData();
   formData.append("avatarOfUser", avatarFile);

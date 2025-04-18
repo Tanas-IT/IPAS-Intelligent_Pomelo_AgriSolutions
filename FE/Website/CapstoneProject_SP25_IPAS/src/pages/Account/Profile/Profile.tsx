@@ -1,6 +1,7 @@
 import { Tabs, Flex } from "antd";
 import style from "./Profile.module.scss";
 import ProfileInfo from "./ProfileInfo/ProfileInfo";
+import SecuritySettings from "./SecuritySettings/SecuritySettings";
 
 const sidebarProfileTitle = ["Profile Information", "Security Settings"];
 
@@ -22,8 +23,7 @@ function Profile() {
           children: (
             <>
               {index === 0 && <ProfileInfo />}
-              {/* {index === 1 && <SecuritySettings locationString={locationString} flag={flag} />}
-              {index === 2 && <Billing subscription={subscription} />} */}
+              {index === 1 && <SecuritySettings />}
             </>
           ),
         }))}
