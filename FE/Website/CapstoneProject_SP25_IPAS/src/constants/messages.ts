@@ -36,4 +36,6 @@ export const MESSAGES = {
   HARVEST_DATE_OUT_OF_RANGE: "Harvest date must be within the crop period!",
   EMPLOYEE_DUPLICATE: "Duplicate employees detected. Please remove duplicates.",
   PRODUCT_DUPLICATE: "Duplicate products detected. Please remove duplicates.",
+  REQUIRE_PACKAGE_DETAIL: "At least one detail is required.",
+
 } as const;

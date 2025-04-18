@@ -49,7 +49,7 @@ function GraftedPlant() {
   const [isActionLoading, setIsActionLoading] = useState(false);
 
   const { filters, updateFilters, applyFilters, clearFilters } =
-    useFilters<FilterGraftedPlantState>(DEFAULT_GRAFTED_PLANT_FILTERS, () => fetchData());
+    useFilters<FilterGraftedPlantState>(DEFAULT_GRAFTED_PLANT_FILTERS, () => fetchData(1));
 
   const {
     data,

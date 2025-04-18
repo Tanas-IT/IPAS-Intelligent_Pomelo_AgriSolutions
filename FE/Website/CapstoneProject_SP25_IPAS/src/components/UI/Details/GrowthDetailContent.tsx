@@ -33,11 +33,7 @@ function GrowthDetailContent<T extends { [key: string]: any }>({
     <Flex className={style.detailWrapper} vertical>
       <Flex gap={12} className={style.modalHeader}>
         <Flex justify="center" align="center" gap={10}>
-          <UserAvatar
-            avatarURL={history.noteTakerAvatar || undefined}
-            size={40}
-            fallbackText={history.noteTakerName}
-          />
+          <UserAvatar avatarURL={history.noteTakerAvatar || undefined} size={40} />
 
           <span className={style.userName}>{history.noteTakerName}</span>
           <span>created this note</span>

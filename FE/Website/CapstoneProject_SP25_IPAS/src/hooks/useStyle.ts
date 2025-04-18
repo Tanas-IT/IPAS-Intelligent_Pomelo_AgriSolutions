@@ -255,13 +255,13 @@ const useStyle = createStyles(({ css }) => {
       }
     `,
     customeTable2: css`
-      .ant-table-thead >tr>th {
+      .ant-table-thead > tr > th {
         background-color: #bcd379 !important;
         color: #20461e !important;
       }
       ,
       .ant-table-tbody > tr:hover {
-        background-color:rgb(214, 220, 196) !important;
+        background-color: rgb(214, 220, 196) !important;
       }
     `,
     customCollapse: css`

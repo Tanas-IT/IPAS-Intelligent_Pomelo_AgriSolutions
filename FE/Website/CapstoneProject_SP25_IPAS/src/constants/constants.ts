@@ -15,14 +15,24 @@ export const UserRolesStr = {
 export const SYSTEM_CONFIG_GROUP = {
   MASTER_TYPE: "MasterType",
   GROWTH_STAGE_ACTION: "GrowthStageAction",
-  WORK_TARGET: "WorkTarget",
+  WORK: "Work",
   CRITERIA: "Criteria",
-  CRITERIA_APPLY: "CriteriaApply",
+  PLANT_LOT_CRITERIA: "PlantLotCriteria",
+  PLANT_CRITERIA: "PlantCriteria",
+  GRAFTED_CRITERIA: "GraftedCriteria",
+  PRODUCT_CRITERIA: "ProductCriteria",
   SOIL_TYPE: "SoilType",
   CLIMATE_ZONE: "ClimateZone",
   HARVEST_SEASON: "HarvestSeason",
   YIELD_THRESHOLD: "YieldThreshold",
 };
+
+export const criteriaGroupsHasReference = [
+  "PlantLotCriteria",
+  "PlantCriteria",
+  "GraftedCriteria",
+  "ProductCriteria",
+];
 
 export const SYSTEM_CONFIG_KEY = {
   PLANT_CRITERIA: "PlantCriteria",
@@ -110,10 +120,10 @@ export const WORK_TARGETS = {
 
 export const CRITERIA_TARGETS = {
   Product: "Product",
-  "Grafted Condition": "Grafted Condition",
-  "Grafted Evaluation": "Grafted Evaluation",
-  "Plantlot Condition": "PlantLot Condition",
-  "Plantlot Evaluation": "PlantLot Evaluation",
+  "Grafted Condition": "GraftedCondition",
+  "Grafted Evaluation": "GraftedEvaluation",
+  "Plantlot Condition": "PlantLotCondition",
+  "Plantlot Evaluation": "PlantLotEvaluation",
   Others: "Others",
 } as const;
 
@@ -204,3 +214,22 @@ export const ROOM_GROUPS = [
   "Previous 30 Days",
   "Earlier",
 ] as const;
+
+export const USER_ROLE_OPTIONS = [
+  { label: "User", value: 2 },
+  { label: "Expert", value: 6 },
+];
+
+export const PAYMENT_STATUS = {
+  PAID: "Paid",
+  PENDING: "Pending",
+  FAIL: "Fail",
+  CANCELLED: "Cancelled",
+} as const;
+
+export const paymentStatusColors: Record<string, string> = {
+  [PAYMENT_STATUS.PAID]: "green",
+  [PAYMENT_STATUS.PENDING]: "orange",
+  [PAYMENT_STATUS.FAIL]: "red",
+  [PAYMENT_STATUS.CANCELLED]: "default",
+};

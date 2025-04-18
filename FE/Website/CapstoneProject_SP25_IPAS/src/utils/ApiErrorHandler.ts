@@ -18,7 +18,7 @@ export const handleApiError = async (error: any) => {
   if (error.message === "Network Error" && !error.response) {
     toast.error(MESSAGES.NETWORK_ERROR);
   } else if (error.response) {
-    console.log(error);
+    // console.log(error);
 
     switch (error.response.status) {
       case 401:
@@ -26,7 +26,7 @@ export const handleApiError = async (error: any) => {
         if (message.includes("Token is expired!")) {
           const originalRequest = error.config;
           const result = await authService.refreshToken();
-          console.log(result);
+          // console.log(result);
           if (result.statusCode === 200) {
             const newAccessToken = result.data.authenModel.accessToken;
             const newRefreshToken = result.data.authenModel.refreshToken;
@@ -37,7 +37,7 @@ export const handleApiError = async (error: any) => {
             originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
             return axios(originalRequest);
           } else if (result.statusCode === 500 || result.statusCode === 400) {
-            // redirectToHomeWithMessage(MESSAGES.SESSION_EXPIRED);
+            redirectToHomeWithMessage(MESSAGES.SESSION_EXPIRED);
           }
         } else {
           redirectToHomeWithMessage("", false);

@@ -9,16 +9,20 @@ import {
 import { GetPlan } from "@/payloads/plan";
 import {
   CoordsState,
+  FilterConfigTypeState,
   FilterCriteriaState,
   FilterCropState,
   FilterEmployeeState,
+  FilterFarmState,
   FilterGraftedPlantState,
   FilterHarvestDayState,
   FilterLandRowState,
   FilterMasterTypeState,
   FilterPartnerState,
+  FilterPaymentHistoryState,
   FilterPlantLotState,
   FilterPlantState,
+  FilterUserState,
   LogoState,
 } from "@/types";
 
@@ -101,6 +105,40 @@ export const DEFAULT_MASTER_TYPE_FILTERS: FilterMasterTypeState = {
   isActive: null,
 };
 
+export const DEFAULT_CONFIG_FILTERS: FilterConfigTypeState = {
+  isActive: null,
+};
+
+export const DEFAULT_USER_FILTERS: FilterUserState = {
+  createDateFrom: "",
+  createDateTo: "",
+  dobFrom: "",
+  dobTo: "",
+  genders: "",
+  status: "",
+  roleIds: [] as string[],
+};
+
+export const DEFAULT_FARM_FILTERS: FilterFarmState = {
+  createDateFrom: "",
+  createDateTo: "",
+  status: "",
+};
+
+export const DEFAULT_PAYMENT_HISTORY_FILTERS: FilterPaymentHistoryState = {
+  createDateFrom: "",
+  createDateTo: "",
+  enrolledDateFrom: "",
+  enrolledDateTo: "",
+  expiredDateFrom: "",
+  expiredDateTo: "",
+  totalPriceFrom: undefined,
+  totalPriceTo: undefined,
+  packageIds: [] as string[],
+  farmIds: [] as string[],
+  status: "",
+};
+
 export const DEFAULT_LOT_FILTERS: FilterPlantLotState = {
   importedDateFrom: "",
   importedDateTo: "",
@@ -148,6 +186,7 @@ export const DEFAULT_PLANT_FILTERS: FilterPlantState = {
   healthStatus: [] as string[],
   isLocated: null,
   isDead: null,
+  isPassed: null,
 };
 
 export const DEFAULT_GRAFTED_PLANT_FILTERS: FilterGraftedPlantState = {
@@ -231,4 +270,7 @@ export const DEFAULT_PLANT: GetPlantDetail = {
   isPassed: false,
   plantReferenceCode: "",
   plantReferenceId: 0,
+  passedDate: "",
+  plantLotName: "",
+  plantReferenceName: "",
 };

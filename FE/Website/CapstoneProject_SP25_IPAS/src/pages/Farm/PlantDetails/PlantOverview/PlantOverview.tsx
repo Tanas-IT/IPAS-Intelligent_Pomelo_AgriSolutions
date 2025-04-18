@@ -39,7 +39,11 @@ function PlantOverview({ productType, timeline }: PlantOverviewProps) {
   const [selectedProduct, setSelectedProduct] = useState<number | string>();
   const [harvestData, setHarvestData] = useState<GetHarvestStatisticOfPlant | null>(null);
   const { plant, plantId } = usePlantStore();
-  const { options, loading } = useSystemConfigOptions(SYSTEM_CONFIG_GROUP.YIELD_THRESHOLD);
+  const { options, loading } = useSystemConfigOptions(
+    SYSTEM_CONFIG_GROUP.YIELD_THRESHOLD,
+    undefined,
+    true,
+  );
 
   useEffect(() => {
     if (productType !== undefined && timeline?.length === 2) {
@@ -142,62 +146,29 @@ function PlantOverview({ productType, timeline }: PlantOverviewProps) {
                   <Label value="Yield (Kg)" angle={-90} position="insideLeft" />
                 </YAxis>
 
-                {/* Reference areas cho từng mức */}
-                {/* <ReferenceArea y1={0} y2={50} fill="#d96b6b" fillOpacity={0.1} />
-                <ReferenceArea y1={50} y2={200} fill="#c9b458" fillOpacity={0.1} />
-                <ReferenceArea y1={200} y2={1000} fill="#76b947" fillOpacity={0.1} /> */}
-
-                {/* Reference lines với nhãn */}
-                {/* <ReferenceLine
-                  y={0}
-                  stroke="#d96b6b"
-                  label={{
-                    value: "Below Standard",
-                    position: "right",
-                    fill: "#d96b6b",
-                    fontSize: 12,
-                  }}
-                />
-                <ReferenceLine
-                  y={50}
-                  stroke="#c9b458"
-                  label={{ value: "Acceptable", position: "right", fill: "#c9b458", fontSize: 12 }}
-                />
-                <ReferenceLine
-                  y={200}
-                  stroke="#76b947"
-                  ifOverflow="extendDomain"
-                  label={{ value: "Outstanding", position: "right", fill: "#76b947", fontSize: 12 }}
-                /> */}
                 {(() => {
-                  const thresholdColors = ["#d96b6b", "#c9b458", "#76b947", "#4aa96c"];
                   const sortedOptions = [...options].sort(
-                    (a, b) => Number(a.value) - Number(b.value),
+                    (a, b) => Number(a.label) - Number(b.label),
                   );
-                  const allThresholds = [0, ...sortedOptions.map((opt) => Number(opt.value)), 1000];
-                  const allLabels = [
-                    "Below Standard",
-                    ...sortedOptions.map((opt) => String(opt.label)),
-                    "Above Standard",
-                  ];
 
-                  return allThresholds.slice(0, -1).map((y, index) => {
-                    const nextY = allThresholds[index + 1];
-                    const color = thresholdColors[index] ?? "#ccc";
-                    const label = allLabels[index] ?? `Level ${index + 1}`;
+                  return sortedOptions.map((option, index) => {
+                    const y = Number(option.label);
+                    const y1 = index === 0 ? 0 : Number(sortedOptions[index - 1].label);
+                    const color = index === 0 ? "#d96b6b" : index === 1 ? "#c9b458" : "#76b947"; // bạn có thể chỉnh màu theo ý
 
                     return (
-                      <React.Fragment key={y}>
-                        <ReferenceArea y1={y} y2={nextY} fill={color} fillOpacity={0.1} />
+                      <React.Fragment key={option.label?.toString()}>
+                        <ReferenceArea y1={y1} y2={y} fill={color} fillOpacity={0.1} />
                         <ReferenceLine
                           y={y}
                           stroke={color}
                           ifOverflow="extendDomain"
                           label={{
-                            value: label,
+                            value: String(option.value),
                             position: "right",
                             fill: color,
                             fontSize: 12,
+                            dy: 10,
                           }}
                         />
                       </React.Fragment>

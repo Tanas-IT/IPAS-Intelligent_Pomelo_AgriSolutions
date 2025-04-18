@@ -50,7 +50,7 @@ function LandRow() {
 
   const { filters, updateFilters, applyFilters, clearFilters } = useFilters<FilterLandRowState>(
     DEFAULT_LAND_ROW_FILTERS,
-    () => fetchData(),
+    () => fetchData(1),
   );
 
   const {

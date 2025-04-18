@@ -5,7 +5,11 @@ import { Icons } from "@/assets";
 import WeatherCard from "./components/WeatherCard/WeatherCard";
 import { useEffect, useState } from "react";
 import { dashboardService } from "@/services";
-import { CompareWorkPerformanceResponse, DashboardResponses, StatisticPlanData } from "@/payloads/dashboard";
+import {
+  CompareWorkPerformanceResponse,
+  DashboardResponses,
+  StatisticPlanData,
+} from "@/payloads/dashboard";
 import PlantDevelopmentChart from "./components/PlantDevelopmentChart/PlantDevelopmentChart";
 import PlantDevelopmentStages from "./components/PlantDevelopmentStages/PlantDevelopmentStages";
 import PlantHealthStatus from "./components/PlantHealthStatus/PlantHealthStatus";
@@ -167,7 +171,8 @@ function Dashboard() {
               <Flex vertical>
                 <h3 style={{ whiteSpace: "nowrap" }}>Pomelo Quality Breakdown</h3>
                 <p style={{ color: "gray", width: "200px", marginTop: "20px" }}>
-                  This section provides a detailed breakdown of pomelo quality across different harvest seasons for the selected year.
+                  This section provides a detailed breakdown of pomelo quality across different
+                  harvest seasons for the selected year.
                 </p>
               </Flex>
               <PomeloQualityBreakdown />
@@ -224,9 +229,9 @@ function Dashboard() {
   return (
     <>
       <Flex className={style.container}>
-        <Flex gap={20} className={style.statBoxContainer}>
+        <Flex className={style.statBoxContainer}>
           {statsData.map((stat, index) => (
-            <Flex key={index}>
+            <Flex key={index} style={{ flex: 2 }}>
               <StatBox
                 title={stat.title}
                 subtitle={stat.subtitle}
@@ -235,7 +240,9 @@ function Dashboard() {
               />
             </Flex>
           ))}
-          <WeatherCard weather={data?.weatherPropertyModel || weatherData} />
+          <Flex style={{ flex: 2 }}>
+            <WeatherCard weather={data?.weatherPropertyModel || weatherData} />
+          </Flex>
         </Flex>
 
         <Flex vertical gap={20} style={{ width: "100%" }}>

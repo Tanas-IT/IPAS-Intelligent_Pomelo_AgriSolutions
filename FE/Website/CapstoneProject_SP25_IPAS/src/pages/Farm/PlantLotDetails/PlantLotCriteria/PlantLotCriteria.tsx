@@ -303,6 +303,7 @@ function PlantLotCriteria() {
                     <PanelTitle
                       title={group.masterTypeName}
                       target={group.target}
+                      targetDisplay={group.targetDisplay}
                       criteriaSetId={group.masterTypeId}
                       data={group.criteriaList}
                       isAllConditionChecked={isAllConditionChecked}

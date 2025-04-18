@@ -28,13 +28,13 @@ import PartnerModal from "./PartnerModal";
 
 function ThirdParty() {
   const formModal = useModal<GetPartner>();
-  const deleteConfirmModal = useModal<{ ids: number[]  }>();
+  const deleteConfirmModal = useModal<{ ids: number[] }>();
   const updateConfirmModal = useModal<{ partner: PartnerRequest }>();
   const cancelConfirmModal = useModal();
 
   const { filters, updateFilters, applyFilters, clearFilters } = useFilters<FilterPartnerState>(
     DEFAULT_PARTNER_FILTERS,
-    () => fetchData(),
+    () => fetchData(1),
   );
 
   const {

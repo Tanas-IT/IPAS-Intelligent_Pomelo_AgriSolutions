@@ -65,7 +65,7 @@ export const masterTypeColumns: TableColumn<GetMasterType>[] = [
             {item.isConflict !== null && item.isConflict !== undefined && (
               <MasterTypeDetailView name="Is Conflict" value={item.isConflict ? "Yes" : "No"} />
             )}
-            {item.target && <MasterTypeDetailView name="Target" value={item.target} />}
+            {item.target && <MasterTypeDetailView name="Target" value={item.targetDisplay} />}
             {item.maxTime !== null && item.maxTime !== undefined && (
               <MasterTypeDetailView
                 name="Time Range"

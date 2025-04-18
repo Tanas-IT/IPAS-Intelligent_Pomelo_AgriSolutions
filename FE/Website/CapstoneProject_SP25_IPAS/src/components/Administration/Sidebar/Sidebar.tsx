@@ -56,6 +56,66 @@ const Sidebar: React.FC<SidebarProps> = ({ isDefault = false }) => {
 
   let menuItems: MenuItem[] = [
     {
+      key: "Dashboard",
+      label: "Dashboard",
+      icon: <Icons.users />,
+      to: PATHS.ADMIN.DASHBOARD,
+      activePaths: [PATHS.ADMIN.DASHBOARD],
+      category: "Main",
+      isView: !isDefault,
+      roles: [UserRolesStr.Admin],
+    },
+    {
+      key: "User Management",
+      label: "User Management",
+      icon: <Icons.users />,
+      to: PATHS.ADMIN.USER_LIST,
+      activePaths: [PATHS.ADMIN.USER_LIST],
+      category: "Main",
+      isView: !isDefault,
+      roles: [UserRolesStr.Admin],
+    },
+    {
+      key: "Farm Management",
+      label: "Farm Management",
+      icon: <Icons.farms />,
+      to: PATHS.ADMIN.FARM_LIST,
+      activePaths: [PATHS.ADMIN.FARM_LIST],
+      category: "Main",
+      isView: !isDefault,
+      roles: [UserRolesStr.Admin],
+    },
+    {
+      key: "Payment History",
+      label: "Payment History",
+      icon: <Icons.addPLan />,
+      to: PATHS.ADMIN.PAYMENT_HISTORY,
+      activePaths: [PATHS.ADMIN.PAYMENT_HISTORY],
+      category: "Main",
+      isView: !isDefault,
+      roles: [UserRolesStr.Admin],
+    },
+    {
+      key: "Package Management",
+      label: "Package Management",
+      icon: <Icons.package />,
+      activePaths: [PATHS.PACKAGE.PACKAGE_LIST],
+      to: PATHS.PACKAGE.PACKAGE_LIST,
+      category: "Main",
+      isView: !isDefault,
+      roles: [UserRolesStr.Admin],
+    },
+    {
+      key: "System Configuration",
+      label: "System Configuration",
+      icon: <Icons.systemSetting />,
+      activePaths: [PATHS.ADMIN.SYSTEM_CONFIG],
+      to: PATHS.ADMIN.SYSTEM_CONFIG,
+      category: "Main",
+      isView: !isDefault,
+      roles: [UserRolesStr.Admin],
+    },
+    {
       key: "My Farms",
       label: "My Farms",
       icon: <Icons.farms />,
@@ -65,6 +125,40 @@ const Sidebar: React.FC<SidebarProps> = ({ isDefault = false }) => {
       isView: isDefault,
       roles: [UserRolesStr.User],
     },
+    {
+      key: "Dashboard",
+      label: "Dashboard",
+      icon: <Icons.dashboard />,
+      to: PATHS.EMPLOYEE.DASHBOARD,
+      category: "Main",
+      activePaths: [PATHS.EMPLOYEE.DASHBOARD],
+      isView: !isDefault,
+      roles: [UserRolesStr.Employee],
+    },
+    {
+      key: "Work Schedule",
+      label: "Work Schedule",
+      icon: <Icons.calendar />,
+      to: PATHS.EMPLOYEE.WORK_SCHEDULE,
+      category: "Main",
+      activePaths: [PATHS.EMPLOYEE.WORK_SCHEDULE],
+      isView: !isDefault,
+      roles: [UserRolesStr.Employee],
+    },
+    // {
+    //   key: "Plants",
+    //   label: "Plant Management",
+    //   icon: <Icons.plantFill />,
+    //   category: "Main",
+    //   to: PATHS.FARM.FARM_PLANT_LIST,
+    //   activePaths: [
+    //     PATHS.FARM.FARM_PLANT_LIST,
+    //     PATHS.FARM.FARM_PLANT_DETAIL,
+    //     PATHS.FARM.FARM_PLANT_DETAIL_FROM_ROW,
+    //   ],
+    //   isView: !isDefault,
+    //   roles: [UserRolesStr.Employee],
+    // },
     {
       key: "Dashboard",
       label: "Dashboard",
@@ -84,16 +178,6 @@ const Sidebar: React.FC<SidebarProps> = ({ isDefault = false }) => {
       category: "Main",
       isView: !isDefault,
       roles: [UserRolesStr.Owner],
-    },
-    {
-      key: "User Management",
-      label: "User Management",
-      icon: <Icons.users />,
-      to: PATHS.USER.USER_LIST,
-      activePaths: [PATHS.USER.USER_LIST, PATHS.USER.USER_DETAIL],
-      category: "Main",
-      isView: !isDefault,
-      roles: [UserRolesStr.Admin],
     },
     {
       key: "Crop Management",
@@ -274,7 +358,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isDefault = false }) => {
       activePaths: [PATHS.CHATBOX.AI_CHATBOX],
       category: "Main",
       isView: !isDefault,
-      roles: [UserRolesStr.Owner],
+      roles: [UserRolesStr.Owner, UserRolesStr.Manager, UserRolesStr.Employee],
     },
     {
       key: "Staff Management",
@@ -312,34 +396,15 @@ const Sidebar: React.FC<SidebarProps> = ({ isDefault = false }) => {
       roles: [UserRolesStr.Owner],
     },
     {
-      key: "Package Management",
-      label: "Package Management",
-      icon: <Icons.package />,
-      activePaths: [PATHS.PACKAGE.PACKAGE_LIST],
-      to: PATHS.PACKAGE.PACKAGE_LIST,
-      category: "Main",
-      isView: !isDefault,
-      roles: [UserRolesStr.Admin],
-    },
-    {
       key: "Report Management",
       label: "Report Management",
       icon: <Icons.process />,
       to: PATHS.EXPERT.REPORT_LIST,
       activePaths: [PATHS.EXPERT.REPORT_LIST],
       category: "Main",
-      isView: isDefault,
-      // roles: [UserRolesStr.Expert],
+      isView: !isDefault,
+      roles: [UserRolesStr.Expert],
     },
-    // {
-    //   key: "Dataset Management",
-    //   label: "Dataset Management",
-    //   icon: <Icons.process />,
-    //   to: PATHS.EXPERT.IMAGE_LIST,
-    //   activePaths: [PATHS.EXPERT.IMAGE_LIST],
-    //   category: "Main",
-    //   isView: isDefault,
-    // },
     {
       key: "Setting",
       label: "Setting",
@@ -576,8 +641,17 @@ const Sidebar: React.FC<SidebarProps> = ({ isDefault = false }) => {
     >
       <Flex className={style.sidebar}>
         {/* Header */}
-        <Flex className={`${style.profileWrapper} ${!isDefault && style.cursor}`}>
-          {!isDefault && (
+        <Flex
+          className={`${style.profileWrapper} ${
+            !isDefault &&
+            currentUserRole !== UserRolesStr.Admin &&
+            currentUserRole !== UserRolesStr.Expert &&
+            style.cursor
+          }`}
+        >
+          {!isDefault &&
+          currentUserRole !== UserRolesStr.Admin &&
+          currentUserRole !== UserRolesStr.Expert ? (
             <Popover content={profileContent} trigger="click" placement="bottom" color="#f0f0f0">
               <Flex
                 className={style.logo}
@@ -590,8 +664,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isDefault = false }) => {
                 <Icons.arrowDropDownLine className={style.dropdownIcon} />
               </Flex>
             </Popover>
-          )}
-          {isDefault && (
+          ) : (
             <Flex
               className={style.logo}
               style={{
@@ -600,7 +673,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isDefault = false }) => {
             >
               <Avatar crossOrigin="anonymous" src={Images.logo} className={style.avatar} />
               {isExpanded && (
-                <Text className={style.logoText}>{"Intelligent Pomelo AgriSolutions"}</Text>
+                <Text className={style.logoText}>Intelligent Pomelo AgriSolutions</Text>
               )}
             </Flex>
           )}

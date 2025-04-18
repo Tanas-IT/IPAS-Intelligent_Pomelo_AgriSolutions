@@ -18,6 +18,7 @@ export interface GetMasterType {
   characteristic: string;
   isConflict: boolean;
   target: string;
+  targetDisplay: string;
   typeName: string;
   createDate: Date;
   isActive: boolean;

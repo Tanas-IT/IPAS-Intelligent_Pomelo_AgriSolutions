@@ -1165,7 +1165,8 @@ VALUES
 ('user4@example.com', '$2a$11$1V.AriJm/OGpjG0vWRH8tuD9/Fi2ezrgyDJItAZ5bzGH1DTukcH9e', 'Isla Thomas', '0966444555', 'Female', '1993-09-30', 'U009', GETDATE(), GETDATE(), 0, 'Active', NULL, 'https://res.cloudinary.com/dgshx4n2c/image/upload/v1744259852/hbbtcb6k2kxh5zi1yhu0.jpg', NULL, NULL, 2),
 ('user5@example.com', '$2a$11$1V.AriJm/OGpjG0vWRH8tuD9/Fi2ezrgyDJItAZ5bzGH1DTukcH9e', 'Noah Martinez', '0977555666', 'Male', '1990-06-05', 'U010', GETDATE(), GETDATE(), 0, 'Active', NULL, 'https://res.cloudinary.com/dgshx4n2c/image/upload/v1744259852/hbbtcb6k2kxh5zi1yhu0.jpg', NULL, NULL, 2),
 ('lequangdung232@gmail.com', '$2a$11$qi491eunYFCQeO..SFS.Iethgoa5BFyMgH5ugmS8Drv54uqZ5QpnC', 'Quang Dung', '0912345678', 'Male', '2003-08-02', 'U007', GETDATE(), GETDATE(), 0, 'Active', NULL, 'https://res.cloudinary.com/dgshx4n2c/image/upload/v1741237242/user/avatar/igg0uhkj5yomwkzfskph.png', NULL, NULL, 2),
-('expert@gmail.com', '$2a$11$qi491eunYFCQeO..SFS.Iethgoa5BFyMgH5ugmS8Drv54uqZ5QpnC', 'Expert', '0912345678', 'Male', '1992-12-20', 'U003', GETDATE(), GETDATE(), 0, 'Active', NULL, 'https://res.cloudinary.com/dgshx4n2c/image/upload/v1738903142/user/avatar/tgfbqvv5f3jmuc220rhy.webp', NULL, NULL, 6);
+('expert@gmail.com', '$2a$11$qi491eunYFCQeO..SFS.Iethgoa5BFyMgH5ugmS8Drv54uqZ5QpnC', 'Expert', '0912345678', 'Male', '1992-12-20', 'U003', GETDATE(), GETDATE(), 0, 'Active', NULL, 'https://res.cloudinary.com/dgshx4n2c/image/upload/v1738903142/user/avatar/tgfbqvv5f3jmuc220rhy.webp', NULL, NULL, 6),
+('admin@gmail.com', '$2a$11$qi491eunYFCQeO..SFS.Iethgoa5BFyMgH5ugmS8Drv54uqZ5QpnC', 'Admin', '0912345678', 'Male', '1992-12-20', 'U003', GETDATE(), GETDATE(), 0, 'Active', NULL, 'https://res.cloudinary.com/dgshx4n2c/image/upload/v1738903142/user/avatar/tgfbqvv5f3jmuc220rhy.webp', NULL, NULL, 1);
 
 GO
 INSERT INTO [ipas].[dbo].[UserFarm] ([FarmID], [UserID], [RoleId])
@@ -1186,7 +1187,6 @@ VALUES
 (1, 15, 5), 
 (1, 16, 4), -- Olivia Martinez (Manager)
 (1, 17, 4), -- Daniel Brown (Manager)
-(1, 24, 6),
 (1, 23, 5);
 GO
 -- Fake data for GrowthStage table with FarmID = 1
@@ -1209,60 +1209,60 @@ VALUES
 ('GS205', 'Fruiting & Harvest Stage', 28, 40, 0, 2, 0, GETDATE(), 'Grafted,Harvest', 'Fruits develop and ripen for harvesting');
 
 GO
+SET IDENTITY_INSERT [ipas].[dbo].[MasterType] ON;
 INSERT INTO [ipas].[dbo].[MasterType] 
-    ([MasterTypeCode], [MasterTypeName], [TypeName], [MasterTypeDescription], [BackgroundColor], [TextColor], [Characteristic], [isDeleted], [isActive], [CreateDate], [IsDefault], [FarmID], [IsConflict], [Target], [MinTime], [MaxTime])
+    ([MasterTypeID], [MasterTypeCode], [MasterTypeName], [TypeName], [MasterTypeDescription], [BackgroundColor], [TextColor], [Characteristic], [isDeleted], [isActive], [CreateDate], [IsDefault], [FarmID], [IsConflict], [Target], [MinTime], [MaxTime])
 VALUES
-      ('MT001', 'Certificate', 'Document', 'Official certificate related to agricultural activities', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1, NULL, NULL, NULL, NULL),
-    ('MT002', 'License', 'Document', 'Official license for agricultural operations or practices', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1, NULL, NULL, NULL, NULL),
-    ('MT003', 'Permit', 'Document', 'Official permit for specific agricultural activities or harvests', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1, NULL, NULL, NULL, NULL),
-    ('MT004', 'Contract', 'Document', 'Legal contract related to agricultural agreements or sales', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1, NULL, NULL, NULL, NULL),
-    ('MT005', 'Invoice', 'Document', 'Invoice for transactions or sales of agricultural products', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1, NULL, NULL, NULL, NULL),
-    ('MT006', 'Report', 'Document', 'Reports related to agricultural performance, harvest or crop monitoring', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1, NULL, NULL, NULL, NULL),
-    ('MT007', 'Regulation', 'Document', 'Regulations governing agricultural practices and standards', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1, NULL, NULL, NULL, NULL),
-    ('MT008', 'Other', 'Document', 'Any other relevant agricultural documentation', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1, NULL, NULL, NULL, NULL),
+    (1,'MT001', 'Certificate', 'Document', 'Official certificate related to agricultural activities', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1, NULL, NULL, NULL, NULL),
+    (2,'MT002', 'License', 'Document', 'Official license for agricultural operations or practices', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1, NULL, NULL, NULL, NULL),
+    (3,'MT003', 'Permit', 'Document', 'Official permit for specific agricultural activities or harvests', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1, NULL, NULL, NULL, NULL),
+    (4,'MT004', 'Contract', 'Document', 'Legal contract related to agricultural agreements or sales', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1, NULL, NULL, NULL, NULL),
+    (5,'MT005', 'Invoice', 'Document', 'Invoice for transactions or sales of agricultural products', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1, NULL, NULL, NULL, NULL),
+    (6,'MT006', 'Report', 'Document', 'Reports related to agricultural performance, harvest or crop monitoring', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1, NULL, NULL, NULL, NULL),
+    (7,'MT007', 'Regulation', 'Document', 'Regulations governing agricultural practices and standards', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1, NULL, NULL, NULL, NULL),
+    (8,'MT008', 'Other', 'Document', 'Any other relevant agricultural documentation', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1, NULL, NULL, NULL, NULL),
     
-    ('MT009', 'Green Skin Pomelo', 'Cultivar', 'Green Skin Pomelo cultivar', NULL, NULL, 'Green skin, Sweet taste', 0, 1, GETDATE(), 0, 1, NULL, NULL, NULL, NULL),
-    ('MT010', N'5 Roi Pomelo', 'Cultivar', '5 Roi Pomelo cultivar', NULL, NULL, 'Sweet, Refreshing', 0, 1, GETDATE(), 0, 1, NULL, NULL, NULL, NULL),
-    ('MT011', N'Vien Pomelo', 'Cultivar', 'Vi?n Pomelo cultivar', NULL, NULL, 'Tart, Firm', 0, 1, GETDATE(), 0, 1, NULL, NULL, NULL, NULL),
+    (9,'MT009', 'Green Skin Pomelo', 'Cultivar', 'Green Skin Pomelo cultivar', NULL, NULL, 'Green skin, Sweet taste', 0, 1, GETDATE(), 0, 1, NULL, NULL, NULL, NULL),
+    (10,'MT010', N'5 Roi Pomelo', 'Cultivar', '5 Roi Pomelo cultivar', NULL, NULL, 'Sweet, Refreshing', 0, 1, GETDATE(), 0, 1, NULL, NULL, NULL, NULL),
+    (11,'MT011', N'Vien Pomelo', 'Cultivar', 'Viễn Pomelo cultivar', NULL, NULL, 'Tart, Firm', 0, 1, GETDATE(), 0, 1, NULL, NULL, NULL, NULL),
     
-    ('MT012', 'Cultivation', 'Process', 'General cultivation practices for pomelo trees', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1, NULL, NULL, NULL, NULL),
-    ('MT013', 'Harvesting', 'Process', 'Methods for collecting ripe pomelos', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1, NULL, NULL, NULL, NULL),
-    ('MT014', 'Grafting', 'Process', 'Grafting techniques for tree propagation', NULL, NULL, NULL, 0, 1, GETDATE(), 1, 1, NULL, 'Grafting', NULL, NULL),
+    (12,'MT012', 'Cultivation', 'Process', 'General cultivation practices for pomelo trees', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1, NULL, NULL, NULL, NULL),
+    (13,'MT013', 'Harvesting', 'Process', 'Methods for collecting ripe pomelos', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1, NULL, NULL, NULL, NULL),
+    (14,'MT014', 'Grafting', 'Process', 'Grafting techniques for tree propagation', NULL, NULL, NULL, 0, 1, GETDATE(), 1, 1, NULL, 'Grafting', NULL, NULL),
     
-    ('MT015', 'Watering', 'Work', 'Process of providing water to plants', '#10B981', '#047857', NULL, 0, 1, GETDATE(), 0, 1, 0, 'Watering', 15, 60),
-    ('MT016', 'Fertilizing', 'Work', 'Application of nutrients to enhance plant growth', '#D9E5DC', '#4A9C5D', NULL, 0, 1, GETDATE(), 0, 1, 1, 'Fertilizer', 30, 120),
-    ('MT017', 'Pruning', 'Work', 'Trimming and shaping plants for better growth', '#E3D7B9', '#8D5B3D', NULL, 0, 1, GETDATE(), 0, 1, 0, 'Pruning-Shaping', 20, 90),
-    ('MT018', 'Pest Control', 'Work', 'Managing and eliminating harmful pests', '#FFE5D9', '#F79C42', NULL, 0, 1, GETDATE(), 0, 1, 0, 'Pest Control', 30, 180),
-    ('MT019', 'Harvesting', 'Work', 'Collecting mature crops for use or sale', '#F2F2F2', '#4A4A4A', NULL, 0, 1, GETDATE(), 0, 1, 0, 'Others', 60, 240),
+    (15,'MT015', 'Watering', 'Work', 'Process of providing water to plants', '#10B981', '#047857', NULL, 0, 1, GETDATE(), 0, 1, 0, 'Watering', 15, 60),
+    (16,'MT016', 'Fertilizing', 'Work', 'Application of nutrients to enhance plant growth', '#D9E5DC', '#4A9C5D', NULL, 0, 1, GETDATE(), 0, 1, 1, 'Fertilizer', 30, 120),
+    (17,'MT017', 'Pruning', 'Work', 'Trimming and shaping plants for better growth', '#E3D7B9', '#8D5B3D', NULL, 0, 1, GETDATE(), 0, 1, 0, 'Pruning-Shaping', 20, 90),
+    (18,'MT018', 'Pest Control', 'Work', 'Managing and eliminating harmful pests', '#FFE5D9', '#F79C42', NULL, 0, 1, GETDATE(), 0, 1, 0, 'Pest Control', 30, 180),
+    (19,'MT019', 'Harvesting', 'Work', 'Collecting mature crops for use or sale', '#F2F2F2', '#4A4A4A', NULL, 0, 1, GETDATE(), 0, 1, 0, 'Others', 60, 240),
     
-	('MT020', 'Grafting Suitability', 'Criteria', 'Criteria to assess whether a tree is suitable for grafting', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1, NULL, 'Grafted Condition', NULL, NULL),
-    ('MT021', 'Seedling Selection', 'Criteria', 'Standards for selecting high-quality seedlings for grafting', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1, NULL, 'Grafted Condition', NULL, NULL),
-    ('MT022', 'Grafted Branch Market Evaluation', 'Criteria', 'Evaluation of grafted branches to determine their quality for sale or commercial use', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1, NULL, 'Grafted Evaluation', NULL, NULL),
-    ('MT023', 'Harvesting', 'Criteria', 'Describes the harvesting process for fruit trees', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1, NULL, 'Harvest', NULL, NULL),
-	('MT024', 'Green Skin Pomelo Lot Quality', 'Criteria', 'Evaluates the overall quality of Green Skin Pomelo lots', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1, NULL, 'PlantLot Condition', NULL, NULL),
-    ('MT025', 'Nam Roi Pomelo Lot Quality', 'Criteria', 'Evaluates the overall quality of Nam Roi Pomelo lots', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1, NULL, 'PlantLot Condition', NULL, NULL),
-	('MT026', 'Green Skin Pomelo Evaluation', 'Criteria', 'Detailed evaluation of Green Skin Pomelo growth and health', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1, NULL, 'PlantLot Evaluation', NULL, NULL),
-    ('MT027', 'Nam Roi Pomelo Evaluation', 'Criteria', 'Detailed evaluation of Nam Roi Pomelo growth and health', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1, NULL, 'PlantLot Evaluation', NULL, NULL),
-	('MT028', 'Green Skin Pomelo Lot Health', 'Criteria', 'Evaluates the overall health and growth conditions of the Green Skin Pomelo lot', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1, NULL, 'PlantLot Condition', NULL, NULL),
-	('MT029', 'Green Skin Pomelo Lot Yield Assessment', 'Criteria', 'Estimates the expected yield and fruit quality of the Green Skin Pomelo lot', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1, NULL, 'PlantLot Evaluation', NULL, NULL),
+	(20,'MT020', 'Grafting Suitability', 'Criteria', 'Criteria to assess whether a tree is suitable for grafting', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1, NULL, 'GraftedCondition', NULL, NULL),
+    (21,'MT021', 'Seedling Selection', 'Criteria', 'Standards for selecting high-quality seedlings for grafting', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1, NULL, 'GraftedCondition', NULL, NULL),
+    (22,'MT022', 'Grafted Branch Market Evaluation', 'Criteria', 'Evaluation of grafted branches to determine their quality for sale or commercial use', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1, NULL, 'GraftedEvaluation', NULL, NULL),
+	(24,'MT024', 'Green Skin Pomelo Lot Quality', 'Criteria', 'Evaluates the overall quality of Green Skin Pomelo lots', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1, NULL, 'PlantLotCondition', NULL, NULL),
+    (25,'MT025', 'Nam Roi Pomelo Lot Quality', 'Criteria', 'Evaluates the overall quality of Nam Roi Pomelo lots', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1, NULL, 'PlantLotCondition', NULL, NULL),
+	(26,'MT026', 'Green Skin Pomelo Evaluation', 'Criteria', 'Detailed evaluation of Green Skin Pomelo growth and health', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1, NULL, 'PlantLotEvaluation', NULL, NULL),
+    (27,'MT027', 'Nam Roi Pomelo Evaluation', 'Criteria', 'Detailed evaluation of Nam Roi Pomelo growth and health', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1, NULL, 'PlantLotEvaluation', NULL, NULL),
+	(28,'MT028', 'Green Skin Pomelo Lot Health', 'Criteria', 'Evaluates the overall health and growth conditions of the Green Skin Pomelo lot', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1, NULL, 'PlantLotCondition', NULL, NULL),
+	(29,'MT029', 'Green Skin Pomelo Lot Yield Assessment', 'Criteria', 'Estimates the expected yield and fruit quality of the Green Skin Pomelo lot', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1, NULL, 'PlantLotEvaluation', NULL, NULL),
 
-    ('MT030', 'Grade 1', 'Product', 'First-grade pomelo after harvest', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1, NULL, NULL, NULL, NULL),
-    ('MT031', 'Grade 2', 'Product', 'Second-grade pomelo after harvest', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1, NULL, NULL, NULL, NULL),
-    ('MT032', 'Grade 3', 'Product', 'Third-grade pomelo after harvest', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1, NULL, NULL, NULL, NULL),
-    ('MT033', 'Leaves', 'Product', 'Pomelo tree leaves harvested for use', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1, NULL, NULL, NULL, NULL),
-    ('MT034', 'Branches', 'Product', 'Pomelo tree branches harvested for use', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1, NULL, NULL, NULL, NULL),
+    (30,'MT030', 'Grade 1', 'Product', 'First-grade pomelo after harvest', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1, NULL, NULL, NULL, NULL),
+    (31,'MT031', 'Grade 2', 'Product', 'Second-grade pomelo after harvest', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1, NULL, NULL, NULL, NULL),
+    (32,'MT032', 'Grade 3', 'Product', 'Third-grade pomelo after harvest', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1, NULL, NULL, NULL, NULL),
+    (33,'MT033', 'Leaves', 'Product', 'Pomelo tree leaves harvested for use', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1, NULL, NULL, NULL, NULL),
+    (34,'MT034', 'Branches', 'Product', 'Pomelo tree branches harvested for use', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1, NULL, NULL, NULL, NULL),
     
-    ('MT035', 'Weather', 'Notification', 'Notification related to weather conditions affecting pomelo tree growth', '#E1BEE7', NULL, NULL, 0, 1, GETDATE(),1, 1, NULL, NULL, NULL,NULL),
-    ('MT036', 'Task Assignment', 'Notification', 'Notification related to work activities in pomelo tree care', '#E3F2FD', NULL, NULL, 0, 1, GETDATE(),1, 1, NULL, NULL, NULL,NULL),
-    ('MT037', 'Task Change', 'Notification', 'Notification related to work activities in pomelo tree care', '#FFF9C4', NULL, NULL, 0, 1, GETDATE(),1, 1, NULL, NULL, NULL,NULL),
-    ('MT038', 'Task Confirmation', 'Notification', 'Notification related to work activities in pomelo tree care', '#E8F5E9', NULL, NULL, 0, 1, GETDATE(),1, 1, NULL, NULL, NULL,NULL),
-    ('MT039', 'Task Reminder', 'Notification', 'Notification related to work activities in pomelo tree care', '#FFE0B2', NULL, NULL, 0, 1, GETDATE(),1, 1, NULL, NULL, NULL,NULL),
-	('MT040', 'Grafted Branch Readiness', 'Criteria', 'Evaluation of grafted branches to determine if they are mature enough for cutting and transplantation', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1, NULL, 'Grafted Evaluation', NULL, NULL),
-	('MT041', 'Green Skin Pomelo Grade 1', 'Criteria', 'Evaluation criteria for Green Skin Pomelo Grade 1', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1, NULL, 'Product', NULL, NULL),
-    ('MT042', 'Green Skin Pomelo Grade 2', 'Criteria', 'Evaluation criteria for Green Skin Pomelo Grade 2', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1, NULL, 'Product', NULL, NULL),
-    ('MT043', 'Green Skin Pomelo Grade 3', 'Criteria', 'Evaluation criteria for Green Skin Pomelo Grade 3', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1, NULL, 'Product', NULL, NULL),
-    ('MT044', 'Grafting', 'Work', 'Take care grafted plant', '#F2F2F2', '#4A4A4A', NULL, 0, 1, GETDATE(), 0, 1, 0, 'Others', 60, 240);
-
+    (35,'MT035', 'Weather', 'Notification', 'Notification related to weather conditions affecting pomelo tree growth', NULL, NULL, NULL, 0, 1, GETDATE(),1, 1, NULL, NULL, NULL,NULL),
+    (36,'MT036', 'Task Assignment', 'Notification', 'Notification related to work activities in pomelo tree care', NULL, NULL, NULL, 0, 1, GETDATE(),1, 1, NULL, NULL, NULL,NULL),
+    (37,'MT037', 'Task Change', 'Notification', 'Notification related to work activities in pomelo tree care', NULL, NULL, NULL, 0, 1, GETDATE(),1, 1, NULL, NULL, NULL,NULL),
+    (38,'MT038', 'Task Confirmation', 'Notification', 'Notification related to work activities in pomelo tree care', NULL, NULL, NULL, 0, 1, GETDATE(),1, 1, NULL, NULL, NULL,NULL),
+    (39,'MT039', 'Task Reminder', 'Notification', 'Notification related to work activities in pomelo tree care', NULL, NULL, NULL, 0, 1, GETDATE(),1, 1, NULL, NULL, NULL,NULL),
+	(40,'MT040', 'Grafted Branch Readiness', 'Criteria', 'Evaluation of grafted branches to determine if they are mature enough for cutting and transplantation', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1, NULL, 'GraftedEvaluation', NULL, NULL),
+	(41,'MT041', 'Green Skin Pomelo Grade 1', 'Criteria', 'Evaluation criteria for Green Skin Pomelo Grade 1', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1, NULL, 'Product', NULL, NULL),
+    (42,'MT042', 'Green Skin Pomelo Grade 2', 'Criteria', 'Evaluation criteria for Green Skin Pomelo Grade 2', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1, NULL, 'Product', NULL, NULL),
+    (43,'MT043', 'Green Skin Pomelo Grade 3', 'Criteria', 'Evaluation criteria for Green Skin Pomelo Grade 3', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1, NULL, 'Product', NULL, NULL),
+    (44,'MT044', 'Grafting', 'Work', 'Take care grafted plant', '#F2F2F2', '#4A4A4A', NULL, 0, 1, GETDATE(), 0, 1, 0, 'Others', 60, 240);
+	SET IDENTITY_INSERT [ipas].[dbo].[MasterType] OFF;
 GO
 
 GO
@@ -1743,9 +1743,9 @@ VALUES
 GO
 INSERT INTO ipas.dbo.Package (PackageCode, PackageName, PackagePrice, Duration, isActive, CreateDate, UpdateDate, Status)
 VALUES
-('PKG101', 'Basic', 29.00, 30, 1, GETDATE(), NULL, 'Active'),
-('PKG102', 'Pro', 89.00, 365, 1, GETDATE(), NULL, 'Active'),
-('PKG103', 'Enterprise', 100.00, 1095, 1, GETDATE(), NULL, 'Active');
+('PKG101', 'Starter Farm Package', 500000, 30, 1, GETDATE(), NULL, 'Active'),
+('PKG102', 'Standard Farm Package', 2000000, 180, 1, GETDATE(), NULL, 'Active'),
+('PKG103', 'Premium Farm Package', 4000000, 365, 1, GETDATE(), NULL, 'Active');
 GO
 
 INSERT INTO ipas.dbo.PackageDetail (PackageDetailCode, FeatureName, FeatureDescription, PackageID)
@@ -1769,18 +1769,20 @@ VALUES
 ('PKD115', 'Multi-platform Access', 'Access your farm data from any device.', 3);
 GO
 
-INSERT INTO ipas.dbo.[Order] (OrderCode, OrderName, TotalPrice, Notes, OrderDate, EnrolledDate, ExpiredDate, PackageID, FarmID, Status)
+INSERT INTO ipas.dbo.[Order] 
+(OrderCode, OrderName, TotalPrice, Notes, OrderDate, EnrolledDate, ExpiredDate, PackageID, FarmID, Status)
 VALUES
-('ORD001', 'Order for Basic Package', 99.99, 'First order', GETDATE(), GETDATE(), DATEADD(DAY, 30, GETDATE()), 1, 1, 'Paid'),
-('ORD002', 'Order for Standard Package', 199.99, 'Second order', GETDATE(), GETDATE(), DATEADD(DAY, 60, GETDATE()), 2, 1, 'fail'),
-('ORD003', 'Order for Premium Package', 299.99, 'Third order', GETDATE(), GETDATE(), DATEADD(DAY, 90, GETDATE()), 3, 1, 'Paid'),
-('ORD004', 'Order for Enterprise Package', 499.99, 'Fourth order', GETDATE(), GETDATE(), DATEADD(DAY, 180, GETDATE()), 1, 2, 'fail'),
-('ORD005', 'Order for Trial Package', 0, 'Trial order', GETDATE(), GETDATE(), DATEADD(DAY, 7, GETDATE()), 2, 2, 'Paid'),
-('ORD006', 'Order for VIP Package', 999.99, 'VIP order', GETDATE(), GETDATE(), DATEADD(DAY, 365, GETDATE()), 3, 2, 'Paid'),
-('ORD007', 'Order for Gold Package', 599.99, 'Gold order', GETDATE(), GETDATE(), DATEADD(DAY, 120, GETDATE()), 1, 2, 'Paid'),
-('ORD008', 'Order for Silver Package', 399.99, 'Silver order', GETDATE(), GETDATE(), DATEADD(DAY, 90, GETDATE()), 2, 3, 'Paid'),
-('ORD009', 'Order for Bronze Package', 199.99, 'Bronze order', GETDATE(), GETDATE(), DATEADD(DAY, 60, GETDATE()), 3, 3, 'Paid'),
-('ORD010', 'Order for Custom Package', 0, 'Custom order', GETDATE(), GETDATE(), NULL, 1, 3, 'Paid');
+('ORD001', 'Order for Starter Package', 500000, 'First order', '2024-01-15', '2024-01-15', '2024-02-14', 1, 1, 'Paid'),
+('ORD002', 'Order for Standard Package', 2000000, 'Second order', '2024-03-10', '2024-03-10', '2024-09-06', 2, 1, 'Fail'),
+('ORD003', 'Order for Premium Package', 4000000, 'Third order', '2024-06-01', '2024-06-01', '2025-05-31', 3, 1, 'Paid'),
+('ORD004', 'Order for Starter Package', 500000, 'Fourth order', '2024-07-20', '2024-07-20', '2024-08-19', 1, 2, 'Fail'),
+('ORD005', 'Order for Standard Package', 2000000, 'Fifth order', '2024-08-01', '2024-08-01', '2025-01-28', 2, 2, 'Paid'),
+('ORD006', 'Order for Premium Package', 4000000, 'VIP order', '2024-09-05', '2024-09-05', '2025-09-04', 3, 2, 'Paid'),
+('ORD007', 'Order for Starter Package', 500000, 'Gold order', '2024-11-10', '2024-11-10', '2024-12-10', 1, 2, 'Paid'),
+('ORD008', 'Order for Standard Package', 2000000, 'Silver order', '2024-12-01', '2024-12-01', '2025-05-30', 2, 3, 'Paid'),
+('ORD009', 'Order for Premium Package', 4000000, 'Bronze order', '2025-02-01', '2025-02-01', '2026-01-31', 3, 3, 'Paid'),
+('ORD010', 'Order for Starter Package', 500000, 'Custom order', '2025-03-25', '2025-03-25', '2025-04-24', 1, 3, 'Paid');
+
 GO
 INSERT INTO ipas.dbo.Partner (PartnerCode, PartnerName, Province, PhoneNumber, Email, CreateDate, UpdateDate, [National],  District, Ward, Description, Major, Status, ContactName, Note, BusinessField, FarmID)
 VALUES 
@@ -1976,13 +1978,13 @@ VALUES
 -- Danh sách WorkTargets
 INSERT INTO SystemConfiguration (ConfigGroup, ConfigKey, ConfigValue, ValueType, Description)
 VALUES 
-('WorkTarget','Watering', 'Watering', 'string', 'Watering'),
-('WorkTarget','Fertilizer', 'Fertilizer', 'string', 'Fertilizer'),
-('WorkTarget','SprayingPesticides', 'Spraying Pesticides', 'string', 'Spraying Pesticides'),
-('WorkTarget','PruningShaping', 'Pruning-Shaping', 'string', 'Pruning-Shaping'),
-('WorkTarget','Weeding', 'Weeding', 'string', 'Weeding'),
-('WorkTarget','PestControl', 'Pest Control', 'string', 'Pest Control'),
-('WorkTarget','Others', 'Others', 'string', 'Others');
+('Work','Watering', 'Watering', 'string', 'Watering'),
+('Work','Fertilizer', 'Fertilizer', 'string', 'Fertilizer'),
+('Work','SprayingPesticides', 'Spraying Pesticides', 'string', 'Spraying Pesticides'),
+('Work','PruningShaping', 'Pruning-Shaping', 'string', 'Pruning-Shaping'),
+('Work','Weeding', 'Weeding', 'string', 'Weeding'),
+('Work','PestControl', 'Pest Control', 'string', 'Pest Control'),
+('Work','Others', 'Others', 'string', 'Others');
 
 -- Validation List
 INSERT INTO SystemConfiguration (ConfigGroup, ConfigKey, ConfigValue, ValueType, Description)
@@ -2006,6 +2008,8 @@ VALUES
 ('Criteria', 'Others', 'Others', 'string', 'Others');
 
 GO
+
+
 -- Criteria Apply
 --INSERT INTO SystemConfiguration (ConfigGroup, ConfigKey, ConfigValue, ValueType, Description, ReferenceConfigId)
 --SELECT 
@@ -2026,6 +2030,7 @@ GO
 --    ) AS v(ConfigKey, ConfigValue, Description)
 --JOIN SystemConfiguration c
 --    ON c.ConfigGroup = 'Criteria' AND c.ConfigValue = v.ConfigValue;
+
 
 GO
 INSERT INTO SystemConfiguration (ConfigGroup,ConfigKey, ConfigValue, ValueType, Description)
