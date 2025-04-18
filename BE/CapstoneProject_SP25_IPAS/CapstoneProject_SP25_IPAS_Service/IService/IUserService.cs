@@ -1,4 +1,5 @@
 ﻿using CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.UserBsModels;
+using CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.WorkLogModel;
 using CapstoneProject_SP25_IPAS_BussinessObject.Entities;
 using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.AuthensRequest;
 using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.UserRequest;
@@ -43,5 +44,6 @@ namespace CapstoneProject_SP25_IPAS_Service.IService
         public Task<BusinessResult> ValidateRoleOfUserInFarm(string jwtToken, int farmId);
         public Task<BusinessResult> UpdateTokenOfUser(string jwtToken);
         public Task<BusinessResult> SearchByEmail(string? email);
+        public Task<BusinessResult> ChangePassword(int userId, ChangePasswordModel changePasswordModel);
     }
 }

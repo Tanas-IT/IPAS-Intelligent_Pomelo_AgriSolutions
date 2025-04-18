@@ -9,6 +9,8 @@ using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.UserRequest;
 using CapstoneProject_SP25_IPAS_API.Middleware;
 using CapstoneProject_SP25_IPAS_API.ProgramConfig.AuthorizeConfig;
 using CapstoneProject_SP25_IPAS_Common.Enum;
+using CapstoneProject_SP25_IPAS_BussinessObject.Payloads.Request;
+using CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.WorkLogModel;
 
 namespace CapstoneProject_SP25_IPAS_API.Controllers
 {
@@ -17,10 +19,12 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
     public class UserController : ControllerBase
     {
         private readonly IUserService _userService;
+        private readonly IJwtTokenService _jwtTokenService;
 
-        public UserController(IUserService userService)
+        public UserController(IUserService userService, IJwtTokenService jwtTokenService)
         {
             _userService = userService;
+            _jwtTokenService = jwtTokenService;
         }
 
 
@@ -45,7 +49,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
         }
 
         [HttpGet(APIRoutes.User.getUserById, Name = "getUserById")]
-        [HybridAuthorize($"{nameof(RoleEnum.ADMIN)}")]
+        [HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.USER)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)},{nameof(RoleEnum.EMPLOYEE)},{nameof(RoleEnum.EXPERT)}")]
         public async Task<IActionResult> GetUserById([FromRoute] int userId)
         {
             try
@@ -105,7 +109,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
         }
 
         [HttpPut(APIRoutes.User.updateUserInfo, Name = "updateUser")]
-        [HybridAuthorize($"{nameof(RoleEnum.ADMIN)}")]
+        [HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.USER)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)},{nameof(RoleEnum.EMPLOYEE)},{nameof(RoleEnum.EXPERT)}")]
         public async Task<IActionResult> UpdateUser([FromBody] UpdateUserModel updateUserRequestModel)
         {
             try
@@ -253,6 +257,27 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             {
 
                 var result = await _userService.SearchByEmail(emailSearch);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                var response = new BaseResponse()
+                {
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    Message = ex.Message
+                };
+                return BadRequest(response);
+            }
+        }
+
+        [HttpPut(APIRoutes.User.changePassword, Name = "changePassword")]
+        public async Task<IActionResult> ChangePassword([FromQuery] int? userId, [FromBody] ChangePasswordModel changePasswordModel)
+        {
+            try
+            {
+                if (!userId.HasValue)
+                    userId = _jwtTokenService.GetUserIdFromToken() ?? 0;
+                var result = await _userService.ChangePassword(userId.Value, changePasswordModel);
                 return Ok(result);
             }
             catch (Exception ex)
