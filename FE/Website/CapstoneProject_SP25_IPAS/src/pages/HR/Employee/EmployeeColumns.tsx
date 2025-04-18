@@ -16,10 +16,7 @@ export const EmployeeColumns: TableColumn<GetEmployee>[] = [
     field: "user.fullName",
     accessor: ({ user }) => (
       <Flex justify="flex-start" align="center" gap={12}>
-        <UserAvatar
-          avatarURL={user?.avatarURL}
-          fallbackText={user?.email?.charAt(0)?.toUpperCase() || "?"}
-        />
+        <UserAvatar avatarURL={user?.avatarURL} />
         <Flex justify="center" style={{ width: "100%" }}>
           <TableCell value={user.fullName} />
         </Flex>
@@ -46,7 +43,7 @@ export const EmployeeColumns: TableColumn<GetEmployee>[] = [
     width: 150,
   },
   {
-    header: "Active Status",
+    header: "Status",
     field: "isActive",
     accessor: (item) => (
       <Tag color={item.isActive ? "green" : "red"}>{item.isActive ? "Active" : "Inactive"}</Tag>

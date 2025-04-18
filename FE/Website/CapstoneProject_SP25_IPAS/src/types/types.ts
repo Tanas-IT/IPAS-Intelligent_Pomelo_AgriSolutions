@@ -52,6 +52,40 @@ export interface SelectOption {
 
 export type FileType = Parameters<GetProp<UploadProps, "beforeUpload">>[0];
 
+export type FilterConfigTypeState = {
+  isActive: boolean | null;
+};
+
+export type FilterUserState = {
+  createDateFrom: string;
+  createDateTo: string;
+  dobFrom: string;
+  dobTo: string;
+  roleIds: string[];
+  genders: string;
+  status: string;
+};
+
+export type FilterFarmState = {
+  createDateFrom: string;
+  createDateTo: string;
+  status: string;
+};
+
+export type FilterPaymentHistoryState = {
+  orderDateFrom: string;
+  orderDateTo: string;
+  enrolledDateFrom: string;
+  enrolledDateTo: string;
+  expiredDateFrom: string;
+  expiredDateTo: string;
+  totalPriceFrom: number | undefined;
+  totalPriceTo: number | undefined;
+  packageIds: string[];
+  farmIds: string[];
+  status: string;
+};
+
 export type FilterMasterTypeState = {
   createDateFrom: string;
   createDateTo: string;
@@ -105,6 +139,7 @@ export type FilterPlantState = {
   healthStatus: string[];
   isLocated: boolean | null;
   isDead: boolean | null;
+  isPassed: boolean | null;
 };
 
 export type FilterGraftedPlantState = {

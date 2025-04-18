@@ -38,7 +38,7 @@ function CriteriaList() {
 
   const { filters, updateFilters, applyFilters, clearFilters } = useFilters<FilterCriteriaState>(
     DEFAULT_CRITERIA_FILTERS,
-    () => fetchData(),
+    () => fetchData(1),
   );
 
   const {
@@ -172,7 +172,7 @@ function CriteriaList() {
                 </Flex>
 
                 <p className={style.criteriaTarget}>
-                  <b>Target:</b> {item.target}
+                  <b>Target:</b> {item.targetDisplay}
                 </p>
                 <p className={style.criteriaDescription}>
                   <b>Description:</b> {item.masterTypeDescription}
@@ -181,7 +181,7 @@ function CriteriaList() {
 
               <Collapse>
                 <Panel header="View Criteria" key="1">
-                  <CriteriaTable criteria={item.criterias}  />
+                  <CriteriaTable criteria={item.criterias} />
                 </Panel>
               </Collapse>
             </List.Item>

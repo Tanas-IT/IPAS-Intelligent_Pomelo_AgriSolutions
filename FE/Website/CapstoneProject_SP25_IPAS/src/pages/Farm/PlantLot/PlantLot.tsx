@@ -47,7 +47,7 @@ function PlantLot() {
 
   const { filters, updateFilters, applyFilters, clearFilters } = useFilters<FilterPlantLotState>(
     DEFAULT_LOT_FILTERS,
-    () => fetchData(),
+    () => fetchData(1),
   );
 
   const {

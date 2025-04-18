@@ -10,7 +10,8 @@ import { useNavigate } from "react-router-dom";
 import { PATHS } from "@/routes";
 import { toast } from "react-toastify";
 
-import { UserRole } from "@/constants";
+import { UserRolesStr } from "@/constants";
+import { useUserStore } from "@/stores";
 
 interface Props {
   toggleForm: () => void;
@@ -45,15 +46,15 @@ const SignIn: React.FC<Props> = ({ toggleForm, isSignUp, handleGoogleLoginSucces
           avatar: result.data.avatar,
         };
         saveAuthData(loginResponse);
+        useUserStore.getState().setUserInfo(result.data.fullname, result.data.avatar);
         const roleId = getRoleId();
 
-        if (roleId === UserRole.User.toString())
-          navigate(PATHS.FARM_PICKER, { state: { toastMessage } });
-        if (roleId === UserRole.Admin.toString())
-          navigate(PATHS.USER.USER_LIST, { state: { toastMessage } });
-        if (roleId === UserRole.Expert.toString())
+        if (roleId === UserRolesStr.User) navigate(PATHS.FARM_PICKER, { state: { toastMessage } });
+        if (roleId === UserRolesStr.Admin)
+          navigate(PATHS.ADMIN.DASHBOARD, { state: { toastMessage } });
+        if (roleId === UserRolesStr.Expert)
           navigate(PATHS.EXPERT.REPORT_LIST, { state: { toastMessage } });
-      } else if (result.statusCode === 400 || result.statusCode === 500) {
+      } else {
         toast.error(toastMessage);
       }
     } catch (error) {

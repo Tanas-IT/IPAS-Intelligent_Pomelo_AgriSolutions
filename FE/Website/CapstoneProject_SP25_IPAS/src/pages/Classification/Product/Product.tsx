@@ -43,7 +43,7 @@ function Product() {
 
   const { filters, updateFilters, applyFilters, clearFilters } = useFilters<FilterMasterTypeState>(
     DEFAULT_MASTER_TYPE_FILTERS,
-    () => fetchData(),
+    () => fetchData(1),
   );
 
   const {

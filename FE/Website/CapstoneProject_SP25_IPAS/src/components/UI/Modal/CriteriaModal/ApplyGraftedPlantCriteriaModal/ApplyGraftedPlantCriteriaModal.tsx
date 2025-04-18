@@ -2,12 +2,13 @@ import { Flex, Form } from "antd";
 import { useState, useEffect } from "react";
 import { FormFieldModal, ModalForm, TableApplyCriteria } from "@/components";
 import { RulesManager } from "@/utils";
-import { CRITERIA_TARGETS } from "@/constants";
+import { CRITERIA_TARGETS, SYSTEM_CONFIG_GROUP } from "@/constants";
 import { CriteriaApplyRequest } from "@/payloads";
 import { criteriaService, masterTypeService } from "@/services";
 import { useCriteriaManagement } from "@/hooks/useCriteriaManagement";
 import { SelectOption } from "@/types";
 import { useDirtyStore } from "@/stores";
+import { useSystemConfigOptions } from "@/hooks";
 
 type ApplyGraftedPlantCriteriaModalProps = {
   graftedPlantIds?: number[];
@@ -33,6 +34,11 @@ const ApplyGraftedPlantCriteriaModal = ({
     handlePriorityChange,
     isCriteriaListValid,
   } = useCriteriaManagement();
+  const { options: criteriaTargetOptions, loading } = useSystemConfigOptions(
+    SYSTEM_CONFIG_GROUP.GRAFTED_CRITERIA,
+    undefined,
+    true,
+  );
   const [criteriaOptions, setCriteriaOptions] = useState<SelectOption[]>([]);
   const { setIsDirty } = useDirtyStore();
 
@@ -49,9 +55,10 @@ const ApplyGraftedPlantCriteriaModal = ({
     }
   }, [isOpen]);
 
-  const handleOk = () => {
+  const handleOk = async () => {
     if (!isCriteriaListValid()) return;
     if (!graftedPlantIds) return;
+    await form.validateFields();
     const requestData: CriteriaApplyRequest = {
       graftedPlantId: graftedPlantIds,
       criteriaData: dataSource.map((item) => ({
@@ -65,6 +72,8 @@ const ApplyGraftedPlantCriteriaModal = ({
   };
 
   const handleCriteriaTypeChange = async (value: string) => {
+    setDataSource([]);
+    setCriteriaOptions([]);
     form.setFieldsValue({ criteriaId: undefined });
     if (!graftedPlantIds) return;
     let res;
@@ -101,10 +110,11 @@ const ApplyGraftedPlantCriteriaModal = ({
             placeholder="Select criteria type"
             name={"criteriaType"}
             rules={RulesManager.getTypeRules()}
-            options={[CRITERIA_TARGETS["Grafted Evaluation"]].map((value) => ({
-              label: value,
-              value,
-            }))}
+            options={criteriaTargetOptions}
+            // options={[CRITERIA_TARGETS["Grafted Evaluation"]].map((value) => ({
+            //   label: value,
+            //   value,
+            // }))}
             onChange={handleCriteriaTypeChange}
           />
           <FormFieldModal

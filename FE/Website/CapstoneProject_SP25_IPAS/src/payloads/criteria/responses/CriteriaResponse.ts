@@ -16,6 +16,7 @@ export interface GetCriteriaByMasterType {
   masterTypeName: string;
   masterTypeDescription: string;
   target: string;
+  targetDisplay: string;
   createDate: Date;
   isActive: boolean;
   criterias: GetCriteria[];
@@ -39,6 +40,7 @@ export interface GetCriteriaObject {
   masterTypeId: number;
   masterTypeName: string;
   target: string;
+  targetDisplay: string;
   criteriaList: GetCriteriaCheck[];
 }
 

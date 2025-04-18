@@ -48,18 +48,22 @@ import {
   HarvestDays,
   Product,
   ProductDetails,
+  SystemConfiguration,
+  Farm,
+  PaymentHistory,
+  AdminDashboard,
+  Profile,
+  ReportManagement,
 } from "@/pages";
 import {
-  EmployeeLayout,
+  AccountLayout,
+  ManagementLayout,
   EmptyLayout,
   FarmPickerLayout,
   GuestLayout,
-  ManagementLayout,
   PaymentLayout,
 } from "@/layouts";
 import { PATHS } from "./Paths";
-import ReportManagementScreen from "@/pages/ExpertView/ReportManagement/ReportManagement";
-import ImageManagement from "@/pages/ExpertView/ImageManagement/ImageManagement";
 
 interface RouteItem {
   path: string;
@@ -94,14 +98,23 @@ export const publicRoutes: RouteItem[] = [
     layout: EmptyLayout,
   },
   { path: PATHS.AUTH.SIGN_UP_OTP, component: OTP, layout: EmptyLayout, props: { type: "sign-up" } },
-  { path: PATHS.EMPLOYEE.DASHBOARD, component: EmployeeDashboard, layout: EmployeeLayout },
-  { path: PATHS.EMPLOYEE.WORK_SCHEDULE, component: EmployeeWorklog, layout: EmployeeLayout },
-  { path: PATHS.EMPLOYEE.WORKLOG_DETAIL, component: EmployeeWorklogDetail, layout: EmployeeLayout },
-  { path: PATHS.EMPLOYEE.WORKLOG, component: EmployeeDashboard, layout: EmployeeLayout },
-  { path: PATHS.EMPLOYEE.PLANTS, component: EmployeeDashboard, layout: EmployeeLayout },
-  { path: PATHS.EMPLOYEE.AI_CONSULTING, component: EmployeeDashboard, layout: EmployeeLayout },
+  { path: PATHS.EMPLOYEE.DASHBOARD, component: EmployeeDashboard, layout: ManagementLayout },
+  { path: PATHS.EMPLOYEE.WORK_SCHEDULE, component: EmployeeWorklog, layout: ManagementLayout },
+  {
+    path: PATHS.EMPLOYEE.WORKLOG_DETAIL,
+    component: EmployeeWorklogDetail,
+    layout: ManagementLayout,
+  },
+  { path: PATHS.EMPLOYEE.WORKLOG, component: EmployeeDashboard, layout: ManagementLayout },
+  { path: PATHS.EMPLOYEE.PLANTS, component: EmployeeDashboard, layout: ManagementLayout },
+  { path: PATHS.EMPLOYEE.AI_CONSULTING, component: EmployeeDashboard, layout: ManagementLayout },
   { path: PATHS.DASHBOARD, component: Dashboard, layout: ManagementLayout },
-  { path: PATHS.USER.USER_LIST, component: User, layout: ManagementLayout },
+  { path: PATHS.ACCOUNT.PROFILE, component: Profile, layout: AccountLayout },
+  { path: PATHS.ADMIN.DASHBOARD, component: AdminDashboard, layout: ManagementLayout },
+  { path: PATHS.ADMIN.USER_LIST, component: User, layout: ManagementLayout },
+  { path: PATHS.ADMIN.FARM_LIST, component: Farm, layout: ManagementLayout },
+  { path: PATHS.ADMIN.PAYMENT_HISTORY, component: PaymentHistory, layout: ManagementLayout },
+  { path: PATHS.ADMIN.SYSTEM_CONFIG, component: SystemConfiguration, layout: ManagementLayout },
   { path: PATHS.CROP.CROP_LIST, component: CropList, layout: ManagementLayout },
 
   { path: PATHS.CROP.HARVEST_DAYS, component: HarvestDays, layout: ManagementLayout },
@@ -159,8 +172,7 @@ export const publicRoutes: RouteItem[] = [
   { path: PATHS.PARTNERS.PARTNER_LIST, component: Partner, layout: ManagementLayout },
   { path: PATHS.PACKAGE.PACKAGE_LIST, component: PackageList, layout: ManagementLayout },
   { path: PATHS.CHATBOX.AI_CHATBOX, component: ChatBox, layout: ManagementLayout },
-  { path: PATHS.EXPERT.REPORT_LIST, component: ReportManagementScreen, layout: FarmPickerLayout },
-  { path: PATHS.EXPERT.IMAGE_LIST, component: ImageManagement, layout: FarmPickerLayout },
+  { path: PATHS.EXPERT.REPORT_LIST, component: ReportManagement, layout: ManagementLayout },
 ];
 
 export const privateRoutes: RouteItem[] = [];

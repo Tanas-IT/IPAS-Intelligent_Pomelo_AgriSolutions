@@ -1,4 +1,4 @@
-import { LOCAL_STORAGE_KEYS, UserRole } from "@/constants";
+import { LOCAL_STORAGE_KEYS, UserRolesStr } from "@/constants";
 import { PATHS } from "@/routes";
 import { getRoleId } from "@/utils";
 import { useEffect, useState } from "react";
@@ -14,10 +14,12 @@ const useRedirectAuth = (): boolean => {
 
     if (accessToken && refreshToken) {
       const roleId = getRoleId();
-      if (roleId === UserRole.User.toString()) navigate(PATHS.FARM_PICKER);
-      if (roleId === UserRole.Admin.toString()) navigate(PATHS.USER.USER_LIST);
-      if (roleId === UserRole.Owner.toString()) navigate(PATHS.DASHBOARD);
-      //   if (roleId === UserRole.Employee.toString()) navigate(PATHS.);
+      if (roleId === UserRolesStr.User) navigate(PATHS.FARM_PICKER);
+      if (roleId === UserRolesStr.Admin) navigate(PATHS.ADMIN.DASHBOARD);
+      if (roleId === UserRolesStr.Owner) navigate(PATHS.DASHBOARD);
+      if (roleId === UserRolesStr.Manager) navigate(PATHS.DASHBOARD);
+      if (roleId === UserRolesStr.Employee) navigate(PATHS.EMPLOYEE.DASHBOARD);
+      if (roleId === UserRolesStr.Expert) navigate(PATHS.EXPERT.REPORT_LIST);
       setIsAuthenticated(true);
     }
   }, [navigate]);

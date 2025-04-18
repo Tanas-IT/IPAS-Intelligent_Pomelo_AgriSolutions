@@ -1,153 +1,153 @@
 .pricingCard {
-    // border: 1px solid #ddd;
-    padding: 20px;
-    text-align: center;
-    margin: 10px;
-    border-radius: 10px;
-    background-color: #fff;
-    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
-    width: 300px;
-    max-width: 350px;
-    height: 500px;
-    transition: background-color 0.3s ease, color 0.3s ease, box-shadow 0.3s ease;
+  // border: 1px solid #ddd;
+  padding: 20px;
+  text-align: center;
+  margin: 10px;
+  border-radius: 10px;
+  background-color: #fff;
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  min-width: 300px;
+  max-width: 350px;
+  min-height: 450px;
+  transition: background-color 0.3s ease, color 0.3s ease, box-shadow 0.3s ease;
 
-    &:hover {
-        box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
-        background-color: #EDDD5E;
-    }
+  &:hover {
+    box-shadow: 0 6px 12px rgba(0, 0, 0, 0.15);
+    background-color: #eddd5e;
+  }
 }
 
 .pricingCard h3 {
-    font-size: medium;
-    color: #FFA000;
-    font-weight: lighter;
-    margin-bottom: 0px;
+  font-size: medium;
+  color: #ffa000;
+  font-weight: lighter;
+  margin-bottom: 0px;
 }
 
 .pricingCard p {
-    margin: 10px 0;
-    font-size: 18px;
+  margin: 10px 0;
+  font-size: 18px;
 }
 
 .pricingCard p.price {
-    font-weight: 800;
-    font-size: 2rem;
+  font-weight: 800;
+  font-size: 2rem;
 }
 
 .pricingCard p.description {
-    font-weight: normal;
-    font-size: small;
-    color: #777;
-    transition: color 0.3s ease;
+  font-weight: normal;
+  font-size: small;
+  color: #777;
+  transition: color 0.3s ease;
 }
 
 .pricingCard div.priceDuration {
-    display: flex;
-    justify-content: center;
-    align-items: baseline;
-    margin-top: 0;
+  display: flex;
+  justify-content: center;
+  align-items: baseline;
+  margin-top: 0;
 }
 
 .pricingCard p.duration {
-    font-size: 1rem;
-    color: #777;
+  font-size: 1rem;
+  color: #777;
 }
 
-.pricingCard:hover p.duration, 
+.pricingCard:hover p.duration,
 .pricingCard:hover p.description {
-    color: white;
+  color: white;
 }
 
 .pricingCard ul {
-    list-style-type: none;
-    padding: 0;
-    text-align: left;
+  list-style-type: none;
+  padding: 0;
+  text-align: left;
 }
 
 .pricingCard li {
-    margin-bottom: 10px;
-    display: flex;
-    align-items: center;
-    gap: 10px;
+  margin-bottom: 10px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 
 .pricingCard button {
-    background-color: #326E2F;
-    color: white;
-    padding: 10px 20px;
-    border: none;
-    cursor: pointer;
-    border-radius: 5px;
-    transition: background-color 0.3s ease;
+  background-color: #326e2f;
+  color: white;
+  padding: 10px 20px;
+  border: none;
+  cursor: pointer;
+  border-radius: 5px;
+  transition: background-color 0.3s ease;
 }
 
 .pricingCard button:hover {
-    background-color: #45a049;
+  background-color: #45a049;
 }
 
 @media (max-width: 768px) {
-    .pricingCard {
-        width: 100%;
-        height: auto;
-        margin: 10px 0;
-    }
+  .pricingCard {
+    width: 100%;
+    height: auto;
+    margin: 10px 0;
+  }
 
-    .pricingCard h3 {
-        font-size: 1.2rem;
-    }
+  .pricingCard h3 {
+    font-size: 1.2rem;
+  }
 
-    .pricingCard p {
-        font-size: 16px;
-    }
+  .pricingCard p {
+    font-size: 16px;
+  }
 
-    .pricingCard p.price {
-        font-size: 1.8rem;
-    }
+  .pricingCard p.price {
+    font-size: 1.8rem;
+  }
 
-    .pricingCard ul {
-        padding-left: 20px;
-    }
+  .pricingCard ul {
+    padding-left: 20px;
+  }
 
-    .pricingCard li {
-        font-size: 14px;
-        gap: 8px;
-    }
+  .pricingCard li {
+    font-size: 14px;
+    gap: 8px;
+  }
 
-    .pricingCard button {
-        padding: 8px 15px;
-        font-size: 16px;
-    }
+  .pricingCard button {
+    padding: 8px 15px;
+    font-size: 16px;
+  }
 }
 
 @media (max-width: 480px) {
-    .pricingCard {
-        width: 100%;
-        height: auto;
-    }
+  .pricingCard {
+    width: 100%;
+    height: auto;
+  }
 
-    .pricingCard h3 {
-        font-size: 1rem;
-    }
+  .pricingCard h3 {
+    font-size: 1rem;
+  }
 
-    .pricingCard p {
-        font-size: 14px;
-    }
+  .pricingCard p {
+    font-size: 14px;
+  }
 
-    .pricingCard p.price {
-        font-size: 1.6rem;
-    }
+  .pricingCard p.price {
+    font-size: 1.6rem;
+  }
 
-    .pricingCard ul {
-        padding-left: 15px;
-    }
+  .pricingCard ul {
+    padding-left: 15px;
+  }
 
-    .pricingCard li {
-        font-size: 13px;
-        gap: 6px;
-    }
+  .pricingCard li {
+    font-size: 13px;
+    gap: 6px;
+  }
 
-    .pricingCard button {
-        padding: 8px 12px;
-        font-size: 14px;
-    }
+  .pricingCard button {
+    padding: 8px 12px;
+    font-size: 14px;
+  }
 }

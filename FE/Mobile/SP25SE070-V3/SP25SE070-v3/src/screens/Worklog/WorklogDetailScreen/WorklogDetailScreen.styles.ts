@@ -185,11 +185,25 @@ export const styles = StyleSheet.create({
       alignItems: 'center',
       marginRight: 16,
     },
+    highlightedUser: {
+      backgroundColor: '#20461e',
+      borderRadius: 10,
+      padding: 5,
+    },
     avatarSmall: {
       width: 36,
       height: 36,
       borderRadius: 18,
       marginBottom: 4,
+    },
+    avatarHighlighted: {
+      borderColor: '#007bff',
+      borderWidth: 2,
+      borderRadius: 999,
+    },
+    userNameHighlighted: {
+      color: 'white',
+      fontWeight: 'bold',
     },
     userNameSmallHorizontal: {
       fontSize: 12,

@@ -21,11 +21,11 @@ import AddEmployeeModel from "./AddEmployeeModal";
 function EmployeeList() {
   const [isAddLoading, setIsAddLoading] = useState(false);
   const addEmployeeModal = useModal<{ userId: number }>();
-  const deleteConfirmModal = useModal<{ ids: number[]  }>();
+  const deleteConfirmModal = useModal<{ ids: number[] }>();
 
   const { filters, updateFilters, applyFilters, clearFilters } = useFilters<FilterEmployeeState>(
     DEFAULT_EMPLOYEE_FILTERS,
-    () => fetchData(),
+    () => fetchData(1),
   );
 
   const {
