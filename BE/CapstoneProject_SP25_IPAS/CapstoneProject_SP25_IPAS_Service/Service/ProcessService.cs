@@ -52,7 +52,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 {
                     var newProcess = new Process()
                     {
-                        ProcessCode = $"{CodeAliasEntityConst.PROCESS}-{DateTime.Now.ToString("ddmmyyyy")}-{CodeAliasEntityConst.FARM}{farmId}-{CodeAliasEntityConst.GROWTHSTAGE}",
+                        ProcessCode = $"PRC{DateTime.Now:yyMMddHHmmssfff}",
                         CreateDate = DateTime.Now,
                         UpdateDate = DateTime.Now,
                         FarmId = farmId,
@@ -87,7 +87,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                             }
                             var newSubProcess = new SubProcess()
                             {
-                                SubProcessCode = NumberHelper.GenerateRandomCode(CodeAliasEntityConst.SUB_PROCESS),
+                                SubProcessCode = $"SPC{DateTime.Now:yyMMddHHmmssfff}",
                                 SubProcessName = subProcess.SubProcessName,
                                 CreateDate = DateTime.Now,
                                 UpdateDate = DateTime.Now,
@@ -108,7 +108,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                     var plan = JsonConvert.DeserializeObject<AddPlanInProcessModel>(planRaw);
                                     var newPlan = new Plan()
                                     {
-                                        PlanCode = "PLAN" + "_" + DateTime.Now.ToString("ddMMyyyy") + "_" + plan.MasterTypeId,
+                                        PlanCode = $"PLAN{DateTime.Now:yyMMddHHmmssfff}",
                                         PlanName = plan.PlanName,
                                         IsSample = true,
                                         PlanDetail = plan.PlanDetail,
@@ -137,7 +137,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                             var plan = JsonConvert.DeserializeObject<AddPlanInProcessModel>(planRaw);
                             var newPlan = new Plan()
                             {
-                                PlanCode = "PLAN" + "_" + DateTime.Now.ToString("ddMMyyyy") + "_" + plan.MasterTypeId,
+                                PlanCode = $"PLAN{DateTime.Now:yyMMddHHmmssfff}",
                                 PlanName = plan.PlanName,
                                 PlanDetail = plan.PlanDetail,
                                 Notes = plan.PlanNote,
@@ -554,7 +554,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                         // Chuyển đổi sang entity SubProcess
                                         newSubProcess = new SubProcess()
                                         {
-                                            SubProcessCode = CodeAliasEntityConst.SUB_PROCESS + "_" + DateTime.Now.Date.ToString(),
+                                            SubProcessCode = $"SPC{DateTime.Now:yyMMddHHmmssfff}",
                                             MasterTypeId = subProcess.MasterTypeId,
                                             SubProcessName = subProcess.SubProcessName,
                                             IsDefault = subProcess.IsDefault,
@@ -562,7 +562,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                             IsDeleted = false,
                                             CreateDate = DateTime.Now,
                                             UpdateDate = DateTime.Now,
-                                            ProcessId = checkExistProcess.ProcessId
+                                            ProcessId = checkExistProcess.ProcessId,
+                                            Order =  subProcess.Order
                                         };
                                         newSubProcess.ParentSubProcessId = realParentId;
 
@@ -581,7 +582,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                                     {
                                                         var newPlan = new Plan()
                                                         {
-                                                            PlanCode = "PLAN" + "_" + DateTime.Now.ToString("ddMMyyyy") + "_" + plan.MasterTypeId,
+                                                            PlanCode = $"PLAN{DateTime.Now:yyMMddHHmmssfff}",
                                                             PlanName = plan.PlanName,
                                                             PlanDetail = plan.PlanDetail,
                                                             Notes = plan.PlanNote,
@@ -678,7 +679,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                             }
                                             if (subProcess.Order != null)
                                             {
-                                                subProcessUpdate.Order = subProcess.MasterTypeId;
+                                                subProcessUpdate.Order = subProcess.Order;
                                             }
                                            
                                             _unitOfWork.SubProcessRepository.Update(subProcessUpdate);
@@ -695,7 +696,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                                         {
                                                             var newPlan = new Plan()
                                                             {
-                                                                PlanCode = "PLAN" + "_" + DateTime.Now.ToString("ddMMyyyy") + "_" + plan.MasterTypeId,
+                                                                PlanCode = $"PLAN{DateTime.Now:yyMMddHHmmssfff}",
                                                                 PlanName = plan.PlanName,
                                                                 PlanDetail = plan.PlanDetail,
                                                                 Notes = plan.PlanNote,
@@ -788,7 +789,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                                     {
                                                         var newPlan = new Plan()
                                                         {
-                                                            PlanCode = "PLAN" + "_" + DateTime.Now.ToString("ddMMyyyy") + "_" + plan.MasterTypeId,
+                                                            PlanCode = $"PLAN{DateTime.Now:yyMMddHHmmssfff}",
                                                             PlanName = plan.PlanName,
                                                             PlanDetail = plan.PlanDetail,
                                                             Notes = plan.PlanNote,
@@ -868,7 +869,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                         {
                                             var newPlan = new Plan()
                                             {
-                                                PlanCode = "PLAN" + "_" + DateTime.Now.ToString("ddMMyyyy") + "_" + updatePlan.MasterTypeId,
+                                                PlanCode = $"PLAN{DateTime.Now:yyMMddHHmmssfff}",
                                                 PlanName = updatePlan.PlanName,
                                                 PlanDetail = updatePlan.PlanDetail,
                                                 Notes = updatePlan.PlanNote,
