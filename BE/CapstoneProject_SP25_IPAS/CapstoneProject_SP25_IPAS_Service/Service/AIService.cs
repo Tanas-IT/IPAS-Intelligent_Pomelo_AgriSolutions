@@ -1172,7 +1172,7 @@ const generationConfig = {
                 }
                 int skipRecord = paginationParameter.PageIndex - 1;
 
-                var entities =  getListTags.Skip(skipRecord).Take(paginationParameter.PageSize).ToList();
+                var entities =  getListTags.Skip(skipRecord * paginationParameter.PageSize).Take(paginationParameter.PageSize).ToList();
                 var pagin = new PageEntity<Tag>();
 
               
