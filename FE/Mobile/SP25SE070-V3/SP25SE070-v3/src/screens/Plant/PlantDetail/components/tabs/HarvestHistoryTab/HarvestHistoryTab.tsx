@@ -1,85 +1,88 @@
-import React, { useState } from "react";
+import React, { useState, useEffect, ReactNode } from "react";
 import {
   View,
-  Text,
-  StyleSheet,
-  ScrollView,
+  FlatList,
   TouchableOpacity,
   Modal,
-  FlatList,
   Animated,
+  ActivityIndicator,
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { styles } from "./HarvestHistoryTab.styles";
 import theme from "@/theme";
 import { CustomIcon, TextCustom } from "@/components";
-import { GetPlantDetail } from "@/payloads";
-import { PlantDetailData } from "@/types";
+import { PlantService } from "@/services";
+import { HarvestStatisticResponse } from "@/types";
+import Toast from "react-native-toast-message";
+import useMasterTypeOptions from "@/hooks/useMasterTypeOptions";
+import { generateYearOptions } from "@/utils";
 
 type OptionType = {
-  id: number;
-  name: string;
+  value: string | number;
+  label: string | ReactNode;
 };
 
 type DropdownType = "yearFrom" | "yearTo" | "product";
 
-const HarvestHistoryTab: React.FC<{ plant: PlantDetailData }> = ({ plant }) => {
-  const [yearFrom, setYearFrom] = useState<number>(2024);
-  const [yearTo, setYearTo] = useState<number>(2025);
-  const [productId, setProductId] = useState<number>(31);
+const HarvestHistoryTab: React.FC<{ plantId: number }> = ({ plantId }) => {
+  const [yearFrom, setYearFrom] = useState<number | string>(2024);
+  const [yearTo, setYearTo] = useState<number | string>(2025);
+  const [productId, setProductId] = useState<number | string>(31);
   const [modalVisible, setModalVisible] = useState<DropdownType | null>(null);
   const [fadeAnim] = useState(new Animated.Value(0));
+  const [data, setData] = useState<HarvestStatisticResponse | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
+  const { options: productOptions } = useMasterTypeOptions("Product");
 
-  // Giả lập dữ liệu
-  const mockData = {
-    yearFrom,
-    yearTo,
-    harvestCount: 2,
-    masterTypeId: productId,
-    masterTypeCode: productId === 31 ? "MT031" : "MT032",
-    masterTypeName: productId === 31 ? "Grade 2" : "Grade 1",
-    totalYearlyQuantity: 400,
-    numberHarvest: 2,
-    monthlyData: [
-      { month: 3, year: 2024, totalQuantity: 190, harvestCount: 1 },
-      { month: 9, year: 2024, totalQuantity: 210, harvestCount: 1 },
-    ].filter((item) => item.year >= yearFrom && item.year <= yearTo),
+  const years = generateYearOptions();
+
+  const fetchHarvestStatistics = async () => {
+    setIsLoading(true);
+    try {
+      const res = await PlantService.getHarvestStatistics(plantId, {
+        yearFrom,
+        yearTo,
+        productId,
+      });
+      if (res.statusCode === 200) {
+        setData(res.data);
+        Animated.timing(fadeAnim, {
+          toValue: 1,
+          duration: 500,
+          useNativeDriver: true,
+        }).start();
+      } else {
+        Toast.show({
+          type: "error",
+          text1: "Error",
+          text2: res.message || "Fetch error",
+        });
+      }
+    } catch (error: any) {
+      Toast.show({
+        type: "error",
+        text1: "Error",
+        text2: error.message || "Fetch error",
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
-  React.useEffect(() => {
-    Animated.timing(fadeAnim, {
-      toValue: 1,
-      duration: 500,
-      useNativeDriver: true,
-    }).start();
-  }, [mockData]);
-
-  const years = [
-    { id: 2023, name: "2023" },
-    { id: 2024, name: "2024" },
-    { id: 2025, name: "2025" },
-    { id: 2026, name: "2026" },
-  ];
-  const products = [
-    { id: 31, name: "Grade 2" },
-    { id: 32, name: "Grade 1" },
-  ];
-
-  const isProduct = (item: number | OptionType): item is OptionType =>
-    typeof item === "object";
+  useEffect(() => {
+    fetchHarvestStatistics();
+  }, [yearFrom, yearTo, productId]);
 
   const renderDropdown = (
-    label: string,
-    value: number,
-    setValue: React.Dispatch<React.SetStateAction<number>>,
+    label: string | number,
+    value: number | string,
+    setValue: React.Dispatch<React.SetStateAction<number | string>>,
     options: OptionType[],
-    type: DropdownType,
-    setModalVisible: React.Dispatch<React.SetStateAction<DropdownType | null>>
+    type: DropdownType
   ) => {
     const displayValue =
       type === "product"
-        ? (options as OptionType[]).find((p) => p.id === value)?.name ||
-          "Unknown"
+        ? options.find((p) => p.value === value)?.label || "Unknown"
         : value;
 
     return (
@@ -93,7 +96,7 @@ const HarvestHistoryTab: React.FC<{ plant: PlantDetailData }> = ({ plant }) => {
           <CustomIcon
             name="chevron-down"
             size={20}
-            color="#064944"
+            color={theme.colors.primary}
             type="MaterialCommunityIcons"
           />
         </TouchableOpacity>
@@ -111,19 +114,17 @@ const HarvestHistoryTab: React.FC<{ plant: PlantDetailData }> = ({ plant }) => {
             <View style={styles.modalContent}>
               <FlatList
                 data={options}
-                keyExtractor={(item) =>
-                  `${type}-${isProduct(item) ? item.id : item}`
-                }
+                keyExtractor={(item) => `${type}-${item.value}`}
                 renderItem={({ item }) => (
                   <TouchableOpacity
                     style={styles.optionItem}
                     onPress={() => {
-                      setValue(isProduct(item) ? item.id : item);
+                      setValue(item.value);
                       setModalVisible(null);
                     }}
                   >
                     <TextCustom style={styles.optionText}>
-                      {isProduct(item) ? item.name : item}
+                      {item.label}
                     </TextCustom>
                   </TouchableOpacity>
                 )}
@@ -135,9 +136,17 @@ const HarvestHistoryTab: React.FC<{ plant: PlantDetailData }> = ({ plant }) => {
     );
   };
 
+  if (isLoading) {
+    return (
+      <View style={styles.container}>
+        <ActivityIndicator size="large" color={theme.colors.primary} />
+      </View>
+    );
+  }
+
   return (
     <View style={styles.container}>
-      {/* filter */}
+      {/* Filter */}
       <LinearGradient
         colors={["#fffcee", "#fffcee"]}
         start={{ x: 0, y: 0 }}
@@ -145,107 +154,82 @@ const HarvestHistoryTab: React.FC<{ plant: PlantDetailData }> = ({ plant }) => {
         style={styles.filterContainer}
       >
         <View style={styles.filterRow}>
-          {renderDropdown(
-            "From",
-            yearFrom,
-            setYearFrom,
-            years,
-            "yearFrom",
-            setModalVisible
-          )}
-          {renderDropdown(
-            "To",
-            yearTo,
-            setYearTo,
-            years,
-            "yearTo",
-            setModalVisible
-          )}
-          {renderDropdown(
-            "Product",
-            productId,
-            setProductId,
-            products,
-            "product",
-            setModalVisible
-          )}
+          {renderDropdown("From", yearFrom, setYearFrom, years, "yearFrom")}
+          {renderDropdown("To", yearTo, setYearTo, years, "yearTo")}
+          {renderDropdown("Product", productId, setProductId, productOptions, "product")}
         </View>
       </LinearGradient>
 
       <View style={styles.dividerHorizontal} />
 
-      {/* cards */}
-      <ScrollView contentContainerStyle={styles.content}>
-        {mockData.monthlyData.length > 0 ? (
-          mockData.monthlyData.map((item, index) => (
-            <View key={`${item.month}-${item.year}`}>
-              <LinearGradient
-                colors={["#BCD379", "#BCD379"]}
-                start={{ x: 0, y: 0 }}
-                end={{ x: 1, y: 0 }}
-                style={styles.tag}
-              >
-                <TextCustom style={styles.tagText}>
-                  {new Date(item.year, item.month - 1).toLocaleString("en-US", {
-                    month: "long",
-                    year: "numeric",
-                  })}
-                </TextCustom>
-              </LinearGradient>
-              <Animated.View style={[styles.card, { opacity: fadeAnim }]}>
-                <View style={styles.cardContent}>
-                  <View style={styles.headerRow}>
-                    <View style={styles.quantityBadge}>
-                      <TextCustom style={styles.quantityText}>
-                        {item.totalQuantity} kg
-                      </TextCustom>
-                    </View>
-                    <TextCustom style={styles.productType}>
-                      {mockData.masterTypeName}
+      {/* Cards */}
+      <FlatList
+        data={data?.monthlyData || []}
+        keyExtractor={(item) => `${item.month}-${item.year}`}
+        contentContainerStyle={styles.content}
+        renderItem={({ item }) => (
+          <View>
+            <LinearGradient
+              colors={["#BCD379", "#BCD379"]}
+              start={{ x: 0, y: 0 }}
+              end={{ x: 1, y: 0 }}
+              style={styles.tag}
+            >
+              <TextCustom style={styles.tagText}>
+                {new Date(item.year, item.month - 1).toLocaleString("en-US", {
+                  month: "long",
+                  year: "numeric",
+                })}
+              </TextCustom>
+            </LinearGradient>
+            <Animated.View style={[styles.card, { opacity: fadeAnim }]}>
+              <View style={styles.cardContent}>
+                <View style={styles.headerRow}>
+                  <View style={styles.quantityBadge}>
+                    <TextCustom style={styles.quantityText}>
+                      {item.totalQuantity}
+                      {data?.masterTypeName?.toLowerCase().includes("branches") ? " bundle" : " kg"}
                     </TextCustom>
                   </View>
-
-                  <View style={styles.detailRow}>
-                    <CustomIcon
-                      name="fruit-watermelon"
-                      size={22}
-                      color="#FF9800"
-                      type="MaterialCommunityIcons"
-                    />
-                    <TextCustom style={styles.detailText}>
-                      Pomelo Fruit
-                    </TextCustom>
-                  </View>
-
-                  <View style={styles.detailRow}>
-                    <CustomIcon
-                      name="cash"
-                      size={22}
-                      color="#4CAF50"
-                      type="MaterialCommunityIcons"
-                    />
-                    <TextCustom style={styles.detailText}>
-                      Market Value: ${(item.totalQuantity * 2.5).toFixed(2)}
-                    </TextCustom>
-                  </View>
-
-                  <View style={styles.detailRow}>
-                    <CustomIcon
-                      name="repeat"
-                      size={22}
-                      color="#2196F3"
-                      type="MaterialCommunityIcons"
-                    />
-                    <TextCustom style={styles.detailText}>
-                      Harvested {item.harvestCount} time
-                      {item.harvestCount > 1 ? "s" : ""}
-                    </TextCustom>
-                  </View>
+                  <TextCustom style={styles.productType}>
+                    {data?.masterTypeName || "Unknown"}
+                  </TextCustom>
                 </View>
-              </Animated.View>
-            </View>
-          ))
-        ) : (
+
+                <View style={styles.detailRow}>
+                  <CustomIcon
+                    name="cash"
+                    size={22}
+                    color={theme.colors.success}
+                    type="MaterialCommunityIcons"
+                  />
+                  <TextCustom style={styles.detailText}>
+                    Market Value: <TextCustom style={{ color: "red" }}>${(item.totalQuantity * 2.5).toFixed(2)}</TextCustom>
+                  </TextCustom>
+
+                </View>
+
+                <View style={styles.detailRow}>
+                  <CustomIcon
+                    name="repeat"
+                    size={22}
+                    color={theme.colors.primary}
+                    type="MaterialCommunityIcons"
+                  />
+                  <TextCustom style={styles.detailText}>
+                    Harvested{" "}
+                    <TextCustom style={{ color: "blue", fontWeight: "600" }}>
+                      {item.harvestCount}
+                    </TextCustom>{" "}
+                    {item.harvestCount > 1 ? "times" : "time"}
+                  </TextCustom>
+
+                </View>
+              </View>
+            </Animated.View>
+          </View>
+        )}
+        ListEmptyComponent={
           <View style={styles.emptyContainer}>
             <LinearGradient
               colors={["#f0f0f0", "#e0e0e0"]}
@@ -259,11 +243,11 @@ const HarvestHistoryTab: React.FC<{ plant: PlantDetailData }> = ({ plant }) => {
               />
             </LinearGradient>
             <TextCustom style={styles.emptyText}>
-              No harvest history found
+              No harvest history
             </TextCustom>
           </View>
-        )}
-      </ScrollView>
+        }
+      />
     </View>
   );
 };

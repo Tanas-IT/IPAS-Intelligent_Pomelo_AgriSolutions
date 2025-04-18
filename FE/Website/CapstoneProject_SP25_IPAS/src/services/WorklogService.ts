@@ -112,11 +112,7 @@ export const addWorklogNote = async (
   }
 
   export const canTakeAttendance = async (workLogId: number): Promise<ApiResponse<Object>> => {
-    console.log('ảo nữa');
-    
     const res = await axiosAuth.axiosJsonRequest.post(`work-log/can-take-attendance`, {workLogId});
-    console.log("res1111111111111111111111", res);
-    
     const apiResponse = res.data as ApiResponse<Object>;
     return apiResponse;
   }

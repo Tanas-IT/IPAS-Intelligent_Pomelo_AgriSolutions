@@ -17,9 +17,10 @@ const { Header, Content } = Layout;
 
 interface ManagementLayoutProps {
   children: ReactNode;
+  hideSidebar?: boolean;
 }
 
-const ManagementLayout: React.FC<ManagementLayoutProps> = ({ children }) => {
+const ManagementLayout: React.FC<ManagementLayoutProps> = ({ children, hideSidebar }) => {
   useToastMessage();
   // useFarmExpiration();
   useToastFromLocalStorage();
@@ -61,7 +62,7 @@ const ManagementLayout: React.FC<ManagementLayoutProps> = ({ children }) => {
 
   return (
     <Flex className={style.mainContainer}>
-      <SidebarAdmin />
+      {!hideSidebar && <SidebarAdmin />}
       <Layout className={style.layout}>
         <HeaderAdmin />
         <Content className={style.contentWrapper}>

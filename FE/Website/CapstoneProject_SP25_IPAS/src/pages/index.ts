@@ -75,3 +75,5 @@ export { default as Farm } from "@/pages/Admin/Farm/Farm";
 export { default as PaymentHistory } from "@/pages/Admin/PaymentHistory/PaymentHistory";
 export { default as PackageList } from "@/pages/Admin/PackageList/PackageList";
 export { default as SystemConfiguration } from "@/pages/Admin/SystemConfiguration/SystemConfiguration";
+export { default as Profile } from "@/pages/Account/Profile/Profile";
+

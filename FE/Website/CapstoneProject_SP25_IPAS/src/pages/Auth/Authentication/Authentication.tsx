@@ -11,6 +11,7 @@ import { useLocalStorage, useToastMessage } from "@/hooks";
 import { getRoleId } from "@/utils";
 import { UserRole } from "@/constants";
 import { useState } from "react";
+import { useUserStore } from "@/stores";
 
 function Authentication() {
   useToastMessage();
@@ -41,13 +42,14 @@ function Authentication() {
           };
 
           saveAuthData(loginResponse);
+          useUserStore.getState().setUserInfo(result.data.fullname, result.data.avatar);
           const toastMessage = result.message;
           const roleId = getRoleId();
 
           if (roleId === UserRole.User.toString())
             navigate(PATHS.FARM_PICKER, { state: { toastMessage } });
           if (roleId === UserRole.Admin.toString())
-            navigate(PATHS.USER.USER_LIST, { state: { toastMessage } });
+            navigate(PATHS.ADMIN.USER_LIST, { state: { toastMessage } });
         } else {
           toast.error(result.message);
         }

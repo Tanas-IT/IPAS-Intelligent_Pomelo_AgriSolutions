@@ -15,7 +15,7 @@ const useRedirectAuth = (): boolean => {
     if (accessToken && refreshToken) {
       const roleId = getRoleId();
       if (roleId === UserRole.User.toString()) navigate(PATHS.FARM_PICKER);
-      if (roleId === UserRole.Admin.toString()) navigate(PATHS.ADMIN.USER_LIST);
+      if (roleId === UserRole.Admin.toString()) navigate(PATHS.ADMIN.DASHBOARD);
       if (roleId === UserRole.Owner.toString()) navigate(PATHS.DASHBOARD);
       //   if (roleId === UserRole.Employee.toString()) navigate(PATHS.);
       setIsAuthenticated(true);

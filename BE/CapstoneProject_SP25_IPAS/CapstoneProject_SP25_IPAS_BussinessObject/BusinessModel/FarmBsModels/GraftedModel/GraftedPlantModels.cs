@@ -36,8 +36,9 @@ namespace CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.FarmBsModels.G
         public bool? IsDead { get; set; }
 
         public int? PlantLotId { get; set; }
+        public string? FinishedPlantCode { get; set; }
 
-        public int? PlantId { get; set; }
+        public int? MotherPlantId { get; set; }
         [CsvExport("MotherPlantCode")]
         public string? PlantCode { get; set; }
         [CsvExport("PlantName")]
@@ -49,7 +50,7 @@ namespace CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.FarmBsModels.G
         public string? PlantLotName { get; set; }
         [CsvExport("PlantLotCode")]
         public string? PlantLotCode { get; set; }
-        public string? MasterTypeName { get; set; }
+
 
         //public virtual ICollection<GraftedPlantNote> GraftedPlantNotes { get; set; } = new List<GraftedPlantNote>();
 

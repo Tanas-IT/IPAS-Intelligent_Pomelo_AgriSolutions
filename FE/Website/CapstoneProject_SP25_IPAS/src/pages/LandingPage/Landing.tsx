@@ -3,6 +3,7 @@ import { Images } from "@/assets";
 import { useEffect } from "react";
 import AOS from "aos";
 import { PricingSection, ReviewSection, FeatureSection } from "@/components";
+import { PATHS } from "@/routes";
 
 function Landing() {
   useEffect(() => {
@@ -12,10 +13,11 @@ function Landing() {
       once: true,
     });
   }, []);
+
   return (
     <div className={style.landingPage}>
       {/* Hero Section */}
-      <section className={style.hero}>
+      <section id="home" className={style.hero}>
         <div className={style.heroImage} style={{ backgroundImage: `url(${Images.background})` }}>
           <div className={style.heroContent} data-aos="fade-up">
             <h1 data-aos="fade-down">IPAS:</h1>
@@ -32,7 +34,7 @@ function Landing() {
             <p className={style.smallText} data-aos="fade-up" data-aos-delay="200">
               with AI-powered tools.
             </p>
-            <a href="/" className={style.button_start} data-aos="zoom-in">
+            <a href={PATHS.AUTH.LOGIN} className={style.button_start} data-aos="zoom-in">
               Get Started Now
             </a>
           </div>
@@ -40,13 +42,19 @@ function Landing() {
       </section>
 
       {/* Features Section */}
-      <FeatureSection />
+      <div id="features">
+        <FeatureSection />
+      </div>
 
       {/* Pricing Section */}
-      <PricingSection />
+      <div id="pricing">
+        <PricingSection />
+      </div>
 
       {/* Review Section */}
-      <ReviewSection />
+      <div id="contact-us">
+        <ReviewSection />
+      </div>
     </div>
   );
 }

@@ -1,6 +1,6 @@
 import { axiosAuth } from "@/api";
 import { ApiResponse, GetData, GetPlant, GetUser, GetUser2, UserRequest } from "@/payloads";
-import { buildParams } from "@/utils";
+import { buildParams, getUserId } from "@/utils";
 
 export const getUsers = async (
   currentPage?: number,
@@ -23,6 +23,13 @@ export const getUsers = async (
   return apiResponse.data as GetData<GetUser2>;
 };
 
+export const getUser = async (userId: number): Promise<ApiResponse<GetUser2>> => {
+  const res = await axiosAuth.axiosJsonRequest.get(`users/get-user-by-id/${userId}`);
+
+  const apiResponse = res.data as ApiResponse<GetUser2>;
+  return apiResponse;
+};
+
 export const deleteUsers = async (ids: number[] | string[]): Promise<ApiResponse<Object>> => {
   const res = await axiosAuth.axiosJsonRequest.patch(`users/softed-delete-user`, ids);
   const apiResponse = res.data as ApiResponse<Object>;
@@ -39,6 +46,18 @@ export const updateUser = async (user: UserRequest): Promise<ApiResponse<GetUser
     role: user.roleName,
   };
   const res = await axiosAuth.axiosJsonRequest.put("users/update-user-info", payload);
+  const apiResponse = res.data as ApiResponse<GetUser2>;
+  return apiResponse;
+};
+
+export const updateAvatarUser = async (avatarFile: File): Promise<ApiResponse<GetUser2>> => {
+  const formData = new FormData();
+  formData.append("avatarOfUser", avatarFile);
+
+  const res = await axiosAuth.axiosMultipartForm.put(
+    `users/update-user-avatar/${getUserId()}`,
+    formData,
+  );
   const apiResponse = res.data as ApiResponse<GetUser2>;
   return apiResponse;
 };

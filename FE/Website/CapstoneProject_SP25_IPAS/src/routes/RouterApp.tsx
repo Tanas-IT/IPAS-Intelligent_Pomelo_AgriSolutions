@@ -52,8 +52,10 @@ import {
   Farm,
   PaymentHistory,
   AdminDashboard,
+  Profile,
 } from "@/pages";
 import {
+  AccountLayout,
   EmployeeLayout,
   EmptyLayout,
   FarmPickerLayout,
@@ -105,6 +107,7 @@ export const publicRoutes: RouteItem[] = [
   { path: PATHS.EMPLOYEE.PLANTS, component: EmployeeDashboard, layout: EmployeeLayout },
   { path: PATHS.EMPLOYEE.AI_CONSULTING, component: EmployeeDashboard, layout: EmployeeLayout },
   { path: PATHS.DASHBOARD, component: Dashboard, layout: ManagementLayout },
+  { path: PATHS.ACCOUNT.PROFILE, component: Profile, layout: AccountLayout },
   { path: PATHS.ADMIN.DASHBOARD, component: AdminDashboard, layout: ManagementLayout },
   { path: PATHS.ADMIN.USER_LIST, component: User, layout: ManagementLayout },
   { path: PATHS.ADMIN.FARM_LIST, component: Farm, layout: ManagementLayout },

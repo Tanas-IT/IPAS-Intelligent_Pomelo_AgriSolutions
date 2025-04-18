@@ -72,3 +72,23 @@ export const darkenColor = (hex: string, amount = 80): string => {
 
   return `#${((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1)}`;
 };
+
+export const generateYearOptions = (
+  startYear: number = 2020,
+  range: number = 7,
+  includeAll: boolean = false
+): { value: number | string; label: string }[] => {
+  const currentYear = new Date().getFullYear();
+  const endYear = currentYear + range;
+
+  const years = Array.from({ length: endYear - startYear + 1 }, (_, i) => {
+    const year = startYear + i;
+    return { value: year, label: String(year) };
+  });
+
+  if (includeAll) {
+    return [{ value: "all", label: "All" }, ...years];
+  }
+
+  return years;
+};

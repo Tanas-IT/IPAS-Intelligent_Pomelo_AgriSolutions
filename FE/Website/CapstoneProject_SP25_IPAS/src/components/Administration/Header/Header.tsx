@@ -7,9 +7,10 @@ import { getCurrentDate, getRoleName } from "@/utils";
 import { Icons, Images } from "@/assets";
 import { useNavigate } from "react-router-dom";
 import { useLocalStorage } from "@/hooks";
-import { useSidebarStore } from "@/stores";
+import { useSidebarStore, useUserStore } from "@/stores";
 import { SearchHeader } from "@/components";
 import Notification from "./Notification";
+import { PATHS } from "@/routes";
 
 interface HeaderProps {
   isDefault?: boolean;
@@ -17,13 +18,11 @@ interface HeaderProps {
 
 const Header: React.FC<HeaderProps> = ({ isDefault = false }) => {
   const { isExpanded } = useSidebarStore();
-  const { getAuthData } = useLocalStorage();
-  const authData = getAuthData();
+  // const { getAuthData } = useLocalStorage();
+  // const authData = getAuthData();
+  const { fullName, avatar } = useUserStore();
 
-  const menuItems = [
-    { label: "Hồ sơ cá nhân", path: "/profile" },
-    { label: "Cài đặt tài khoản", path: "/settings" },
-  ];
+  const menuItems = [{ label: "Account Profile", path: PATHS.ACCOUNT.PROFILE }];
 
   const navigate = useNavigate();
 
@@ -43,23 +42,11 @@ const Header: React.FC<HeaderProps> = ({ isDefault = false }) => {
     </div>
   );
 
-  const notificationContent = (
-    <div>
-      <h4>Notifications</h4>
-      <p>No new notifications</p>
-    </div>
-  );
-
-  const notifications = [
-    { icon: <Icons.language />, content: notificationContent },
-    !isDefault ? { icon: <Icons.regBell />, content: notificationContent } : null,
-  ].filter((noti) => noti !== null);
-
   return (
     <Flex className={`${style.header} ${!isExpanded && style.collapsed}`}>
       <Flex className={style.content}>
         <Flex className={style.leftSection}>
-          <Text className={style.welcomeMessage}>Welcome back, {authData.fullName}</Text>
+          <Text className={style.welcomeMessage}>Welcome back, {fullName}</Text>
           <Flex className={style.dateWrapper}>
             <Icons.calendar className={style.dateIcon} />
             <Text className={style.dateText}>{getCurrentDate()}</Text>
@@ -74,16 +61,13 @@ const Header: React.FC<HeaderProps> = ({ isDefault = false }) => {
           </Flex>
           <Popover content={profileContent} trigger="click" placement="bottom">
             <Flex className={style.profileContainer}>
-              {authData.avatar &&
-              authData.avatar !== "null" &&
-              authData.avatar !== "undefined" &&
-              authData.avatar.trim() !== "" ? (
-                <Avatar crossOrigin="anonymous" size={50} shape="square" src={authData.avatar} />
+              {avatar && avatar !== "null" && avatar !== "undefined" && avatar.trim() !== "" ? (
+                <Avatar crossOrigin="anonymous" size={50} shape="square" src={avatar} />
               ) : (
                 <Avatar size={50} shape="square" icon={<UserOutlined />} />
               )}
               <Flex className={`${style.profileInfo}`}>
-                <Text className={style.profileName}>{authData.fullName}</Text>
+                <Text className={style.profileName}>{fullName}</Text>
                 {!isDefault && <Text className={style.profileRole}>{getRoleName()}</Text>}
               </Flex>
               <Icons.arrowDropDownLine className={style.dropdownIcon} />

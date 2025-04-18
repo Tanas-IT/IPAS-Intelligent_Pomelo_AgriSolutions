@@ -23,6 +23,10 @@ export const PATHS = {
   // Dashboard
   DASHBOARD: "/dashboard",
 
+  ACCOUNT: {
+    PROFILE: "/account/profile",
+  },
+
   FARM_PICKER: "/farm-picker",
 
   CROP: {
