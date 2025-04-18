@@ -2343,21 +2343,21 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             {
                 var conflictedUsers = new List<string>();
 
-                foreach (var user in userIds)
-                {
-                    var conflictedUser = await _unitOfWork.UserWorkLogRepository.CheckUserConflictSchedule(user.UserId, workLog);
+                //foreach (var user in userIds)
+                //{
+                //    var conflictedUser = await _unitOfWork.UserWorkLogRepository.CheckUserConflictSchedule(user.UserId, workLog);
 
-                    if (conflictedUser != null)
-                    {
-                        conflictedUsers.AddRange(conflictedUser.Select(uwl => uwl.User.FullName));
-                    }
-                }
+                //    if (conflictedUser != null)
+                //    {
+                //        conflictedUsers.AddRange(conflictedUser.Select(uwl => uwl.User.FullName));
+                //    }
+                //}
 
-                if (conflictedUsers.Any())
-                {
-                    var uniqueUsers = string.Join(", ", conflictedUsers.Distinct());
-                    conflictDetailsSet.Add($"{uniqueUsers} have scheduling conflicts on {workLog.Date.Value.ToString("dd/MM/yyyy")} from {workLog.ActualStartTime} to {workLog.ActualEndTime}");
-                }
+                //if (conflictedUsers.Any())
+                //{
+                //    var uniqueUsers = string.Join(", ", conflictedUsers.Distinct());
+                //    conflictDetailsSet.Add($"{uniqueUsers} have scheduling conflicts on {workLog.Date.Value.ToString("dd/MM/yyyy")} from {workLog.ActualStartTime} to {workLog.ActualEndTime}");
+                //}
 
                 foreach (var user in userIds)
                 {
