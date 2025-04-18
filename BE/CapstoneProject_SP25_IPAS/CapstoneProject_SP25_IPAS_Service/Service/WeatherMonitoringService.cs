@@ -1,6 +1,7 @@
 ﻿using CapstoneProject_SP25_IPAS_BussinessObject.Entities;
 using CapstoneProject_SP25_IPAS_BussinessObject.ProgramSetUpObject.Weather;
 using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.NotificationRequest;
+using CapstoneProject_SP25_IPAS_Common.Constants;
 using CapstoneProject_SP25_IPAS_Common.Enum;
 using CapstoneProject_SP25_IPAS_Repository.UnitOfWork;
 using CapstoneProject_SP25_IPAS_Service.IService;
@@ -158,7 +159,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 if (!string.IsNullOrEmpty(workLog.Schedule.CarePlan.MasterType?.Target))
                     workType = workLog.Schedule.CarePlan.MasterType?.Target;
                 else if (workLog.Schedule.HarvestHistoryID.HasValue)
-                    workType = "Harvest";
+                    workType = WeatherConst.Harvest;
             }
             var rules = _configuration.GetSection("WeatherConfig:WorkRules").Get<Dictionary<string, WeatherRule>>() ?? new();
             if (string.IsNullOrEmpty(workType) || !rules.ContainsKey(workType)) return;

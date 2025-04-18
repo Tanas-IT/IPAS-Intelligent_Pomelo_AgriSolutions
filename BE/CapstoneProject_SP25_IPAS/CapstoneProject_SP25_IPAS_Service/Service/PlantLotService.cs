@@ -779,7 +779,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                             await _unitOfWork.PlantRepository.InsertRangeAsync(listPlantInsert);
                             if (plantLot.IsFromGrafted == true)
                             {
-                                await updateUsedGraftedPlantInLot(plantLotId: plantLot.PlantLotId, listPlantInsert.Count());
+                                await updateUsedGraftedPlantInLot(plantLotId: plantLot.PlantLotId, /*listPlantInsert.Count()*/listPlantInsert.Select(x => x.PlantCode).ToList()!);
                             }
                             remainingPlants -= plantsToAdd;
                         }
@@ -1037,18 +1037,20 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             return new BusinessResult(200, "Get criteria set success", criteriaSetForPlantLot);
         }
 
-        private async Task updateUsedGraftedPlantInLot(int plantLotId, int numberOfGraftedPlant)
+        private async Task updateUsedGraftedPlantInLot(int plantLotId, /*int numberOfGraftedPlant,*/ List<string> newPlantCode)
         {
             // chi lay nhung cay khoe manh trong lo thoi
             Expression<Func<GraftedPlant, bool>> filter = x => x.PlantLotId == plantLotId &&
                                         x.Status.ToLower().Equals(GraftedPlantStatusConst.HEALTHY.ToString().ToLower());
 
-            var graftedPlant = await _unitOfWork.GraftedPlantRepository.Get(filter: filter, includeProperties: "", pageIndex: 1, pageSize: numberOfGraftedPlant);
+            var graftedPlant = await _unitOfWork.GraftedPlantRepository.Get(filter: filter, includeProperties: "", pageIndex: 1, pageSize: /*numberOfGraftedPlant*/ newPlantCode.Count());
             if (graftedPlant != null)
             {
                 foreach (var grafted in graftedPlant)
                 {
                     // dnah dau used cac cay do
+                    grafted.FinishedPlantCode = newPlantCode.FirstOrDefault();
+                    newPlantCode.Remove(grafted.FinishedPlantCode!);
                     grafted.Status = GraftedPlantStatusConst.IS_USED;
                 }
                 _unitOfWork.GraftedPlantRepository.UpdateRange(graftedPlant);

@@ -145,7 +145,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 await _unitOfWork.SaveAsync();
 
                 var getListEmployeeId = addNewTaskModel.listEmployee.Select(x => x.UserId).ToList();
-                await _unitOfWork.WorkLogRepository.CheckWorkLogAvailabilityWhenAddPlan(TimeSpan.Parse(addNewTaskModel.StartTime), TimeSpan.Parse(addNewTaskModel.EndTime), addNewTaskModel.DateWork.Value, getMasterType.MasterTypeId, getListEmployeeId);
+                //await _unitOfWork.WorkLogRepository.CheckWorkLogAvailabilityWhenAddPlan(TimeSpan.Parse(addNewTaskModel.StartTime), TimeSpan.Parse(addNewTaskModel.EndTime), addNewTaskModel.DateWork.Value, getMasterType.MasterTypeId, getListEmployeeId);
 
                 var newWorkLog = new WorkLog()
                 {
@@ -165,27 +165,30 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 if (addNewTaskModel.listEmployee != null)
                 {
                     List<UserWorkLog> userWorkLogs = new List<UserWorkLog>();
-                    var savedWorkLogs = await _unitOfWork.WorkLogRepository.GetListWorkLogByWorkLogDate(newWorkLog);
+                    //var savedWorkLogs = await _unitOfWork.WorkLogRepository.GetListWorkLogByWorkLogDate(newWorkLog);
 
-                    foreach (var workLog in savedWorkLogs)
-                    {
-                        var conflictedUsers = new List<string>();
-                        foreach (EmployeeModel user in addNewTaskModel.listEmployee)
-                        {
-                            // Kiểm tra User có bị trùng lịch không?
-                            var conflictedUser = await _unitOfWork.UserWorkLogRepository.CheckUserConflictSchedule(user.UserId, workLog);
-                            if (conflictedUser != null)
-                            {
-                                conflictedUsers.AddRange(conflictedUser.Select(uwl => uwl.User.FullName));
-                            }
-                        }
+                    //foreach (var workLog in savedWorkLogs)
+                    //{
+                    //    var conflictedUsers = new List<string>();
+                    //    foreach (EmployeeModel user in addNewTaskModel.listEmployee)
+                    //    {
+                    //        // Kiểm tra User có bị trùng lịch không?
+                    //        var conflictedUser = await _unitOfWork.UserWorkLogRepository.CheckUserConflictSchedule(user.UserId, workLog);
+                    //        if (conflictedUser != null)
+                    //        {
+                    //            conflictedUsers.AddRange(conflictedUser.Select(uwl => uwl.User.FullName));
+                    //        }
+                    //    }
 
-                        if (conflictedUsers.Any())
-                        {
-                            var uniqueUsers = string.Join(", ", conflictedUsers.Distinct());
-                            conflictDetailsSet.Add($"{uniqueUsers} have scheduling conflicts on {workLog.Date}");
-                        }
-                    }
+                    //    if (conflictedUsers.Any())
+                    //    {
+                    //        var uniqueUsers = string.Join(", ", conflictedUsers.Distinct());
+                    //        conflictDetailsSet.Add($"{uniqueUsers} have scheduling conflicts on {workLog.Date}");
+
+                    //    }
+                    //}
+                    //if (conflictDetailsSet.Any())
+                    //    return new BusinessResult(400, string.Join("/n", conflictDetailsSet), false);
 
                     foreach (EmployeeModel user in addNewTaskModel.listEmployee)
                     {
@@ -194,7 +197,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                             WorkLogId = newWorkLog.WorkLogId,
                             UserId = user.UserId,
                             IsReporter = user.isReporter,
-                            IsDeleted = false
+                            IsDeleted = false,
+                            CreateDate = DateTime.Now
                         });
 
                     }
@@ -206,7 +210,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     var addNotification = new Notification()
                     {
                         Content = "Work " + addNewTaskModel.TaskName + " has just been created",
-                        Title = "WorkLog",
+                        Title = NotifitationConst.WORKLOG,
                         IsRead = false,
                         MasterTypeId = 36,
                         CreateDate = DateTime.Now,
@@ -276,7 +280,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 var addNotification = new Notification()
                 {
                     Content = getWorkLog.WorkLogName + " has changed employee. Please check schedule",
-                    Title = "WorkLog",
+                    Title = NotifitationConst.WORKLOG,
                     IsRead = false,
                     MasterTypeId = 36,
                     CreateDate = DateTime.Now,
@@ -458,7 +462,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
                 bool isFullMode = string.IsNullOrEmpty(getPlanTarget.Unit);
 
-                if (isFullMode || getPlanTarget.Unit == "Row")
+                if (isFullMode || getPlanTarget.Unit == PlanConst.ROW_UNIT)
                 {
                     if (getPlanTarget.LandRow != null && rowIds.Add(getPlanTarget.LandRow.LandRowId))
                     {
@@ -466,7 +470,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         displayModel.Rows.Add(row);
                     }
                 }
-                if (isFullMode || getPlanTarget.Unit == "Plant")
+                if (isFullMode || getPlanTarget.Unit == PlanConst.PLANT_UNIT)
                 {
                     if (getPlanTarget.Plant != null && plantIds.Add(getPlanTarget.Plant.PlantId))
                     {
@@ -474,7 +478,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         displayModel.Plants.Add(plant);
                     }
                 }
-                if (isFullMode || getPlanTarget.Unit == "PlantLot")
+                if (isFullMode || getPlanTarget.Unit == PlanConst.PLANT_LOT_UNIT)
                 {
                     if (getPlanTarget.PlantLot != null && plantLotIds.Add(getPlanTarget.PlantLot.PlantLotId))
                     {
@@ -482,7 +486,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         displayModel.PlantLots.Add(plantLot);
                     }
                 }
-                if (isFullMode || getPlanTarget.Unit == "GraftedPlant")
+                if (isFullMode || getPlanTarget.Unit == PlanConst.GRAFTED_UNIT)
                 {
                     if (getPlanTarget.GraftedPlant != null && graftedPlantIds.Add(getPlanTarget.GraftedPlant.GraftedPlantId))
                     {
@@ -747,9 +751,9 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     findWorkLog.Notes = createNoteModel.Note;
                     findWorkLog.Issue = createNoteModel.Issue;
                     findWorkLog.CreateDate = DateTime.Now;
-                   
+
                     // Khởi tạo đối tượng Resource
-                   
+
 
                     // Xử lý tài nguyên (hình ảnh/video) nếu có
                     if (createNoteModel.Resources?.Any() == true)
@@ -2567,18 +2571,18 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         }
                     }
                 }
-                
-                if (addNewTaskModel.NewDateWork.Date == DateTime.Now.Date)
-                    {
-                        if (startTime <= DateTime.Now.TimeOfDay)
-                        {
-                            throw new Exception("StartTime must be greater than now");
-                        }
 
-                        if (endTime <= DateTime.Now.TimeOfDay)
-                        {
-                            throw new Exception("EndTime must be greater than now");
-                        }
+                if (addNewTaskModel.NewDateWork.Date == DateTime.Now.Date)
+                {
+                    if (startTime <= DateTime.Now.TimeOfDay)
+                    {
+                        throw new Exception("StartTime must be greater than now");
+                    }
+
+                    if (endTime <= DateTime.Now.TimeOfDay)
+                    {
+                        throw new Exception("EndTime must be greater than now");
+                    }
 
                 }
                 if (endTime <= startTime)
