@@ -592,8 +592,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     // kiem tra da hoan thanh cac criteria cua grafted evaluation chua --> bac buoc hoan thanh het
                     if (checkGraftedExist.IsDead == true)
                         return new BusinessResult(400, "This grafted has dead before. Please check again");
-                    if (checkGraftedExist.SeparatedDate.HasValue)
-                        return new BusinessResult(400, "This grafted has seperate before. Please check again");
+                    if (checkGraftedExist.IsCompleted == true)
+                        return new BusinessResult(400, "This grafted has completed and seperated before. Please check again");
                     if (checkGraftedExist.PlantLotId.HasValue)
                         return new BusinessResult(400, "This grafted has in plant lot before. Please check again");
                     //var requiredCondition = _masterTypeConfig.GraftedCriteriaApply!.GraftedEvaluationApply ?? new List<string>();
