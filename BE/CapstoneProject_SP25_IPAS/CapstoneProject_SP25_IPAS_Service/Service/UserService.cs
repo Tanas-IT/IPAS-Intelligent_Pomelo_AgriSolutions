@@ -82,10 +82,10 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 //{
                 //    user.Status = UserStatusEnum.Active.ToString();
 
-                    //if (result > 0)
-                    //{
-                    //    return new BusinessResult(Const.SUCCESS_BANNED_USER_CODE, Const.SUCCESS_UNBANNED_USER_MSG);
-                    //}
+                //if (result > 0)
+                //{
+                //    return new BusinessResult(Const.SUCCESS_BANNED_USER_CODE, Const.SUCCESS_UNBANNED_USER_MSG);
+                //}
                 //}
 
                 //return new BusinessResult(Const.FAIL_BANNED_USER_CODE, Const.FAIL_BANNED_USER_MSG);
@@ -102,7 +102,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
         public async Task<BusinessResult> UnBannedUser(List<int> userId)
         {
             if (userId == null)
-                return new BusinessResult(400,"You must select user before");
+                return new BusinessResult(400, "You must select user before");
             var existUser = await _unitOfWork.UserRepository.GetAllNoPaging(x => userId.Contains(x.UserId) && x.RoleId != (int)RoleEnum.ADMIN);
             foreach (var user in existUser)
             {
@@ -110,7 +110,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 {
                     user.Status = UserStatusEnum.Active.ToString();
                 }
-                
+
             }
             _unitOfWork.UserRepository.UpdateRange(existUser);
             var result = await _unitOfWork.SaveAsync();
@@ -519,7 +519,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         Gender = model.Gender,
                         PhoneNumber = model.Phone,
                         Dob = model.Dob,
-                        Status = "Active",
+                        Status = UserStatusEnum.Active.ToString(),
+                        AvatarURL = _configuration["SystemDefault:AvatarDefault"],
                         IsDeleted = false,
                     };
                     if (model.Password != null)
@@ -631,16 +632,16 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         await _cloudinaryService.DeleteImageByUrlAsync(checkExistUser.AvatarURL);
                     }
                     checkExistUser.AvatarURL = uploadImageLink;
-                     _unitOfWork.UserRepository.Update(checkExistUser);
+                    _unitOfWork.UserRepository.Update(checkExistUser);
                     var result = await _unitOfWork.SaveAsync();
-                    return new BusinessResult(Const.SUCCESS_UPLOAD_IMAGE_CODE, Const.SUCCESS_UPLOAD_IMAGE_MESSAGE, result > 0);
+                    var mappedResult = _mapper.Map<UserModel>(checkExistUser);
+                    return new BusinessResult(Const.SUCCESS_UPLOAD_IMAGE_CODE, Const.SUCCESS_UPLOAD_IMAGE_MESSAGE, mappedResult);
                 }
-                return new BusinessResult(Const.FAIL_UPLOAD_IMAGE_CODE, Const.FAIL_UPLOAD_IMAGE_MESSAGE, false);
+                return new BusinessResult(Const.FAIL_UPLOAD_IMAGE_CODE, Const.FAIL_UPLOAD_IMAGE_MESSAGE);
             }
             catch (Exception ex)
             {
-
-                return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
+                return new BusinessResult(Const.ERROR_EXCEPTION, Const.ERROR_MESSAGE);
             }
         }
 
@@ -1496,7 +1497,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             try
             {
                 var checkUserExist = await _unitOfWork.UserRepository.GetUserByIdAsync(userId);
-                if(checkUserExist == null)
+                if (checkUserExist == null)
                 {
                     return new BusinessResult(400, "User does not exist");
                 }
@@ -1507,9 +1508,9 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 }
                 var newPassword = PasswordHelper.HashPassword(changePasswordModel.NewPassword);
                 checkUserExist.Password = newPassword;
-                 _unitOfWork.UserRepository.Update(checkUserExist);
+                _unitOfWork.UserRepository.Update(checkUserExist);
                 var result = await _unitOfWork.SaveAsync();
-                if(result > 0)
+                if (result > 0)
                 {
                     return new BusinessResult(200, "Change password success", true);
                 }
