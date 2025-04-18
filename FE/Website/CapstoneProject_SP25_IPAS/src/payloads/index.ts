@@ -22,4 +22,6 @@ export * from "./product";
 export * from "./expert";
 export * from "./chatBox";
 export * from "./systemConfig";
+export * from "./package";
+
 

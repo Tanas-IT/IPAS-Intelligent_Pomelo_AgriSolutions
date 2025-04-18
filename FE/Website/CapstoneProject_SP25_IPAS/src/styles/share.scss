@@ -67,6 +67,7 @@
 @mixin filterContent {
   width: 100%;
   padding: 10px;
+  max-width: 35vw;
   .row {
     flex-direction: row;
     gap: 12px;

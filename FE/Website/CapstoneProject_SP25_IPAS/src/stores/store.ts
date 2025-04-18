@@ -22,6 +22,30 @@ export const useSidebarStore = create<SidebarState>((set) => ({
   setSidebarState: (state) => set({ isExpanded: state }), // Cập nhật trạng thái của sidebar
 }));
 
+interface UserState {
+  fullName: string;
+  avatar: string;
+  setUserInfo: (fullName: string, avatar: string) => void;
+  clearUserInfo: () => void;
+}
+
+export const useUserStore = create<UserState>((set) => ({
+  fullName: localStorage.getItem(LOCAL_STORAGE_KEYS.FULL_NAME) || "",
+  avatar: localStorage.getItem(LOCAL_STORAGE_KEYS.AVATAR) || "",
+
+  setUserInfo: (fullName, avatar) => {
+    localStorage.setItem(LOCAL_STORAGE_KEYS.FULL_NAME, fullName);
+    localStorage.setItem(LOCAL_STORAGE_KEYS.AVATAR, avatar);
+    set({ fullName, avatar });
+  },
+
+  clearUserInfo: () => {
+    localStorage.removeItem(LOCAL_STORAGE_KEYS.FULL_NAME);
+    localStorage.removeItem(LOCAL_STORAGE_KEYS.AVATAR);
+    set({ fullName: "", avatar: "" });
+  },
+}));
+
 interface FarmState {
   farmName: string;
   farmLogo: string;

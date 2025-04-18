@@ -9,6 +9,7 @@ import { RegisterRequest } from "@/payloads";
 import { useLocalStorage } from "@/hooks";
 import { PATHS } from "@/routes";
 import { toast } from "react-toastify";
+import { useUserStore } from "@/stores";
 
 const { Title, Text } = Typography;
 
@@ -119,6 +120,7 @@ function OTP() {
         };
 
         saveAuthData(registerResponse);
+        useUserStore.getState().setUserInfo(result.data.fullname, result.data.avatar);
         const toastMessage = result.message;
         navigate(PATHS.FARM_PICKER, { state: { toastMessage } });
       } else if (result.statusCode === 400) {

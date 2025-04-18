@@ -8,6 +8,7 @@ import { formatDateRange } from "@/utils";
 interface GraftedPlantPanelTitleProps {
   title: string;
   target: string;
+  targetDisplay: string;
   criteriaSetId: number;
   updatedCriteria: Record<string, number | null>;
   initialCriteria: Record<string, number | null>;
@@ -21,6 +22,7 @@ interface GraftedPlantPanelTitleProps {
 export const GraftedPlantPanelTitle = ({
   title,
   target,
+  targetDisplay,
   criteriaSetId,
   updatedCriteria,
   initialCriteria,
@@ -49,7 +51,7 @@ export const GraftedPlantPanelTitle = ({
   return (
     <Flex className={style.headerWrapper} gap={24}>
       <span className={style.panelTitle}>
-        {title} - <span className={style.targetText}>{target}</span>
+        {title} - <span className={style.targetText}>{targetDisplay}</span>
         <span className={style.date}>{formatDateRange(startDate, endDate || undefined)}</span>
         <span className={style.completedCount}>
           ({completedCount}/{data.length})

@@ -11,6 +11,7 @@ export {
   RiArrowDropDownLine as arrowDropDownLine,
   RiSeedlingLine as seedling,
   RiUserAddLine as addUser,
+  RiListSettingsLine as systemSetting
 } from "react-icons/ri";
 export {
   IoIosArrowBack as arrowBack,
@@ -41,6 +42,7 @@ export {
   LuHistory as history,
   LuPhone as phone,
   LuUpload as upload,
+  LuDownload as download,
   LuZoomIn as zoomIn,
   LuZoomOut as zoomOut,
   LuLandPlot as plot,

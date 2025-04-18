@@ -1,1 +1,2 @@
-export * from "./systemConfigResponses";
+export * from "./SystemConfigRequests";
+export * from "./SystemConfigResponses";

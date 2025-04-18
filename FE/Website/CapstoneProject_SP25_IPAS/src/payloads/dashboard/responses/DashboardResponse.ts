@@ -1,3 +1,6 @@
+import { GetPaymentHistory } from "@/payloads/payment";
+import { GetUser2 } from "@/payloads/user";
+
 export interface WeatherPropertyModel {
   currentTemp: number;
   tempMax: number;
@@ -18,7 +21,6 @@ interface PlantHealthStatus {
   [status: string]: number;
 }
 
-
 interface TaskStatusDistribution {
   totalTask: number;
   taskStatus: Record<string, number>;
@@ -34,26 +36,23 @@ interface MaterialInStoreModel {
   }[];
 }
 
-interface PomeloQualityBreakDown {
-}
+interface PomeloQualityBreakDown {}
 
 export interface ProductivityByPlotResponse {
-  harvestSeason: string
-  year: number
-  landPlots: LandPlot[]
+  harvestSeason: string;
+  year: number;
+  landPlots: LandPlot[];
 }
 
 export interface LandPlot {
-  landPlotId: number
-  landPlotName: string
-  totalPlantOfLandPlot: number
-  quantity: number
-  status: string
+  landPlotId: number;
+  landPlotName: string;
+  totalPlantOfLandPlot: number;
+  quantity: number;
+  status: string;
 }
 
-
-interface WorkProgressOverview {
-}
+interface WorkProgressOverview {}
 
 export interface DashboardResponses {
   totalPlant: number;
@@ -71,19 +70,52 @@ export interface DashboardResponses {
   workProgressOverviews: WorkProgressOverview[];
 }
 
+export interface RevenueMonth {
+  year: number;
+  month: number;
+  totalRevenue: number;
+}
+
+export interface RevenueByMonth {
+  totalRevenueYear: number;
+  revenueMonths: RevenueMonth[];
+}
+
+export interface FarmMonth {
+  year: number;
+  month: number;
+  totalRevenue: number;
+}
+
+export interface FarmCountByMonth {
+  totalRevenueYear: number;
+  year: number;
+  revenueMonths: FarmMonth[];
+}
+
+export interface AdminDashboardResponses {
+  totalUser: number;
+  totalRevenue: number;
+  totalFarm: number;
+  statisticRevenueYear: RevenueByMonth;
+  statisticFarmYear: FarmCountByMonth;
+  newestUserModels: GetUser2[];
+  newestOrdersModels: GetPaymentHistory[];
+}
+
 export interface MaterialInstore {
-  month: string
-  materials: Material[]
+  month: string;
+  materials: Material[];
 }
 
 export interface Material {
-  productType: string
-  unitOfMaterials: UnitOfMaterials
+  productType: string;
+  unitOfMaterials: UnitOfMaterials;
 }
 
 export interface UnitOfMaterials {
-  value: number
-  unit: string
+  value: number;
+  unit: string;
 }
 
 export interface SeasonalYieldResponse {

@@ -6,9 +6,26 @@ import {
   GetPlant,
   GetPlantGrowthHistory,
   GetPlantLot2,
+  GetSystemConfig,
+  GetUser2,
   MasterTypeDetail,
   UpdateProductHarvestRequest,
 } from "@/payloads";
+
+export const userFormFields = {
+  userId: "userId",
+  userCode: "userCode",
+  email: "email",
+  fullName: "fullName",
+  gender: "gender",
+  dob: "dob",
+  phoneNumber: "phoneNumber",
+  createDate: "createDate",
+  status: "status",
+  roleName: "roleName",
+  avatarURL: "avatarURL",
+  password: "password",
+};
 
 export const farmFormFields = {
   farmName: "farmName",
@@ -67,12 +84,25 @@ export const masterTypeFormFields: Record<keyof GetMasterType, keyof GetMasterTy
   characteristic: "characteristic",
   typeName: "typeName",
   target: "target",
+  targetDisplay: "targetDisplay",
   isConflict: "isConflict",
   createDate: "createDate",
   minTime: "minTime",
   maxTime: "maxTime",
   isActive: "isActive",
   masterTypeDetailModels: "masterTypeDetailModels",
+};
+
+export const configFormFields: Record<keyof GetSystemConfig, keyof GetSystemConfig> = {
+  configId: "configId",
+  configGroup: "configGroup",
+  configKey: "configKey",
+  configValue: "configValue",
+  description: "description",
+  isActive: "isActive",
+  isDeleteable: "isDeleteable",
+  createDate: "createDate",
+  referenceKeyId: "referenceKeyId",
 };
 
 export const lotFormFields: Record<keyof GetPlantLot2, keyof GetPlantLot2> = {

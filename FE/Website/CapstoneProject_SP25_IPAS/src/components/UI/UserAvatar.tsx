@@ -3,17 +3,11 @@ import { UserOutlined } from "@ant-design/icons";
 
 interface UserAvatarProps {
   avatarURL?: string;
-  fallbackText?: string;
   size?: number;
   shape?: "circle" | "square";
 }
 
-const UserAvatar: React.FC<UserAvatarProps> = ({
-  avatarURL,
-  fallbackText = "?",
-  size = 40,
-  shape = "circle",
-}) => {
+const UserAvatar: React.FC<UserAvatarProps> = ({ avatarURL, size = 40, shape = "circle" }) => {
   return (
     <div>
       <Avatar
@@ -25,10 +19,8 @@ const UserAvatar: React.FC<UserAvatarProps> = ({
           height: size,
         }}
         shape={shape}
-        icon={!avatarURL && !fallbackText ? <UserOutlined /> : undefined}
-      >
-        {fallbackText}
-      </Avatar>
+        icon={!avatarURL ? <UserOutlined /> : undefined}
+      />
     </div>
   );
 };

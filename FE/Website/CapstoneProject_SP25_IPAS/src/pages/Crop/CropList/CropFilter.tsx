@@ -78,9 +78,9 @@ const CropFilter = ({ filters, updateFilters, onClear, onApply }: FilterProps) =
             label="Status"
             fieldType="select"
             value={filters.status}
-            options={Object.entries(CROP_STATUS).map(([key, value]) => ({
-              value: key,
-              label: value,
+            options={Object.values(CROP_STATUS).map((status) => ({
+              value: status,
+              label: status,
             }))}
             onChange={(value) => updateFilters("status", value)}
           />

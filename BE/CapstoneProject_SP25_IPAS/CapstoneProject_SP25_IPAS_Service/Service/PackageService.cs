@@ -245,7 +245,7 @@ includeProperties, orderBy: orderBy, pageIndex: 1, pageSize: 3);
                     PackagePrice = request.PackagePrice,
                     Duration = request.Duration,
                     Status = PackageStatusConst.IN_ACTIVE,
-                    IsActive = false,
+                    IsActive = request.IsActive,
                     CreateDate = DateTime.Now,
                     PackageCode = CodeAliasEntityConst.PACKAGE + CodeHelper.GenerateCode()
                 };
