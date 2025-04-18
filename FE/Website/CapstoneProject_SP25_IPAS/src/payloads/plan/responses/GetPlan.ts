@@ -113,3 +113,56 @@ export interface GetPlanSelect {
   code: string;
   name: string;
 }
+
+export interface Plan {
+  planId: number;
+  planName: string;
+  planDetail?: string;
+  planNote?: string;
+}
+
+export interface SubProcess {
+  subProcessID: number;
+  subProcessName: string;
+  order: number;
+  plans: Plan[];
+  children: SubProcess[];
+}
+
+export interface ProcessResponse {
+  processId: number;
+  processName: string;
+  plans: Plan[];
+  subProcesses: SubProcess[];
+}
+
+export interface PlanNode {
+  key: string;
+  type: "plan";
+  name: string;
+  planId: number;
+  planName: string;
+  planDetail: string;
+  planNote: string;
+  masterTypeId: number;
+  listEmployee: any[];
+  schedule: any;
+}
+
+export interface SubProcessNode {
+  key: string;
+  type: "subProcess";
+  name: string;
+  subProcessId: number;
+  subProcessOrder: number | null;
+  children: (SubProcessNode | PlanNode)[];
+}
+
+export interface ProcessNode {
+  key: string;
+  type: "process";
+  name: string;
+  children: (SubProcessNode | PlanNode)[];
+}
+
+export type DataSourceNode = ProcessNode | SubProcessNode | PlanNode;
