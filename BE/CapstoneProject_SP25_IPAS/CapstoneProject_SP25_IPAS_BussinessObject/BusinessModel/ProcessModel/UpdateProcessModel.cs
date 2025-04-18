@@ -28,7 +28,7 @@ namespace CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.ProcessModel
         public DateTime? EndDate { get; set; }
 
         [DefaultValue(new[] {
-    "{SubProcessId: 1,SubProcessName: \"Sub 1\", Status: \"add\", ParentSubProcessId: 0, IsDefault: true, IsActive: true, MasterTypeId: 1, ListPlan: [{PlanId: 0,PlanName: \"Plan 1\", PlanDetail: \"Chi tiết 1\", PlanStatus: \"add\", PlanNote: \"Ghi chú 1\", GrowthStageId: 2, MasterTypeId: 3}]}"
+    "{SubProcessId: 1,SubProcessName: \"Sub 1\", Status: \"add\", ParentSubProcessId: 0, IsDefault: true, IsActive: true, MasterTypeId: 1, Order:0, ListPlan: [{PlanId: 0,PlanName: \"Plan 1\", PlanDetail: \"Chi tiết 1\", PlanStatus: \"add\", PlanNote: \"Ghi chú 1\", GrowthStageId: 2, MasterTypeId: 3}]}"
 })]
         public List<string>? ListUpdateSubProcess { get; set; } = new List<string>();
         [DefaultValue(new[] { "{PlanId: 0, PlanName: \"string\", PlanDetail: \"string\", PlanNote: \"string\", PlanStatus: \"add\", GrowthStageId: 0, MasterTypeId: 0}" })]
