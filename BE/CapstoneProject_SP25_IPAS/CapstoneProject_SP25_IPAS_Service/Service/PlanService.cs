@@ -2819,6 +2819,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     {
                         PlanId = p.PlanId,
                         PlanName = p.PlanName,
+                        PlanNote = p.Notes,
+                        PlanDetail = p.PlanDetail,
                         StartDate = p.StartDate,
                         EndDate = p.EndDate
                     }).ToList(),
@@ -2866,6 +2868,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         PlanId = p.PlanId,
                         PlanName = p.PlanName,
                         StartDate = p.StartDate,
+                        PlanNote = p.Notes,
+                        PlanDetail = p.PlanDetail,
                         EndDate = p.EndDate
                     }).ToList(),
                     SubProcesses = rootSubProcesses
