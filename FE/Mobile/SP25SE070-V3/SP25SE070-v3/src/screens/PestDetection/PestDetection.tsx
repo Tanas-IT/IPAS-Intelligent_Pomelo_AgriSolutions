@@ -18,11 +18,13 @@ import * as ImagePicker from "expo-image-picker";
 import Toast from "react-native-toast-message";
 import { BackButton, TextCustom } from "@/components";
 import { PestDetectionService } from "@/services";
+import * as FileSystem from "expo-file-system";
 
 interface ImageFile {
   uri: string;
   type: string;
   name: string;
+  size?: number;
 }
 
 const PestDetectionScreen = () => {
@@ -63,7 +65,26 @@ const PestDetectionScreen = () => {
     return true;
   };
 
+  const getFileSize = async (uri: string): Promise<number> => {
+    try {
+      const fileInfo = await FileSystem.getInfoAsync(uri);
+      if (fileInfo.exists && "size" in fileInfo && fileInfo.size !== undefined) {
+        return fileInfo.size;
+      }
+      console.warn("File does not exist or size is undefined:", uri);
+      return 0;
+    } catch (error) {
+      console.error("Error getting file size:", error);
+      return 0;
+    }
+  };
+
   const uploadToCloudinary = async (file: ImageFile) => {
+    const MAX_FILE_SIZE = 4 * 1024 * 1024;
+
+    const fileSize = file.size || (await getFileSize(file.uri));
+    console.log("File size:", fileSize, "bytes");
+
     const formData = new FormData();
     formData.append("file", {
       uri: file.uri,
@@ -79,8 +100,16 @@ const PestDetectionScreen = () => {
         body: formData,
       });
       const result = await response.json();
-      console.log("upload result:", result);
+      console.log("Upload result:", result);
       if (result.secure_url) {
+        if (fileSize > MAX_FILE_SIZE) {
+          const optimizedUrl = result.secure_url.replace(
+            "/upload/",
+            "/upload/w_1600,q_auto,f_auto,fl_lossy/"
+          );
+          console.log("Optimized URL:", optimizedUrl);
+          return optimizedUrl;
+        }
         return result.secure_url;
       } else {
         throw new Error("Failed to upload to Cloudinary");
@@ -90,7 +119,6 @@ const PestDetectionScreen = () => {
       throw error;
     }
   };
-
   const handleSelectFromLibrary = async () => {
     const hasPermission = await requestPermission("library");
     if (!hasPermission) return;
@@ -120,7 +148,7 @@ const PestDetectionScreen = () => {
         Toast.show({
           type: "error",
           text1: "Error",
-          text2: "Failed to upload image",
+          text2: "Cannot upload image to Cloudinary",
         });
       } finally {
         setIsLoading(false);
@@ -156,8 +184,8 @@ const PestDetectionScreen = () => {
       } catch (error) {
         Toast.show({
           type: "error",
-          text1: "Error",
-          text2: "Failed to upload image",
+          text1: "Lỗi",
+          text2: "Không thể tải ảnh lên Cloudinary",
         });
       } finally {
         setIsLoading(false);
@@ -194,7 +222,7 @@ const PestDetectionScreen = () => {
           visibilityTime: 4000,
           position: 'bottom'
         });
-        setDetectionResults(null); // Reset kết quả nếu có
+        setDetectionResults(null);
       } else {
         Toast.show({
           type: "error",
