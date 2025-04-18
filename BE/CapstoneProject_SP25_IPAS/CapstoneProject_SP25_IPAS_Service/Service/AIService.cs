@@ -43,6 +43,7 @@ using Newtonsoft.Json;
 using Azure;
 using CapstoneProject_SP25_IPAS_BussinessObject.Payloads.Request;
 using CapstoneProject_SP25_IPAS_Common.Upload;
+using Microsoft.EntityFrameworkCore.Metadata.Internal;
 
 namespace CapstoneProject_SP25_IPAS_Service.Service
 {
@@ -689,6 +690,7 @@ const generationConfig = {
             try
             {
                 var getListTags = await trainingClient.GetTagsAsync(projectId);
+
                 if (getListTags != null && getListTags.Any())
                 {
                     return new BusinessResult(200, "Get All Tags from Custom Vision success", getListTags);
@@ -1112,6 +1114,85 @@ const generationConfig = {
             {
 
                 return new BusinessResult(500, $"Exception: {ex.Message}");
+            }
+        }
+
+        public async Task<BusinessResult> GetTagsWithPagin(PaginationParameter paginationParameter)
+        {
+            try
+            {
+                var getListTags = await trainingClient.GetTagsAsync(projectId);
+                        
+                Func<IQueryable<Tag>, IOrderedQueryable<Tag>> orderBy = null!;
+                if (!string.IsNullOrEmpty(paginationParameter.Search))
+                {
+                    getListTags = getListTags.Where(x => x.Name.ToLower().Contains(paginationParameter.Search.ToLower())).ToList();
+                }
+                   
+
+                switch (paginationParameter.SortBy != null ? paginationParameter.SortBy.ToLower() : "tagid")
+                {
+                    case "id":
+                        if(!string.IsNullOrEmpty(paginationParameter.Direction))
+                        {
+                            if(paginationParameter.Direction.ToLower().Equals("desc"))
+                            {
+                                getListTags.OrderByDescending(x => x.Id);
+                            }
+                            else
+                            {
+                                getListTags.OrderBy(x => x.Id);
+                            }
+                        }
+                        else
+                        {
+                            getListTags.OrderByDescending(x => x.Id);
+                        }
+                        break;
+                    case "name":
+                        if (!string.IsNullOrEmpty(paginationParameter.Direction))
+                        {
+                            if (paginationParameter.Direction.ToLower().Equals("desc"))
+                            {
+                                getListTags.OrderByDescending(x => x.Name);
+                            }
+                            else
+                            {
+                                getListTags.OrderBy(x => x.Name);
+                            }
+                        }
+                        else
+                        {
+                            getListTags.OrderBy(x => x.Name);
+                        }
+                        break;
+                    default:
+                        orderBy = x => x.OrderByDescending(x => x.Id);
+                        break;
+                }
+                int skipRecord = paginationParameter.PageIndex - 1;
+
+                var entities =  getListTags.Skip(skipRecord).Take(paginationParameter.PageSize).ToList();
+                var pagin = new PageEntity<Tag>();
+
+              
+                pagin.List = entities;
+                pagin.TotalRecord = getListTags.Count();
+                pagin.TotalPage = PaginHelper.PageCount(pagin.TotalRecord, paginationParameter.PageSize);
+                if (pagin.List.Any())
+                {
+                    var result = new BusinessResult(200, "Get all tag with pagin success", pagin);
+                    return result;
+                }
+                else
+                {
+                    return new BusinessResult(200, "Do not have any tag", new PageEntity<PlanModel>());
+                }
+                
+            }
+            catch (Exception ex)
+            {
+                return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
             }
         }
     }

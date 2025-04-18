@@ -463,5 +463,25 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
                 return BadRequest(response);
             }
         }
+
+        [HttpGet(APIRoutes.AI.getAllTagsWithPagin, Name = "getAllTagsWithPagin")]
+        public async Task<IActionResult> GetAllTagsWithPaginAsync([FromQuery] PaginationParameter paginationParameter)
+        {
+            try
+            {
+                var result = await _aiService.GetTagsWithPagin(paginationParameter);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+
+                var response = new BaseResponse()
+                {
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    Message = ex.Message
+                };
+                return BadRequest(response);
+            }
+        }
     }
 }
