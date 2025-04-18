@@ -508,6 +508,7 @@ namespace CapstoneProject_SP25_IPAS_API.Payload
             public const string changeNameOfRoom = prefix + "/change-name-of-room";
             public const string deleteRoom = prefix + "/delete-room";
             public const string updateTagOfImage = prefix + "/update-tag-of-image";
+            public const string getAllTagsWithPagin = prefix + "/get-all-tags-with-pagin";
         }
 
 
