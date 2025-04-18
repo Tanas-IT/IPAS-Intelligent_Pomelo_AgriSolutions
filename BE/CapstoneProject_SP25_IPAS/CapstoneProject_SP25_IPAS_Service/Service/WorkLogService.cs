@@ -32,6 +32,7 @@ using System.Linq;
 using System.Linq.Expressions;
 using System.Numerics;
 using System.Reflection;
+using System.Reflection.Metadata.Ecma335;
 using System.Text;
 using System.Threading.Tasks;
 using static Microsoft.EntityFrameworkCore.DbLoggerCategory;
@@ -335,6 +336,10 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 //    return new BusinessResult(cachedData.StatusCode, cachedData.Message, cachedData.Data);
                 //}
                 var getDetailWorkLog = await _unitOfWork.WorkLogRepository.GetWorkLogIncludeById(workLogId);
+                if(getDetailWorkLog == null)
+                {
+                    return new BusinessResult(400, "Worklog does not exist", null);
+                }
                 var getStatusNotStarted = await _unitOfWork.SystemConfigRepository
                                       .GetConfigValue(SystemConfigConst.NOT_STARTED.Trim(), "Not Started");
                 var getStatusInProgress = await _unitOfWork.SystemConfigRepository
@@ -364,7 +369,14 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     }
                 }
                 var result = _mapper.Map<WorkLogDetailModel>(getDetailWorkLog);
-                var getAssignor = await _unitOfWork.UserRepository.GetByCondition(x => x.UserId == getDetailWorkLog.Schedule.CarePlan.AssignorId);
+                var assignorId = getDetailWorkLog?.Schedule?.CarePlan?.AssignorId;
+
+                User? getAssignor = null;
+                if (assignorId != null)
+                {
+                    getAssignor = await _unitOfWork.UserRepository
+                        .GetByCondition(x => x.UserId == assignorId);
+                }
                 if (getAssignor != null)
                 {
                     result.AssignorName = getAssignor.FullName;
