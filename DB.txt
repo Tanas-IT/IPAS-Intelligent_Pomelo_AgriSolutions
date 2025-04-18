@@ -1829,31 +1829,61 @@ VALUES
 ('GP014', 'Grafted Plant N', '2025-02-20', 'Healthy', '2025-02-10', 'Strong and steady', 4, 0, 0 ,3, 2),
 ('GP015', 'Grafted Plant O',  '2025-03-10', 'Healthy', '2025-03-01', 'Requires urgent intervention', 5, 0, 0 ,3, 2);
 GO
+
+INSERT INTO [dbo].[SubProcess]
+([SubProcessCode], [SubProcessName], [ParentSubProcessID], [isDefault], [isActive], [Description], [CreateDate], [UpdateDate], [StartDate], [EndDate], [IsDeleted], [Order], [ProcessID], [MasterTypeID], [FarmID])
+VALUES
+('SPC001'
+           ,N'Bước 1'
+           ,NULL
+           ,1
+           ,1
+           ,N'Mô tả bước 1'
+           ,'2025-04-12 23:20:53.990'
+           ,'2025-04-12 23:20:53.990'
+           ,'2025-04-12 23:20:53.990'
+           ,'2025-04-12 23:20:53.990'
+           ,0
+           ,1
+           ,10
+           ,NULL
+           ,1),
+('SPC002', N'Bước chuẩn bị đất', NULL, 1, 1, N'Chuẩn bị mặt bằng trước khi trồng', '2025-04-13 08:00:00', '2025-04-13 08:00:00', '2025-04-13 08:00:00', '2025-04-15 18:00:00', 0, 1, 10, NULL, 1),
+('SPC003', N'Gieo hạt', NULL, 0, 1, N'Tiến hành gieo hạt giống đã xử lý', '2025-04-13 09:30:00', '2025-04-13 09:30:00', '2025-04-16 07:00:00', '2025-04-16 12:00:00', 0, 2, 10, NULL, 1),
+('SPC004', N'Tưới nước lần 1', NULL, 0, 1, N'Tưới nước sau khi gieo', '2025-04-13 11:00:00', '2025-04-13 11:00:00', '2025-04-17 06:00:00', '2025-04-17 07:00:00', 0, 3, 10, NULL, 1),
+('SPC005', N'Bón phân đợt 1', NULL, 0, 1, N'Bón phân hữu cơ cho cây con', '2025-04-13 13:00:00', '2025-04-13 13:00:00', '2025-04-18 08:00:00', '2025-04-18 09:30:00', 0, 4, 10, NULL, 1),
+('SPC006', N'Kiểm tra sâu bệnh', NULL, 0, 1, N'Theo dõi và phát hiện sâu bệnh', '2025-04-14 07:30:00', '2025-04-14 07:30:00', '2025-04-19 09:00:00', '2025-04-19 10:00:00', 0, 5, 10, NULL, 1),
+('SPC007', N'Trị bệnh - thuốc sinh học', NULL, 0, 1, N'Phun thuốc sinh học cho cây bị nhiễm', '2025-04-14 08:00:00', '2025-04-14 08:00:00', '2025-04-20 08:00:00', '2025-04-20 09:30:00', 0, 6, 10, NULL, 1),
+('SPC008', N'Cắt tỉa cành', NULL, 0, 1, N'Cắt bỏ những cành không cần thiết', '2025-04-14 09:00:00', '2025-04-14 09:00:00', '2025-04-21 07:00:00', '2025-04-21 09:00:00', 0, 7, 10, NULL, 2),
+('SPC009', N'Thu hoạch đợt 1', NULL, 0, 1, N'Tiến hành thu hoạch thử nghiệm', '2025-04-14 10:00:00', '2025-04-14 10:00:00', '2025-04-22 08:00:00', '2025-04-22 12:00:00', 0, 8, 10, NULL, 2),
+('SPC010', N'Vận chuyển nội bộ', NULL, 0, 1, N'Chuyển trái cây từ vườn về kho', '2025-04-14 11:30:00', '2025-04-14 11:30:00', '2025-04-22 13:00:00', '2025-04-22 14:00:00', 0, 9, 10, NULL, 2),
+('SPC011', N'Làm sạch và phân loại', NULL, 0, 1, N'Làm sạch trái, phân loại trước đóng gói', '2025-04-14 12:00:00', '2025-04-14 12:00:00', '2025-04-22 15:00:00', '2025-04-22 18:00:00', 0, 10, 10, NULL, 2);
+GO
 INSERT INTO [dbo].[Plan] 
     ([Status], [PlanCode], [CreateDate], [StartDate], [EndDate], [UpdateDate], [isActive], [Notes], [PlanDetail], 
      [ResponsibleBy], [Frequency], [PlanName], [AssignorID], [PesticideName], [MaxVolume], [MinVolume], [ProcessID], 
      [CropID], [IsDeleted], [MasterTypeID], [SubProcessID], [FarmID], [IsSample])
 VALUES
     ('Active', 'PLN001', GETDATE(), '2025-04-01', '2025-04-01', GETDATE(), 1, 'Plan for pesticide spraying', 'Detail 1', 
-     'JohnDoe', NULL, 'Spraying Plan', 101, 'Pesticide A', 5.0, 2.0, 1, NULL, 0, 10, NULL, 1, 0),
+     'JohnDoe', NULL, 'Spraying Plan', 101, 'Pesticide A', 5.0, 2.0, 1, NULL, 0, 10, 1, 1, 0),
     ('Pending', 'PLN002', GETDATE(), '2025-05-01', '2025-05-01', GETDATE(), 1, 'Soil preparation', 'Detail 2', 
-     'JaneSmith', NULL, 'Soil Prep Plan', 102, NULL, NULL, NULL, 2, NULL, 0, 11, NULL, 1, 0),
+     'JaneSmith', NULL, 'Soil Prep Plan', 102, NULL, NULL, NULL, 2, NULL, 0, 11, 2, 1, 0),
     ('Completed', 'PLN003', GETDATE(), '2025-06-01', '2025-06-20', GETDATE(), 0, 'Harvesting completed', 'Detail 3', 
-     'AlexBrown', NULL, 'Harvest Plan', 103, NULL, NULL, NULL, 3, NULL, 1, 12, NULL, 1, 0),
+     'AlexBrown', NULL, 'Harvest Plan', 103, NULL, NULL, NULL, 3, NULL, 1, 12, 3, 1, 0),
     ('Active', 'PLN004', GETDATE(), '2025-07-01', '2025-07-12', GETDATE(), 1, 'Irrigation management', 'Detail 4', 
-     'ChrisWhite', NULL, 'Irrigation Plan', 104, NULL, NULL, NULL, 4, NULL, 0, 13, NULL, 1, 0),
+     'ChrisWhite', NULL, 'Irrigation Plan', 104, NULL, NULL, NULL, 4, NULL, 0, 13, 4, 1, 0),
     ('Pending', 'PLN005', GETDATE(), '2025-08-01', '2025-08-25', GETDATE(), 1, 'Fertilizer application', 'Detail 5', 
-     'EmilyGreen', NULL, 'Fertilization Plan', 105, 'Fertilizer X', 3.5, 1.5, 5, NULL, 0, 14, NULL, 1, 0),
+     'EmilyGreen', NULL, 'Fertilization Plan', 105, 'Fertilizer X', 3.5, 1.5, 5, NULL, 0, 14, 5, 1, 0),
     ('Completed', 'PLN006', GETDATE(), '2025-09-01', '2025-09-15', GETDATE(), 0, 'Weed control applied', 'Detail 6', 
-     'MichaelBlack', NULL, 'Weed Control Plan', 106, 'Herbicide Y', 4.0, 1.0, 6, NULL, 1, 15, NULL, 1, 0),
+     'MichaelBlack', NULL, 'Weed Control Plan', 106, 'Herbicide Y', 4.0, 1.0, 6, NULL, 1, 15, 6, 1, 0),
     ('Active', 'PLN007', GETDATE(), '2025-10-01', '2025-10-20', GETDATE(), 1, 'Pest management', 'Detail 7', 
-     'SarahBlue', NULL, 'Pest Control Plan', 107, 'Pesticide B', 6.0, 2.5, 7, NULL, 0, 16, NULL, 1, 0),
+     'SarahBlue', NULL, 'Pest Control Plan', 107, 'Pesticide B', 6.0, 2.5, 7, NULL, 0, 16, 7, 1, 0),
     ('Pending', 'PLN008', GETDATE(), '2025-11-01', '2025-11-30', GETDATE(), 1, 'New planting season', 'Detail 8', 
-     'DavidYellow', NULL, 'Planting Plan', 108, NULL, NULL, NULL, 8, NULL, 0, 17, NULL, 1, 0),
+     'DavidYellow', NULL, 'Planting Plan', 108, NULL, NULL, NULL, 8, NULL, 0, 17, 8, 1, 0),
     ('Completed', 'PLN009', GETDATE(), '2025-12-01', '2025-12-10', GETDATE(), 0, 'Post-harvest processing', 'Detail 9', 
-     'EmmaPurple', NULL, 'Processing Plan', 109, NULL, NULL, NULL, 9, NULL, 1, 18, NULL, 1, 0),
+     'EmmaPurple', NULL, 'Processing Plan', 109, NULL, NULL, NULL, 9, NULL, 1, 18, 9, 1, 0),
     ('Active', 'PLN010', GETDATE(), '2026-01-01', '2026-01-15', GETDATE(), 1, 'Greenhouse maintenance', 'Detail 10', 
-     'DanielOrange', NULL, 'Maintenance Plan', 110, NULL, NULL, NULL, 10, NULL, 0, 19, NULL, 1, 0);
+     'DanielOrange', NULL, 'Maintenance Plan', 110, NULL, NULL, NULL, 10, NULL, 0, 19, 10, 1, 0);
 GO
 INSERT INTO [dbo].[CarePlanSchedule]
            ([DayOfWeek]
@@ -2161,7 +2191,18 @@ INSERT INTO [dbo].[WorkLog]
            ,[ReasonDelay])
      VALUES
            ('WL31162235' ,'Watering_on__Plot A','In Progress','2025-04-02 09:30:00',0,0,'09:30:00','11:30:00',2,NULL,NULL),
-		   ('WL31163456' ,'Fertilizing_on__Plot A','In Progress','2025-04-02 09:30:00',0,0,'09:30:00','11:30:00',2,NULL,NULL)
+		   ('WL31163456' ,'Fertilizing_on__Plot A','In Progress','2025-04-02 09:30:00',0,0,'09:30:00','11:30:00',2,NULL,NULL),
+('WL31162237' ,'Watering_on__Plot A','In Progress','2025-04-16 09:30:00',0,0,'19:30:00','20:30:00',2,NULL,NULL),
+('WL31162238' ,'Fertilizing_on__Plot A','Not Started','2025-04-19 09:30:00',0,0,'19:30:00','20:30:00',2,NULL,NULL),
+('WL31162239' ,'Fertilizing_on__Plot A','Not Started','2025-04-19 09:30:00',0,0,'19:30:00','20:30:00',2,NULL,NULL),
+('WL31162240' ,'Fertilizing_on__Plot A','Cancelled','2025-04-19 09:30:00',0,0,'19:30:00','20:30:00',2,NULL,NULL),
+('WL31162242' ,'Fertilizing_on__Plot A','Overdue','2025-04-16 09:30:00',0,0,'19:30:00','20:30:00',2,NULL,NULL),
+('WL31162243' ,'Fertilizing_on__Plot A','Reviewing','2025-04-19 09:30:00',0,0,'19:30:00','20:30:00',2,NULL,NULL),
+('WL31162244' ,'Fertilizing_on__Plot A','Reviewing','2025-04-19 09:30:00',0,0,'19:30:00','20:30:00',2,NULL,NULL),
+('WL31162245' ,'Fertilizing_on__Plot A','Redo','2025-04-19 09:30:00',0,0,'19:30:00','20:30:00',2,NULL,NULL),
+('WL31162246' ,'Fertilizing_on__Plot A','OnRedo','2025-04-19 09:30:00',0,0,'19:30:00','20:30:00',2,NULL,NULL),
+('WL31162247' ,'Pruning_on__Plot A','Reviewing','2025-04-19 09:30:00',0,0,'19:30:00','20:30:00',2,NULL,NULL),
+('WL31162248' ,'Grafting_on__Plot A','Done','2025-04-17 09:30:00',0,0,'19:30:00','20:30:00',2,NULL,NULL)
 -- Insert UserWorkLog
 INSERT INTO [dbo].[UserWorkLog]
            ([WorkLogID]
@@ -2177,7 +2218,31 @@ INSERT INTO [dbo].[UserWorkLog]
            (1,1,1,0,'2025-04-02 09:30:00',NULL,NULL,NULL,NULL),
 		   (1,2,0,0,'2025-04-02 09:30:00',NULL,NULL,NULL,NULL),
 		   (2,7,1,0,'2025-04-02 09:30:00',NULL,NULL,NULL,NULL),
-		   (2,8,0,0,'2025-04-02 09:30:00',NULL,NULL,NULL,NULL)
+		   (2,8,0,0,'2025-04-02 09:30:00',NULL,NULL,NULL,NULL),
+(3,4,0,0,'2025-04-02 09:30:00',NULL,NULL,NULL,NULL),
+(3,5,0,0,'2025-04-02 09:30:00',NULL,NULL,NULL,NULL),
+(4,5,0,0,'2025-04-02 09:30:00',NULL,NULL,NULL,NULL),
+(4,6,0,0,'2025-04-02 09:30:00',NULL,NULL,NULL,NULL),
+(5,4,0,0,'2025-04-02 09:30:00',NULL,NULL,NULL,NULL),
+(6,23,0,0,'2025-04-02 09:30:00',NULL,NULL,NULL,NULL),
+(7,4,0,0,'2025-04-02 09:30:00',NULL,NULL,NULL,NULL),
+(6,4,0,0,'2025-04-02 09:30:00',NULL,NULL,NULL,NULL),
+(5,23,0,0,'2025-04-02 09:30:00',NULL,NULL,NULL,NULL),
+(11,6,0,0,'2025-04-02 09:30:00',NULL,NULL,NULL,NULL),
+(12,5,0,0,'2025-04-02 09:30:00',NULL,NULL,NULL,NULL),
+(10,4,0,0,'2025-04-02 09:30:00',NULL,NULL,NULL,NULL),
+(9,6,0,0,'2025-04-02 09:30:00',NULL,NULL,NULL,NULL),
+(8,4,0,0,'2025-04-02 09:30:00',NULL,NULL,NULL,NULL),
+(7,6,0,0,'2025-04-02 09:30:00',NULL,NULL,NULL,NULL),
+(6,13,0,0,'2025-04-02 09:30:00',NULL,NULL,NULL,NULL),
+(11,6,0,0,'2025-04-02 09:30:00',NULL,NULL,NULL,NULL),
+(12,23,0,0,'2025-04-02 09:30:00',NULL,NULL,NULL,NULL),
+(10,5,0,0,'2025-04-02 09:30:00',NULL,NULL,NULL,NULL),
+(9,5,0,0,'2025-04-02 09:30:00',NULL,NULL,NULL,NULL),
+(13,5,0,0,'2025-04-02 09:30:00',NULL,NULL,NULL,NULL),
+(13,4,0,0,'2025-04-02 09:30:00',NULL,NULL,NULL,NULL),
+(13,6,0,0,'2025-04-02 09:30:00',NULL,NULL,NULL,NULL),
+(13,23,0,0,'2025-04-02 09:30:00',NULL,NULL,NULL,NULL)
 
 DECLARE @i INT = 0;
 WHILE @i < 10
@@ -2271,3 +2336,5 @@ VALUES
     ('REP018', N'Report description 18', '2025-04-09 12:50:00', N'Plant grows well but bears no fruit?', N'Might need pollination or change of variety.', 'https://res.cloudinary.com/dgshx4n2c/image/upload/v1744012238/hemiriqcnbaa1ult00r7.jpg', 1, 4, 15),
     ('REP019', N'Report description 19', '2025-04-09 16:30:00', N'Tree sheds many leaves after flowering?', N'Nutrient or temperature shock.', 'https://res.cloudinary.com/dgshx4n2c/image/upload/v1744012238/hemiriqcnbaa1ult00r7.jpg', 1, 2, 10),
     ('REP020', N'Report description 20', '2025-04-09 18:15:00', N'Can lime powder be used for soil treatment?', N'Yes, but apply with proper dosage.', 'https://res.cloudinary.com/dgshx4n2c/image/upload/v1744012238/hemiriqcnbaa1ult00r7.jpg', 0, 1, 11);
+
+
