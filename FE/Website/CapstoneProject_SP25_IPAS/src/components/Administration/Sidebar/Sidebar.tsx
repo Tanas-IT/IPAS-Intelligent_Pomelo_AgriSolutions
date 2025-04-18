@@ -129,6 +129,40 @@ const Sidebar: React.FC<SidebarProps> = ({ isDefault = false }) => {
       key: "Dashboard",
       label: "Dashboard",
       icon: <Icons.dashboard />,
+      to: PATHS.EMPLOYEE.DASHBOARD,
+      category: "Main",
+      activePaths: [PATHS.EMPLOYEE.DASHBOARD],
+      isView: !isDefault,
+      roles: [UserRolesStr.Employee],
+    },
+    {
+      key: "Work Schedule",
+      label: "Work Schedule",
+      icon: <Icons.calendar />,
+      to: PATHS.EMPLOYEE.WORK_SCHEDULE,
+      category: "Main",
+      activePaths: [PATHS.EMPLOYEE.WORK_SCHEDULE],
+      isView: !isDefault,
+      roles: [UserRolesStr.Employee],
+    },
+    // {
+    //   key: "Plants",
+    //   label: "Plant Management",
+    //   icon: <Icons.plantFill />,
+    //   category: "Main",
+    //   to: PATHS.FARM.FARM_PLANT_LIST,
+    //   activePaths: [
+    //     PATHS.FARM.FARM_PLANT_LIST,
+    //     PATHS.FARM.FARM_PLANT_DETAIL,
+    //     PATHS.FARM.FARM_PLANT_DETAIL_FROM_ROW,
+    //   ],
+    //   isView: !isDefault,
+    //   roles: [UserRolesStr.Employee],
+    // },
+    {
+      key: "Dashboard",
+      label: "Dashboard",
+      icon: <Icons.dashboard />,
       to: PATHS.DASHBOARD,
       activePaths: [PATHS.DASHBOARD],
       category: "Main",
@@ -324,7 +358,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isDefault = false }) => {
       activePaths: [PATHS.CHATBOX.AI_CHATBOX],
       category: "Main",
       isView: !isDefault,
-      roles: [UserRolesStr.Owner],
+      roles: [UserRolesStr.Owner, UserRolesStr.Manager, UserRolesStr.Employee],
     },
     {
       key: "Staff Management",
@@ -368,18 +402,9 @@ const Sidebar: React.FC<SidebarProps> = ({ isDefault = false }) => {
       to: PATHS.EXPERT.REPORT_LIST,
       activePaths: [PATHS.EXPERT.REPORT_LIST],
       category: "Main",
-      isView: isDefault,
-      // roles: [UserRolesStr.Expert],
+      isView: !isDefault,
+      roles: [UserRolesStr.Expert],
     },
-    // {
-    //   key: "Dataset Management",
-    //   label: "Dataset Management",
-    //   icon: <Icons.process />,
-    //   to: PATHS.EXPERT.IMAGE_LIST,
-    //   activePaths: [PATHS.EXPERT.IMAGE_LIST],
-    //   category: "Main",
-    //   isView: isDefault,
-    // },
     {
       key: "Setting",
       label: "Setting",
@@ -618,10 +643,15 @@ const Sidebar: React.FC<SidebarProps> = ({ isDefault = false }) => {
         {/* Header */}
         <Flex
           className={`${style.profileWrapper} ${
-            !isDefault && currentUserRole !== UserRolesStr.Admin && style.cursor
+            !isDefault &&
+            currentUserRole !== UserRolesStr.Admin &&
+            currentUserRole !== UserRolesStr.Expert &&
+            style.cursor
           }`}
         >
-          {!isDefault && currentUserRole !== UserRolesStr.Admin ? (
+          {!isDefault &&
+          currentUserRole !== UserRolesStr.Admin &&
+          currentUserRole !== UserRolesStr.Expert ? (
             <Popover content={profileContent} trigger="click" placement="bottom" color="#f0f0f0">
               <Flex
                 className={style.logo}

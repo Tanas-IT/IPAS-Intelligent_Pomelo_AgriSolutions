@@ -10,7 +10,7 @@ import { useNavigate } from "react-router-dom";
 import { PATHS } from "@/routes";
 import { toast } from "react-toastify";
 
-import { UserRole, UserRolesStr } from "@/constants";
+import { UserRolesStr } from "@/constants";
 import { useUserStore } from "@/stores";
 
 interface Props {
@@ -52,9 +52,7 @@ const SignIn: React.FC<Props> = ({ toggleForm, isSignUp, handleGoogleLoginSucces
         if (roleId === UserRolesStr.User) navigate(PATHS.FARM_PICKER, { state: { toastMessage } });
         if (roleId === UserRolesStr.Admin)
           navigate(PATHS.ADMIN.DASHBOARD, { state: { toastMessage } });
-        // if (roleId === UserRole..toString())
-        //   navigate(PATHS.USER.USER_LIST, { state: { toastMessage } });
-        if (roleId === UserRole.Expert.toString())
+        if (roleId === UserRolesStr.Expert)
           navigate(PATHS.EXPERT.REPORT_LIST, { state: { toastMessage } });
       } else {
         toast.error(toastMessage);

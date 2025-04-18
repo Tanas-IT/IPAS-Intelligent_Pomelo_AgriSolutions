@@ -76,4 +76,6 @@ export { default as PaymentHistory } from "@/pages/Admin/PaymentHistory/PaymentH
 export { default as PackageList } from "@/pages/Admin/PackageList/PackageList";
 export { default as SystemConfiguration } from "@/pages/Admin/SystemConfiguration/SystemConfiguration";
 export { default as Profile } from "@/pages/Account/Profile/Profile";
+export { default as ReportManagement } from "@/pages/ExpertView/ReportManagement/ReportManagement";
+
 

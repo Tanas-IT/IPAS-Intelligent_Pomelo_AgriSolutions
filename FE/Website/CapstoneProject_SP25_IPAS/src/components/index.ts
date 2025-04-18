@@ -74,7 +74,6 @@ export { default as RowItemEdit } from "@/components/UI/Row/RowItem/RowItemEdit"
 export { default as RowItemView } from "@/components/UI/Row/RowItem/RowItemView";
 export { default as RowList } from "@/components/UI/Row/RowList/RowList";
 export { default as UserAvatar } from "@/components/UI/UserAvatar";
-export { default as SidebarEmployee } from "@/components/Employee/SidebarEmployee/SidebarEmployee";
 export { default as InfoFieldDetail } from "@/components/UI/Details/InfoFieldDetail";
 export { default as PlantSectionHeader } from "@/components/UI/Details/PlantSectionHeader";
 export { default as LotSectionHeader } from "@/components/UI/Details/LotSectionHeader";

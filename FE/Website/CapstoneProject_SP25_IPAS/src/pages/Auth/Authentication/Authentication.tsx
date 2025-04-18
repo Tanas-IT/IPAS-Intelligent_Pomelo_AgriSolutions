@@ -9,7 +9,7 @@ import { PATHS } from "@/routes";
 import { toast } from "react-toastify";
 import { useLocalStorage, useToastMessage } from "@/hooks";
 import { getRoleId } from "@/utils";
-import { UserRole } from "@/constants";
+import { UserRole, UserRolesStr } from "@/constants";
 import { useState } from "react";
 import { useUserStore } from "@/stores";
 
@@ -46,10 +46,12 @@ function Authentication() {
           const toastMessage = result.message;
           const roleId = getRoleId();
 
-          if (roleId === UserRole.User.toString())
+          if (roleId === UserRolesStr.User)
             navigate(PATHS.FARM_PICKER, { state: { toastMessage } });
-          if (roleId === UserRole.Admin.toString())
-            navigate(PATHS.ADMIN.USER_LIST, { state: { toastMessage } });
+          if (roleId === UserRolesStr.Admin)
+            navigate(PATHS.ADMIN.DASHBOARD, { state: { toastMessage } });
+          if (roleId === UserRolesStr.Expert)
+            navigate(PATHS.EXPERT.REPORT_LIST, { state: { toastMessage } });
         } else {
           toast.error(result.message);
         }

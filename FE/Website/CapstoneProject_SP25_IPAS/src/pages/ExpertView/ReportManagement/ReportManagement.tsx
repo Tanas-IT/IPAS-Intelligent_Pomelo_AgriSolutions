@@ -41,7 +41,7 @@ import { useStyle } from "@/hooks";
 const { Search } = Input;
 const { Option } = Select;
 
-const ReportManagementScreen= () => {
+const ReportManagementScreen = () => {
   const { styles } = useStyle();
   const [reports, setReports] = useState<GetReportResponse[]>([]);
   const [selectedReport, setSelectedReport] = useState<GetReportResponse | null>(null);

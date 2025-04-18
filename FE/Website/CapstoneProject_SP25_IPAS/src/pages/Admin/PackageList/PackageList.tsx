@@ -53,7 +53,9 @@ function PackageList() {
   };
 
   const handleCancelConfirm = (pkg: PackageRequest, isUpdate: boolean) => {
-    const hasUnsavedChanges = isUpdate ? hasChanges(pkg, "packageId") : hasChanges(pkg);
+    const hasUnsavedChanges = isUpdate
+      ? hasChanges(pkg, "packageId")
+      : hasChanges(pkg, undefined, { isActive: false });
 
     if (hasUnsavedChanges || isDirty) {
       cancelConfirmModal.showModal();
