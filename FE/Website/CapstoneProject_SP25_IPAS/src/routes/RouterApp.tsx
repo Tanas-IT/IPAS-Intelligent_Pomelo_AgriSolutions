@@ -160,7 +160,6 @@ export const publicRoutes: RouteItem[] = [
   { path: PATHS.PACKAGE.PACKAGE_LIST, component: PackageList, layout: ManagementLayout },
   { path: PATHS.CHATBOX.AI_CHATBOX, component: ChatBox, layout: ManagementLayout },
   { path: PATHS.EXPERT.REPORT_LIST, component: ReportManagementScreen, layout: FarmPickerLayout },
-  { path: PATHS.EXPERT.IMAGE_LIST, component: ImageManagement, layout: FarmPickerLayout },
 ];
 
 export const privateRoutes: RouteItem[] = [];

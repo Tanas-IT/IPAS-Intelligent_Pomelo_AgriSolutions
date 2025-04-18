@@ -41,6 +41,8 @@ const TaskAssignmentModal: React.FC<TaskAssignmentModalProps> = ({
     }, [visible, initialValues, form]);
 
     const handleSave = () => {
+        console.log("handle save");
+        
         const selectedEmployees = employees
             .filter((emp) => selectedIds.includes(emp.userId))
             .map((emp) => ({
@@ -49,7 +51,10 @@ const TaskAssignmentModal: React.FC<TaskAssignmentModalProps> = ({
             }));
 
         if (selectedPlanId) {
+            console.log("vo day");
+            
             onSave(selectedEmployees, selectedPlanId, reporterId);
+            console.log("da goi onSave");
         }
         onCancel();
     };
@@ -65,7 +70,7 @@ const TaskAssignmentModal: React.FC<TaskAssignmentModalProps> = ({
                     Cancel
                 </Button>,
                 <Button key="save" type="primary" onClick={handleSave}>
-                    Save
+                    Savee
                 </Button>,
             ]}
         >

@@ -113,6 +113,8 @@ export interface WorklogDetail {
   isHarvest: boolean;
   isTakeAttendance: boolean;
   redoWorkLog: RedoWorkLog;
+  assignorName: string;
+  assignorAvatarURL: string;
 }
 
 interface RedoWorkLog {
