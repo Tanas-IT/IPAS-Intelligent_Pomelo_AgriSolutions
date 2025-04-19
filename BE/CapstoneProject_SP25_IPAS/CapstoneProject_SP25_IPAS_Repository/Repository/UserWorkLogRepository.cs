@@ -255,7 +255,8 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
                     .ToListAsync();
 
                 var grouped = data
-                    .GroupBy(x => x.WorkLog.Date.Value)
+                    .GroupBy(x => x.WorkLog.Date.Value.Date)
+                     .OrderBy(g => g.Key)
                     .Select(g => new ProductivityChartItem
                     {
                         Label = g.Key.ToString("dd/MM"),
