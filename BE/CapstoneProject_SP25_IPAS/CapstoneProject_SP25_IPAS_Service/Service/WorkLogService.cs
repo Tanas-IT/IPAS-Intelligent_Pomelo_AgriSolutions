@@ -2366,21 +2366,38 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
                     if (getWorkLog.Date != null && getWorkLog.Date.Value.Date <= now)
                     {
-                        if (getWorkLog.ActualEndTime < DateTime.Now.TimeOfDay)
+                        if(getWorkLog.Date.Value.Date == now)
+                        {
+                            if (getWorkLog.ActualEndTime < DateTime.Now.TimeOfDay)
+                            {
+                                var getAutoTakeAttendance = await _unitOfWork.SystemConfigRepository
+                                                            .GetConfigValue(SystemConfigConst.AUTO_TAKE_ATTENDANCE.Trim(), "True");
+
+                                var newStatus = getAutoTakeAttendance.ToLower().Equals("true") ? "Received" : "Rejected";
+
+                                foreach (var userWorkLog in getListUserWorkLog.Where(x => x.StatusOfUserWorkLog == null))
+                                {
+                                    userWorkLog.StatusOfUserWorkLog = newStatus;
+                                    await _unitOfWork.SaveAsync();
+                                }
+
+                            } 
+                        }
+                        else
                         {
                             var getAutoTakeAttendance = await _unitOfWork.SystemConfigRepository
-                                                        .GetConfigValue(SystemConfigConst.AUTO_TAKE_ATTENDANCE.Trim(), 1);
+                                                            .GetConfigValue(SystemConfigConst.AUTO_TAKE_ATTENDANCE.Trim(), "True");
 
-                            var newStatus = getAutoTakeAttendance == 1 ? "Received" : "Rejected";
+                            var newStatus = getAutoTakeAttendance.ToLower().Equals("true") ? "Received" : "Rejected";
 
                             foreach (var userWorkLog in getListUserWorkLog.Where(x => x.StatusOfUserWorkLog == null))
                             {
                                 userWorkLog.StatusOfUserWorkLog = newStatus;
-                                _unitOfWork.UserWorkLogRepository.Update(userWorkLog);
+                                await _unitOfWork.SaveAsync();
                             }
 
-                            await _unitOfWork.SaveAsync();
                         }
+                        
                     }
                 }
                 var result = new List<GetListEmployeeToCheckAttendance>();
