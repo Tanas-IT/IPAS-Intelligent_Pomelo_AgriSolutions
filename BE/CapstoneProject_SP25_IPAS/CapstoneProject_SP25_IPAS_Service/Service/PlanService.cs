@@ -2148,53 +2148,29 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 {
                     if (plantTarget.LandPlotID != null && plantTarget.LandPlotID > 0)
                     {
-                        var getLandPlot = await _unitOfWork.LandPlotRepository.GetByID(plantTarget.LandPlotID.Value);
-                        if (count > 0)
-                        {
-                            plantLotName =  plantLotName + "_" + getLandPlot.LandPlotName;
-                        }
-                        else
-                        {
-                            plantLotName = plantLotName + "_" + getLandPlot.LandPlotName;
-                        }
+                        plantLotName = "LandPlot";
                     }
 
                     if (plantTarget.LandRowID != null && plantTarget.LandRowID.Count > 0)
                     {
-                        foreach (var landRowId in plantTarget.LandRowID)
-                        {
-                            var getLandRow = await _unitOfWork.LandRowRepository.GetByID(landRowId);
-                            plantLotName = plantLotName + "_Row " + getLandRow.RowIndex;
-                        }
+                        plantLotName = "Row";
 
                     }
 
                     if (plantTarget.PlantID != null && plantTarget.PlantID.Count > 0)
                     {
-                        foreach (var plantId in plantTarget.PlantID)
-                        {
-                            var getPlant = await _unitOfWork.PlantRepository.GetByID(plantId);
-                            plantLotName = plantLotName + "_" + getPlant.PlantName;
-                        }
+                        plantLotName = "Plant";
 
                     }
 
                     if (plantTarget.GraftedPlantID != null && plantTarget.GraftedPlantID.Count > 0)
                     {
-                        foreach (var graftedPlantId in plantTarget.GraftedPlantID)
-                        {
-                            var graftedPlant = await _unitOfWork.GraftedPlantRepository.GetByID(graftedPlantId);
-                            plantLotName = plantLotName + "_" + graftedPlant.GraftedPlantName;
-                        }
+                        plantLotName = "Grafted_Plant";
                     }
 
                     if (plantTarget.PlantLotID != null && plantTarget.PlantLotID.Count > 0)
                     {
-                        foreach (var plantLotID in plantTarget.PlantLotID)
-                        {
-                            var getPlantLot = await _unitOfWork.PlantLotRepository.GetByID(plantLotID);
-                            plantLotName = plantLotName + "_" + getPlantLot.PlantLotName;
-                        }
+                        plantLotName = "Plant_Lot";
 
                     }
                     count++;

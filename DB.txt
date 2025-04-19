@@ -1096,7 +1096,7 @@ INSERT INTO [ipas].[dbo].[Farm]
 VALUES
 ('F001', 'Nam Hue Tan Trieu Pomelo', N'133/17 Huong L? 9', 106.786528, 10.9965,
  'https://res.cloudinary.com/dgshx4n2c/image/upload/v1738660419/rzaub3vswgnfzvunvuov.jpg', 
- N'Tân Bình', N'Ð?ng Nai', N'Vinh C?u', 100.5, 'Clay', 'Tropical', GETDATE(), GETDATE(), 0, 'Active', 200, 150, 'Farm specializing in tropical fruits'),
+ N'Tân Bình', N'Ðồng Nai', N'Vĩnh Cửu', 100.5, 'Clay', 'Tropical', GETDATE(), GETDATE(), 0, 'Active', 200, 150, 'Farm specializing in tropical fruits'),
 
 ('F002', 'Farm B', N'456 Blue Avenue', 107.6297, 11.8231,
  'https://res.cloudinary.com/dgshx4n2c/image/upload/v1738660419/rzaub3vswgnfzvunvuov.jpg',
@@ -2176,6 +2176,7 @@ VALUES
 ('WorkLog', 'Replaced', 'Replaced', 'string', N'Trạng thái của employee khi làm worklog thay người khác'),
 ('WorkLog', 'BeReplaced', 'BeReplaced', 'string', N'Trạng thái của employee khi bị thay thế bởi employee khác'),
 ('WorkLog', 'TimeToTakeAttendance', '120', 'double', N'Thời gian điểm danh (tính bằng phút)'),
+('WorkLog', 'AutoTakeAttendance', 'True', 'string', N'Tự dộng điểm danh có mặt hoặc vắng khi quá giờ'),
 ('WorkLogForManager', 'Failed', 'Failed', 'string', N'Trạng thái của worklog khi thực hiện công việc thất bại'),
 ('AI', 'PredictPercent', '0.75', 'double', N'Tỉ lệ phần trăm chính xác trong dự đoán AI');
 

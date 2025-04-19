@@ -353,9 +353,13 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                        .GetConfigValue(SystemConfigConst.OVERDUE.Trim(), "Overdue");
                 if (getDetailWorkLog.Date != null)
                 {
-                    if (getDetailWorkLog.Date.Value.Date == DateTime.Now.Date)
+                    var workDate = getDetailWorkLog.Date.Value.Date;
+                    var today = DateTime.Now.Date;
+
+                    if (workDate <= today && getDetailWorkLog.Status!.Equals(getStatusNotStarted))
                     {
-                        if (getDetailWorkLog.Status!.Equals(getStatusNotStarted))
+                        // Trường hợp ngày làm việc là hôm nay
+                        if (workDate == today)
                         {
                             if (getDetailWorkLog.ActualStartTime <= DateTime.Now.TimeOfDay)
                             {
@@ -363,13 +367,20 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                 _unitOfWork.WorkLogRepository.Update(getDetailWorkLog);
                                 await _unitOfWork.SaveAsync();
                             }
+
                             if (getDetailWorkLog.ActualEndTime <= DateTime.Now.TimeOfDay)
                             {
                                 getDetailWorkLog.Status = getStatusOverdue;
                                 _unitOfWork.WorkLogRepository.Update(getDetailWorkLog);
                                 await _unitOfWork.SaveAsync();
                             }
-
+                        }
+                        // Trường hợp ngày làm việc đã trôi qua
+                        else
+                        {
+                            getDetailWorkLog.Status = getStatusOverdue;
+                            _unitOfWork.WorkLogRepository.Update(getDetailWorkLog);
+                            await _unitOfWork.SaveAsync();
                         }
                     }
                 }
@@ -2348,6 +2359,47 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             try
             {
                 var getListUserWorkLog = await _unitOfWork.UserWorkLogRepository.GetListUserWorkLogByWorkLogId(workLogId);
+                var getWorkLog = await _unitOfWork.WorkLogRepository.GetByCondition(x => x.WorkLogId == workLogId);
+                if (getWorkLog != null)
+                {
+                    var now = DateTime.Now.Date;
+
+                    if (getWorkLog.Date != null && getWorkLog.Date.Value.Date <= now)
+                    {
+                        if(getWorkLog.Date.Value.Date == now)
+                        {
+                            if (getWorkLog.ActualEndTime < DateTime.Now.TimeOfDay)
+                            {
+                                var getAutoTakeAttendance = await _unitOfWork.SystemConfigRepository
+                                                            .GetConfigValue(SystemConfigConst.AUTO_TAKE_ATTENDANCE.Trim(), "True");
+
+                                var newStatus = getAutoTakeAttendance.ToLower().Equals("true") ? "Received" : "Rejected";
+
+                                foreach (var userWorkLog in getListUserWorkLog.Where(x => x.StatusOfUserWorkLog == null))
+                                {
+                                    userWorkLog.StatusOfUserWorkLog = newStatus;
+                                    await _unitOfWork.SaveAsync();
+                                }
+
+                            } 
+                        }
+                        else
+                        {
+                            var getAutoTakeAttendance = await _unitOfWork.SystemConfigRepository
+                                                            .GetConfigValue(SystemConfigConst.AUTO_TAKE_ATTENDANCE.Trim(), "True");
+
+                            var newStatus = getAutoTakeAttendance.ToLower().Equals("true") ? "Received" : "Rejected";
+
+                            foreach (var userWorkLog in getListUserWorkLog.Where(x => x.StatusOfUserWorkLog == null))
+                            {
+                                userWorkLog.StatusOfUserWorkLog = newStatus;
+                                await _unitOfWork.SaveAsync();
+                            }
+
+                        }
+                        
+                    }
+                }
                 var result = new List<GetListEmployeeToCheckAttendance>();
                 // Group theo UserId chính
                 foreach (var uwl in getListUserWorkLog)
@@ -3073,6 +3125,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                             PlanName = planOfWorkLog?.PlanName ?? "N/A",
                             StartDate = planOfWorkLog?.StartDate,
                             EndDate = planOfWorkLog?.EndDate,
+                            WorkLogName = w.WorkLogName,
                             StartTime = w.ActualStartTime,
                             EndTime = w.ActualEndTime,
                             Status = w.Status,
@@ -3084,9 +3137,27 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     .OrderBy(x => x.Order)
                     .ThenBy(x => x.StartTime)
                     .ToList();
-
-                return dependentWorkLogs.Any()
-                    ? new BusinessResult(200, "Get Dependency WorkLog Success", dependentWorkLogs)
+                var result = dependentWorkLogs
+                                .GroupBy(x => new { x.PlanId, x.PlanName, x.StartDate, x.EndDate })
+                                .Select(g => new
+                                {
+                                    PlanId = g.Key.PlanId,
+                                    PlanName = g.Key.PlanName,
+                                    StartDate = g.Key.StartDate,
+                                    EndDate = g.Key.EndDate,
+                                    WorkLogs = g.Select(w => new
+                                    {
+                                        w.WorkLogId,
+                                        w.WorkLogName,
+                                        w.StartTime,
+                                        w.EndTime,
+                                        w.Status,
+                                        w.Date
+                                    }).ToList()
+                                })
+                                .ToList();
+                return result.Any()
+                    ? new BusinessResult(200, "Get Dependency WorkLog Success", result)
                     : new BusinessResult(200, "No workLog dependency.");
             }
             catch (Exception ex)
