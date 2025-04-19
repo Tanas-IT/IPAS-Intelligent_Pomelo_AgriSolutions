@@ -36,7 +36,7 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
 
         public async Task<User?> GetUserByEmailAsync(string email)
         {
-            return await _context.Users.FirstOrDefaultAsync(x => x.Email.Equals(email));
+            return await _context.Users.FirstOrDefaultAsync(x => x.Email.Equals(email) && x.IsDeleted == false);
         }
 
         public async Task<User?> GetUserByIdAsync(int userId)
