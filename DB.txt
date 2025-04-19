@@ -1730,16 +1730,17 @@ GO
 INSERT INTO [ipas].dbo.Process 
 (ProcessCode, ProcessName, isDefault, isActive, CreateDate, UpdateDate, IsDeleted, GrowthStageID, MasterTypeID, IsSample, FarmID)  
 VALUES
-(N'P006', N'Làm d?t', 1, 1, '2024-02-06', NULL, 0, 1, 1, 0, 1), -- có plan m?u
-(N'P007', N'Phun thu?c tr? sâu', 0, 1, '2024-02-07', '2024-02-15', 0, 2, 1, 0, 2), -- có plan m?u
-(N'P008', N'C?t t?a', 1, 1, '2024-02-08', NULL, 0, 3, 2, 0, 1), -- có plan m?u
-(N'P009', N'Ðo d? ?m d?t', 0, 1, '2024-02-09', '2024-02-16', 0, 2, NULL, 1, 3), -- tham kh?o
-(N'P010', N'B?o qu?n sau thu ho?ch', 0, 1, '2024-02-10', NULL, 0, NULL, 3, 1, 2), -- tham kh?o
-(N'P011', N'Gieo h?t gi?ng m?i', 1, 1, '2024-02-11', '2024-02-18', 0, 1, 1, 0, 3), -- có plan m?u
-(N'P012', N'Tu?i nh? gi?t', 0, 1, '2024-02-12', NULL, 0, 2, 1, 0, 1), -- có plan m?u
-(N'P013', N'Bón phân h?u co', 1, 1, '2024-02-13', '2024-02-20', 0, 3, 2, 0, 2), -- có plan m?u
-(N'P014', N'Thu ho?ch s?m', 0, 1, '2024-02-14', NULL, 0, NULL, 3, 1, 3), -- tham kh?o
-(N'P015', N'Ðánh giá nang su?t', 0, 1, '2024-02-15', '2024-02-22', 0, 2, 15, 1, 1); -- tham kh?o
+(N'P006', N'Làm đất', 1, 1, '2024-02-06', NULL, 0, 1, 1, 0, 1), -- có plan mẫu
+(N'P007', N'Phun thuốc trừ sâu', 0, 1, '2024-02-07', '2024-02-15', 0, 2, 1, 0, 2), -- có plan mẫu
+(N'P008', N'Cắt tỉa', 1, 1, '2024-02-08', NULL, 0, 3, 2, 0, 1), -- có plan mẫu
+(N'P009', N'Đo độ ẩm đất', 0, 1, '2024-02-09', '2024-02-16', 0, 2, NULL, 1, 3), -- tham khảo
+(N'P010', N'Bảo quản sau thu hoạch', 0, 1, '2024-02-10', NULL, 0, NULL, 3, 1, 2), -- tham khảo
+(N'P011', N'Gieo hạt giống mới', 1, 1, '2024-02-11', '2024-02-18', 0, 1, 1, 0, 3), -- có plan mẫu
+(N'P012', N'Tưới nhỏ giọt', 0, 1, '2024-02-12', NULL, 0, 2, 1, 0, 1), -- có plan mẫu
+(N'P013', N'Bón phân hữu cơ', 1, 1, '2024-02-13', '2024-02-20', 0, 3, 2, 0, 2), -- có plan mẫu
+(N'P014', N'Thu hoạch sớm', 0, 1, '2024-02-14', NULL, 0, NULL, 3, 1, 3), -- tham khảo
+(N'P015', N'Đánh giá năng suất', 0, 1, '2024-02-15', '2024-02-22', 0, 2, 15, 1, 1); -- tham khảo
+
 GO
 INSERT INTO ipas.dbo.Package (PackageCode, PackageName, PackagePrice, Duration, isActive, CreateDate, UpdateDate, Status)
 VALUES
@@ -2020,22 +2021,22 @@ GO
 GO
 INSERT INTO SystemConfiguration (ConfigGroup,ConfigKey, ConfigValue, ValueType, Description)
 VALUES 
-('PlantCriteria', 'GraftedCondition', 'Grafted Condition', 'string', N'B? tiêu chí dánh giá cây m? d?t di?u ki?n chi?t cành'),
+('PlantCriteria', 'GraftedCondition', 'Grafted Condition', 'string', N'Bộ tiêu chí dánh giá cây mẹ đủ điều kiện chiết cành'),
 ('PlantCriteria', 'Others', 'Others', 'string', 'Các tiêu chí khác'),
 
-('GraftedCriteria', 'GraftedEvaluation', 'Grafted Evaluation', 'string',  N'B? tiêu chí dánh giá cành chi?t'),
+('GraftedCriteria', 'GraftedEvaluation', 'Grafted Evaluation', 'string',  N'Bộ tiêu chí dánh giá cành chiết'),
 ('GraftedCriteria', 'Others', 'Others', 'string', 'Các tiêu chí khác'),
 
-('PlantLotCriteria', 'PlantLotCondition', 'PlantLot Condition', 'string', N'Tiêu chí dánh giá lô gi?ng nh?p vào'),
-('PlantLotCriteria', 'PlantLotEvaluation', 'PlantLot Evaluation', 'string', N'Tiêu chí dánh giá lô gi?ng sau khi nh?p vào'),
+('PlantLotCriteria', 'PlantLotCondition', 'PlantLot Condition', 'string', N'Tiêu chí dánh giá lô giống nhập vào'),
+('PlantLotCriteria', 'PlantLotEvaluation', 'PlantLot Evaluation', 'string', N'Tiêu chí dánh giá lô giống sau khi nhập vào'),
 
 ('ProductCriteria', 'Others', 'Others', 'string', 'Others'),
-('ProductCriteria','Product', 'Product', 'string',  N'Tiêu chí dánh giá s?n ph?m'),
+('ProductCriteria','Product', 'Product', 'string',  N'Tiêu chí dánh giá sản phẩm'),
 
-('GraftedConditionApply','GraftedCondition', 'Grafted Condition', 'string', N'B? tiêu chí dùng d? dánh giá cành chi?t'),
-('GraftedEvaluationApply','GraftedEvaluation', 'Grafted Evaluation', 'string', N'B? tiêu chí dùng d? dánh giá Cây m? tru?c khi chi?t'),
-('PlantLotConditionApply','PlantLotCondition', 'PlantLot Condition', 'string', N'Tiêu chí dánh giá cành chi?t'),
-('PlantLotEvaluationApply','PlantLotEvaluation', 'PlantLot Evaluation', 'string', N'Tiêu chí dánh giá lô gi?ng sau khi nh?p vào');
+('GraftedConditionApply','GraftedCondition', 'Grafted Condition', 'string', N'Bộ tiêu chí dùng để dánh giá cành chiết'),
+('GraftedEvaluationApply','GraftedEvaluation', 'Grafted Evaluation', 'string', N'Bộ tiêu chí dùng để dánh giá Cây mẹ truớc khi chiết'),
+('PlantLotConditionApply','PlantLotCondition', 'PlantLot Condition', 'string', N'Tiêu chí dánh giá cành chiết'),
+('PlantLotEvaluationApply','PlantLotEvaluation', 'PlantLot Evaluation', 'string', N'Tiêu chí dánh giá lô giống sau khi nhập vào');
 GO
 -- Update ReferenceConfigId cho GraftedConditionApply
 UPDATE a
@@ -2112,14 +2113,15 @@ JOIN SystemConfiguration b
 -- Danh sách Config trong farm
 INSERT INTO SystemConfiguration (ConfigGroup,ConfigKey, ConfigValue, ValueType, Description)
 VALUES 
-('ValidationVariable','MinLenght', '1', 'double', N'Ð? dài t?i thi?u'),
-('ValidationVariable','MinWidth', '1', 'double', N'Ð? dài t?i da'),
-('ValidationVariable','MinArea', '1', 'double', N'Di?n tích t?i thi?u'),
-('ValidationVariable','MinRowOfLandPlot', '1', 'int', N'S? hàng t?i thi?u c?a 1 LandPlot'),
-('ValidationVariable','CoordiantionPointRequired', '3', 'int', N'S? di?m t?i da c?a plantLot'),
-('ValidationVariable','MinDistancePlant', '2.5', 'double', N'Kho?ng cách t?i thi?u gi?a các cây'),
-('ValidationVariable','MinPlantOfLandRow', '1', 'int', N'S? cây t?i thi?u c?a 1 Hàng'),
-('ValidationVariable','RecordAfterDate', '3', 'int', N'Sau bao nhiêu ngày có th? ghi nh?n thu ho?ch');
+('ValidationVariable','MinLenght', '1', 'double', N'Độ dài tối thiểu'),
+('ValidationVariable','MinWidth', '1', 'double', N'Ðộ dài tối đa'),
+('ValidationVariable','MinArea', '1', 'double', N'Diện tích tối thiểu'),
+('ValidationVariable','MinRowOfLandPlot', '1', 'int', N'Số hàng tôi thiểu của 1 LandPlot'),
+('ValidationVariable','CoordiantionPointRequired', '3', 'int', N'Số điểm tối đa của thửa plantLot'),
+('ValidationVariable','MinDistancePlant', '2.5', 'double', N'Khoảng cách tối thiểu giữa các cây'),
+('ValidationVariable','MinPlantOfLandRow', '1', 'int', N'Số cây tối thiểu 1 Hàng'),
+('ValidationVariable','EditInDay', '3', 'int', N'Số ngày có thể chỉnh sửa sau khi đã được ghi nhận'),
+('ValidationVariable','RecordAfterDate', '3', 'int', N'Sau bao nhiêu ngày có thể ghi nhận thu hoạch');
 GO
 
 INSERT INTO SystemConfiguration (ConfigGroup, ConfigKey, ConfigValue, ValueType, Description)
@@ -2156,21 +2158,22 @@ VALUES
 -- Danh sách TypeNames
 INSERT INTO SystemConfiguration (ConfigGroup, ConfigKey, ConfigValue, ValueType, Description)
 VALUES 
-('WorkLogForManager', 'Done', 'Done', 'string', N'Tr?ng thái hoàn thành công vi?c'),
-('WorkLog', 'NotStarted', 'Not Started', 'string', N'Tr?ng thái c?a worklog tru?c khi b?t d?u'),
-('WorkLog', 'InProgress', 'In Progress', 'string', N'Tr?ng thái c?a worklog khi di?n ra'),
-('WorkLog', 'Cancelled', 'Cancelled', 'string', N'Tr?ng thái c?a worklog khi employee ch? d?ng h?y'),
-('WorkLog', 'Overdue', 'Overdue', 'string', N'Tr?ng thái c?a worklog khi quá th?i h?n k?t thúc nhung chua xong công vi?c'),
-('WorkLog', 'Reviewing', 'Reviewing', 'string', N'Tr?ng thái c?a worklog khi reporter báo cáo hoàn thành và d?i manager xác nh?n'),
-('WorkLogForManager', 'Redo', 'Redo', 'string', N'Tr?ng thái c?a worklog khi công vi?c c?n ph?i làm l?i'),
-('WorkLog', 'OnRedo', 'OnRedo', 'string', N'Tr?ng thái c?a worklog khi employee làm l?i workLog dó'),
-('WorkLog', 'Rejected', 'Rejected', 'string', N'Tr?ng thái c?a employee khi không làm workLog'),
-('WorkLog', 'Received', 'Received', 'string', N'Tr?ng thái c?a employee khi làm workLog'),
-('WorkLog', 'Replaced', 'Replaced', 'string', N'Tr?ng thái c?a employee khi làm workLog thay ngu?i khác'),
-('WorkLog', 'BeReplaced', 'BeReplaced', 'string', N'Tr?ng thái c?a employee khi không b?n mà b? thay b?i employee khác'),
-('WorkLog', 'TimeToTakeAttendance', '120', 'double', N'Thời gian điểm danh'),
-('WorkLog For Manager', 'Failed', 'Failed', 'string', N'Tr?ng thái c?a worklog khi th?c hi?n công vi?c th?t b?i'),
-('AI', 'PredictPercent', '0.75', 'double', N'T? l? ph?n tram chính xác');
+('WorkLogForManager', 'Done', 'Done', 'string', N'Trạng thái hoàn thành công việc'),
+('WorkLog', 'NotStarted', 'Not Started', 'string', N'Trạng thái của worklog trước khi bắt đầu'),
+('WorkLog', 'InProgress', 'In Progress', 'string', N'Trạng thái của worklog khi đang diễn ra'),
+('WorkLog', 'Cancelled', 'Cancelled', 'string', N'Trạng thái của worklog khi employee chủ động huỷ'),
+('WorkLog', 'Overdue', 'Overdue', 'string', N'Trạng thái của worklog khi quá thời hạn kết thúc nhưng chưa xong công việc'),
+('WorkLog', 'Reviewing', 'Reviewing', 'string', N'Trạng thái của worklog khi reporter báo cáo hoàn thành và đợi manager xác nhận'),
+('WorkLogForManager', 'Redo', 'Redo', 'string', N'Trạng thái của worklog khi công việc cần phải làm lại'),
+('WorkLog', 'OnRedo', 'OnRedo', 'string', N'Trạng thái của worklog khi employee làm lại worklog đó'),
+('WorkLog', 'Rejected', 'Rejected', 'string', N'Trạng thái của employee khi không thực hiện worklog'),
+('WorkLog', 'Received', 'Received', 'string', N'Trạng thái của employee khi nhận thực hiện worklog'),
+('WorkLog', 'Replaced', 'Replaced', 'string', N'Trạng thái của employee khi làm worklog thay người khác'),
+('WorkLog', 'BeReplaced', 'BeReplaced', 'string', N'Trạng thái của employee khi bị thay thế bởi employee khác'),
+('WorkLog', 'TimeToTakeAttendance', '120', 'double', N'Thời gian điểm danh (tính bằng phút)'),
+('WorkLogForManager', 'Failed', 'Failed', 'string', N'Trạng thái của worklog khi thực hiện công việc thất bại'),
+('AI', 'PredictPercent', '0.75', 'double', N'Tỉ lệ phần trăm chính xác trong dự đoán AI');
+
 -- Insert WorkLog
 INSERT INTO [dbo].[WorkLog]
            ([WorkLogCode]
@@ -2266,8 +2269,8 @@ BEGIN
         SenderID, MessageType, RoomID
     )
     VALUES (
-        N'Tôi c?n thông tin v? phân bón cho phòng ' + CAST(@roomId AS NVARCHAR),
-        N'Phân bón NPK là l?a ch?n phù h?p v?i giai do?n phát tri?n hi?n t?i c?a cây.',
+        N'tôi cần thông tin về phân bón cho phòng ' + CAST(@roomId AS NVARCHAR),
+        N'Phân bón NPK là lựa chọn phù hợp cho cây trồng ở giai đoạn nào của cây.',
         DATEADD(MINUTE, 5, GETDATE()),
         NULL,
         3,
@@ -2281,8 +2284,8 @@ BEGIN
         SenderID, MessageType, RoomID
     )
     VALUES (
-        N'Tôi mu?n bi?t d? ?m d?t ? khu v?c này.',
-        N'Ð? ?m d?t hi?n t?i là 65%, r?t phù h?p d? bón phân h?u co.',
+        N'Tôi muốn biết độ ẩm đất ở khu vực đông nam bộ.',
+        N'Độ ẩm đất của tôi là 65%, có phù hợp để bón phân hữu cơ không',
         DATEADD(MINUTE, 6, GETDATE()),
         NULL,
         3,
@@ -2296,8 +2299,8 @@ BEGIN
         SenderID, MessageType, RoomID
     )
     VALUES (
-        N'Th?i di?m nào là t?t nh?t d? tu?i nu?c?',
-        N'Tu?i vào sáng s?m ho?c chi?u mát s? giúp cây h?p thu nu?c hi?u qu? hon.',
+        N'Thời điểm nào là tốt nhất để tưới nước',
+        N'Tưới nước sáng sớm hay chiều giúp cây hấp thụ tốt hơn vậy?',
         DATEADD(MINUTE, 7, GETDATE()),
         NULL,
         3,
