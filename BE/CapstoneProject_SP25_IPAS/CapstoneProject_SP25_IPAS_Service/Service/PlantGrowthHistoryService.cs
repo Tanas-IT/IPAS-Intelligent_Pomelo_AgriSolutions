@@ -141,19 +141,19 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
                     // Lấy danh sách ảnh cũ
                     var existingResources = plantGrowthHistory.Resources.ToList();
-                    var newResources = historyUpdateRequest.Resource?.Select(r => new Resource
-                    {
-                        ResourceID = r.ResourceID!.Value,
-                        ResourceURL = r.ResourceURL,
-                        FileFormat = r.FileFormat
-                    }).ToList() ?? new List<Resource>();
+                    //var newResources = historyUpdateRequest.Resource?.Select(r => new Resource
+                    //{
+                    //    ResourceID = r.ResourceID!.Value,
+                    //    ResourceURL = r.ResourceURL,
+                    //    FileFormat = r.FileFormat
+                    //}).ToList() ?? new List<Resource>();
 
 
                     // Xóa ảnh cũ không có trong request
                     var resourcesToDelete = existingResources
-                .Where(old => !newResources.Any(newImg => newImg.ResourceID == old.ResourceID))
+                .Where(old => !historyUpdateRequest.Resource.Any(newImg => newImg.ResourceID == old.ResourceID))
                 .ToList();
-
+      
                     foreach (var resource in resourcesToDelete)
                     {
                         if (!string.IsNullOrEmpty(resource.ResourceURL))
