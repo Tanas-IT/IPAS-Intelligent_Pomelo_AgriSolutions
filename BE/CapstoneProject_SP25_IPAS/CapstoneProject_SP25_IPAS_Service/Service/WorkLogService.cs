@@ -17,6 +17,7 @@ using CapstoneProject_SP25_IPAS_Service.Base;
 using CapstoneProject_SP25_IPAS_Service.ConditionBuilder;
 using CapstoneProject_SP25_IPAS_Service.IService;
 using CapstoneProject_SP25_IPAS_Service.Pagination;
+using CloudinaryDotNet;
 using CsvHelper.Configuration;
 using GenerativeAI.Types;
 using Microsoft.AspNetCore.Http;
@@ -549,8 +550,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                             Date = wl.Date,
                             Status = wl.Status,
                             ScheduleId = wl.ScheduleId,
-                            StartTime = wl.Schedule.StartTime,
-                            EndTime = wl.Schedule.EndTime,
+                            StartTime = wl.ActualStartTime,
+                            EndTime = wl.ActualEndTime,
                             PlanId = wl.Schedule.CarePlan != null ? wl.Schedule.CarePlan.PlanId : null,
                             PlanName = wl.Schedule.CarePlan != null ? wl.Schedule.CarePlan.PlanName : null,
                             StartDate = wl.Schedule.CarePlan != null ? wl.Schedule.CarePlan.StartDate : null,
@@ -590,7 +591,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 //{
                 //    return new BusinessResult(cachedData.StatusCode, cachedData.Message, cachedData.Data);
                 //}
-                Expression<Func<WorkLog, bool>> filter = x => x.Schedule.IsDeleted == false || x.IsDeleted == false && x.Schedule.CarePlan.FarmID == farmId!;
+                Expression<Func<WorkLog, bool>> filter = x => x.Schedule.IsDeleted == false || x.IsDeleted == false && x.Schedule.CarePlan.FarmID == farmId;
                 Func<IQueryable<WorkLog>, IOrderedQueryable<WorkLog>> orderBy = null!;
 
 
@@ -2465,6 +2466,19 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             {
                 var getListUserWorkLog = await _unitOfWork.UserWorkLogRepository.GetListUserWorkLogByWorkLogId(workLogId);
                 var result = new List<GetListEmployeeToCheckAttendance>();
+                var getUserCancelled = getListUserWorkLog.Where(x => x.IsDeleted == true && x.ReplaceUserId == null).ToList();
+                foreach(var userCancelled in getUserCancelled)
+                {
+                    result.Add(new GetListEmployeeToCheckAttendance
+                    {
+                        UserWorkLogId = userCancelled.UserWorkLogID,
+                        UserId = userCancelled.UserId,
+                        FullName = userCancelled.User.FullName,
+                        StatusOfUser = userCancelled.StatusOfUserWorkLog,
+                        AvatarURL = userCancelled.User.AvatarURL,
+                        IsReporter = userCancelled.IsReporter,
+                    });
+                }
                 // Group theo UserId chính
                 foreach (var uwl in getListUserWorkLog)
                 {
@@ -2472,7 +2486,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     // Tìm người thay thế cho bản ghi này (nếu có ai khác ReplaceUserId = uwl.UserId)
                     var replacement = getListUserWorkLog
                         .FirstOrDefault(x => x.UserWorkLogID == uwl.UserWorkLogID && x.ReplaceUserId == null && x.IsDeleted != true);
-
+                    
                     // Nếu bản ghi hiện tại là người thay thế, và người bị thay đã bị hủy trước điểm danh
                     // => bản ghi người bị thay đã bị loại (trường hợp 1), nên chỉ hiển thị người thay
                     //if (uwl.ReplaceUserId != null)
@@ -2508,6 +2522,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     }
 
                 }
+                result = result.DistinctBy(x => x.UserWorkLogId).ToList();
                 if (result.Count() > 0)
                 {
                     return new BusinessResult(200, "Get attedance list success", result);
