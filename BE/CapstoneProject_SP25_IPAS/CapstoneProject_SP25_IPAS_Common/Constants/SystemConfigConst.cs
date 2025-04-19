@@ -75,6 +75,7 @@ namespace CapstoneProject_SP25_IPAS_Common.Constants
         public const string REPLACED = "Replaced";
         public const string BEREPLACED = "BeReplaced";
         public const string FAILED = "Failed";
+        public const string AUTO_TAKE_ATTENDANCE = "AutoTakeAttendance";
         #endregion
         #endregion
 
