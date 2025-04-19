@@ -63,7 +63,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
         }
 
         [HttpPut(APIRoutes.PlantGrowthHistory.updatePlantGrowthHistoryInfo, Name = "updatePlantGrowthHistoryAsync")]
-        [HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)}")]
+        [HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)},{nameof(RoleEnum.EMPLOYEE)}")]
         [CheckUserFarmAccess]
         //[FarmExpired]
         public async Task<IActionResult> UpdatePlantGrowthHistoryAsync([FromForm] UpdatePlantGrowthHistoryRequest request)
@@ -74,7 +74,16 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
                 {
                     return BadRequest(ModelState);
                 }
-
+                if (!request.UserId.HasValue)
+                    request.UserId = _jwtTokenService.GetUserIdFromToken();
+                if (!request.UserId.HasValue)
+                {
+                    return BadRequest(new BusinessResult
+                    {
+                        StatusCode = StatusCodes.Status400BadRequest,
+                        Message = "User Id is required"
+                    });
+                }
                 var result = await _plantGrowthHistoryService.updatePlantGrowthHistory(request);
                 return Ok(result);
             }
@@ -158,14 +167,24 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
         }
 
         [HttpDelete(APIRoutes.PlantGrowthHistory.deletePlantGrowthHistory + "/{plant-growth-history-id}", Name = "deleteGrowthHistoryAsync")]
-        [HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)}")]
+        [HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)},{nameof(RoleEnum.EMPLOYEE)}")]
         [CheckUserFarmAccess]
         //[FarmExpired]
-        public async Task<IActionResult> DeleteGrowthHistoryAsync([FromRoute(Name = "plant-growth-history-id")] int plantGrowthHistoryId)
+        public async Task<IActionResult> DeleteGrowthHistoryAsync([FromRoute(Name = "plant-growth-history-id")] int plantGrowthHistoryId, [FromQuery]int? userId)
         {
             try
             {
-                var result = await _plantGrowthHistoryService.deleteGrowthHistory(plantGrowthHistoryId);
+                if (!userId.HasValue)
+                    userId = _jwtTokenService.GetUserIdFromToken();
+                if (!userId.HasValue)
+                {
+                    return BadRequest(new BusinessResult
+                    {
+                        StatusCode = StatusCodes.Status400BadRequest,
+                        Message = "User Id is required"
+                    });
+                }
+                var result = await _plantGrowthHistoryService.deleteGrowthHistory(plantGrowthHistoryId, userId.Value);
                 return Ok(result);
             }
             catch (Exception ex)

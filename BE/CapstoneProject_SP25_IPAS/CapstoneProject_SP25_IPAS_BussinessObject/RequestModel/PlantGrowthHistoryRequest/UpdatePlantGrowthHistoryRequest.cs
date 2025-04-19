@@ -16,6 +16,7 @@ namespace CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.PlantGrowthHist
         public string? Content { get; set; }
 
         public string? IssueName { get; set; }
+        public int? UserId { get; set; }
 
         public List<ResourceCrUpRequest>? Resource { get; set; } = new List<ResourceCrUpRequest>();
     }

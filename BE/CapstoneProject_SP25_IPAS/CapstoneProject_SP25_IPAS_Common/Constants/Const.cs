@@ -1167,6 +1167,13 @@ namespace CapstoneProject_SP25_IPAS_Common
         public static int WARNING_PACKAGE_TO_CREATE_NOT_ACTIVE_OR_EXIST_CODE = 400;
         public static string WARNING_PACKAGE_TO_CREATE_NOT_ACTIVE_OR_EXIST_MSG = "Package not exist or active, please try again";
         #endregion
+
+        #region System
+        public static int WARNING_OVER_TIME_TO_EDIT_CODE = 400;
+        public static string WARNING_OVER_TIME_TO_EDIT_MSG = "This record has is over time to edit";
+        public static int WARNING_CAN_NOT_EDIT_RECORD_OF_ORTHER_CODE = 400;
+        public static string WARNING_CAN_NOT_EDIT_RECORD_OF_ORTHER_MSG = "Can not edit record of orther User";
+        #endregion
         #endregion
     }
 }
