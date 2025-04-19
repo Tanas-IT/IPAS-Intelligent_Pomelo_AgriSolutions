@@ -360,8 +360,8 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
         }
 
         [HttpPost(APIRoutes.Plan.createManyPlan, Name = "createManyPlan")]
-        //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)}")]
-        //[CheckUserFarmAccess]
+        [HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)}")]
+        [CheckUserFarmAccess]
         //[FarmExpired]
         public async Task<IActionResult> createManyPlan([FromBody] List<CreatePlanModel> createPlanModel, int? farmId)
         {
