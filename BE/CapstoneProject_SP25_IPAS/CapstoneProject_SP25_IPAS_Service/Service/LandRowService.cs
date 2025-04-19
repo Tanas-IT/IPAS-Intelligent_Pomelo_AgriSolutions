@@ -245,7 +245,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     }
                     if (updateLandRowRequest.Width.HasValue)
                     {
-                        var minWidth = await _unitOfWork.SystemConfigRepository.GetConfigValue(SystemConfigConst.MIN_PLANT_OF_LAND_ROW.Trim(), (int)1);
+                        var minWidth = await _unitOfWork.SystemConfigRepository.GetConfigValue(SystemConfigConst.MIN_WIDTH.Trim(), (double)1);
                         if (updateLandRowRequest.Width < minWidth)
                             return new BusinessResult(400, $"Width must be >={minWidth}.");
                         landRow.Width = updateLandRowRequest.Width.Value;
