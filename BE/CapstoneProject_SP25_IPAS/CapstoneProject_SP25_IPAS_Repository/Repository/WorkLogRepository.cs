@@ -472,6 +472,15 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
             return getWorkLog;
         }
 
+        public async Task<WorkLog> GetWorkLogByIdWithPlanAndNotUserWorkLog(int workLogId)
+        {
+            var getWorkLog = await _context.WorkLogs
+                                .Include(x => x.Schedule)
+                                .ThenInclude(x => x.CarePlan)
+                                .FirstOrDefaultAsync(x => x.WorkLogId == workLogId);
+            return getWorkLog;
+        }
+
         public async Task<WorkLog> GetCurrentWorkLog(int workLogId)
         {
             var currentWorkLog = await _context.WorkLogs
@@ -485,6 +494,13 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
         {
             return await _context.WorkLogs
                 .Include(x => x.Schedule.CarePlan)
+                .Where(w => planIds.Contains(w.Schedule.CarePlanId.Value))
+                .ToListAsync();
+        }
+
+        public async Task<List<WorkLog>> GetWorkLogsByPlanIdsWithNoScheduleAsync(List<int> planIds)
+        {
+            return await _context.WorkLogs
                 .Where(w => planIds.Contains(w.Schedule.CarePlanId.Value))
                 .ToListAsync();
         }
