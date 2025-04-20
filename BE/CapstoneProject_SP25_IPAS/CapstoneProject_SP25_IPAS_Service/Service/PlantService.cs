@@ -559,6 +559,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                             return new BusinessResult(Const.WARNING_PLANT_GROWTH_NOT_EXIST_CODE, "Can not find any growth stage suitable with plant");
                         }
                         plantEntityUpdate.PlantingDate = plantUpdateRequest.PlantingDate;
+                        plantEntityUpdate.GrowthStageID = growthStage.GrowthStageId;
                     }
 
                     if (!string.IsNullOrEmpty(plantUpdateRequest.Description) && plantEntityUpdate.Description != plantUpdateRequest.Description)
@@ -919,7 +920,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     plantUpdate.HealthStatus = HealthStatusConst.DEAD;
                     // Update the plant entity in the repository
                     _unitOfWork.PlantRepository.Update(plantUpdate);
-                    await DeletelanByPlantId(plantUpdate.PlantId);
+                    await DeletePlanByPlantId(plantUpdate.PlantId);
                     await UpdateGraftedPlantsIfParentDead(plantUpdate.PlantId);
                     // Save the changes
                     int result = await _unitOfWork.SaveAsync();
@@ -977,11 +978,13 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             }
         }
 
-        private async Task<bool> DeletelanByPlantId(int plantId)
+        private async /*Task<bool>*/ Task DeletePlanByPlantId(int plantId)
         {
             try
             {
                 var getPlanByPlantId = await _unitOfWork.PlanRepository.GetPlanByPlantId(plantId);
+                if (!getPlanByPlantId.Any())
+                    return;
                 foreach (var planDelete in getPlanByPlantId)
                 {
                     if (planDelete.PlanTargets.Count() >= 1) // neu co nhieu hon 1 cay trong target plan van se tiep tuc
@@ -1001,7 +1004,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
                 }
                 _unitOfWork.PlanRepository.UpdateRange(getPlanByPlantId);
-                return true;
+                //return true;
             }
             catch (Exception ex)
             {
@@ -1014,6 +1017,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             var graftedPlants = await _unitOfWork.GraftedPlantRepository
                 .GetAllNoPaging(gp => gp.MotherPlantId == plantId && gp.IsCompleted == false && gp.IsDeleted == false);
 
+            if (!graftedPlants.Any())
+                return;
             if (graftedPlants != null && graftedPlants.Any())
             {
                 foreach (var graftedPlant in graftedPlants)
