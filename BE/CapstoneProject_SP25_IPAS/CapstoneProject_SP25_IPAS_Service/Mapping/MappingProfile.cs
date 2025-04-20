@@ -547,7 +547,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Mapping
                                                                         ReplaceUserId = uwl.UserId,
                                                                         ReplaceUserFullName = uwl.User.FullName,
                                                                         ReplaceUserAvatar = uwl.User.AvatarURL,
-                                                                        IsRepoter = uwl.IsReporter,
+                                                                        ReplaceUserIsRepoter = uwl.IsReporter,
                                                                         // Lấy thông tin nhân viên thay thế
                                                                         UserId = src.UserWorkLogs
                                                                             .Where(r => r.ReplaceUserId == uwl.UserId)

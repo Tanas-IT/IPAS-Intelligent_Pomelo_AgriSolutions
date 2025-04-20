@@ -1842,7 +1842,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
         {
             try
             {
-                var getWorkLog = await _unitOfWork.WorkLogRepository.GetByCondition(x => x.WorkLogId == changeEmployeeOfWorkLog.WorkLogId);
+                var getWorkLog = await _unitOfWork.WorkLogRepository.GetWorkLogByIdWithPlanAndNotUserWorkLog(changeEmployeeOfWorkLog.WorkLogId);
                 var getStatusRejected = await _unitOfWork.SystemConfigRepository
                         .GetConfigValue(SystemConfigConst.REJECTED.Trim(), "Rejected");
                 var getStatusReplaced = await _unitOfWork.SystemConfigRepository
@@ -1880,6 +1880,24 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                             throw new Exception("End time must be greater than start time");
                         }
                     }
+                    var parseStartTime = TimeSpan.TryParse(changeEmployeeOfWorkLog.StartTime, out var startTime);
+                    var parseEndTime = TimeSpan.TryParse(changeEmployeeOfWorkLog.EndTime, out var endTime);
+
+                    var checkTime = (int)(endTime - startTime).TotalMinutes; // Chuyển TimeSpan sang số phút
+
+                        var masterType = await _unitOfWork.MasterTypeRepository
+                            .GetByCondition(x => x.MasterTypeId == getWorkLog.Schedule.CarePlan.MasterTypeId);
+
+                        if (masterType != null)
+                        {
+                            var minTime = masterType.MinTime;
+                            var maxTime = masterType.MaxTime;
+
+                            if (checkTime < minTime || checkTime > maxTime)
+                            {
+                                throw new Exception($"Time of work ({checkTime} minutes) does not valid! It must be in range {minTime} - {maxTime} minutes.");
+                            }
+                        }
                     getWorkLog.Date = changeEmployeeOfWorkLog.DateWork;
                 }
                 _unitOfWork.WorkLogRepository.Update(getWorkLog);
@@ -3088,6 +3106,10 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
                 var subProcess = plan.SubProcess;
                 var processId = plan.ProcessId ?? subProcess?.ProcessId;
+                if(plan.ProcessId != null && subProcess == null)
+                {
+                    return new BusinessResult(200, "No workLog dependency.");
+                }
                 if (processId == null)
                     return new BusinessResult(200, "WorkLog does not belong to any process.");
 
@@ -3144,9 +3166,13 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
                 // Tính order của WorkLog hiện tại
                 string currentOrderStr = "";
+                int? currentSubProcessOrder = null;
+                int? currentSubProcessId = null;
                 if (plan.SubProcessId.HasValue && subProcessMap.TryGetValue(plan.SubProcessId.Value, out var currentSp))
                 {
                     currentOrderStr = GetOrderString(currentSp);
+                    currentSubProcessOrder = currentSp.Order;
+                    currentSubProcessId = currentSp.SubProcessID;
                 }
 
                 // Lấy WorkLogs
@@ -3160,11 +3186,14 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     {
                         var planOfWorkLog = w.Schedule?.CarePlanId != null && planMap.TryGetValue(w.Schedule.CarePlanId.Value, out var p) ? p : null;
                         string order = "";
-
+                        int? subProcessOrder = null;
+                        int? subProcessId = null;
                         if (planOfWorkLog?.SubProcessId != null &&
                             subProcessMap.TryGetValue(planOfWorkLog.SubProcessId.Value, out var sp))
                         {
                             order = GetOrderString(sp);
+                            subProcessOrder = sp.Order;
+                            subProcessId = sp.SubProcessID;
                         }
 
                         return new
@@ -3179,11 +3208,24 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                             EndTime = w.ActualEndTime,
                             Status = w.Status,
                             Order = order,
+                            SubProcessOrder = subProcessOrder,
+                            SubProcessId = subProcessId,
                             Date = w.Date?.ToString("yyyy-MM-dd")
                         };
                     })
-                    .Where(x => string.Compare(x.Order, currentOrderStr, StringComparison.Ordinal) > 0)
-                    .OrderBy(x => x.Order)
+                    .Where(x =>
+                        // Không cùng SubProcess thì mới xét phụ thuộc
+                        (currentSubProcessId == null || x.SubProcessId != currentSubProcessId)
+                        &&
+                        (
+                            // So sánh theo Order nếu cùng Process
+                            (x.SubProcessOrder.HasValue && currentSubProcessOrder.HasValue && x.SubProcessOrder.Value > currentSubProcessOrder.Value)
+                            ||
+                            // Fallback về Order string nếu thiếu Order số
+                            (!x.SubProcessOrder.HasValue || !currentSubProcessOrder.HasValue && string.Compare(x.Order, currentOrderStr, StringComparison.Ordinal) > 0)
+                        )
+                    )
+                    .OrderByDescending(x => x.Order)
                     .ThenBy(x => x.StartTime)
                     .ToList();
                 var result = dependentWorkLogs
@@ -3327,7 +3369,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
             var dependentPlans = await _unitOfWork.PlanRepository.GetPlansBySubProcessIds(allDependentSubProcessIds);
             var dependentPlanIds = dependentPlans.Select(p => p.PlanId).ToList();
-            var allWorkLogs = await _unitOfWork.WorkLogRepository.GetWorkLogsByPlanIdsAsync(dependentPlanIds);
+            var allWorkLogs = await _unitOfWork.WorkLogRepository.GetWorkLogsByPlanIdsWithNoScheduleAsync(dependentPlanIds);
+
 
             // Dời các WorkLog
             foreach (var workLog in allWorkLogs)
@@ -3342,6 +3385,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     workLog.ActualEndTime = workLog.ActualEndTime.Value;
 
                 _unitOfWork.WorkLogRepository.Update(workLog);
+                await _unitOfWork.SaveAsync();
             }
 
             // Cập nhật StartDate, EndDate cho Plan
@@ -3359,6 +3403,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         existing.EndDate = existing.EndDate.Value.AddDays(shiftDays);
                     }
                     _unitOfWork.PlanRepository.Update(existing);
+                    await _unitOfWork.SaveAsync();
                 }
             }
 
@@ -3377,6 +3422,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         existing.EndDate = existing.EndDate.Value.AddDays(shiftDays);
                     }
                     _unitOfWork.SubProcessRepository.Update(existing);
+                    await _unitOfWork.SaveAsync();
                 }
 
             }
@@ -3397,6 +3443,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         process.EndDate = process.EndDate.Value.AddDays(shiftDays);
                     }
                     _unitOfWork.ProcessRepository.Update(process);
+                    await _unitOfWork.SaveAsync();
                 }
 
             }
