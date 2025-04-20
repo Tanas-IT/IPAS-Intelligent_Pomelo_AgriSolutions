@@ -7,12 +7,22 @@ import {
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { styles } from "./GraftedPlantsTab.styles";
-import { CustomIcon, Loading, TextCustom } from "@/components";
+import {
+  CustomIcon,
+  HealthStatusBadge,
+  Loading,
+  TextCustom,
+} from "@/components";
 import { PlantService } from "@/services";
 import { GraftedPlant } from "@/types";
 import theme from "@/theme";
-import { RootStackNavigationProp, ROUTE_NAMES } from "@/constants";
+import {
+  HEALTH_STATUS,
+  RootStackNavigationProp,
+  ROUTE_NAMES,
+} from "@/constants";
 import { useNavigation } from "@react-navigation/native";
+import { formatDate } from "@/utils";
 
 const GraftedPlantsTab: React.FC<{ plantId: number }> = ({ plantId }) => {
   const [graftedPlants, setGraftedPlants] = useState<GraftedPlant[]>([]);
@@ -46,8 +56,6 @@ const GraftedPlantsTab: React.FC<{ plantId: number }> = ({ plantId }) => {
         } else {
           console.error("Failed to fetch grafted plants:", res.message);
         }
-      } catch (error) {
-        console.error("Error fetching grafted plants:", error);
       } finally {
         if (reset) setIsLoading(false);
         else setIsFetchingMore(false);
@@ -81,21 +89,12 @@ const GraftedPlantsTab: React.FC<{ plantId: number }> = ({ plantId }) => {
         </LinearGradient>
       </View>
       <View style={styles.cardHeader}>
-        <View
-          style={[
-            styles.statusBadge,
-            grafted.status === "Healthy" && styles.healthyStatus,
-            grafted.status === "Used" && styles.usedStatus,
-            grafted.status === "Issue" && styles.issuedStatus,
-          ]}
-        >
-          <TextCustom style={styles.statusText}>{grafted.status}</TextCustom>
-        </View>
+        <TextCustom style={styles.plantName} numberOfLines={1}>
+          {grafted.graftedPlantName}
+        </TextCustom>
+        <HealthStatusBadge status={grafted.status} />
       </View>
 
-      <TextCustom style={styles.plantName} numberOfLines={1}>
-        {grafted.graftedPlantName}
-      </TextCustom>
       <View style={styles.infoRow}>
         <CustomIcon
           name="barcode"
@@ -120,41 +119,53 @@ const GraftedPlantsTab: React.FC<{ plantId: number }> = ({ plantId }) => {
       </View>
       <View style={styles.infoRow}>
         <CustomIcon
+          name="calendar"
+          size={16}
+          color={theme.colors.primary}
+          type="MaterialCommunityIcons"
+        />
+        <TextCustom style={styles.infoText}>
+          Grafted Date:{" "}
+          {grafted.graftedDate ? formatDate(grafted.graftedDate) : "N/A"}
+        </TextCustom>
+      </View>
+
+      <View style={styles.infoRow}>
+        <CustomIcon
+          name="calendar"
+          size={16}
+          color={theme.colors.primary}
+          type="MaterialCommunityIcons"
+        />
+        <TextCustom style={styles.infoText}>
+          Separated Date:{" "}
+          {grafted.separatedDate ? formatDate(grafted.separatedDate) : "N/A"}
+        </TextCustom>
+      </View>
+
+      <View style={styles.infoRow}>
+        <CustomIcon
           name="tag"
           size={16}
           color={theme.colors.primary}
           type="MaterialCommunityIcons"
         />
         <TextCustom style={styles.infoText}>
-          Lot: {grafted.plantLotName} ({grafted.plantLotCode})
+          Destination Lot: {grafted.plantLotName || "N/A"}
         </TextCustom>
       </View>
-      {grafted.separatedDate && (
-        <View style={styles.infoRow}>
-          <CustomIcon
-            name="calendar"
-            size={16}
-            color={theme.colors.primary}
-            type="MaterialCommunityIcons"
-          />
-          <TextCustom style={styles.infoText}>
-            Separated Date: {new Date(grafted.separatedDate).toLocaleDateString()}
-          </TextCustom>
-        </View>
-      )}
-      {grafted.note && (
-        <View style={styles.infoRow}>
-          <CustomIcon
-            name="note"
-            size={16}
-            color={theme.colors.primary}
-            type="MaterialCommunityIcons"
-          />
-          <TextCustom style={styles.infoText} numberOfLines={2}>
-            Note: {grafted.note}
-          </TextCustom>
-        </View>
-      )}
+
+      <View style={styles.infoRow}>
+        <CustomIcon
+          name="note"
+          size={16}
+          color={theme.colors.primary}
+          type="MaterialCommunityIcons"
+        />
+        <TextCustom style={styles.infoText} numberOfLines={2}>
+          Note: {grafted.note?.trim() || "N/A"}
+        </TextCustom>
+      </View>
 
       <View style={styles.cardFooter}>
         <View style={styles.badgeContainer}>
@@ -169,7 +180,14 @@ const GraftedPlantsTab: React.FC<{ plantId: number }> = ({ plantId }) => {
             </View>
           )}
         </View>
-        <TouchableOpacity style={styles.detailButton} onPress={() => navigation.navigate(ROUTE_NAMES.PLANT.PLANT_DETAIL, { plantId: grafted.graftedPlantId.toString() })}>
+        <TouchableOpacity
+          style={styles.detailButton}
+          onPress={() =>
+            navigation.navigate(ROUTE_NAMES.PLANT.PLANT_DETAIL, {
+              plantId: grafted.graftedPlantId.toString(),
+            })
+          }
+        >
           <TextCustom style={styles.detailButtonText}>View Detail</TextCustom>
           <CustomIcon
             name="chevron-right"
@@ -192,9 +210,7 @@ const GraftedPlantsTab: React.FC<{ plantId: number }> = ({ plantId }) => {
   };
 
   if (isLoading) {
-    return (
-      <Loading />
-    );
+    return <Loading />;
   }
 
   return (

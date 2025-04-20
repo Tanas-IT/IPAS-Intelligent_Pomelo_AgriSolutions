@@ -77,8 +77,6 @@ const NoteDetailModal: React.FC<NoteDetailModalProps> = ({
 
     const images: string[] = [];
     const videos: string[] = [];
-    console.log("resources",resources);
-    
 
     resources.forEach((res) => {
       // const format = res.fileFormat.toLowerCase();
@@ -99,7 +97,6 @@ const NoteDetailModal: React.FC<NoteDetailModalProps> = ({
       }
     });
 
-    console.log("Processed resources:", { images, videos });
     return { images, videos };
   };
 

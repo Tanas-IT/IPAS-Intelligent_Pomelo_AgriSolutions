@@ -1,28 +1,24 @@
 import React, { useState, useEffect, useCallback } from "react";
+import { View, FlatList, ActivityIndicator, Alert } from "react-native";
 import {
-  View,
-  FlatList,
-  TouchableOpacity,
-  StyleSheet,
-  ActivityIndicator,
-  Alert,
-} from "react-native";
-import { HarvestRecord, CreateHarvestRecordRequest, AvailableHarvest } from "@/types/harvest";
+  HarvestRecord,
+  CreateHarvestRecordRequest,
+  AvailableHarvest,
+  UpdateHarvestRecordRequest,
+} from "@/types/harvest";
 import Toast from "react-native-toast-message";
 import DateRangePicker from "../../DateRangePicker";
-import TimelineItem from "../../TimelineItem";
-import AddRecordModal from "../../AddRecordModal";
+import TimelineItem from "./TimelineItem";
+import AddRecordModal from "./AddRecordModal";
 import ConfirmModal from "../../ConfirmModal";
 import { styles } from "./RecordYieldTab.styles";
-import { CustomIcon, TextCustom } from "@/components";
-import { PlantDetailData } from "@/types";
+import { CustomIcon, FloatingAddButton, TextCustom } from "@/components";
 import { PlantService } from "@/services";
+import UpdateRecordModal from "./UpdateRecordModal";
+import { DEFAULT_RECORDS_IN_DETAIL } from "@/constants";
+import { usePlantStore } from "@/store";
 
-interface RecordYieldTabProps {
-  plant: PlantDetailData;
-}
-
-const RecordYieldTab: React.FC<{ plantId: number }> = ({ plantId }) => {
+const RecordYieldTab: React.FC = () => {
   const [records, setRecords] = useState<HarvestRecord[]>([]);
   const [page, setPage] = useState(1);
   const [totalPage, setTotalPage] = useState(0);
@@ -30,23 +26,34 @@ const RecordYieldTab: React.FC<{ plantId: number }> = ({ plantId }) => {
   const [startDate, setStartDate] = useState<Date | null>(null);
   const [endDate, setEndDate] = useState<Date | null>(null);
   const [modalVisible, setModalVisible] = useState(false);
+  const [updateModalVisible, setUpdateModalVisible] = useState(false);
   const [confirmModalVisible, setConfirmModalVisible] = useState(false);
-  const [pendingRecord, setPendingRecord] = useState<CreateHarvestRecordRequest | null>(null);
-  const [availableHarvests, setAvailableHarvests] = useState<AvailableHarvest[]>([]);
+  const [selectedRecord, setSelectedRecord] = useState<HarvestRecord | null>(
+    null
+  );
+  const [pendingRecord, setPendingRecord] =
+    useState<CreateHarvestRecordRequest | null>(null);
+  const [availableHarvests, setAvailableHarvests] = useState<
+    AvailableHarvest[]
+  >([]);
+  const pageSize = DEFAULT_RECORDS_IN_DETAIL;
+  const { plant } = usePlantStore();
 
-  const pageSize = 3;
+  if (!plant) return null;
 
   useEffect(() => {
     const fetchHarvests = async () => {
       try {
-        const response = await PlantService.getAvailableHarvestsForPlant(plantId);
+        const response = await PlantService.getAvailableHarvestsForPlant(
+          plant.plantId
+        );
         setAvailableHarvests(response.data);
       } catch (error) {
         console.error("Fetch available harvests error:", error);
       }
     };
     fetchHarvests();
-  }, [plantId]);
+  }, [plant]);
 
   const fetchRecords = useCallback(
     async (pageNum: number, reset: boolean = false) => {
@@ -60,7 +67,7 @@ const RecordYieldTab: React.FC<{ plantId: number }> = ({ plantId }) => {
           : undefined;
 
         const response = await PlantService.getPlantRecordHarvest(
-          plantId,
+          plant.plantId,
           pageSize,
           pageNum,
           dateHarvestFrom,
@@ -82,7 +89,7 @@ const RecordYieldTab: React.FC<{ plantId: number }> = ({ plantId }) => {
         setLoading(false);
       }
     },
-    [plantId, startDate, endDate]
+    [plant, startDate, endDate]
   );
 
   useEffect(() => {
@@ -110,29 +117,20 @@ const RecordYieldTab: React.FC<{ plantId: number }> = ({ plantId }) => {
 
   const confirmSubmit = async () => {
     if (pendingRecord) {
-      try {
-        const res = await PlantService.createPlantHarvestRecord(pendingRecord);
-        if(res.statusCode === 200) {
-          Toast.show({
-            type: "success",
-            text1: "Success",
-            text2: "Record created successfully.",
-          });
-          setPage(1);
-          fetchRecords(1, true);
-        } else {
-          Toast.show({
-            type: "error",
-            text1: "Error",
-            text2: res.message,
-          });
-        }
-        
-      } catch (error) {
+      const res = await PlantService.createPlantHarvestRecord(pendingRecord);
+      if (res.statusCode === 200) {
+        Toast.show({
+          type: "success",
+          text1: "Success",
+          text2: res.message,
+        });
+        setPage(1);
+        fetchRecords(1, true);
+      } else {
         Toast.show({
           type: "error",
           text1: "Error",
-          text2: "Failed to create record.",
+          text2: res.message,
         });
       }
     }
@@ -140,27 +138,70 @@ const RecordYieldTab: React.FC<{ plantId: number }> = ({ plantId }) => {
     setPendingRecord(null);
   };
 
+  const handleUpdate = async (data: UpdateHarvestRecordRequest) => {
+    if (data.quantity === selectedRecord?.actualQuantity) return;
+    const res = await PlantService.updateProductHarvest(
+      data.productHarvestHistoryId,
+      data.quantity
+    );
+
+    if (res.statusCode === 200) {
+      Toast.show({
+        type: "success",
+        text1: "Success",
+        text2: res.message,
+      });
+      setPage(1);
+      fetchRecords(1, true);
+      setUpdateModalVisible(false);
+    } else {
+      Toast.show({
+        type: "error",
+        text1: "Error",
+        text2: res.message,
+      });
+    }
+  };
+
   const handleDelete = async (productHarvestHistoryId: number) => {
-    // try {
-    //   await PlantService.deletePlantRecordHarvest(productHarvestHistoryId);
-    //   setRecords((prev) =>
-    //     prev.filter(
-    //       (record) => record.productHarvestHistoryId !== productHarvestHistoryId
-    //     )
-    //   );
-    //   Toast.show({
-    //     type: "success",
-    //     text1: "Record Deleted",
-    //     text2: "The record has been successfully deleted.",
-    //   });
-    // } catch (error: any) {
-    //   console.error("Delete error:", error);
-    //   Toast.show({
-    //     type: "error",
-    //     text1: "Delete Failed",
-    //     text2: error.message || "Could not delete the record.",
-    //   });
-    // }
+    Alert.alert(
+      "Confirm deletion",
+      "Are you sure you want to delete this record?",
+      [
+        {
+          text: "Cancel",
+          style: "cancel",
+        },
+        {
+          text: "Yes",
+          style: "destructive",
+          onPress: async () => {
+            var res = await PlantService.deleteRecordHarvest(
+              productHarvestHistoryId
+            );
+            if (res.statusCode === 200) {
+              setRecords((prev) =>
+                prev.filter(
+                  (record) =>
+                    record.productHarvestHistoryId !== productHarvestHistoryId
+                )
+              );
+              Toast.show({
+                type: "success",
+                text1: "Record Deleted",
+                text2: "The record has been successfully deleted.",
+              });
+            } else {
+              Toast.show({
+                type: "error",
+                text1: res.message,
+              });
+            }
+          },
+        },
+      ],
+      { cancelable: true }
+    );
   };
 
   const groupRecordsByDate = (records: HarvestRecord[]) => {
@@ -179,74 +220,58 @@ const RecordYieldTab: React.FC<{ plantId: number }> = ({ plantId }) => {
       grouped.push({ date, records: dateMap[date] });
     }
 
-    return grouped.sort((a, b) => new Date(b.date).getTime() - new Date(a.date).getTime());
+    return grouped.sort(
+      (a, b) => new Date(b.date).getTime() - new Date(a.date).getTime()
+    );
   };
 
   const groupedRecords = groupRecordsByDate(records);
 
   return (
     <View style={styles.container}>
-      <DateRangePicker
-        startDate={startDate}
-        endDate={endDate}
-        onStartDateChange={(date) => {
-          setStartDate(date);
-          handleDateFilter();
-        }}
-        onEndDateChange={(date) => {
-          setEndDate(date);
-          handleDateFilter();
-        }}
-      />
-
-      <TouchableOpacity
-        style={styles.addButton}
-        onPress={() => setModalVisible(true)}
-      >
-        <CustomIcon
-          name="plus"
-          size={24}
-          color="white"
-          type="MaterialCommunityIcons"
+      <View style={styles.filterContainer}>
+        <DateRangePicker
+          startDate={startDate}
+          endDate={endDate}
+          onStartDateChange={(date) => {
+            setStartDate(date);
+            handleDateFilter();
+          }}
+          onEndDateChange={(date) => {
+            setEndDate(date);
+            handleDateFilter();
+          }}
         />
-      </TouchableOpacity>
+      </View>
+
+      {!plant.isDead && (
+        <FloatingAddButton onPress={() => setModalVisible(true)} />
+      )}
 
       <FlatList
         data={groupedRecords}
         keyExtractor={(item) => item.date}
         renderItem={({ item, index }) => (
           <View style={styles.dateGroup}>
-            <View style={styles.timelineLeft}>
-              <TextCustom style={styles.dateText}>{item.date}</TextCustom>
-            </View>
             <View style={styles.recordsContainer}>
               {item.records.map((record, recordIndex) => (
                 <TimelineItem
-                  key={record.productHarvestHistoryId}
+                  key={record.harvestHistoryCode}
+                  index={recordIndex}
+                  totalItems={item.records.length}
                   record={record}
-                  isLast={recordIndex === item.records.length - 1}
-                // onDelete={() => {
-                //   Alert.alert(
-                //     "Confirm Delete",
-                //     "Are you sure you want to delete this record?",
-                //     [
-                //       {
-                //         text: "Cancel",
-                //         style: "cancel",
-                //       },
-                //       {
-                //         text: "Delete",
-                //         style: "destructive",
-                //         onPress: () => handleDelete(record.productHarvestHistoryId),
-                //       },
-                //     ]
-                //   );
-                // }}
+                  isDead={plant.isDead}
+                  onDelete={handleDelete}
+                  onEdit={() => {
+                    setSelectedRecord(record);
+                    setUpdateModalVisible(true);
+                  }}
                 />
               ))}
             </View>
           </View>
         )}
+        contentContainerStyle={styles.content}
         onEndReached={loadMore}
         onEndReachedThreshold={0.1}
         ListEmptyComponent={
@@ -269,10 +294,24 @@ const RecordYieldTab: React.FC<{ plantId: number }> = ({ plantId }) => {
 
       <AddRecordModal
         visible={modalVisible}
-        onClose={() => setModalVisible(false)}
+        onClose={() => {
+          setModalVisible(false);
+        }}
         onSubmit={handleSubmitRecord}
-        plantId={plantId}
+        plantId={plant.plantId}
       />
+
+      {selectedRecord && (
+        <UpdateRecordModal
+          visible={updateModalVisible}
+          onClose={() => {
+            setUpdateModalVisible(false);
+            setSelectedRecord(null);
+          }}
+          onSubmit={handleUpdate}
+          record={selectedRecord}
+        />
+      )}
 
       <ConfirmModal
         visible={confirmModalVisible}

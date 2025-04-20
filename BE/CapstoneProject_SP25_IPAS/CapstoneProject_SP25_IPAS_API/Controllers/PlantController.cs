@@ -176,7 +176,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
         /// Cập nhật thông tin cây trồng
         /// </summary>
         [HttpPut(APIRoutes.Plant.updatePlantInfo)]
-        [HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)}")]
+        [HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)},{nameof(RoleEnum.EMPLOYEE)}")]
         [CheckUserFarmAccess]
         //[FarmExpired]
         public async Task<IActionResult> UpdatePlant([FromBody] PlantUpdateRequest plantUpdateRequest)

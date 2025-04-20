@@ -1,19 +1,25 @@
 import React, { useEffect } from "react";
-import { LoginScreen } from "@/screens/Auth/LoginScreen";
 import { createNativeStackNavigator } from "@react-navigation/native-stack";
 import DrawerNavigation from "./DrawerNavigation";
-import { ROUTE_NAMES } from "../constants/RouteNames";
-import PlantDetailScreen from "@/screens/Plant/PlantDetail/PlantDetailScreen";
-import NoteFormScreen from "@/screens/Plant/PlantDetail/NoteFormScreen/NoteFormScreen";
-import { useAuthStore } from "@/store/authStore";
-import WorklogDetailScreen from "@/screens/Worklog/WorklogDetailScreen/WorklogDetailScreen";
-import { AuthNavigationProp, RootStackParamList } from "../constants/Types";
-import NotificationScreen from "@/screens/Notification/Notification";
-import AddNoteWorklogScreen from "@/screens/Worklog/AddNoteWorklogScreen/AddNoteWorklogScreen";
-import PestDetectionScreen from "@/screens/PestDetection/PestDetection";
+import { useAuthStore } from "@/store";
 import { useNavigation } from "@react-navigation/native";
-import { UserRole } from "@/constants";
-import ReportResponseScreen from "@/screens/ReportResponse/ReportResponseScreen";
+import {
+  UserRole,
+  AuthNavigationProp,
+  RootStackParamList,
+  ROUTE_NAMES,
+} from "@/constants";
+import {
+  AddNoteWorklogScreen,
+  GraftedPlantDetail,
+  LoginScreen,
+  NoteFormScreen,
+  NotificationScreen,
+  PestDetectionScreen,
+  PlantDetailScreen,
+  ReportResponseScreen,
+  WorklogDetailScreen,
+} from "@/screens";
 
 const Stack = createNativeStackNavigator<RootStackParamList>();
 
@@ -77,6 +83,11 @@ export default function AppNavigation() {
       <Stack.Screen
         name={ROUTE_NAMES.PLANT.ADD_NOTE}
         component={NoteFormScreen}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name={ROUTE_NAMES.GRAFTED_PLANT.GRAFTED_PLANT_DETAIL}
+        component={GraftedPlantDetail}
         options={{ headerShown: false }}
       />
       <Stack.Screen

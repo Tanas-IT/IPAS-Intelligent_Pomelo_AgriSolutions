@@ -1,19 +1,12 @@
-import {
-  AuthNavigationProp,
-  MESSAGES,
-  ROUTE_NAMES,
-  STORAGE_KEYS,
-} from "@/constants";
+import { MESSAGES, STORAGE_KEYS } from "@/constants";
 import { AuthService } from "@/services";
+import { resetToLogin } from "@/services/NavigationService";
 import { useAuthStore } from "@/store";
 import AsyncStorage from "@react-native-async-storage/async-storage";
-import { useNavigation } from "@react-navigation/native";
 import axios from "axios";
 import Toast from "react-native-toast-message";
 
 export const handleApiError = async (error: any) => {
-  const navigation = useNavigation<AuthNavigationProp>();
-
   const redirectToHomeWithMessage = async (
     message: string,
     hasMessage: boolean = true
@@ -28,10 +21,7 @@ export const handleApiError = async (error: any) => {
         text1: message,
       });
     }
-    navigation.reset({
-      index: 0,
-      routes: [{ name: ROUTE_NAMES.AUTH.LOGIN }],
-    });
+    resetToLogin();
   };
 
   if (error.message === "Network Error" && !error.response) {
@@ -65,7 +55,7 @@ export const handleApiError = async (error: any) => {
             originalRequest.headers.Authorization = `Bearer ${newAccessToken}`;
             return axios(originalRequest);
           } else if (result.statusCode === 500 || result.statusCode === 400) {
-            // redirectToHomeWithMessage(MESSAGES.SESSION_EXPIRED);
+            redirectToHomeWithMessage(MESSAGES.SESSION_EXPIRED);
           }
         } else {
           redirectToHomeWithMessage("", false);

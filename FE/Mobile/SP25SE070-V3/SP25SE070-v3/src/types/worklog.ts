@@ -1,4 +1,12 @@
-export type StatusType = 'notStarted' | 'inProgress' | 'overdue' | 'reviewing' | 'done' | 'redo' | 'onRedo' | 'cancelled';
+export type StatusType =
+  | "notStarted"
+  | "inProgress"
+  | "overdue"
+  | "reviewing"
+  | "done"
+  | "redo"
+  | "onRedo"
+  | "cancelled";
 
 export interface User {
   userId: number;
@@ -46,14 +54,14 @@ export interface GetWorklogByStatus {
   date: string;
   time: string;
   status: StatusType;
-  avatarEmployees: string[]
+  avatarEmployees: string[];
 }
 
 interface UserWorklogDetail {
   userId: number;
   fullName: string;
   avatarURL: string;
-  statusOfUserWorkLog: string
+  statusOfUserWorkLog: string;
 }
 
 interface ListNoteOfWorkLog {
@@ -118,22 +126,22 @@ export interface WorklogDetail {
 }
 
 interface RedoWorkLog {
-  workLogId: number
-  status: string
-  workLogName: string
-  date: string
+  workLogId: number;
+  status: string;
+  workLogName: string;
+  date: string;
 }
 
 export interface CancelWorklogRequest {
-  workLogId: number
-  userId: number
+  workLogId: number;
+  userId: number;
 }
 
 export interface UpdateStatusWorklogRequest {
-  workLogId: number
-  status?: string
-  startTime?: string
-  endTime?: string
-  dateWork?: string
-  userId?: number
+  workLogId: number;
+  status?: string;
+  startTime?: string;
+  endTime?: string;
+  dateWork?: string;
+  userId?: number;
 }

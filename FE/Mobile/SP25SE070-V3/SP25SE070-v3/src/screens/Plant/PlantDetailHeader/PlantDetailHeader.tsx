@@ -3,17 +3,64 @@ import { View, StyleSheet, TouchableOpacity } from "react-native";
 import QRCode from "react-native-qrcode-svg";
 import { LinearGradient } from "expo-linear-gradient";
 import { useNavigation } from "@react-navigation/native";
+import { useActionSheet } from "@expo/react-native-action-sheet";
 import { RootStackNavigationProp } from "@/constants/Types";
 import { ROUTE_NAMES } from "@/constants/RouteNames";
-import { CustomIcon, TextCustom } from "@/components";
+import { CustomIcon, HealthStatusBadge, TextCustom } from "@/components";
 import { usePlantStore } from "@/store";
 import { HEALTH_STATUS } from "@/constants";
 import { styles } from "./PlantDetailHeader.styles";
+import { PlantService } from "@/services";
+import Toast from "react-native-toast-message";
 
 const PlantDetailHeader: React.FC = () => {
   const navigation = useNavigation<RootStackNavigationProp>();
   const { plant } = usePlantStore();
+  const { showActionSheetWithOptions } = useActionSheet();
+
   if (!plant) return;
+  const statusList = [
+    HEALTH_STATUS.HEALTHY,
+    HEALTH_STATUS.MINOR_ISSUE,
+    HEALTH_STATUS.SERIOUS_ISSUE,
+    // HEALTH_STATUS.DEAD,
+  ];
+  const openStatusSelector = () => {
+    const cancelButtonIndex = statusList.length;
+
+    showActionSheetWithOptions(
+      {
+        options: [...statusList, "Cancel"],
+        cancelButtonIndex,
+        title: "Select Health Status",
+      },
+      async (selectedIndex) => {
+        if (selectedIndex !== undefined && selectedIndex < statusList.length) {
+          const selectedStatus = statusList[selectedIndex];
+          const res = await PlantService.updatePlantStatus({
+            plantId: plant.plantId,
+            healthStatus: selectedStatus,
+          });
+          if (res.statusCode === 200) {
+            usePlantStore.getState().setPlant({
+              ...plant,
+              healthStatus: res.data.healthStatus,
+            });
+            Toast.show({
+              type: "success",
+              text1: res.message,
+            });
+          } else {
+            Toast.show({
+              type: "error",
+              text1: res.message,
+            });
+          }
+        }
+      }
+    );
+  };
+
   return (
     <View style={styles.header}>
       <LinearGradient
@@ -44,7 +91,7 @@ const PlantDetailHeader: React.FC = () => {
       <View style={styles.overlay}>
         <View style={styles.qrContainer}>
           <QRCode
-            value={`plant:${plant.plantId}`}
+            value={`plantId:${plant.plantId}`}
             size={70}
             backgroundColor="transparent"
             color="black"
@@ -58,33 +105,12 @@ const PlantDetailHeader: React.FC = () => {
           </TextCustom>
 
           <View style={styles.statusRow}>
-            <View
-              style={[
-                styles.statusBadge,
-                plant.healthStatus === HEALTH_STATUS.HEALTHY &&
-                  styles.statusHealthy,
-                plant.healthStatus === HEALTH_STATUS.MINOR_ISSUE &&
-                  styles.statusMinorIssue,
-                plant.healthStatus === HEALTH_STATUS.SERIOUS_ISSUE &&
-                  styles.statusSeriousIssue,
-                plant.healthStatus === HEALTH_STATUS.DEAD && styles.statusDead,
-              ]}
+            <TouchableOpacity
+              onPress={openStatusSelector}
+              disabled={plant.isDead}
             >
-              <TextCustom
-                style={[
-                  styles.statusText,
-                  plant.healthStatus === HEALTH_STATUS.HEALTHY &&
-                    styles.textHealthy,
-                  plant.healthStatus === HEALTH_STATUS.MINOR_ISSUE &&
-                    styles.textMinorIssue,
-                  plant.healthStatus === HEALTH_STATUS.SERIOUS_ISSUE &&
-                    styles.textSeriousIssue,
-                  plant.healthStatus === HEALTH_STATUS.DEAD && styles.textDead,
-                ]}
-              >
-                {plant.healthStatus}
-              </TextCustom>
-            </View>
+              <HealthStatusBadge status={plant.healthStatus} />
+            </TouchableOpacity>
 
             <View style={styles.growthStageBadge}>
               <CustomIcon
