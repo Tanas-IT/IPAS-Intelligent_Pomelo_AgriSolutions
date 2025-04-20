@@ -413,6 +413,8 @@ namespace CapstoneProject_SP25_IPAS_Common
         public static string SUCCESS_GET_HARVEST_TYPE_HISTORY_ALL_PAGINATION_HARVEST_HISTORY_MSG = "Get all pagination harvest success";
         public static int SUCCESS_CREATE_HARVEST_HISTORY_CODE = 200;
         public static string SUCCESS_CREATE_HARVEST_HISTORY_MSG = "Create harvest success";
+        public static int SUCCESS_CREATE_HARVEST_RECORD_CODE = 200;
+        public static string SUCCESS_CREATE_HARVEST_RECORD_MSG = "Create harvest success";
         public static int SUCCESS_UPDATE_HARVEST_HISTORY_CODE = 200;
         public static string SUCCESS_UPDATE_HARVEST_HISTORY_MSG = "Update harvest success";
         public static int SUCCESS_DELETE_HARVEST_HISTORY_CODE = 200;
@@ -839,6 +841,8 @@ namespace CapstoneProject_SP25_IPAS_Common
         #region Harvest fail code
         public static int FAIL_CREATE_HARVEST_HISTORY_CODE = 400;
         public static string FAIL_CREATE_HARVEST_HISTORY_MSG = "Create harvest have server error";
+        public static int FAIL_CREATE_HARVEST_RECORD_CODE = 400;
+        public static string FAIL_CREATE_HARVEST_RECORD_MSG = "Create harvest have server error";
         public static int FAIL_UPDATE_HARVEST_HISTORY_CODE = 400;
         public static string FAIL_UPDATE_HARVEST_HISTORY_MSG = "Harvest Update fail";
         public static int FAIL_UPDATE_HARVEST_HISTORY_COORDINATION_CODE = 400;
