@@ -987,7 +987,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     return;
                 foreach (var planDelete in getPlanByPlantId)
                 {
-                    if (planDelete.PlanTargets.Count() >= 1) // neu co nhieu hon 1 cay trong target plan van se tiep tuc
+                    if (planDelete.PlanTargets.Count() > 1) // neu co nhieu hon 1 cay trong target plan van se tiep tuc
                         continue;
                     planDelete.IsActive = false;
                     planDelete.IsDeleted = false;
@@ -1024,6 +1024,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 foreach (var graftedPlant in graftedPlants)
                 {
                     graftedPlant.IsDead = true;
+                    graftedPlant.Status = HealthStatusConst.DEAD;
                 }
 
                 _unitOfWork.GraftedPlantRepository.UpdateRange(graftedPlants);

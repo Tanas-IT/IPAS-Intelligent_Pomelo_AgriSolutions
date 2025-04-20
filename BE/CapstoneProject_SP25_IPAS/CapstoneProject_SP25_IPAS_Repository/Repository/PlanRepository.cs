@@ -225,7 +225,7 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
                                 .Include(x => x.CarePlanSchedule)
                                 .ThenInclude(x => x.WorkLogs)
                                 .ThenInclude(x => x.UserWorkLogs)
-                                .Where(x => x.PlanTargets.Any(y => y.GraftedPlantID == graftedPlantId)).ToListAsync();
+                                .Where(x => x.PlanTargets.Any(y => y.GraftedPlantID == graftedPlantId)).AsNoTracking().ToListAsync();
             return getListPlant;
 
         }

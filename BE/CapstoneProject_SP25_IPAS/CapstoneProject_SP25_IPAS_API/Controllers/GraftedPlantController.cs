@@ -365,8 +365,8 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
         }
 
         [HttpPut(APIRoutes.GraftedPlant.MarkDeadGraftedPlants, Name = "MarkDeadGraftedPlants")]
-        [HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)}")]
-        [CheckUserFarmAccess]
+        //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)}")]
+        //[CheckUserFarmAccess]
         //[FarmExpired]
         public async Task<IActionResult> MarkDeadGraftedPlants(List<int> graftPlantsId)
         {
