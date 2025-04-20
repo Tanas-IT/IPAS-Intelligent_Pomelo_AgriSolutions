@@ -1885,7 +1885,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 _unitOfWork.WorkLogRepository.Update(getWorkLog);
                 var addNotification = new Notification()
                 {
-                    Content = $"Worklog has changed. You will assigned on worklog at {getWorkLog.Date}. Please check schedule",
+                    Content = $"Worklog has new update. Please check schedule",
                     Title = "WorkLog",
                     IsRead = false,
                     MasterTypeId = 37,
@@ -1967,47 +1967,85 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
                         else if (changeEmployee.Status.ToLower().Equals("update"))
                         {
+                            var checkNewUser = await _unitOfWork.UserWorkLogRepository.GetByCondition(x => x.WorkLogId == changeEmployeeOfWorkLog.WorkLogId && x.UserId == changeEmployee.NewUserId);
+
                             // Nếu đổi rồi nhưng cuối cùng chọn lại người cũ thì không cần thay đổi
                             if (changeEmployee.NewUserId == getUserToUpdate.UserId)
                             {
                                 continue; // Không làm gì cả
                             }
 
-                            // Nếu thực sự đổi người mới
-                            getUserToUpdate.StatusOfUserWorkLog = getStatusBeReplaced;
-                            getUserToUpdate.ReplaceUserId = changeEmployee.NewUserId;
-                            getUserToUpdate.IsDeleted = true;
-                            _unitOfWork.UserWorkLogRepository.Update(getUserToUpdate);
-                            await _unitOfWork.SaveAsync();
+                            if(checkNewUser != null)
+                            {
+                                if(changeEmployee.IsReporter != null)
+                                {
+                                    getUserToUpdate.IsReporter = !changeEmployee.IsReporter;
+                                    checkNewUser.IsReporter = changeEmployee.IsReporter;
+                                    _unitOfWork.UserWorkLogRepository.Update(getUserToUpdate);
+                                    await _unitOfWork.SaveAsync();
+                                    _unitOfWork.UserWorkLogRepository.Update(checkNewUser);
+                                    await _unitOfWork.SaveAsync();
+                                    // Gửi thông báo nếu muốn
+                                    var addOldUserRepoterNotification = new PlanNotification
+                                    {
+                                        NotificationID = addNotification.NotificationId,
+                                        CreatedDate = DateTime.Now,
+                                        isRead = false,
+                                        UserID = changeEmployee.OldUserId
+                                    };
+                                    var addNewUserRepoterNotification = new PlanNotification
+                                    {
+                                        NotificationID = addNotification.NotificationId,
+                                        CreatedDate = DateTime.Now,
+                                        isRead = false,
+                                        UserID = changeEmployee.NewUserId
+                                    };
+                                    await _unitOfWork.PlanNotificationRepository.Insert(addOldUserRepoterNotification);
+                                    await _unitOfWork.PlanNotificationRepository.Insert(addNewUserRepoterNotification);
 
-                            var newUserWorkLog = new UserWorkLog()
+                                    await _webSocketService.SendToUser(changeEmployee.OldUserId, addNotification);
+                                    await _webSocketService.SendToUser(changeEmployee.NewUserId, addNotification);
+                                }
+                            }
+                            else
                             {
-                                CreateDate = DateTime.Now,
-                                UserId = changeEmployee.NewUserId,
-                                IsReporter = changeEmployee.IsReporter,
-                                WorkLogId = getUserToUpdate.WorkLogId,
-                                IsDeleted = false,
-                                StatusOfUserWorkLog = getStatusReplaced,
-                            };
-                            var addNewUserNotification = new PlanNotification()
-                            {
-                                NotificationID = addNotification.NotificationId,
-                                CreatedDate = DateTime.Now,
-                                isRead = false,
-                                UserID = changeEmployee.NewUserId
-                            };
-                            var addOldUserNotification = new PlanNotification()
-                            {
-                                NotificationID = addNotification.NotificationId,
-                                CreatedDate = DateTime.Now,
-                                isRead = false,
-                                UserID = changeEmployee.OldUserId
-                            };
-                            await _unitOfWork.PlanNotificationRepository.Insert(addNewUserNotification);
-                            await _unitOfWork.PlanNotificationRepository.Insert(addOldUserNotification);
-                            await _webSocketService.SendToUser(changeEmployee.NewUserId, addNotification);
-                            await _webSocketService.SendToUser(changeEmployee.OldUserId, addNotification);
-                            await _unitOfWork.UserWorkLogRepository.Insert(newUserWorkLog);
+                                // Nếu thực sự đổi người mới
+                                getUserToUpdate.StatusOfUserWorkLog = getStatusBeReplaced;
+                                getUserToUpdate.ReplaceUserId = changeEmployee.NewUserId;
+                                getUserToUpdate.IsDeleted = true;
+                                _unitOfWork.UserWorkLogRepository.Update(getUserToUpdate);
+                                await _unitOfWork.SaveAsync();
+
+                                var newUserWorkLog = new UserWorkLog()
+                                {
+                                    CreateDate = DateTime.Now,
+                                    UserId = changeEmployee.NewUserId,
+                                    IsReporter = changeEmployee.IsReporter,
+                                    WorkLogId = getUserToUpdate.WorkLogId,
+                                    IsDeleted = false,
+                                    StatusOfUserWorkLog = getStatusReplaced,
+                                };
+                                var addNewUserNotification = new PlanNotification()
+                                {
+                                    NotificationID = addNotification.NotificationId,
+                                    CreatedDate = DateTime.Now,
+                                    isRead = false,
+                                    UserID = changeEmployee.NewUserId
+                                };
+                                var addOldUserNotification = new PlanNotification()
+                                {
+                                    NotificationID = addNotification.NotificationId,
+                                    CreatedDate = DateTime.Now,
+                                    isRead = false,
+                                    UserID = changeEmployee.OldUserId
+                                };
+                                await _unitOfWork.PlanNotificationRepository.Insert(addNewUserNotification);
+                                await _unitOfWork.PlanNotificationRepository.Insert(addOldUserNotification);
+                                await _webSocketService.SendToUser(changeEmployee.NewUserId, addNotification);
+                                await _webSocketService.SendToUser(changeEmployee.OldUserId, addNotification);
+                                await _unitOfWork.UserWorkLogRepository.Insert(newUserWorkLog);
+                            }
+                            
                         }
 
                     }
@@ -2993,24 +3031,35 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             }
         }
 
-        public async Task<BusinessResult> FilterEmployeeByWorkSkill(int workTypeId, int farmId)
+        public async Task<BusinessResult> FilterEmployeeByWorkSkill(int? workTypeId, int farmId)
         {
             try
             {
-                var getEmployeeSkill = await _unitOfWork.EmployeeSkillRepository.GetListEmployeeByWorkTypeId(workTypeId, farmId);
+                var getEmployeeSkill = await _unitOfWork.EmployeeSkillRepository.GetListEmployeeByWorkTypeId(workTypeId ?? 0, farmId);
                 var result = getEmployeeSkill.Select(u => new EmployeeSkillModel
                 {
                     UserId = u.User.UserId,
                     FullName = u.User.FullName,
                     AvatarURL = u.User.AvatarURL,
-                    WorkSkillName = u.EmployeeSkills
-                        .Where(s => s.WorkTypeID == workTypeId)
-                        .Select(s => s.WorkType.Target) // hoặc s.WorkType.Name nếu tên khác
-                        .FirstOrDefault() ?? "",
-                    ScoreOfSkill = u.EmployeeSkills
-                     .Where(s => s.WorkTypeID == workTypeId)
-                     .Select(s => (double?)s.ScoreOfSkill)
-                     .FirstOrDefault() ?? 0
+                    SkillWithScore = (workTypeId == null)
+                                ? u.EmployeeSkills
+                                    .GroupBy(s => s.WorkType.Target ?? "Không xác định")
+                                    .Select(g => new SkillScoreModel
+                                    {
+                                        SkillName = g.Key,
+                                        Score = g.Select(s => (double?)s.ScoreOfSkill ?? 0).Average()
+                                    })
+                                    .OrderByDescending(skill => skill.Score)
+                                    .ToList()
+                                : u.EmployeeSkills
+                                    .Where(s => s.WorkTypeID == workTypeId)
+                                    .Select(s => new SkillScoreModel
+                                    {
+                                        SkillName = s.WorkType.Target ?? "Không xác định",
+                                        Score = (double?)s.ScoreOfSkill ?? 0
+                                    })
+                                    .OrderByDescending(skill => skill.Score)
+                                    .ToList()
                 }).ToList();
                 if (getEmployeeSkill.Count() > 0)
                 {

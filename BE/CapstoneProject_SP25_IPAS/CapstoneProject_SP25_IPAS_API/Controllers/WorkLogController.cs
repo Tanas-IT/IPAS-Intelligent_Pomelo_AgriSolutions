@@ -604,7 +604,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
         [HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)},{nameof(RoleEnum.EMPLOYEE)}")]
         [CheckUserFarmAccess]
         //[FarmExpired]
-        public async Task<IActionResult> FilterEmployeeByWorkLogId([FromQuery] int workTypeId, int? farmId)
+        public async Task<IActionResult> FilterEmployeeByWorkLogId([FromQuery] int? workTypeId, int? farmId)
         {
             try
             {
