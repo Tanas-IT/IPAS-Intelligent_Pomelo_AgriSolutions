@@ -27,11 +27,12 @@ namespace CapstoneProject_SP25_IPAS_Repository.IRepository
         public Task<Plan> GetPlanByInclude(int planId);
         public Task<bool> UpdatePlan(Plan plan);
         public Task<List<Plan>> GetPlanIncludeByProcessId(int processId);
-        public Task<List<Plan>> GetPlanByPlantId(int plantId);
+        public Task<List<Plan>> GetPlanByGraftedPlantId(int plantId);
         public IQueryable<Plan> GetAllPlans();
         public Task<Plan> GetPlanByIdAsync(int planId, int farmId);
         public Task<Process> GetProcessByPlan(Plan plan);
         public Task<List<Plan>> GetListPlanByProcessId(int processId);
         public Task<List<Plan>> GetPlansBySubProcessIds(List<int> subProcessIds);
+        public Task<List<Plan>> GetPlanByPlantId(int plantId);
     }
 }
