@@ -2148,53 +2148,29 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 {
                     if (plantTarget.LandPlotID != null && plantTarget.LandPlotID > 0)
                     {
-                        var getLandPlot = await _unitOfWork.LandPlotRepository.GetByID(plantTarget.LandPlotID.Value);
-                        if (count > 0)
-                        {
-                            plantLotName =  plantLotName + "_" + getLandPlot.LandPlotName;
-                        }
-                        else
-                        {
-                            plantLotName = plantLotName + "_" + getLandPlot.LandPlotName;
-                        }
+                        plantLotName = "LandPlot";
                     }
 
                     if (plantTarget.LandRowID != null && plantTarget.LandRowID.Count > 0)
                     {
-                        foreach (var landRowId in plantTarget.LandRowID)
-                        {
-                            var getLandRow = await _unitOfWork.LandRowRepository.GetByID(landRowId);
-                            plantLotName = plantLotName + "_Row " + getLandRow.RowIndex;
-                        }
+                        plantLotName = "Row";
 
                     }
 
                     if (plantTarget.PlantID != null && plantTarget.PlantID.Count > 0)
                     {
-                        foreach (var plantId in plantTarget.PlantID)
-                        {
-                            var getPlant = await _unitOfWork.PlantRepository.GetByID(plantId);
-                            plantLotName = plantLotName + "_" + getPlant.PlantName;
-                        }
+                        plantLotName = "Plant";
 
                     }
 
                     if (plantTarget.GraftedPlantID != null && plantTarget.GraftedPlantID.Count > 0)
                     {
-                        foreach (var graftedPlantId in plantTarget.GraftedPlantID)
-                        {
-                            var graftedPlant = await _unitOfWork.GraftedPlantRepository.GetByID(graftedPlantId);
-                            plantLotName = plantLotName + "_" + graftedPlant.GraftedPlantName;
-                        }
+                        plantLotName = "Grafted_Plant";
                     }
 
                     if (plantTarget.PlantLotID != null && plantTarget.PlantLotID.Count > 0)
                     {
-                        foreach (var plantLotID in plantTarget.PlantLotID)
-                        {
-                            var getPlantLot = await _unitOfWork.PlantLotRepository.GetByID(plantLotID);
-                            plantLotName = plantLotName + "_" + getPlantLot.PlantLotName;
-                        }
+                        plantLotName = "Plant_Lot";
 
                     }
                     count++;
@@ -2343,21 +2319,21 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             {
                 var conflictedUsers = new List<string>();
 
-                foreach (var user in userIds)
-                {
-                    var conflictedUser = await _unitOfWork.UserWorkLogRepository.CheckUserConflictSchedule(user.UserId, workLog);
+                //foreach (var user in userIds)
+                //{
+                //    var conflictedUser = await _unitOfWork.UserWorkLogRepository.CheckUserConflictSchedule(user.UserId, workLog);
 
-                    if (conflictedUser != null)
-                    {
-                        conflictedUsers.AddRange(conflictedUser.Select(uwl => uwl.User.FullName));
-                    }
-                }
+                //    if (conflictedUser != null)
+                //    {
+                //        conflictedUsers.AddRange(conflictedUser.Select(uwl => uwl.User.FullName));
+                //    }
+                //}
 
-                if (conflictedUsers.Any())
-                {
-                    var uniqueUsers = string.Join(", ", conflictedUsers.Distinct());
-                    conflictDetailsSet.Add($"{uniqueUsers} have scheduling conflicts on {workLog.Date.Value.ToString("dd/MM/yyyy")} from {workLog.ActualStartTime} to {workLog.ActualEndTime}");
-                }
+                //if (conflictedUsers.Any())
+                //{
+                //    var uniqueUsers = string.Join(", ", conflictedUsers.Distinct());
+                //    conflictDetailsSet.Add($"{uniqueUsers} have scheduling conflicts on {workLog.Date.Value.ToString("dd/MM/yyyy")} from {workLog.ActualStartTime} to {workLog.ActualEndTime}");
+                //}
 
                 foreach (var user in userIds)
                 {

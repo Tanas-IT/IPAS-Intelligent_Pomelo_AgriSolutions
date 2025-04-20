@@ -17,6 +17,8 @@ namespace CapstoneProject_SP25_IPAS_Common.Constants
         public const string WORKLOGFORMANAGER = "WorkLogForManager";
         public const string AI = "AI";
         public const string FARM = "Farm";
+        public const string SOIL_TYPE = "SoilType";
+        public const string CLIMATE_ZONE = "ClimateZone";
         #endregion
 
         #region CONFIG FOR PLANT IN GRAFTED
@@ -73,6 +75,7 @@ namespace CapstoneProject_SP25_IPAS_Common.Constants
         public const string REPLACED = "Replaced";
         public const string BEREPLACED = "BeReplaced";
         public const string FAILED = "Failed";
+        public const string AUTO_TAKE_ATTENDANCE = "AutoTakeAttendance";
         #endregion
         #endregion
 
@@ -88,8 +91,7 @@ namespace CapstoneProject_SP25_IPAS_Common.Constants
         public const string MIN_TIME = "MinTime";
         public const string MAX_TIME = "MaxTime";
         public const string RECORD_AFTER_DATE = "RecordAfterDate";
-        public const string SOIL_TYPE = "SoilType";
-        public const string CLIMATE_ZONE = "ClimateZone";
+        public const string EDIT_RECORD_IN_DAYS = "EditInDay";
 
         #endregion
 

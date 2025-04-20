@@ -17,6 +17,7 @@ using CapstoneProject_SP25_IPAS_Service.Base;
 using CapstoneProject_SP25_IPAS_Service.ConditionBuilder;
 using CapstoneProject_SP25_IPAS_Service.IService;
 using CapstoneProject_SP25_IPAS_Service.Pagination;
+using CloudinaryDotNet;
 using CsvHelper.Configuration;
 using GenerativeAI.Types;
 using Microsoft.AspNetCore.Http;
@@ -352,9 +353,13 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                        .GetConfigValue(SystemConfigConst.OVERDUE.Trim(), "Overdue");
                 if (getDetailWorkLog.Date != null)
                 {
-                    if (getDetailWorkLog.Date.Value.Date == DateTime.Now.Date)
+                    var workDate = getDetailWorkLog.Date.Value.Date;
+                    var today = DateTime.Now.Date;
+
+                    if (workDate <= today && getDetailWorkLog.Status!.Equals(getStatusNotStarted))
                     {
-                        if (getDetailWorkLog.Status!.Equals(getStatusNotStarted))
+                        // Trường hợp ngày làm việc là hôm nay
+                        if (workDate == today)
                         {
                             if (getDetailWorkLog.ActualStartTime <= DateTime.Now.TimeOfDay)
                             {
@@ -362,13 +367,20 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                 _unitOfWork.WorkLogRepository.Update(getDetailWorkLog);
                                 await _unitOfWork.SaveAsync();
                             }
+
                             if (getDetailWorkLog.ActualEndTime <= DateTime.Now.TimeOfDay)
                             {
                                 getDetailWorkLog.Status = getStatusOverdue;
                                 _unitOfWork.WorkLogRepository.Update(getDetailWorkLog);
                                 await _unitOfWork.SaveAsync();
                             }
-
+                        }
+                        // Trường hợp ngày làm việc đã trôi qua
+                        else
+                        {
+                            getDetailWorkLog.Status = getStatusOverdue;
+                            _unitOfWork.WorkLogRepository.Update(getDetailWorkLog);
+                            await _unitOfWork.SaveAsync();
                         }
                     }
                 }
@@ -549,8 +561,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                             Date = wl.Date,
                             Status = wl.Status,
                             ScheduleId = wl.ScheduleId,
-                            StartTime = wl.Schedule.StartTime,
-                            EndTime = wl.Schedule.EndTime,
+                            StartTime = wl.ActualStartTime,
+                            EndTime = wl.ActualEndTime,
                             PlanId = wl.Schedule.CarePlan != null ? wl.Schedule.CarePlan.PlanId : null,
                             PlanName = wl.Schedule.CarePlan != null ? wl.Schedule.CarePlan.PlanName : null,
                             StartDate = wl.Schedule.CarePlan != null ? wl.Schedule.CarePlan.StartDate : null,
@@ -590,7 +602,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 //{
                 //    return new BusinessResult(cachedData.StatusCode, cachedData.Message, cachedData.Data);
                 //}
-                Expression<Func<WorkLog, bool>> filter = x => x.Schedule.IsDeleted == false || x.IsDeleted == false && x.Schedule.CarePlan.FarmID == farmId!;
+                Expression<Func<WorkLog, bool>> filter = x => x.Schedule.IsDeleted == false || x.IsDeleted == false && x.Schedule.CarePlan.FarmID == farmId;
                 Func<IQueryable<WorkLog>, IOrderedQueryable<WorkLog>> orderBy = null!;
 
 
@@ -1873,7 +1885,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 _unitOfWork.WorkLogRepository.Update(getWorkLog);
                 var addNotification = new Notification()
                 {
-                    Content = $"Worklog has changed. You will assigned on worklog at {getWorkLog.Date}. Please check schedule",
+                    Content = $"Worklog has new update. Please check schedule",
                     Title = "WorkLog",
                     IsRead = false,
                     MasterTypeId = 37,
@@ -1955,47 +1967,85 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
                         else if (changeEmployee.Status.ToLower().Equals("update"))
                         {
+                            var checkNewUser = await _unitOfWork.UserWorkLogRepository.GetByCondition(x => x.WorkLogId == changeEmployeeOfWorkLog.WorkLogId && x.UserId == changeEmployee.NewUserId);
+
                             // Nếu đổi rồi nhưng cuối cùng chọn lại người cũ thì không cần thay đổi
                             if (changeEmployee.NewUserId == getUserToUpdate.UserId)
                             {
                                 continue; // Không làm gì cả
                             }
 
-                            // Nếu thực sự đổi người mới
-                            getUserToUpdate.StatusOfUserWorkLog = getStatusBeReplaced;
-                            getUserToUpdate.ReplaceUserId = changeEmployee.NewUserId;
-                            getUserToUpdate.IsDeleted = true;
-                            _unitOfWork.UserWorkLogRepository.Update(getUserToUpdate);
-                            await _unitOfWork.SaveAsync();
+                            if(checkNewUser != null)
+                            {
+                                if(changeEmployee.IsReporter != null)
+                                {
+                                    getUserToUpdate.IsReporter = !changeEmployee.IsReporter;
+                                    checkNewUser.IsReporter = changeEmployee.IsReporter;
+                                    _unitOfWork.UserWorkLogRepository.Update(getUserToUpdate);
+                                    await _unitOfWork.SaveAsync();
+                                    _unitOfWork.UserWorkLogRepository.Update(checkNewUser);
+                                    await _unitOfWork.SaveAsync();
+                                    // Gửi thông báo nếu muốn
+                                    var addOldUserRepoterNotification = new PlanNotification
+                                    {
+                                        NotificationID = addNotification.NotificationId,
+                                        CreatedDate = DateTime.Now,
+                                        isRead = false,
+                                        UserID = changeEmployee.OldUserId
+                                    };
+                                    var addNewUserRepoterNotification = new PlanNotification
+                                    {
+                                        NotificationID = addNotification.NotificationId,
+                                        CreatedDate = DateTime.Now,
+                                        isRead = false,
+                                        UserID = changeEmployee.NewUserId
+                                    };
+                                    await _unitOfWork.PlanNotificationRepository.Insert(addOldUserRepoterNotification);
+                                    await _unitOfWork.PlanNotificationRepository.Insert(addNewUserRepoterNotification);
 
-                            var newUserWorkLog = new UserWorkLog()
+                                    await _webSocketService.SendToUser(changeEmployee.OldUserId, addNotification);
+                                    await _webSocketService.SendToUser(changeEmployee.NewUserId, addNotification);
+                                }
+                            }
+                            else
                             {
-                                CreateDate = DateTime.Now,
-                                UserId = changeEmployee.NewUserId,
-                                IsReporter = changeEmployee.IsReporter,
-                                WorkLogId = getUserToUpdate.WorkLogId,
-                                IsDeleted = false,
-                                StatusOfUserWorkLog = getStatusReplaced,
-                            };
-                            var addNewUserNotification = new PlanNotification()
-                            {
-                                NotificationID = addNotification.NotificationId,
-                                CreatedDate = DateTime.Now,
-                                isRead = false,
-                                UserID = changeEmployee.NewUserId
-                            };
-                            var addOldUserNotification = new PlanNotification()
-                            {
-                                NotificationID = addNotification.NotificationId,
-                                CreatedDate = DateTime.Now,
-                                isRead = false,
-                                UserID = changeEmployee.OldUserId
-                            };
-                            await _unitOfWork.PlanNotificationRepository.Insert(addNewUserNotification);
-                            await _unitOfWork.PlanNotificationRepository.Insert(addOldUserNotification);
-                            await _webSocketService.SendToUser(changeEmployee.NewUserId, addNotification);
-                            await _webSocketService.SendToUser(changeEmployee.OldUserId, addNotification);
-                            await _unitOfWork.UserWorkLogRepository.Insert(newUserWorkLog);
+                                // Nếu thực sự đổi người mới
+                                getUserToUpdate.StatusOfUserWorkLog = getStatusBeReplaced;
+                                getUserToUpdate.ReplaceUserId = changeEmployee.NewUserId;
+                                getUserToUpdate.IsDeleted = true;
+                                _unitOfWork.UserWorkLogRepository.Update(getUserToUpdate);
+                                await _unitOfWork.SaveAsync();
+
+                                var newUserWorkLog = new UserWorkLog()
+                                {
+                                    CreateDate = DateTime.Now,
+                                    UserId = changeEmployee.NewUserId,
+                                    IsReporter = changeEmployee.IsReporter,
+                                    WorkLogId = getUserToUpdate.WorkLogId,
+                                    IsDeleted = false,
+                                    StatusOfUserWorkLog = getStatusReplaced,
+                                };
+                                var addNewUserNotification = new PlanNotification()
+                                {
+                                    NotificationID = addNotification.NotificationId,
+                                    CreatedDate = DateTime.Now,
+                                    isRead = false,
+                                    UserID = changeEmployee.NewUserId
+                                };
+                                var addOldUserNotification = new PlanNotification()
+                                {
+                                    NotificationID = addNotification.NotificationId,
+                                    CreatedDate = DateTime.Now,
+                                    isRead = false,
+                                    UserID = changeEmployee.OldUserId
+                                };
+                                await _unitOfWork.PlanNotificationRepository.Insert(addNewUserNotification);
+                                await _unitOfWork.PlanNotificationRepository.Insert(addOldUserNotification);
+                                await _webSocketService.SendToUser(changeEmployee.NewUserId, addNotification);
+                                await _webSocketService.SendToUser(changeEmployee.OldUserId, addNotification);
+                                await _unitOfWork.UserWorkLogRepository.Insert(newUserWorkLog);
+                            }
+                            
                         }
 
                     }
@@ -2347,6 +2397,47 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             try
             {
                 var getListUserWorkLog = await _unitOfWork.UserWorkLogRepository.GetListUserWorkLogByWorkLogId(workLogId);
+                var getWorkLog = await _unitOfWork.WorkLogRepository.GetByCondition(x => x.WorkLogId == workLogId);
+                if (getWorkLog != null)
+                {
+                    var now = DateTime.Now.Date;
+
+                    if (getWorkLog.Date != null && getWorkLog.Date.Value.Date <= now)
+                    {
+                        if(getWorkLog.Date.Value.Date == now)
+                        {
+                            if (getWorkLog.ActualEndTime < DateTime.Now.TimeOfDay)
+                            {
+                                var getAutoTakeAttendance = await _unitOfWork.SystemConfigRepository
+                                                            .GetConfigValue(SystemConfigConst.AUTO_TAKE_ATTENDANCE.Trim(), "True");
+
+                                var newStatus = getAutoTakeAttendance.ToLower().Equals("true") ? "Received" : "Rejected";
+
+                                foreach (var userWorkLog in getListUserWorkLog.Where(x => x.StatusOfUserWorkLog == null))
+                                {
+                                    userWorkLog.StatusOfUserWorkLog = newStatus;
+                                    await _unitOfWork.SaveAsync();
+                                }
+
+                            } 
+                        }
+                        else
+                        {
+                            var getAutoTakeAttendance = await _unitOfWork.SystemConfigRepository
+                                                            .GetConfigValue(SystemConfigConst.AUTO_TAKE_ATTENDANCE.Trim(), "True");
+
+                            var newStatus = getAutoTakeAttendance.ToLower().Equals("true") ? "Received" : "Rejected";
+
+                            foreach (var userWorkLog in getListUserWorkLog.Where(x => x.StatusOfUserWorkLog == null))
+                            {
+                                userWorkLog.StatusOfUserWorkLog = newStatus;
+                                await _unitOfWork.SaveAsync();
+                            }
+
+                        }
+                        
+                    }
+                }
                 var result = new List<GetListEmployeeToCheckAttendance>();
                 // Group theo UserId chính
                 foreach (var uwl in getListUserWorkLog)
@@ -2465,6 +2556,19 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             {
                 var getListUserWorkLog = await _unitOfWork.UserWorkLogRepository.GetListUserWorkLogByWorkLogId(workLogId);
                 var result = new List<GetListEmployeeToCheckAttendance>();
+                var getUserCancelled = getListUserWorkLog.Where(x => x.IsDeleted == true && x.ReplaceUserId == null).ToList();
+                foreach(var userCancelled in getUserCancelled)
+                {
+                    result.Add(new GetListEmployeeToCheckAttendance
+                    {
+                        UserWorkLogId = userCancelled.UserWorkLogID,
+                        UserId = userCancelled.UserId,
+                        FullName = userCancelled.User.FullName,
+                        StatusOfUser = userCancelled.StatusOfUserWorkLog,
+                        AvatarURL = userCancelled.User.AvatarURL,
+                        IsReporter = userCancelled.IsReporter,
+                    });
+                }
                 // Group theo UserId chính
                 foreach (var uwl in getListUserWorkLog)
                 {
@@ -2472,7 +2576,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     // Tìm người thay thế cho bản ghi này (nếu có ai khác ReplaceUserId = uwl.UserId)
                     var replacement = getListUserWorkLog
                         .FirstOrDefault(x => x.UserWorkLogID == uwl.UserWorkLogID && x.ReplaceUserId == null && x.IsDeleted != true);
-
+                    
                     // Nếu bản ghi hiện tại là người thay thế, và người bị thay đã bị hủy trước điểm danh
                     // => bản ghi người bị thay đã bị loại (trường hợp 1), nên chỉ hiển thị người thay
                     //if (uwl.ReplaceUserId != null)
@@ -2508,6 +2612,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     }
 
                 }
+                result = result.DistinctBy(x => x.UserWorkLogId).ToList();
                 if (result.Count() > 0)
                 {
                     return new BusinessResult(200, "Get attedance list success", result);
@@ -2926,24 +3031,35 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             }
         }
 
-        public async Task<BusinessResult> FilterEmployeeByWorkSkill(int workTypeId, int farmId)
+        public async Task<BusinessResult> FilterEmployeeByWorkSkill(int? workTypeId, int farmId)
         {
             try
             {
-                var getEmployeeSkill = await _unitOfWork.EmployeeSkillRepository.GetListEmployeeByWorkTypeId(workTypeId, farmId);
+                var getEmployeeSkill = await _unitOfWork.EmployeeSkillRepository.GetListEmployeeByWorkTypeId(workTypeId ?? 0, farmId);
                 var result = getEmployeeSkill.Select(u => new EmployeeSkillModel
                 {
                     UserId = u.User.UserId,
                     FullName = u.User.FullName,
                     AvatarURL = u.User.AvatarURL,
-                    WorkSkillName = u.EmployeeSkills
-                        .Where(s => s.WorkTypeID == workTypeId)
-                        .Select(s => s.WorkType.Target) // hoặc s.WorkType.Name nếu tên khác
-                        .FirstOrDefault() ?? "",
-                    ScoreOfSkill = u.EmployeeSkills
-                     .Where(s => s.WorkTypeID == workTypeId)
-                     .Select(s => (double?)s.ScoreOfSkill)
-                     .FirstOrDefault() ?? 0
+                    SkillWithScore = (workTypeId == null)
+                                ? u.EmployeeSkills
+                                    .GroupBy(s => s.WorkType.Target ?? "Không xác định")
+                                    .Select(g => new SkillScoreModel
+                                    {
+                                        SkillName = g.Key,
+                                        Score = g.Select(s => (double?)s.ScoreOfSkill ?? 0).Average()
+                                    })
+                                    .OrderByDescending(skill => skill.Score)
+                                    .ToList()
+                                : u.EmployeeSkills
+                                    .Where(s => s.WorkTypeID == workTypeId)
+                                    .Select(s => new SkillScoreModel
+                                    {
+                                        SkillName = s.WorkType.Target ?? "Không xác định",
+                                        Score = (double?)s.ScoreOfSkill ?? 0
+                                    })
+                                    .OrderByDescending(skill => skill.Score)
+                                    .ToList()
                 }).ToList();
                 if (getEmployeeSkill.Count() > 0)
                 {
@@ -3058,6 +3174,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                             PlanName = planOfWorkLog?.PlanName ?? "N/A",
                             StartDate = planOfWorkLog?.StartDate,
                             EndDate = planOfWorkLog?.EndDate,
+                            WorkLogName = w.WorkLogName,
                             StartTime = w.ActualStartTime,
                             EndTime = w.ActualEndTime,
                             Status = w.Status,
@@ -3069,9 +3186,27 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     .OrderBy(x => x.Order)
                     .ThenBy(x => x.StartTime)
                     .ToList();
-
-                return dependentWorkLogs.Any()
-                    ? new BusinessResult(200, "Get Dependency WorkLog Success", dependentWorkLogs)
+                var result = dependentWorkLogs
+                                .GroupBy(x => new { x.PlanId, x.PlanName, x.StartDate, x.EndDate })
+                                .Select(g => new
+                                {
+                                    PlanId = g.Key.PlanId,
+                                    PlanName = g.Key.PlanName,
+                                    StartDate = g.Key.StartDate,
+                                    EndDate = g.Key.EndDate,
+                                    WorkLogs = g.Select(w => new
+                                    {
+                                        w.WorkLogId,
+                                        w.WorkLogName,
+                                        w.StartTime,
+                                        w.EndTime,
+                                        w.Status,
+                                        w.Date
+                                    }).ToList()
+                                })
+                                .ToList();
+                return result.Any()
+                    ? new BusinessResult(200, "Get Dependency WorkLog Success", result)
                     : new BusinessResult(200, "No workLog dependency.");
             }
             catch (Exception ex)

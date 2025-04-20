@@ -524,6 +524,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Mapping
             .ForMember(dest => dest.AssignorAvatarURL, opt => opt.MapFrom(src => src.Schedule.CarePlan.User.AvatarURL))
             .ForMember(dest => dest.PlanName, opt => opt.MapFrom(src => src.Schedule.CarePlan.PlanName))
             .ForMember(dest => dest.PlanCode, opt => opt.MapFrom(src => src.Schedule.CarePlan.PlanCode))
+            .ForMember(dest => dest.StartDate, opt => opt.MapFrom(src => src.Schedule.CarePlan.StartDate))
+            .ForMember(dest => dest.EndDate, opt => opt.MapFrom(src => src.Schedule.CarePlan.EndDate))
             .ForMember(dest => dest.PlanId, opt => opt.MapFrom(src => src.Schedule.CarePlan.PlanId))
             .ForMember(dest => dest.HarvestHistoryCode, opt => opt.MapFrom(src => src.Schedule.HarvestHistory.HarvestHistoryCode))
             .ForMember(dest => dest.HarvestHistoryId, opt => opt.MapFrom(src => src.Schedule.HarvestHistory.HarvestHistoryId))
@@ -545,7 +547,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Mapping
                                                                         ReplaceUserId = uwl.UserId,
                                                                         ReplaceUserFullName = uwl.User.FullName,
                                                                         ReplaceUserAvatar = uwl.User.AvatarURL,
-
+                                                                        IsRepoter = uwl.IsReporter,
                                                                         // Lấy thông tin nhân viên thay thế
                                                                         UserId = src.UserWorkLogs
                                                                             .Where(r => r.ReplaceUserId == uwl.UserId)

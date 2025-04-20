@@ -62,10 +62,10 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
         }
 
         [HttpPut(APIRoutes.GraftedPlant.updateGraftedNoteInfo, Name = "updateGraftedNoteInfoAsync")]
-        [HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)}")]
+        [HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)},{nameof(RoleEnum.EMPLOYEE)}")]
         [CheckUserFarmAccess]
         //[FarmExpired]
-        public async Task<IActionResult> updateGraftedNoteInfoAsync([FromBody] UpdateGraftedNoteRequest request)
+        public async Task<IActionResult> updateGraftedNoteInfoAsync([FromForm] UpdateGraftedNoteRequest request)
         {
             try
             {
@@ -73,7 +73,16 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
                 {
                     return BadRequest(ModelState);
                 }
-
+                if (!request.UserId.HasValue)
+                    request.UserId = _jwtTokenService.GetUserIdFromToken();
+                if (!request.UserId.HasValue)
+                {
+                    return BadRequest(new BusinessResult
+                    {
+                        StatusCode = StatusCodes.Status400BadRequest,
+                        Message = "User Id is required"
+                    });
+                }
                 var result = await _graftedNoteService.updateGraftedNote(request);
                 return Ok(result);
             }
@@ -157,14 +166,24 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
 
         //[HybridAuthorize($"{nameof(RoleEnum.OWNER)}")]
         [HttpDelete(APIRoutes.GraftedPlant.deleteGraftedNote + "/{grafted-note-id}", Name = "DeleteGraftedNoteAsync")]
-        [HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)}")]
+        [HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)},{nameof(RoleEnum.EMPLOYEE)}")]
         [CheckUserFarmAccess]
         //[FarmExpired]
-        public async Task<IActionResult> DeleteGraftedNoteAsync([FromRoute(Name = "grafted-note-id")] int graftedNoteId)
+        public async Task<IActionResult> DeleteGraftedNoteAsync([FromRoute(Name = "grafted-note-id")] int graftedNoteId, int? userId)
         {
             try
             {
-                var result = await _graftedNoteService.deleteGraftedNote(graftedNoteId);
+                if (!userId.HasValue)
+                    userId = _jwtTokenService.GetUserIdFromToken();
+                if (!userId.HasValue)
+                {
+                    return BadRequest(new BusinessResult
+                    {
+                        StatusCode = StatusCodes.Status400BadRequest,
+                        Message = "User Id is required"
+                    });
+                }
+                var result = await _graftedNoteService.deleteGraftedNote(graftedNoteId, userId.Value);
                 return Ok(result);
             }
             catch (Exception ex)

@@ -14,6 +14,7 @@ using CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.FarmBsModels.Graft
 using CapstoneProject_SP25_IPAS_Service.Pagination;
 using Microsoft.AspNetCore.Mvc.Filters;
 using CapstoneProject_SP25_IPAS_Service.ConditionBuilder;
+using CapstoneProject_SP25_IPAS_Common.Enum;
 
 namespace CapstoneProject_SP25_IPAS_Service.Service
 {
@@ -117,7 +118,15 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     {
                         return new BusinessResult(Const.WARNING_PLANT_GROWTH_NOT_EXIST_CODE, Const.WARNING_PLANT_GROWTH_NOT_EXIST_MSG);
                     }
-
+                    var roleInFarm = await _unitOfWork.UserFarmRepository.GetByCondition(x => x.UserId == historyUpdateRequest.UserId);
+                    if (roleInFarm.RoleId == (int)RoleEnum.EMPLOYEE)
+                    {
+                        var systemDateEditDays = await _unitOfWork.SystemConfigRepository.GetConfigValue(SystemConfigConst.EDIT_RECORD_IN_DAYS, (int)3);
+                        if (plantGrowthHistory!.CreateDate.Value.AddDays(systemDateEditDays) < DateTime.Now)
+                            return new BusinessResult(Const.WARNING_OVER_TIME_TO_EDIT_CODE, Const.WARNING_OVER_TIME_TO_EDIT_MSG);
+                        if (plantGrowthHistory.UserId != historyUpdateRequest.UserId)
+                            return new BusinessResult(Const.WARNING_CAN_NOT_EDIT_RECORD_OF_ORTHER_CODE, Const.WARNING_CAN_NOT_EDIT_RECORD_OF_ORTHER_MSG);
+                    }
                     // Cập nhật thông tin
                     plantGrowthHistory.Content = historyUpdateRequest.Content ?? plantGrowthHistory.Content;
                     plantGrowthHistory.IssueName = historyUpdateRequest.IssueName ?? plantGrowthHistory.IssueName;
@@ -125,17 +134,17 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
                     // Lấy danh sách ảnh cũ
                     var existingResources = plantGrowthHistory.Resources.ToList();
-                    var newResources = historyUpdateRequest.Resource?.Select(r => new Resource
-                    {
-                        ResourceID = r.ResourceID!.Value,
-                        ResourceURL = r.ResourceURL,
-                        FileFormat = r.FileFormat
-                    }).ToList() ?? new List<Resource>();
+                    //var newResources = historyUpdateRequest.Resource?.Select(r => new Resource
+                    //{
+                    //    ResourceID = r.ResourceID!.Value,
+                    //    ResourceURL = r.ResourceURL,
+                    //    FileFormat = r.FileFormat
+                    //}).ToList() ?? new List<Resource>();
 
 
                     // Xóa ảnh cũ không có trong request
                     var resourcesToDelete = existingResources
-                .Where(old => !newResources.Any(newImg => newImg.ResourceID == old.ResourceID))
+                .Where(old => !historyUpdateRequest.Resource.Any(newImg => newImg.ResourceID == old.ResourceID))
                 .ToList();
 
                     foreach (var resource in resourcesToDelete)
@@ -188,7 +197,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
         }
 
 
-        public async Task<BusinessResult> deleteGraftedNote(int graftedPlantNoteId)
+        public async Task<BusinessResult> deleteGraftedNote(int graftedPlantNoteId, int userId)
         {
             try
             {
@@ -199,6 +208,15 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     var GraftedPlantNote = await _unitOfWork.GraftedPlantNoteRepository.GetByCondition(filter: filter, includeProperties: includeProperties);
                     if (GraftedPlantNote == null)
                         return new BusinessResult(Const.WARNING_PLANT_GROWTH_NOT_EXIST_CODE, Const.WARNING_PLANT_GROWTH_NOT_EXIST_MSG);
+                    var roleInFarm = await _unitOfWork.UserFarmRepository.GetByCondition(x => x.UserId == userId);
+                    if (roleInFarm.RoleId == (int)RoleEnum.EMPLOYEE)
+                    {
+                        var systemDateEditDays = await _unitOfWork.SystemConfigRepository.GetConfigValue(SystemConfigConst.EDIT_RECORD_IN_DAYS, (int)3);
+                        if (GraftedPlantNote!.CreateDate.Value.AddDays(systemDateEditDays) < DateTime.Now)
+                            return new BusinessResult(Const.WARNING_OVER_TIME_TO_EDIT_CODE, Const.WARNING_OVER_TIME_TO_EDIT_MSG);
+                        if (GraftedPlantNote.UserId != userId)
+                            return new BusinessResult(Const.WARNING_CAN_NOT_EDIT_RECORD_OF_ORTHER_CODE, Const.WARNING_CAN_NOT_EDIT_RECORD_OF_ORTHER_MSG);
+                    }
                     // If the plant has an image associated, delete it from Cloudinary or another storage service
                     foreach (var resource in GraftedPlantNote.Resources)
                     {

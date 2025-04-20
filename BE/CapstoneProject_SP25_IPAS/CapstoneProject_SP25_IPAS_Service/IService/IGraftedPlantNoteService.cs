@@ -13,7 +13,7 @@ namespace CapstoneProject_SP25_IPAS_Service.IService
     {
         public Task<BusinessResult> getGraftedNoteById(int GraftedPlantNoteId);
         public Task<BusinessResult> getAllNoteOfGraftedById(int graftedPlantId);
-        public Task<BusinessResult> deleteGraftedNote(int graftedPlantNoteId);
+        public Task<BusinessResult> deleteGraftedNote(int graftedPlantNoteId, int userId);
         public Task<BusinessResult> updateGraftedNote(UpdateGraftedNoteRequest historyUpdateRequest);
         public Task<BusinessResult> createGraftedNote(CreateGraftedNoteRequest historyCreateRequest);
         public Task<BusinessResult> getAllNoteOfGraftedPagin(GetGraftedNoteRequest fitlerRequest, PaginationParameter paginationParameter);

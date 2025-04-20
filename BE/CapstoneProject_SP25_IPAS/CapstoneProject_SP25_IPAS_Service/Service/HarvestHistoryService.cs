@@ -1,31 +1,23 @@
 ﻿using AutoMapper;
-using CapstoneProject_SP25_IPAS_BussinessObject.Entities;
-using CapstoneProject_SP25_IPAS_Common.Constants;
-using CapstoneProject_SP25_IPAS_Common;
-using CapstoneProject_SP25_IPAS_Common.Utils;
-using CapstoneProject_SP25_IPAS_Repository.UnitOfWork;
-using CapstoneProject_SP25_IPAS_Service.Base;
-using CapstoneProject_SP25_IPAS_Service.IService;
-using Microsoft.Extensions.Configuration;
-using CapstoneProject_SP25_IPAS_Common.Enum;
-using System.Linq.Expressions;
-using CapstoneProject_SP25_IPAS_Service.ConditionBuilder;
-//using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.FarmRequest.CropRequest;
-using Microsoft.AspNetCore.Mvc;
-using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.HarvestHistoryRequest;
-using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.HarvestHistoryRequest.ProductHarvestRequest;
-using Microsoft.IdentityModel.Tokens;
 using CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel;
 using CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.FarmBsModels;
 using CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.FarmBsModels.HarvestModels;
-using CloudinaryDotNet.Actions;
-using Microsoft.Azure.CognitiveServices.Vision.CustomVision.Training.Models;
-using CapstoneProject_SP25_IPAS_Service.Pagination;
-using MailKit.Search;
-using System.Linq;
+using CapstoneProject_SP25_IPAS_BussinessObject.Entities;
+//using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.FarmRequest.CropRequest;
+using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.HarvestHistoryRequest;
+using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.HarvestHistoryRequest.ProductHarvestRequest;
 using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.ScheduleRequest;
-using Microsoft.EntityFrameworkCore;
-using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.PlantRequest;
+using CapstoneProject_SP25_IPAS_Common;
+using CapstoneProject_SP25_IPAS_Common.Constants;
+using CapstoneProject_SP25_IPAS_Common.Enum;
+using CapstoneProject_SP25_IPAS_Common.Utils;
+using CapstoneProject_SP25_IPAS_Repository.UnitOfWork;
+using CapstoneProject_SP25_IPAS_Service.Base;
+using CapstoneProject_SP25_IPAS_Service.ConditionBuilder;
+using CapstoneProject_SP25_IPAS_Service.IService;
+using CapstoneProject_SP25_IPAS_Service.Pagination;
+using Microsoft.Extensions.Configuration;
+using System.Linq.Expressions;
 
 namespace CapstoneProject_SP25_IPAS_Service.Service
 {
@@ -403,21 +395,20 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         //var harvestHistory = await _unitOfWork.ProductHarvestHistoryRepository.GetByCondition(filter, includeProperties);
                         //var mappedResult = _mapper.Map<ProductHarvestHistoryModel>(harvestHistory);
 
-                        return new BusinessResult(Const.SUCCESS_UPDATE_HARVEST_HISTORY_CODE,
-                                                  Const.SUCCESS_UPDATE_HARVEST_HISTORY_MSG/*, mappedResult*/);
+                        return new BusinessResult(Const.SUCCESS_CREATE_HARVEST_RECORD_CODE,
+                                                  Const.SUCCESS_CREATE_HARVEST_RECORD_MSG/*, mappedResult*/);
                     }
                     else
                     {
                         await transaction.RollbackAsync();
-                        return new BusinessResult(Const.FAIL_CREATE_HARVEST_HISTORY_CODE,
-                                                  Const.FAIL_CREATE_HARVEST_HISTORY_MSG);
+                        return new BusinessResult(Const.FAIL_CREATE_HARVEST_RECORD_CODE,
+                                                  Const.FAIL_CREATE_HARVEST_RECORD_MSG);
                     }
                 }
                 catch (Exception ex)
                 {
                     await transaction.RollbackAsync();
-                    return new BusinessResult(Const.FAIL_UPDATE_HARVEST_HISTORY_CODE,
-                                              Const.FAIL_UPDATE_HARVEST_HISTORY_MSG, ex.Message);
+                    return new BusinessResult(Const.ERROR_EXCEPTION, Const.ERROR_MESSAGE, ex.Message);
                 }
             }
         }
@@ -528,7 +519,10 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         PlantId = x.PlantId,
                         PlantName = x.Plant.PlantName,
                         PlantCode = x.Plant.PlantCode,
-                        ActualQuantity = x.ActualQuantity
+                        ActualQuantity = x.ActualQuantity,
+                        RecordDate = x.RecordDate,
+                        RecordBy = x.User.FullName,
+                        AvartarRecord = x.User.AvatarURL
                     }).ToList();
 
                 product.YieldHasRecord = product.plantLogHarvest.Sum(x => x.ActualQuantity);
@@ -594,7 +588,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             }
             catch (Exception ex)
             {
-                return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
+                return new BusinessResult(Const.ERROR_EXCEPTION, Const.ERROR_MESSAGE, ex.Message);
             }
         }
 
@@ -671,7 +665,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 catch (Exception ex)
                 {
                     await transaction.CommitAsync();
-                    return new BusinessResult(Const.FAIL_UPDATE_HARVEST_HISTORY_CODE, Const.FAIL_UPDATE_HARVEST_HISTORY_MSG, ex.Message);
+                    return new BusinessResult(Const.ERROR_EXCEPTION, Const.ERROR_MESSAGE, ex.Message);
                 }
             }
         }
@@ -693,8 +687,20 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     var productHarvestHistory = await _unitOfWork.ProductHarvestHistoryRepository.GetByCondition(filter, includeProperties);
                     if (productHarvestHistory == null)
                         return new BusinessResult(Const.WARNING_GET_HARVEST_NOT_EXIST_CODE, Const.WARNING_GET_HARVEST_NOT_EXIST_MSG);
+
                     if (productHarvestHistory.PlantId.HasValue) // la record da them vao
                     {
+                        #region kt xem nguoi update neu la employee thi se check ngay
+                        var roleInFarm = await _unitOfWork.UserFarmRepository.GetByCondition(x => x.UserId == updateRequest.UserId);
+                        if (roleInFarm.RoleId == (int)RoleEnum.EMPLOYEE)
+                        {
+                            var systemDateEditDays = await _unitOfWork.SystemConfigRepository.GetConfigValue(SystemConfigConst.EDIT_RECORD_IN_DAYS, (int)3);
+                            if (productHarvestHistory!.RecordDate.Value.AddDays(systemDateEditDays) < DateTime.Now)
+                                return new BusinessResult(Const.WARNING_OVER_TIME_TO_EDIT_CODE, Const.WARNING_OVER_TIME_TO_EDIT_MSG);
+                            //if (productHarvestHistory.UserID != updateRequest.UserId)
+                            //    return new BusinessResult(Const.WARNING_CAN_NOT_EDIT_RECORD_OF_ORTHER_CODE, Const.WARNING_CAN_NOT_EDIT_RECORD_OF_ORTHER_MSG);
+                        }
+                        #endregion
                         if (updateRequest.Quantity.HasValue && updateRequest.Quantity.Value > 0)
                             productHarvestHistory.ActualQuantity = updateRequest.Quantity;
                         productHarvestHistory.UserID = checkUserExist.UserId;
@@ -764,7 +770,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 catch (Exception ex)
                 {
                     await transaction.RollbackAsync();
-                    return new BusinessResult(500, ex.Message);
+                    return new BusinessResult(Const.ERROR_EXCEPTION, Const.ERROR_MESSAGE, ex.Message);
                 }
             }
         }
@@ -831,7 +837,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             }
             catch (Exception ex)
             {
-                return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
+                return new BusinessResult(Const.ERROR_EXCEPTION, Const.ERROR_MESSAGE, ex.Message);
             }
         }
 
@@ -847,6 +853,18 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         //if (plantId.HasValue)
                         //    filter.And(x => x.PlantId == plantId);
                         var harvestHistory = await _unitOfWork.ProductHarvestHistoryRepository.GetAllNoPaging(filter);
+                        var roleInFarm = await _unitOfWork.UserFarmRepository.GetByCondition(x => x.UserId == request.UserId);
+                        if (roleInFarm.RoleId == (int)RoleEnum.EMPLOYEE)
+                        {
+                            foreach (var item in harvestHistory)
+                            {
+                                var systemDateEditDays = await _unitOfWork.SystemConfigRepository.GetConfigValue(SystemConfigConst.EDIT_RECORD_IN_DAYS, (int)3);
+                                if (item!.RecordDate!.Value.AddDays(systemDateEditDays) < DateTime.Now)
+                                    return new BusinessResult(Const.WARNING_OVER_TIME_TO_EDIT_CODE, Const.WARNING_OVER_TIME_TO_EDIT_MSG);
+                                if (item.UserID != request.UserId)
+                                    return new BusinessResult(Const.WARNING_CAN_NOT_EDIT_RECORD_OF_ORTHER_CODE, Const.WARNING_CAN_NOT_EDIT_RECORD_OF_ORTHER_MSG);
+                            }
+                        }
                         if (harvestHistory == null)
                             return new BusinessResult(Const.WARNING_GET_HARVEST_NOT_EXIST_CODE, Const.WARNING_GET_HARVEST_NOT_EXIST_MSG);
 
@@ -872,7 +890,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             }
             catch (Exception ex)
             {
-                return new BusinessResult(500, ex.Message);
+                return new BusinessResult(Const.ERROR_EXCEPTION, Const.ERROR_MESSAGE, ex.Message);
             }
         }
 
@@ -893,7 +911,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             }
             catch (Exception ex)
             {
-                return new BusinessResult(500, ex.Message);
+                return new BusinessResult(Const.ERROR_EXCEPTION, Const.ERROR_MESSAGE);
             }
         }
 
@@ -942,7 +960,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             }
             catch (Exception ex)
             {
-                return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
+                return new BusinessResult(Const.ERROR_EXCEPTION, Const.ERROR_MESSAGE);
             }
         }
 
@@ -997,7 +1015,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             }
             catch (Exception ex)
             {
-                return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
+                return new BusinessResult(Const.ERROR_EXCEPTION, Const.ERROR_MESSAGE);
             }
         }
 
@@ -1112,7 +1130,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 catch (Exception ex)
                 {
                     await transaction.RollbackAsync();
-                    return new BusinessResult(Const.FAIL_UPDATE_HARVEST_HISTORY_CODE, Const.FAIL_UPDATE_HARVEST_HISTORY_MSG, ex.Message);
+                    return new BusinessResult(Const.ERROR_EXCEPTION, Const.ERROR_MESSAGE, ex.Message);
                 }
             }
         }
@@ -1159,7 +1177,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             }
             catch (Exception ex)
             {
-                return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
+                return new BusinessResult(Const.ERROR_EXCEPTION, Const.ERROR_MESSAGE, ex.Message);
             }
         }
         private void ApplyPlantHarvestSorting(ref Func<IQueryable<ProductHarvestHistory>, IOrderedQueryable<ProductHarvestHistory>> orderBy, string? sortBy, string? direction)
@@ -1229,7 +1247,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             }
             catch (Exception ex)
             {
-                return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
+                return new BusinessResult(Const.ERROR_EXCEPTION, Const.ERROR_MESSAGE, ex.Message);
             }
         }
 
@@ -1363,7 +1381,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             }
             catch (Exception ex)
             {
-                return new BusinessResult(Const.FAIL_IMPORT_PLANT_CODE, "Error when import", ex.Message);
+                return new BusinessResult(Const.ERROR_EXCEPTION, Const.ERROR_MESSAGE, ex.Message);
             }
         }
 

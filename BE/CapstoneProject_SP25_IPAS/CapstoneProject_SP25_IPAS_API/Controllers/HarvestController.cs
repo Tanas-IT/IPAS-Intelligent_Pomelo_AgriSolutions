@@ -9,6 +9,7 @@ using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.PlantRequest;
 using CapstoneProject_SP25_IPAS_BussinessObject.Validation;
 using CapstoneProject_SP25_IPAS_Common.Enum;
 using CapstoneProject_SP25_IPAS_Common.Utils;
+using CapstoneProject_SP25_IPAS_Service.Base;
 using CapstoneProject_SP25_IPAS_Service.IService;
 using CapstoneProject_SP25_IPAS_Service.Service;
 using FluentValidation;
@@ -187,7 +188,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
         }
 
         [HttpPut(APIRoutes.Harvest.updateProductHarvestInfo, Name = "updateHarvestTypeInfo")]
-        [HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)}")]
+        [HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)},{nameof(RoleEnum.EMPLOYEE)}")]
         [CheckUserFarmAccess]
         //[FarmExpired]
         public async Task<IActionResult> updateHarvestTypeInfo([FromBody] UpdateProductHarvesRequest harvestTypeUpdateRequest)
@@ -241,7 +242,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
         }
 
         [HttpPut(APIRoutes.Harvest.SoftedDeletedHarvestHistory, Name = "SoftedDeletedHarvestHistory")]
-        [HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)} ")]
+        [HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)}")]
         [CheckUserFarmAccess]
         //[FarmExpired]
         public async Task<IActionResult> SoftedDeletedHarvestHistory([FromQuery] List<int> harvestIds)
@@ -274,13 +275,23 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
         }
 
         [HttpDelete(APIRoutes.Harvest.deletePlantRecord, Name = "deletePlantRecord")]
-        [HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)}")]
+        [HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)},,{nameof(RoleEnum.EMPLOYEE)}")]
         [CheckUserFarmAccess]
         //[FarmExpired]
         public async Task<IActionResult> deletePlantRecordAsync(DeletePlantRecoredRequest request)
         {
             try
             {
+                if (!request.UserId.HasValue)
+                    request.UserId = _jwtTokenService.GetUserIdFromToken();
+                if (!request.UserId.HasValue)
+                {
+                    return BadRequest(new BusinessResult
+                    {
+                        StatusCode = StatusCodes.Status400BadRequest,
+                        Message = "User Id is required"
+                    });
+                }
                 var result = await _harvestHistoryService.deletePlantRecord(request);
                 return Ok(result);
             }
