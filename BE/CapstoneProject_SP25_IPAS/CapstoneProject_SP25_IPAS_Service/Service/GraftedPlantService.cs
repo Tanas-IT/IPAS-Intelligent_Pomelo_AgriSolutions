@@ -1143,12 +1143,12 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     {
                         return new BusinessResult(Const.WARNING_GET_GRAFTED_EMPTY_CODE, Const.WARNING_GET_GRAFTED_EMPTY_MSG);
                     }
-                    grafteds.ToList().ForEach(async gr =>
+                    foreach (var gr in grafteds)
                     {
                         gr.IsDead = true;
                         gr.Status = HealthStatusConst.DEAD;
                         await DeletePlanByGraftedPlantId(gr.GraftedPlantId);
-                    });
+                    }
                     //foreach (var gr in grafteds)
                     //{
                     //    var getListGraftedPlantNotes = await _unitOfWork.GraftedPlantNoteRepository.GetListGraftedPlantNoteByGraftedId(gr.GraftedPlantId);
@@ -1175,7 +1175,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 catch (Exception ex)
                 {
                     await transaction.RollbackAsync();
-                    return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
+                    return new BusinessResult(Const.ERROR_EXCEPTION, Const.ERROR_MESSAGE, ex.Message);
                 }
             }
         }
@@ -1377,35 +1377,41 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
         {
             try
             {
-                var getPlanByPlantId = await _unitOfWork.PlanRepository.GetPlanByGraftedPlantId(graftedPlantId);
-                if (!getPlanByPlantId.Any())
+                var plans = await _unitOfWork.PlanRepository.GetPlanByGraftedPlantId(graftedPlantId);
+                if (plans == null || !plans.Any())
                     return;
-                foreach (var planDelete in getPlanByPlantId)
-                {
-                    if (planDelete.PlanTargets.Count() >= 1) // neu co nhieu hon 1 cay trong target plan van se tiep tuc
-                        continue;
-                    planDelete.IsActive = false;
-                    planDelete.IsDeleted = false;
-                    planDelete.Status = PlanStatusConst.STOPPED;
-                    var getWorkLogInFuture = planDelete.CarePlanSchedule?.WorkLogs.Where(x => x.Date >= DateTime.Now).ToList();
-                    if (getWorkLogInFuture != null && getWorkLogInFuture.Any())
-                    {
-                        foreach (var deleteWorkLog in getWorkLogInFuture)
-                        {
-                            deleteWorkLog.Status = WorkLogStatusConst.CANCELLED;
-                        }
-                        _unitOfWork.WorkLogRepository.UpdateRange(getWorkLogInFuture);
-                    }
 
+                foreach (var plan in plans)
+                {
+                    // Nếu có nhiều hơn 1 cây trong PlanTargets thì bỏ qua
+                    if (plan.PlanTargets?.Count() > 1)
+                        continue;
+
+                    plan.IsActive = false;
+                    plan.IsDeleted = false;
+                    plan.Status = PlanStatusConst.STOPPED;
+
+                    var workLogs = plan.CarePlanSchedule?.WorkLogs
+                        ?.Where(wl => wl.Date >= DateTime.Now)
+                        .ToList();
+
+                    if (workLogs?.Any() == true)
+                    {
+                        foreach (var workLog in workLogs)
+                        {
+                            workLog.Status = WorkLogStatusConst.CANCELLED;
+                        }
+                        _unitOfWork.WorkLogRepository.UpdateRange(workLogs);
+                    }
                 }
-                _unitOfWork.PlanRepository.UpdateRange(getPlanByPlantId);
-                //return true;
+
+                _unitOfWork.PlanRepository.UpdateRange(plans);
             }
             catch (Exception ex)
             {
-
-                throw new Exception(ex.Message);
+                throw;
             }
         }
+
     }
 }
