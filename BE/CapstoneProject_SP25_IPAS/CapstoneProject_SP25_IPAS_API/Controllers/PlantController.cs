@@ -459,8 +459,8 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
         }
 
         [HttpPatch(APIRoutes.Plant.PlantDeadMark + "/{plant-id}", Name = "PlantDeadMark")]
-        [HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)}")]
-        [CheckUserFarmAccess]
+        //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)}")]
+        //[CheckUserFarmAccess]
         //[FarmExpired]
         public async Task<IActionResult> PlantDeadMark([FromRoute(Name = "plant-id")] int plantId)
         {

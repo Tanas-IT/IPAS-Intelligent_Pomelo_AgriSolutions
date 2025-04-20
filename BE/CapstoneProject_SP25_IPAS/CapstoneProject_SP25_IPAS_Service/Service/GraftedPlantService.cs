@@ -1143,9 +1143,11 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     {
                         return new BusinessResult(Const.WARNING_GET_GRAFTED_EMPTY_CODE, Const.WARNING_GET_GRAFTED_EMPTY_MSG);
                     }
-                    grafteds.ToList().ForEach(gr =>
+                    grafteds.ToList().ForEach(async gr =>
                     {
                         gr.IsDead = true;
+                        gr.Status = HealthStatusConst.DEAD;
+                        await DeletePlanByGraftedPlantId(gr.GraftedPlantId);
                     });
                     //foreach (var gr in grafteds)
                     //{
@@ -1371,5 +1373,39 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             }
         }
 
+        private async Task DeletePlanByGraftedPlantId(int graftedPlantId)
+        {
+            try
+            {
+                var getPlanByPlantId = await _unitOfWork.PlanRepository.GetPlanByGraftedPlantId(graftedPlantId);
+                if (!getPlanByPlantId.Any())
+                    return;
+                foreach (var planDelete in getPlanByPlantId)
+                {
+                    if (planDelete.PlanTargets.Count() >= 1) // neu co nhieu hon 1 cay trong target plan van se tiep tuc
+                        continue;
+                    planDelete.IsActive = false;
+                    planDelete.IsDeleted = false;
+                    planDelete.Status = PlanStatusConst.STOPPED;
+                    var getWorkLogInFuture = planDelete.CarePlanSchedule?.WorkLogs.Where(x => x.Date >= DateTime.Now).ToList();
+                    if (getWorkLogInFuture != null && getWorkLogInFuture.Any())
+                    {
+                        foreach (var deleteWorkLog in getWorkLogInFuture)
+                        {
+                            deleteWorkLog.Status = WorkLogStatusConst.CANCELLED;
+                        }
+                        _unitOfWork.WorkLogRepository.UpdateRange(getWorkLogInFuture);
+                    }
+
+                }
+                _unitOfWork.PlanRepository.UpdateRange(getPlanByPlantId);
+                //return true;
+            }
+            catch (Exception ex)
+            {
+
+                throw new Exception(ex.Message);
+            }
+        }
     }
 }
