@@ -223,6 +223,7 @@ function PlantCriteria() {
                     <PlantPanelTitle
                       title={group.masterTypeName}
                       target={group.target}
+                      targetDisplay={group.targetDisplay}
                       criteriaSetId={group.masterTypeId}
                       updatedCriteria={updatedCriteria}
                       initialCriteria={initialCriteria}

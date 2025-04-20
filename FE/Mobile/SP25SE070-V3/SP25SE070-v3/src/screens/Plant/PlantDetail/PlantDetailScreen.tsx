@@ -16,7 +16,7 @@ const tabs = [
   { iconName: "chart-line", label: "Growth", value: "growth" },
   { iconName: "tree", label: "Grafted", value: "grafted" },
   { iconName: "note-edit", label: "Record", value: "record" },
-  { iconName: "basket", label: "Harvest", value: "harvest" },
+  { iconName: "basket", label: "Statistic", value: "harvest" },
 ];
 
 const PlantDetailScreen: React.FC = () => {

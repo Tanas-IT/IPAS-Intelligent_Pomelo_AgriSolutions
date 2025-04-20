@@ -412,6 +412,8 @@ const AddPlanByProcess = () => {
     };
 
     const handleSaveEmployees = (employees: any[], planId: number) => {
+        console.log("vo day 2");
+        
         const updatedDataSource = dataSource.map((plan) => {
             if (plan.planId === planId) {
                 return {
@@ -421,6 +423,7 @@ const AddPlanByProcess = () => {
             }
             return plan;
         });
+        console.log("vo day 3", updatedDataSource);
 
         setDataSource(updatedDataSource);
         console.log("Updated dataSource after assigning employees:", updatedDataSource);

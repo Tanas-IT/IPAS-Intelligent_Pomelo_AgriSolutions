@@ -1,0 +1,25 @@
+@use "@/styles/share.scss" as shared;
+@use "@/styles/variables.scss" as vars;
+
+.container {
+  @include shared.container;
+}
+
+.filterContent {
+  @include shared.filterContent;
+  min-width: 25vw;
+}
+
+.plantLocationContainer {
+  border: 1px solid #d9d9d9;
+  padding: 12px 16px;
+  border-radius: 8px;
+  margin-bottom: 16px;
+
+  legend {
+    font-weight: bold;
+    font-size: 14px;
+    padding: 0 8px;
+    margin-bottom: 0;
+  }
+}

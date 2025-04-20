@@ -66,14 +66,7 @@ const AddEmployeeModel = ({ isOpen, onClose, onSave, isLoadingAction }: AddEmplo
           value: user.userId.toString(),
           label: (
             <Flex align="center" gap={8}>
-              <UserAvatar
-                avatarURL={user?.avatarURL}
-                fallbackText={
-                  user.fullName
-                    ? user.fullName.charAt(0).toUpperCase()
-                    : user.email.charAt(0).toUpperCase()
-                }
-              />
+              <UserAvatar avatarURL={user?.avatarURL} />
               <span>
                 {user.fullName} ({user.email})
               </span>

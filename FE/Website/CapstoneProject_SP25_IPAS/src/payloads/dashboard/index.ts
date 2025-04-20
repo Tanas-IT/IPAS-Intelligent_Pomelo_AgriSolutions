@@ -1,1 +1,1 @@
-export * from "./responses/DashboardResponse";
+export * from "./responses";

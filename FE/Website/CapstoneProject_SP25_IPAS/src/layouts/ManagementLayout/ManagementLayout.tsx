@@ -11,15 +11,16 @@ import {
   useToastFromLocalStorage,
   useToastMessage,
 } from "@/hooks";
-import { LOCAL_STORAGE_KEYS, MESSAGES, UserRole } from "@/constants";
+import { LOCAL_STORAGE_KEYS, MESSAGES, UserRole, UserRolesStr } from "@/constants";
 import { PATHS } from "@/routes";
 const { Header, Content } = Layout;
 
 interface ManagementLayoutProps {
   children: ReactNode;
+  hideSidebar?: boolean;
 }
 
-const ManagementLayout: React.FC<ManagementLayoutProps> = ({ children }) => {
+const ManagementLayout: React.FC<ManagementLayoutProps> = ({ children, hideSidebar }) => {
   useToastMessage();
   // useFarmExpiration();
   useToastFromLocalStorage();
@@ -31,7 +32,7 @@ const ManagementLayout: React.FC<ManagementLayoutProps> = ({ children }) => {
 
   useEffect(() => {
     const roleId = getRoleId();
-    if (roleId === UserRole.User.toString()) {
+    if (roleId === UserRolesStr.User) {
       setIsUser(true);
       localStorage.setItem(LOCAL_STORAGE_KEYS.ERROR_MESSAGE, MESSAGES.NO_PERMISSION);
       navigate(PATHS.FARM_PICKER);
@@ -61,7 +62,7 @@ const ManagementLayout: React.FC<ManagementLayoutProps> = ({ children }) => {
 
   return (
     <Flex className={style.mainContainer}>
-      <SidebarAdmin />
+      {!hideSidebar && <SidebarAdmin />}
       <Layout className={style.layout}>
         <HeaderAdmin />
         <Content className={style.contentWrapper}>

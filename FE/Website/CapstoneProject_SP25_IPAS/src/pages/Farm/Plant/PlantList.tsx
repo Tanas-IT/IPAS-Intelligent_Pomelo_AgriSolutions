@@ -49,7 +49,7 @@ function PlantList() {
 
   const { filters, updateFilters, applyFilters, clearFilters } = useFilters<FilterPlantState>(
     DEFAULT_PLANT_FILTERS,
-    () => fetchData(),
+    () => fetchData(1),
   );
 
   const {

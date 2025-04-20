@@ -81,6 +81,15 @@ export class RulesManager {
     ];
   }
 
+  static getPhoneNumberNotRequiredRules() {
+    return [
+      {
+        pattern: /^[0-9]{10,11}$/,
+        message: "Phone number must be 10 or 11 digits!",
+      },
+    ];
+  }
+
   static getRequiredIfSelectedRules(dependentField: string, fieldName: string) {
     return [
       ({ getFieldValue }: any) => ({
@@ -178,6 +187,12 @@ export class RulesManager {
     return [
       { required: true, message: "Please input the duration!" },
       { pattern: /^[1-9]\d*$/, message: "Duration must be a positive integer!" },
+    ];
+  }
+  static getFeatureNameRules() {
+    return [
+      { required: true, message: "Please input the feature name!" },
+      { min: 5, message: "Feature name must be at least 5 characters long!" },
     ];
   }
 

@@ -8,6 +8,7 @@ import { formatDateRange } from "@/utils";
 interface PlantPanelTitleProps {
   title: string;
   target: string;
+  targetDisplay: string;
   criteriaSetId: number;
   updatedCriteria: Record<string, number | null>;
   initialCriteria: Record<string, number | null>;
@@ -21,6 +22,7 @@ interface PlantPanelTitleProps {
 export const PlantPanelTitle = ({
   title,
   target,
+  targetDisplay,
   criteriaSetId,
   updatedCriteria,
   initialCriteria,
@@ -50,7 +52,7 @@ export const PlantPanelTitle = ({
   return (
     <Flex className={style.headerWrapper} gap={24}>
       <span className={style.panelTitle}>
-        {title} - <span className={style.targetText}>{target}</span>
+        {title} - <span className={style.targetText}>{targetDisplay}</span>
         <span className={style.date}>{formatDateRange(startDate, endDate || undefined)}</span>
         <span className={style.completedCount}>
           ({completedCount}/{data.length})

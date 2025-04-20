@@ -33,7 +33,11 @@ function MasterType() {
   const deleteConfirmModal = useModal<{ ids: number[] }>();
   const updateConfirmModal = useModal<{ type: MasterTypeRequest }>();
   const cancelConfirmModal = useModal();
-  const { options: typeOptions, loading } = useSystemConfigOptions(SYSTEM_CONFIG_GROUP.MASTER_TYPE);
+  const { options: typeOptions, loading } = useSystemConfigOptions(
+    SYSTEM_CONFIG_GROUP.MASTER_TYPE,
+    undefined,
+    true,
+  );
   const [typeName, setTypeName] = useState<string>("");
 
   useEffect(() => {
@@ -42,7 +46,7 @@ function MasterType() {
 
   const { filters, updateFilters, applyFilters, clearFilters } = useFilters<FilterMasterTypeState>(
     DEFAULT_MASTER_TYPE_FILTERS,
-    () => fetchData(),
+    () => fetchData(1),
   );
 
   const {
@@ -108,10 +112,10 @@ function MasterType() {
     }
   };
 
-  const handleCancelConfirm = (stage: MasterTypeRequest, isUpdate: boolean) => {
+  const handleCancelConfirm = (type: MasterTypeRequest, isUpdate: boolean) => {
     const hasUnsavedChanges = isUpdate
-      ? hasChanges(stage, "masterTypeId")
-      : hasChanges(stage, undefined, { isActive: false, typeName: typeName });
+      ? hasChanges(type, "masterTypeId")
+      : hasChanges(type, undefined, { isActive: false, typeName: typeName });
     if (hasUnsavedChanges) {
       cancelConfirmModal.showModal();
     } else {

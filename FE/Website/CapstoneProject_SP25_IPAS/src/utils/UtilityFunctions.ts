@@ -227,6 +227,8 @@ export const getRoleName = (): string => {
     return "Farm Manager";
   } else if (roleId === UserRole.Employee) {
     return "Farm Employee";
+  } else if (roleId === UserRole.Expert) {
+    return "Expert";
   }
   return UserRole[roleId] ? `Role: ${UserRole[roleId]}` : "undefined";
 };

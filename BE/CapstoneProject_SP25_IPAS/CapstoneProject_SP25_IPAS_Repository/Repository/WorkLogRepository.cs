@@ -356,8 +356,8 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
                 .Where(uwl => uwl.WorkLog.IsDeleted == false &&
                                 listEmployeeIds.Contains(uwl.UserId) &&
                               uwl.WorkLog.Date.Value.Date == dayCheck.Date &&
-                              uwl.WorkLog.Schedule.StartTime < newEndTime &&
-                              uwl.WorkLog.Schedule.EndTime > newStartTime)
+                              uwl.WorkLog.ActualStartTime < newEndTime &&
+                              uwl.WorkLog.ActualEndTime > newStartTime)
                 .Select(uwl => new
                 {
                     uwl.User.FullName,  // Lấy tên nhân viên nếu có
@@ -387,8 +387,8 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
                               listEmployeeIds.Contains(uwl.UserId) &&
                             uwl.WorkLog.Date.Value.Date == dayCheck.Date &&
                              (workLogId == null || uwl.WorkLog.WorkLogId != workLogId) &&
-                            uwl.WorkLog.Schedule.StartTime < newEndTime &&
-                            uwl.WorkLog.Schedule.EndTime > newStartTime)
+                            uwl.WorkLog.ActualStartTime < newEndTime &&
+                            uwl.WorkLog.ActualEndTime > newStartTime)
               .Select(uwl => new
               {
                   uwl.User.FullName,  // Lấy tên nhân viên nếu có

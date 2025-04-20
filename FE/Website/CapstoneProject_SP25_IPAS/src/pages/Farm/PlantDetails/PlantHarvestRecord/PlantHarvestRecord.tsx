@@ -169,11 +169,7 @@ function PlantHarvestRecord() {
                   </Flex>
                   <div className={style.timelineDetail}>
                     <Flex gap={10} align="center">
-                      <UserAvatar
-                        avatarURL={record?.avartarRecord}
-                        fallbackText={record.recordBy && record.recordBy.charAt(0).toUpperCase()}
-                        size={30}
-                      />
+                      <UserAvatar avatarURL={record?.avartarRecord} size={30} />
                       <span className={style.userName}>{record.recordBy}</span>
                       <span>recorded a harvest</span>
                       <span className={style.createdDate}>

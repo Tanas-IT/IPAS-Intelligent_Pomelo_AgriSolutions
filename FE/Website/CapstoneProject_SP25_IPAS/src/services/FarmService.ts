@@ -1,15 +1,38 @@
 import { axiosAuth } from "@/api";
 import {
+  AdminFarmRequest,
   ApiResponse,
   FarmDocumentRequest,
   FarmRequest,
+  GetData,
   GetFarmDocuments,
   GetFarmInfo,
   GetFarmPicker,
   GetUser,
   GetUserInFarm,
 } from "@/payloads";
-import { getFileFormat, getUserId } from "@/utils";
+import { buildParams, getFileFormat, getUserId } from "@/utils";
+
+export const getFarms = async (
+  currentPage?: number,
+  rowsPerPage?: number,
+  sortField?: string,
+  sortDirection?: string,
+  searchValue?: string,
+  additionalParams?: Record<string, any>,
+): Promise<GetData<GetFarmInfo>> => {
+  const params = buildParams(
+    currentPage,
+    rowsPerPage,
+    sortField,
+    sortDirection,
+    searchValue,
+    additionalParams,
+  );
+  const res = await axiosAuth.axiosJsonRequest.get("farms", { params });
+  const apiResponse = res.data as ApiResponse<GetData<GetFarmInfo>>;
+  return apiResponse.data as GetData<GetFarmInfo>;
+};
 
 export const getFarmsOfUser = async (): Promise<ApiResponse<GetFarmPicker[]>> => {
   const userId = getUserId();
@@ -25,6 +48,12 @@ export const getFarm = async (farmId: string): Promise<ApiResponse<GetFarmInfo>>
 };
 
 export const updateFarmInfo = async (farm: FarmRequest): Promise<ApiResponse<GetFarmInfo>> => {
+  const res = await axiosAuth.axiosJsonRequest.put("farms/update-farm-info", farm);
+  const apiResponse = res.data as ApiResponse<GetFarmInfo>;
+  return apiResponse;
+};
+
+export const updateFarm = async (farm: AdminFarmRequest): Promise<ApiResponse<GetFarmInfo>> => {
   const res = await axiosAuth.axiosJsonRequest.put("farms/update-farm-info", farm);
   const apiResponse = res.data as ApiResponse<GetFarmInfo>;
   return apiResponse;
@@ -55,6 +84,18 @@ export const createFarm = async (farm: FarmRequest): Promise<ApiResponse<Object>
   formData.append("Latitude", farm.latitude.toString());
 
   const res = await axiosAuth.axiosMultipartForm.post(`farms`, formData);
+  const apiResponse = res.data as ApiResponse<Object>;
+  return apiResponse;
+};
+
+export const deleteFarm = async (ids: number[] | string[]): Promise<ApiResponse<GetFarmInfo>> => {
+  const res = await axiosAuth.axiosJsonRequest.patch(`farms/softed-delete-farm/${ids[0]}`);
+  const apiResponse = res.data as ApiResponse<GetFarmInfo>;
+  return apiResponse;
+};
+
+export const updateStatusFarm = async (ids: number[] | string[]): Promise<ApiResponse<Object>> => {
+  const res = await axiosAuth.axiosJsonRequest.put(`farms/activate`, ids);
   const apiResponse = res.data as ApiResponse<Object>;
   return apiResponse;
 };

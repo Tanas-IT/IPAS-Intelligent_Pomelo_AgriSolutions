@@ -74,15 +74,6 @@ export const createMasterType = async (
   return apiResponse;
 };
 
-export const getMasterTypeSelect = async (
-  type: MasterTypeRequest,
-): Promise<ApiResponse<GetMasterType>> => {
-  type.createBy = localStorage.getItem(LOCAL_STORAGE_KEYS.FULL_NAME) ?? "";
-  const res = await axiosAuth.axiosJsonRequest.post(`masterTypes`, type);
-  const apiResponse = res.data as ApiResponse<GetMasterType>;
-  return apiResponse;
-};
-
 export const getCriteriaTypeSelect = async (
   target: string,
 ): Promise<ApiResponse<GetMasterTypeSelected[]>> => {

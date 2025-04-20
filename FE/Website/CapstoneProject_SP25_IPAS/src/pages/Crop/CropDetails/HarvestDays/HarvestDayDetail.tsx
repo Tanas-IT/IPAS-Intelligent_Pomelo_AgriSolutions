@@ -189,11 +189,7 @@ function HarvestDayDetail({ selectedHarvest, onBack, actionMenu }: HarvestDayDet
             <Flex wrap="wrap" gap={20}>
               {employeesInHarvest.map((employee) => (
                 <Flex key={employee.userId} align="center" gap={10}>
-                  <UserAvatar
-                    avatarURL={employee.avatarURL || undefined}
-                    fallbackText={employee.fullName}
-                    size={40}
-                  />
+                  <UserAvatar avatarURL={employee.avatarURL || undefined} size={40} />
                   <p>
                     {employee.fullName}{" "}
                     {employee.isReporter && (

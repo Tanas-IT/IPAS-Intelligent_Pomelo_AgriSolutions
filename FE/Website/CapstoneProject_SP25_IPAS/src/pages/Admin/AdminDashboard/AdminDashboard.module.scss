@@ -1,0 +1,19 @@
+.container {
+  width: 100%;
+  flex-direction: column;
+  padding-top: 10px;
+  overflow: hidden;
+
+  .statBoxContainer {
+    width: 100%;
+    gap: 20px;
+  }
+  .chartRow {
+    margin-top: 16px;
+  }
+  .tableCard {
+    min-height: 250px;
+    max-height: 450px;
+    overflow-y: auto;
+  }
+}

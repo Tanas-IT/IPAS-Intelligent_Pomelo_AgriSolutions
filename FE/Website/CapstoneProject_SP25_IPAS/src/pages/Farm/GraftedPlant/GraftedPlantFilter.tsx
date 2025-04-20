@@ -107,9 +107,9 @@ const GraftedPlantFilter = ({ filters, updateFilters, onClear, onApply }: Filter
             label="Status"
             fieldType="select"
             value={filters.status}
-            options={Object.entries(GRAFTED_STATUS).map(([key, value]) => ({
-              value: key,
-              label: value,
+            options={Object.values(GRAFTED_STATUS).map((status) => ({
+              value: status,
+              label: status,
             }))}
             onChange={(value) => updateFilters("status", value)}
           />

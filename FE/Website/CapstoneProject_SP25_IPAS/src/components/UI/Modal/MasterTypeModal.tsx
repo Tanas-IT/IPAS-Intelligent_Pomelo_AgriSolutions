@@ -29,7 +29,7 @@ const MasterTypeModel = ({
   const [checked, setChecked] = useState<boolean>(false);
   const isUpdate = masterTypeData !== undefined && Object.keys(masterTypeData).length > 0;
   const { options: workTargetOptions, loading } = useSystemConfigOptions(
-    SYSTEM_CONFIG_GROUP.MASTER_TYPE,
+    SYSTEM_CONFIG_GROUP.WORK,
   );
 
   const handleSwitchChange = (newChecked: boolean) => setChecked(newChecked);

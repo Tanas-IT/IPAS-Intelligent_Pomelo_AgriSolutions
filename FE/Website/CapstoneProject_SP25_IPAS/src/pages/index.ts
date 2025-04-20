@@ -5,7 +5,6 @@ export { default as ResetPassword } from "@/pages/Auth/ResetPassword/ResetPasswo
 export { default as OTP } from "@/pages/Auth/OTP/OTP";
 export { default as FarmPicker } from "@/pages/FarmPicker/FarmPicker";
 export { default as Dashboard } from "@/pages/Dashboard/Dashboard";
-export { default as User } from "@/pages/User/User";
 export { default as PlantYield } from "@/pages/Crop/PlantYield/PlantYield";
 export { default as MasterType } from "@/pages/Classification/MasterType/MasterType";
 export { default as GrowthStage } from "@/pages/Classification/GrowthStage/GrowthStage";
@@ -57,7 +56,6 @@ export { default as UpdatePlan } from "@/pages/Plan/PlanList/UpdatePlan";
 export { default as Worklog } from "@/pages/HR/Worklog/WorklogCalendar/Worklog";
 export { default as WorklogDetail } from "@/pages/HR/Worklog/WorklogDetail/WorklogDetail";
 export { default as AssignEmployee } from "@/pages/Plan/PlanList/AssignEmployee";
-export { default as PackageList } from "@/pages/Package/PackageList/PackageList";
 export { default as PackagePurchase } from "@/pages/Package/PackagePurchase/PackagePurchase";
 export { default as PaymentConfirmation } from "@/pages/Package/PaymentConfirmation/PaymentConfirmation";
 export { default as PaymentSuccess } from "@/pages/Package/PaymentResult/PaymentSuccess";
@@ -71,3 +69,13 @@ export { default as EmployeeDashboard } from "@/pages/EmployeeView/EmployeeDashb
 export { default as CropList } from "@/pages/Crop/CropList/CropList";
 export { default as HarvestDays } from "@/pages/Crop/CropDetails/HarvestDays/HarvestDays";
 export { default as ChatBox } from "@/pages/ChatBox/ChatBox";
+export { default as AdminDashboard } from "@/pages/Admin/AdminDashboard/AdminDashboard";
+export { default as User } from "@/pages/Admin/User/User";
+export { default as Farm } from "@/pages/Admin/Farm/Farm";
+export { default as PaymentHistory } from "@/pages/Admin/PaymentHistory/PaymentHistory";
+export { default as PackageList } from "@/pages/Admin/PackageList/PackageList";
+export { default as SystemConfiguration } from "@/pages/Admin/SystemConfiguration/SystemConfiguration";
+export { default as Profile } from "@/pages/Account/Profile/Profile";
+export { default as ReportManagement } from "@/pages/ExpertView/ReportManagement/ReportManagement";
+
+

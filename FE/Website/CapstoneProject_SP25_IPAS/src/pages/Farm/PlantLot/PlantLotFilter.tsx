@@ -74,9 +74,9 @@ const PlantLotFilter = ({ filters, updateFilters, onClear, onApply }: FilterProp
           label="Status"
           fieldType="select"
           value={filters.status}
-          options={Object.entries(LOT_STATUS).map(([key, value]) => ({
-            value: key,
-            label: value,
+          options={Object.values(LOT_STATUS).map((status) => ({
+            value: status,
+            label: status,
           }))}
           onChange={(value) => updateFilters("status", value)}
         />

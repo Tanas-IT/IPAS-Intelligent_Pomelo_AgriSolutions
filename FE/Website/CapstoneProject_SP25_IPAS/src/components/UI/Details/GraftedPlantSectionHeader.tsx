@@ -19,6 +19,7 @@ const GraftedPlantSectionHeader = ({
   removeFromLotConfirm,
   convertToPlantModal,
   onAddNewIssue,
+  onExport,
 }: {
   onApplyCriteria?: () => void;
   formModal?: ReturnType<typeof useModal<GetGraftedPlantDetail>>;
@@ -28,6 +29,7 @@ const GraftedPlantSectionHeader = ({
   removeFromLotConfirm?: ReturnType<typeof useModal<{ id: number }>>;
   convertToPlantModal?: ReturnType<typeof useModal<{ id: number }>>;
   onAddNewIssue?: () => void;
+  onExport?: () => void;
 }) => {
   const { graftedPlant, setGraftedPlant } = useGraftedPlantStore();
   const cuttingGraftedModal = useModal();
@@ -112,7 +114,8 @@ const GraftedPlantSectionHeader = ({
           </Flex>
         )}
         {onAddNewIssue && !graftedPlant.isDead && (
-          <Flex>
+          <Flex gap={20}>
+            <CustomButton label="Export" icon={<Icons.download />} handleOnClick={onExport} />
             <CustomButton
               label="Add New Issue"
               icon={<Icons.plus />}

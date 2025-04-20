@@ -12,9 +12,10 @@ const { Content } = Layout;
 
 interface FarmPickerLayoutProps {
   children: ReactNode;
+  hideSidebar?: boolean;
 }
 
-const FarmPickerLayout: React.FC<FarmPickerLayoutProps> = ({ children }) => {
+const FarmPickerLayout: React.FC<FarmPickerLayoutProps> = ({ children, hideSidebar }) => {
   const navigate = useNavigate();
   useToastFromLocalStorage();
   useToastMessage();
@@ -33,7 +34,7 @@ const FarmPickerLayout: React.FC<FarmPickerLayoutProps> = ({ children }) => {
 
   return (
     <Flex>
-      <SidebarAdmin isDefault={true} />
+      {!hideSidebar && <SidebarAdmin isDefault={true} />}
       <Layout className={style.layout}>
         <HeaderAdmin isDefault={true} />
         <Content className={style.contentWrapper}>

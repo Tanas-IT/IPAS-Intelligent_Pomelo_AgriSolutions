@@ -11,16 +11,23 @@ export const PATHS = {
     SIGN_UP_OTP: "/sign-up/otp",
   },
 
+  // Admin Management Only
+  ADMIN: {
+    DASHBOARD: "/admin/dashboard",
+    USER_LIST: "/admin/users",
+    FARM_LIST: "/admin/farms",
+    PAYMENT_HISTORY: "/admin/payment-history",
+    SYSTEM_CONFIG: "/admin/system-configuration",
+  },
+
   // Dashboard
   DASHBOARD: "/dashboard",
 
-  FARM_PICKER: "/farm-picker",
-
-  // User Management
-  USER: {
-    USER_LIST: "/users",
-    USER_DETAIL: "/users/:id",
+  ACCOUNT: {
+    PROFILE: "/account/profile",
   },
+
+  FARM_PICKER: "/farm-picker",
 
   CROP: {
     CROP_LIST: "/crop/list",
@@ -116,5 +123,5 @@ export const PATHS = {
     REPORT_DETAIL: "/expert/report-list/:id",
     IMAGE_LIST: "/expert/image-list",
     IMAGE_DETAIL: "/expert/image-list/:id",
-  }
+  },
 };

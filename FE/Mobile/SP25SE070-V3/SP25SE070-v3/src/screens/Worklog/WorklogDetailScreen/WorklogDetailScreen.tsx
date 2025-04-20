@@ -346,8 +346,8 @@ const WorklogDetailScreen: React.FC<WorklogDetailScreenProps> = ({ route }) => {
           </TextCustom>
         </View>
       </View>
-      
-      {isUserReporter() && (
+
+      {isUserReporter() && worklog.status === "In Progress" && (
         <TouchableOpacity
           style={[
             styles.markAsCompleted,
@@ -382,13 +382,13 @@ const WorklogDetailScreen: React.FC<WorklogDetailScreenProps> = ({ route }) => {
         <View style={styles.assignCard}>
           <View style={styles.userCard}>
             <Image
-              source={{ uri: worklog.reporter[0]?.avatarURL }}
+              source={{ uri: worklog.assignorAvatarURL }}
               style={styles.avatar}
             />
             <View style={styles.userInfo}>
               <View style={{ flexDirection: "row", gap: 7 }}>
                 <TextCustom style={styles.userName}>
-                  {worklog.reporter[0]?.fullName}
+                  {worklog.assignorName}
                 </TextCustom>
                 <TextCustom style={styles.userRole}>
                   created this plan
@@ -406,17 +406,34 @@ const WorklogDetailScreen: React.FC<WorklogDetailScreenProps> = ({ route }) => {
           <View style={styles.userList}>
             <TextCustom style={styles.listTitle}>Assigned To:</TextCustom>
             <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-              {worklog.listEmployee.map((employee) => (
-                <View key={employee.userId} style={styles.userItemHorizontal}>
-                  <Image
-                    source={{ uri: employee.avatarURL }}
-                    style={styles.avatarSmall}
-                  />
-                  <TextCustom style={styles.userNameSmallHorizontal}>
-                    {employee.fullName}
-                  </TextCustom>
-                </View>
-              ))}
+              {worklog.listEmployee.map((employee) => {
+                const isCurrentUser = employee.userId === Number(userId);
+                return (
+                  <View
+                    key={employee.userId}
+                    style={[
+                      styles.userItemHorizontal,
+                      isCurrentUser && styles.highlightedUser,
+                    ]}
+                  >
+                    <Image
+                      source={{ uri: employee.avatarURL }}
+                      style={[
+                        styles.avatarSmall,
+                        isCurrentUser && styles.avatarHighlighted,
+                      ]}
+                    />
+                    <TextCustom
+                      style={[
+                        styles.userNameSmallHorizontal,
+                        isCurrentUser && styles.userNameHighlighted,
+                      ]}
+                    >
+                      {employee.fullName}
+                    </TextCustom>
+                  </View>
+                )
+              })}
             </ScrollView>
           </View>
 
@@ -424,17 +441,33 @@ const WorklogDetailScreen: React.FC<WorklogDetailScreenProps> = ({ route }) => {
           <View style={styles.userList}>
             <TextCustom style={styles.listTitle}>Reporter:</TextCustom>
             <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-              <View style={styles.userItemHorizontal}>
-                <Image
-                  source={{ uri: worklog.reporter[0]?.avatarURL }}
-                  style={styles.avatarSmall}
-                />
-                <TextCustom style={styles.userNameSmallHorizontal}>
-                  {worklog.reporter[0]?.fullName}
-                </TextCustom>
-              </View>
+              {worklog.reporter[0] && (
+                <View
+                  style={[
+                    styles.userItemHorizontal,
+                    worklog.reporter[0].userId === Number(userId) && styles.highlightedUser,
+                  ]}
+                >
+                  <Image
+                    source={{ uri: worklog.reporter[0].avatarURL }}
+                    style={[
+                      styles.avatarSmall,
+                      worklog.reporter[0].userId === Number(userId) && styles.avatarHighlighted,
+                    ]}
+                  />
+                  <TextCustom
+                    style={[
+                      styles.userNameSmallHorizontal,
+                      worklog.reporter[0].userId === Number(userId) && styles.userNameHighlighted,
+                    ]}
+                  >
+                    {worklog.reporter[0].fullName}
+                  </TextCustom>
+                </View>
+              )}
             </ScrollView>
           </View>
+
 
           {/* Replacement */}
           <View style={styles.userList}>

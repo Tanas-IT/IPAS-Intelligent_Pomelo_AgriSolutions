@@ -111,6 +111,23 @@ function GraftedGrowthHistory() {
     },
   });
 
+  const handleExport = async () => {
+    const { blob, filename } = await graftedPlantService.exportGraftedPlantGrowthHistory(
+      graftedPlant.graftedPlantId,
+    );
+
+    const url = URL.createObjectURL(blob);
+    const link = Object.assign(document.createElement("a"), {
+      href: url,
+      download: filename,
+    });
+
+    document.body.appendChild(link);
+    link.click();
+    link.remove();
+    URL.revokeObjectURL(url);
+  };
+
   const handleViewDetail = (item: GetGraftedGrowthHistory) => {
     setSelectedHistory(item);
     setIsGrowthDetailView(true);
@@ -125,7 +142,10 @@ function GraftedGrowthHistory() {
 
   return (
     <Flex className={style.contentDetailWrapper}>
-      <GraftedPlantSectionHeader onAddNewIssue={() => addIssueModal.showModal()} />
+      <GraftedPlantSectionHeader
+        onAddNewIssue={() => addIssueModal.showModal()}
+        onExport={handleExport}
+      />
       <Divider className={style.divider} />
       {isGrowthDetailView ? (
         <GrowthDetailContent
