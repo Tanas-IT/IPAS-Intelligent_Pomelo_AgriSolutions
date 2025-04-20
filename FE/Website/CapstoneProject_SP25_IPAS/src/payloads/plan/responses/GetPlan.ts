@@ -166,3 +166,26 @@ export interface ProcessNode {
 }
 
 export type DataSourceNode = ProcessNode | SubProcessNode | PlanNode;
+
+export interface PlanNodes {
+  planId: number;
+  planName: string;
+  startDate?: string;
+  endDate?: string;
+  isSelected: boolean;
+}
+
+export interface SubProcessNodes {
+  subProcessID: number;
+  subProcessName: string;
+  order: number;
+  plans: PlanNodes[];
+  children: SubProcessNodes[];
+}
+
+export interface ProcessByPlanResponse {
+  processId: number;
+  processName: string;
+  plans: PlanNodes[];
+  subProcesses: SubProcessNodes[];
+}

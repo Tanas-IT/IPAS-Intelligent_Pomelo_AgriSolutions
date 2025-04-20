@@ -157,3 +157,24 @@ export interface GetEmpListForUpdate {
 export interface WorklogStatusResponse {
   status: string[];
 }
+
+export interface DependencyWorklog {
+  workLogId: number;
+  planId: number;
+  planName: string;
+  startDate: string;
+  endDate: string;
+  startTime: string;
+  endTime: string;
+  status: string;
+  order: string;
+  date: string;
+}
+
+export interface EmployeeWithSkills {
+  userId: number;
+  fullName: string;
+  avatarURL: string;
+  workSkillName: string[];
+  scoreOfSkill: number;
+}

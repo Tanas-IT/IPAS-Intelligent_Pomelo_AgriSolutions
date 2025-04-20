@@ -34,7 +34,7 @@ const useNotifications = () => {
       console.log("noti", response);
       
       if (response.statusCode === 200) {
-        setNotifications(response.data);
+        setNotifications(response.data || []);
       }
     } catch (error: any) {
       console.error("Fetch error:", error);

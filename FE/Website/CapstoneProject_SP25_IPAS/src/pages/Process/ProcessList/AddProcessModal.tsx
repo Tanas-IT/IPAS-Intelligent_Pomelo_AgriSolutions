@@ -155,7 +155,7 @@ const ProcessModal = ({ isOpen, onClose, onSave }: ProcessModalProps) => {
                 </Flex>
                 <Flex gap={20}>
                     <FormFieldModal
-                        label="Select Plan Target"
+                        label="Select Target"
                         name={processFormFields.planTarget}
                         options={planTargetOptions2}
                         rules={RulesManager.getPlanTargetRules()}

@@ -4,7 +4,7 @@ import EmployeeTable from "./EmployeeTable";
 import EditableTimeRangeField from "./EditableTimeField";
 import dayjs from "dayjs";
 import { Images } from "@/assets";
-import { GetAttendanceList, ReplacementEmployee } from "@/payloads/worklog";
+import { GetAttendanceList, GetWorklogDetail, ReplacementEmployee } from "@/payloads/worklog";
 import { useEffect, useState } from "react";
 import { worklogService } from "@/services";
 
@@ -20,9 +20,10 @@ interface EditWorklogModalProps {
   onTimeRangeChange: (newValue: [string, string]) => void;
   selectedDate: string;
   onDateChange: (date: string) => void;
-  onSave: () => void;
-  onUpdateReporter: (userId: number, isReporter: boolean) => void;
-  replacementEmployees: ReplacementEmployee[]; // Thêm prop này
+  onSave: (tempReporterId?: number) => void;
+  replacementEmployees: ReplacementEmployee[];
+  worklog?: GetWorklogDetail;
+  initialReporterId?: number;
 }
 
 const EditWorklogModal: React.FC<EditWorklogModalProps> = ({
@@ -38,39 +39,58 @@ const EditWorklogModal: React.FC<EditWorklogModalProps> = ({
   selectedDate,
   onDateChange,
   onSave,
-  onUpdateReporter,
   replacementEmployees,
+  worklog,
+  initialReporterId,
 }) => {
   const [list, setList] = useState<GetAttendanceList[]>([]);
+  const [tempReporterId, setTempReporterId] = useState<number | undefined>(initialReporterId);
+  const isEditable = worklog?.status === "Not Started";
+
   const fetchListAttendance = async () => {
-      try {
-        const result = await worklogService.getEmpListForUpdate(Number(id));
-        if (result.statusCode === 200) {
-          setList(result.data);
-        }
-      } catch (error) {
-        console.error("Error fetching attendance list:", error);
+    try {
+      const result = await worklogService.getEmpListForUpdate(Number(id));
+      if (result.statusCode === 200) {
+        setList(result.data);
       }
+    } catch (error) {
+      console.error("Error fetching attendance list:", error);
     }
+  };
+
   useEffect(() => {
     if (visible) {
       fetchListAttendance();
+      setTempReporterId(initialReporterId);
     }
-    }, [visible]);
-    const handleClose = () => {
-      onClose();
-      setList(list);
-    };
+  }, [visible, initialReporterId]);
+
+  const handleClose = () => {
+    onClose();
+    setList(list);
+    setTempReporterId(initialReporterId);
+  };
+
+  const handleUpdateTempReporter = (userId: number) => {
+    if (typeof userId === "number") {
+      setTempReporterId(userId);
+    }
+  };
+
+  const handleSave = () => {
+    onSave(tempReporterId);
+  };
+
   return (
     <Modal
       title="Edit Worklog"
       visible={visible}
-      onCancel={onClose}
+      onCancel={handleClose}
       footer={[
         <Button key="cancel" onClick={handleClose}>
           Cancel
         </Button>,
-        <Button key="save" type="primary" onClick={onSave}>
+        <Button key="save" type="primary" onClick={handleSave} disabled={!isEditable}>
           Save
         </Button>,
       ]}
@@ -78,10 +98,12 @@ const EditWorklogModal: React.FC<EditWorklogModalProps> = ({
     >
       <EmployeeTable
         employees={list}
-        // reporter={reporter}
         attendanceStatus={attendanceStatus}
         onReplaceEmployee={onReplaceEmployee}
-        onUpdateReporter={onUpdateReporter}
+        onUpdateTempReporter={handleUpdateTempReporter}
+        isEditable={isEditable}
+        initialReporterId={initialReporterId}
+        tempReporterId={tempReporterId}
       />
 
       <Flex vertical gap={16} style={{ marginTop: 16 }}>
@@ -89,16 +111,16 @@ const EditWorklogModal: React.FC<EditWorklogModalProps> = ({
         <EditableTimeRangeField
           value={selectedTimeRange}
           onChange={onTimeRangeChange}
+          disabled={!isEditable}
         />
         <label>Date:</label>
         <DatePicker
           value={selectedDate ? dayjs(selectedDate) : null}
-          onChange={(date, dateString) => {
-            const selectedDateString = Array.isArray(dateString)
-              ? dateString[0]
-              : dateString;
+          onChange={(date) => {
+            const selectedDateString = date ? date.format("YYYY-MM-DD") : "";
             onDateChange(selectedDateString);
           }}
+          disabled={!isEditable}
         />
       </Flex>
     </Modal>
