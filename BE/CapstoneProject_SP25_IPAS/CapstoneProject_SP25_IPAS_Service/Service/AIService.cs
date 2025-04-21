@@ -12,7 +12,6 @@ using CapstoneProject_SP25_IPAS_Service.Base;
 using Microsoft.AspNetCore.Http;
 using Microsoft.Azure.CognitiveServices.Vision.CustomVision.Prediction;
 using Microsoft.Azure.CognitiveServices.Vision.CustomVision.Training;
-using CapstoneProject_SP25_IPAS_Common;
 using MimeKit;
 using GenerativeAI;
 using GenerativeAI.Types;

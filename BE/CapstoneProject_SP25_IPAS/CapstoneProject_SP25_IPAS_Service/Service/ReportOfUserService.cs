@@ -6,7 +6,7 @@ using CapstoneProject_SP25_IPAS_BussinessObject.Entities;
 using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.AIRequest;
 using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.ReportOfUserRequest;
 using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.WorkLogRequest;
-using CapstoneProject_SP25_IPAS_Common;
+using CapstoneProject_SP25_IPAS_Common.Constants;
 using CapstoneProject_SP25_IPAS_Common.Utils;
 using CapstoneProject_SP25_IPAS_Repository.UnitOfWork;
 using CapstoneProject_SP25_IPAS_Service.Base;
