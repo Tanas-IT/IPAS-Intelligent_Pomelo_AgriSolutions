@@ -92,7 +92,7 @@ namespace CapstoneProject_SP25_IPAS_Common.Constants
         public const string MAX_TIME = "MaxTime";
         public const string RECORD_AFTER_DATE = "RecordAfterDate";
         public const string EDIT_RECORD_IN_DAYS = "EditInDay";
-
+        public const string ALLOW_AREA_DEVIATION_PERCENT = "AllowAreaDeviationPercent";
         #endregion
 
         public static readonly HashSet<string> ADDABLE_CONFIG_GROUP = new HashSet<string>

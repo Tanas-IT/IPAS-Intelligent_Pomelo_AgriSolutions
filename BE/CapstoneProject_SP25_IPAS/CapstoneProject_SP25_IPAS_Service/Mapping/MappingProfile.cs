@@ -79,6 +79,10 @@ namespace CapstoneProject_SP25_IPAS_Service.Mapping
                 //.ForMember(dest => dest.LandPlotCrops, opt => opt.MapFrom(src => src.LandPlotCrops))
                 .ReverseMap();
 
+            CreateMap<EmployeeSkill, SkillModel>()
+                 .ForMember(dest => dest.SkillID, opt => opt.MapFrom(src => src.WorkTypeID))
+                .ForMember(dest => dest.ScoreOfSkill, opt => opt.MapFrom(src => src.ScoreOfSkill))
+                .ReverseMap();
             CreateMap<UserFarm, UserFarmModel>()
                 .ForMember(dest => dest.FullName, opt => opt.MapFrom(src => src.User.FullName))
                 .ForMember(dest => dest.Farm, opt => opt.MapFrom(src => src.Farm))
@@ -86,6 +90,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Mapping
                 //.ForMember(dest => dest.RoleId, opt => opt.MapFrom(src => src.Role!.RoleId))
                 .ForMember(dest => dest.RoleName, opt => opt.MapFrom(src => src.Role!.RoleName))
                 .ForMember(dest => dest.User, opt => opt.MapFrom(src => src.User))
+                .ForMember(dest => dest.Skills, opt => opt.MapFrom(src => src.EmployeeSkills))
                 .ForMember(dest => dest.FarmExpiredDate, opt => opt.MapFrom(src => src.Farm.Orders.Where(x => x.FarmId == src.FarmId).Max(x => x.ExpiredDate)))
                 .ReverseMap();
 
@@ -519,6 +524,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Mapping
             .ForMember(dest => dest.ProcessName, opt => opt.MapFrom(src => src.Schedule.CarePlan.Process.ProcessName))
             .ForMember(dest => dest.MasterTypeName, opt => opt.MapFrom(src => src.Schedule.CarePlan.MasterType.MasterTypeName))
             .ForMember(dest => dest.PlanName, opt => opt.MapFrom(src => src.Schedule.CarePlan.PlanName))
+            .ForMember(dest => dest.MasterTypeId, opt => opt.MapFrom(src => src.Schedule.CarePlan.MasterTypeId))
             .ForMember(dest => dest.AssignorId, opt => opt.MapFrom(src => src.Schedule.CarePlan.AssignorId))
             .ForMember(dest => dest.AssignorName, opt => opt.MapFrom(src => src.Schedule.CarePlan.User.FullName))
             .ForMember(dest => dest.AssignorAvatarURL, opt => opt.MapFrom(src => src.Schedule.CarePlan.User.AvatarURL))
@@ -541,7 +547,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Mapping
             .ForMember(dest => dest.WarningName, opt => opt.MapFrom(src => src.Warning.WarningName))
            .ForMember(dest => dest.ReplacementEmployee, opt => opt.MapFrom(src =>
                                                                 src.UserWorkLogs
-                                                                    .Where(uwl => src.UserWorkLogs.Any(r => r.ReplaceUserId == uwl.UserId)) // Chỉ lấy nhân viên bị thay
+                                                                    .Where(uwl => src.UserWorkLogs.Any(r => r.ReplaceUserId == uwl.UserId && uwl.IsDeleted == false)) // Chỉ lấy nhân viên bị thay
                                                                     .Select(uwl => new ReplacementEmployeeModel
                                                                     {
                                                                         ReplaceUserId = uwl.UserId,

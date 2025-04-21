@@ -1,4 +1,5 @@
-﻿using System;
+﻿using CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.UserBsModels;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
@@ -15,7 +16,7 @@ namespace CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.FarmRequest.Use
         //[Required]
         public string? RoleName { get; set; }
         public bool? IsActive { get; set; }
-        public int? SkillID { get; set; }
-        public double? ScoreOfSkill { get; set; }
+        public List<SkillModel>? Skills { get; set; }
+       
     }
 }

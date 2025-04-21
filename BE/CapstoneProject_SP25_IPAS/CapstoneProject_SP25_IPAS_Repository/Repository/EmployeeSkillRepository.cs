@@ -1,4 +1,5 @@
 ﻿using CapstoneProject_SP25_IPAS_BussinessObject.Entities;
+using CapstoneProject_SP25_IPAS_Common.Enum;
 using CapstoneProject_SP25_IPAS_Repository.IRepository;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -24,7 +25,7 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
                                   .Include(e => e.User)
                                   .Include(e => e.EmployeeSkills)
                                   .ThenInclude(e => e.WorkType)
-                                  .Where(x => x.FarmId == farmId)
+                                  .Where(x => x.FarmId == farmId && x.RoleId != (int)RoleEnum.OWNER)
                                   .Select(e => new {
                                       Employee = e,
                                       MatchingSkill = e.EmployeeSkills
