@@ -694,6 +694,18 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     {
                         userInfarm.IsActive = updateRequest.IsActive;
                     }
+                    if(updateRequest.Skills != null)
+                    {
+                        foreach (var employeeSkill in updateRequest.Skills)
+                        {
+                            var getEmployeeSkill = await _unitOfWork.EmployeeSkillRepository.GetByCondition(x => x.WorkTypeID == employeeSkill.SkillID && x.EmployeeID == updateRequest.UserId && x.FarmID == updateRequest.FarmId);
+                            if(getEmployeeSkill != null)
+                            {
+                                getEmployeeSkill.ScoreOfSkill = employeeSkill.ScoreOfSkill;
+                                _unitOfWork.EmployeeSkillRepository.Update(getEmployeeSkill);
+                            }
+                        }
+                    }
 
                     _unitOfWork.UserFarmRepository.Update(userInfarm);
 
