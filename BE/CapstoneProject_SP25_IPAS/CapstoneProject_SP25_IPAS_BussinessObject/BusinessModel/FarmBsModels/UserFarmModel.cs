@@ -29,6 +29,7 @@ namespace CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.FarmBsModels
         public FarmModel Farm { get; set; } = null!;
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         public UserModel User { get; set; } = null!;
+        public List<SkillModel>? Skills { get; set; }
         //public virtual RoleModel Role { get; set; } = null!;
     }
 }

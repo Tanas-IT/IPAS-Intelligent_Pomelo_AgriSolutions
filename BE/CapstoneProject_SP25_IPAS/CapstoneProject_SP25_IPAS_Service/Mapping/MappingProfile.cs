@@ -79,6 +79,10 @@ namespace CapstoneProject_SP25_IPAS_Service.Mapping
                 //.ForMember(dest => dest.LandPlotCrops, opt => opt.MapFrom(src => src.LandPlotCrops))
                 .ReverseMap();
 
+            CreateMap<EmployeeSkill, SkillModel>()
+                 .ForMember(dest => dest.SkillID, opt => opt.MapFrom(src => src.WorkTypeID))
+                .ForMember(dest => dest.ScoreOfSkill, opt => opt.MapFrom(src => src.ScoreOfSkill))
+                .ReverseMap();
             CreateMap<UserFarm, UserFarmModel>()
                 .ForMember(dest => dest.FullName, opt => opt.MapFrom(src => src.User.FullName))
                 .ForMember(dest => dest.Farm, opt => opt.MapFrom(src => src.Farm))
@@ -86,6 +90,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Mapping
                 //.ForMember(dest => dest.RoleId, opt => opt.MapFrom(src => src.Role!.RoleId))
                 .ForMember(dest => dest.RoleName, opt => opt.MapFrom(src => src.Role!.RoleName))
                 .ForMember(dest => dest.User, opt => opt.MapFrom(src => src.User))
+                .ForMember(dest => dest.Skills, opt => opt.MapFrom(src => src.EmployeeSkills))
                 .ForMember(dest => dest.FarmExpiredDate, opt => opt.MapFrom(src => src.Farm.Orders.Where(x => x.FarmId == src.FarmId).Max(x => x.ExpiredDate)))
                 .ReverseMap();
 

@@ -637,7 +637,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         orderBy = x => x.OrderByDescending(x => x.User);
                         break;
                 }
-                string includeProperties = "Role,User,Farm";
+                string includeProperties = "Role,User,Farm,EmployeeSkills";
                 var entities = await _unitOfWork.UserFarmRepository.Get(filter: filter, orderBy: orderBy, includeProperties: includeProperties, pageIndex: paginationParameter.PageIndex, pageSize: paginationParameter.PageSize);
                 var pagin = new PageEntity<UserFarmModel>();
                 pagin.List = _mapper.Map<List<UserFarmModel>>(entities);
