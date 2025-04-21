@@ -519,6 +519,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Mapping
             .ForMember(dest => dest.ProcessName, opt => opt.MapFrom(src => src.Schedule.CarePlan.Process.ProcessName))
             .ForMember(dest => dest.MasterTypeName, opt => opt.MapFrom(src => src.Schedule.CarePlan.MasterType.MasterTypeName))
             .ForMember(dest => dest.PlanName, opt => opt.MapFrom(src => src.Schedule.CarePlan.PlanName))
+            .ForMember(dest => dest.MasterTypeId, opt => opt.MapFrom(src => src.Schedule.CarePlan.MasterTypeId))
             .ForMember(dest => dest.AssignorId, opt => opt.MapFrom(src => src.Schedule.CarePlan.AssignorId))
             .ForMember(dest => dest.AssignorName, opt => opt.MapFrom(src => src.Schedule.CarePlan.User.FullName))
             .ForMember(dest => dest.AssignorAvatarURL, opt => opt.MapFrom(src => src.Schedule.CarePlan.User.AvatarURL))

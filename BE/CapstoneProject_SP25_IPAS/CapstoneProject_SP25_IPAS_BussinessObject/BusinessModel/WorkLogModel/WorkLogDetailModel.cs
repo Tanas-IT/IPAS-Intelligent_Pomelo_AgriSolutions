@@ -20,6 +20,7 @@ namespace CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.WorkLogModel
         public string? WorkLogName { get; set; }
         public string? PlanName { get; set; }
         public int? PlanId { get; set; }
+        public int? MasterTypeId { get; set; }
         public string? PlanCode { get; set; }
         public DateTime? StartDate { get; set; }
         public DateTime? EndDate { get; set; }
