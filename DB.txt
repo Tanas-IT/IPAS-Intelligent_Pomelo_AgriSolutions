@@ -584,7 +584,7 @@ CREATE TABLE ipas.dbo.Process (
 	UpdateDate datetime NULL,
 	StartDate datetime NULL,
 	EndDate datetime NULL,
-        PlanTargetInProcess int NULL,
+    PlanTargetInProcess int NULL,
 	IsDeleted bit DEFAULT 0 NULL,
 	FarmID int NULL,
 	GrowthStageID int NULL,
@@ -592,7 +592,7 @@ CREATE TABLE ipas.dbo.Process (
 	IsSample bit NULL,
 	MasterTypeID int NULL,
 	CONSTRAINT PK__Process__1B39A976EDEF5BD5 PRIMARY KEY (ProcessID),
-	CONSTRAINT Process_Farm_FK FOREIGN KEY (FarmID) REFERENCES IPAS.dbo.Farm(FarmID),
+	CONSTRAINT Process_Farm_FK FOREIGN KEY (FarmID) REFERENCES IPAS.dbo.Farm(FarmID) ON DELETE CASCADE,
 	CONSTRAINT Process_GrowthStage_FK FOREIGN KEY (GrowthStageID) REFERENCES IPAS.dbo.GrowthStage(GrowthStageID),
 	CONSTRAINT Process_MasterType_FK FOREIGN KEY (MasterTypeID) REFERENCES IPAS.dbo.MasterType(MasterTypeID) ON DELETE SET NULL
 );
@@ -624,7 +624,7 @@ CREATE TABLE ipas.dbo.SubProcess (
 	CONSTRAINT PK__SubProce__F054A88CD66E5A59 PRIMARY KEY (SubProcessID),
 	CONSTRAINT FK__SubProces__Proce__3CF40B7E FOREIGN KEY (ProcessID) REFERENCES ipas.dbo.Process(ProcessID) ON DELETE CASCADE,
 	CONSTRAINT SubProcess_MasterType_FK FOREIGN KEY (MasterTypeID) REFERENCES ipas.dbo.MasterType(MasterTypeID) ON DELETE SET NULL,
-	CONSTRAINT SubProcess_SubProcess_FK FOREIGN KEY (ParentSubProcessID) REFERENCES ipas.dbo.SubProcess(SubProcessID)
+	CONSTRAINT SubProcess_SubProcess_FK FOREIGN KEY (ParentSubProcessID) REFERENCES ipas.dbo.SubProcess(SubProcessID) 
 );
 
 
@@ -1016,21 +1016,21 @@ CREATE TABLE ipas.dbo.Resource (
 );
 
 CREATE TABLE ipas.dbo.PlanTarget (
-	PlanTargetID int IDENTITY(1,1) NOT NULL,
-	PlanID int NULL,
-	LandRowID int NULL,
-	LandPlotID int NULL,
-	GraftedPlantID int NULL,
-	PlantLotID int NULL,
-	PlantID int NULL,
-        Unit nvarchar(255) NULL,
-	CONSTRAINT PlanTarget_PK PRIMARY KEY (PlanTargetID),
-	CONSTRAINT PlanTarget_Plan_FK FOREIGN KEY (PlanID) REFERENCES ipas.dbo.[Plan](PlanID),
-	CONSTRAINT PlanTarget_LandRow_FK FOREIGN KEY (LandRowID) REFERENCES ipas.dbo.LandRow(LandRowID),
-	CONSTRAINT PlanTarget_LandPlot_FK FOREIGN KEY (LandPlotID) REFERENCES ipas.dbo.LandPlot(LandPlotID),
-	CONSTRAINT PlanTarget_GraftedPlant_FK FOREIGN KEY (GraftedPlantID) REFERENCES ipas.dbo.GraftedPlant(GraftedPlantID),
-	CONSTRAINT PlanTarget_PlantLot_FK FOREIGN KEY (PlantLotID) REFERENCES ipas.dbo.PlantLot(PlantLotID),
-	CONSTRAINT PlanTarget_Plant_FK FOREIGN KEY (PlantID) REFERENCES ipas.dbo.Plant(PlantID)
+    PlanTargetID int IDENTITY(1,1) NOT NULL,
+    PlanID int NULL,
+    LandRowID int NULL,
+    LandPlotID int NULL,
+    GraftedPlantID int NULL,
+    PlantLotID int NULL,
+    PlantID int NULL,
+    Unit nvarchar(255) NULL,
+    CONSTRAINT PlanTarget_PK PRIMARY KEY (PlanTargetID),
+    CONSTRAINT PlanTarget_Plan_FK FOREIGN KEY (PlanID) REFERENCES ipas.dbo.[Plan](PlanID) ON DELETE CASCADE,
+    CONSTRAINT PlanTarget_LandRow_FK FOREIGN KEY (LandRowID) REFERENCES ipas.dbo.LandRow(LandRowID),
+    CONSTRAINT PlanTarget_LandPlot_FK FOREIGN KEY (LandPlotID) REFERENCES ipas.dbo.LandPlot(LandPlotID),
+    CONSTRAINT PlanTarget_GraftedPlant_FK FOREIGN KEY (GraftedPlantID) REFERENCES ipas.dbo.GraftedPlant(GraftedPlantID),
+    CONSTRAINT PlanTarget_PlantLot_FK FOREIGN KEY (PlantLotID) REFERENCES ipas.dbo.PlantLot(PlantLotID),
+    CONSTRAINT PlanTarget_Plant_FK FOREIGN KEY (PlantID) REFERENCES ipas.dbo.Plant(PlantID)
 );
 
 CREATE TABLE ipas.dbo.GrowthStagePlan (
@@ -1094,7 +1094,7 @@ GO
 INSERT INTO [ipas].[dbo].[Farm] 
 ([FarmCode], [FarmName], [Address], [Longitude], [Latitude], [LogoURL], [Ward], [Province], [District], [Area], [SoilType], [ClimateZone], [CreateDate], [UpdateDate], [IsDeleted], [Status], [Length], [Width], [Description])
 VALUES
-('F001', 'Nam Hue Tan Trieu Pomelo', N'133/17 Huong L? 9', 106.786528, 10.9965,
+('F001', 'Nam Hue Tan Trieu Pomelo', N'133/17 Hương Lộ 9', 106.786528, 10.9965,
  'https://res.cloudinary.com/dgshx4n2c/image/upload/v1738660419/rzaub3vswgnfzvunvuov.jpg', 
  N'Tân Bình', N'Ðồng Nai', N'Vĩnh Cửu', 100.5, 'Clay', 'Tropical', GETDATE(), GETDATE(), 0, 'Active', 200, 150, 'Farm specializing in tropical fruits'),
 
@@ -1252,11 +1252,11 @@ VALUES
     (33,'MT033', 'Leaves', 'Product', 'Pomelo tree leaves harvested for use', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1, NULL, NULL, NULL, NULL),
     (34,'MT034', 'Branches', 'Product', 'Pomelo tree branches harvested for use', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1, NULL, NULL, NULL, NULL),
     
-    (35,'MT035', 'Weather', 'Notification', 'Notification related to weather conditions affecting pomelo tree growth', NULL, NULL, NULL, 0, 1, GETDATE(),1, 1, NULL, NULL, NULL,NULL),
-    (36,'MT036', 'Task Assignment', 'Notification', 'Notification related to work activities in pomelo tree care', NULL, NULL, NULL, 0, 1, GETDATE(),1, 1, NULL, NULL, NULL,NULL),
-    (37,'MT037', 'Task Change', 'Notification', 'Notification related to work activities in pomelo tree care', NULL, NULL, NULL, 0, 1, GETDATE(),1, 1, NULL, NULL, NULL,NULL),
-    (38,'MT038', 'Task Confirmation', 'Notification', 'Notification related to work activities in pomelo tree care', NULL, NULL, NULL, 0, 1, GETDATE(),1, 1, NULL, NULL, NULL,NULL),
-    (39,'MT039', 'Task Reminder', 'Notification', 'Notification related to work activities in pomelo tree care', NULL, NULL, NULL, 0, 1, GETDATE(),1, 1, NULL, NULL, NULL,NULL),
+    (35,'MT035', 'Weather', 'Notification', 'Notification related to weather conditions affecting pomelo tree growth', NULL, NULL, NULL, 0, 1, GETDATE(),1, NULL, NULL, NULL, NULL,NULL),
+    (36,'MT036', 'Task Assignment', 'Notification', 'Notification related to work activities in pomelo tree care', NULL, NULL, NULL, 0, 1, GETDATE(),1, NULL, NULL, NULL, NULL,NULL),
+    (37,'MT037', 'Task Change', 'Notification', 'Notification related to work activities in pomelo tree care', NULL, NULL, NULL, 0, 1, GETDATE(),1, NULL, NULL, NULL, NULL,NULL),
+    (38,'MT038', 'Task Confirmation', 'Notification', 'Notification related to work activities in pomelo tree care', NULL, NULL, NULL, 0, 1, GETDATE(),1, NULL, NULL, NULL, NULL,NULL),
+    (39,'MT039', 'Task Reminder', 'Notification', 'Notification related to work activities in pomelo tree care', NULL, NULL, NULL, 0, 1, GETDATE(),1, NULL, NULL, NULL, NULL,NULL),
 	(40,'MT040', 'Grafted Branch Readiness', 'Criteria', 'Evaluation of grafted branches to determine if they are mature enough for cutting and transplantation', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1, NULL, 'GraftedEvaluation', NULL, NULL),
 	(41,'MT041', 'Green Skin Pomelo Grade 1', 'Criteria', 'Evaluation criteria for Green Skin Pomelo Grade 1', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1, NULL, 'Product', NULL, NULL),
     (42,'MT042', 'Green Skin Pomelo Grade 2', 'Criteria', 'Evaluation criteria for Green Skin Pomelo Grade 2', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1, NULL, 'Product', NULL, NULL),
@@ -1978,17 +1978,6 @@ VALUES
 ('Work','PestControl', 'Pest Control', 'string', 'Pest Control'),
 ('Work','Others', 'Others', 'string', 'Others');
 
--- Validation List
-INSERT INTO SystemConfiguration (ConfigGroup, ConfigKey, ConfigValue, ValueType, Description)
-VALUES 
-('ValidationVariable', 'GrowthExponent', '1.4', 'int', 'Growth Exponent'),
-('ValidationVariable', 'InitialBranchingCoefficient', '5', 'int', 'Initial Branching Coefficient'),
-('ValidationVariable', 'MinTime', '1', 'double', 'Minimum Time'),
-('ValidationVariable', 'MaxTime', '35', 'double', 'Maximum Time'),
-('ValidationVariable', 'MaximumGraftingLimit', '100', 'int', 'Maximum Grafting Limit');
-
-GO
-
 -- Criteria List
 INSERT INTO SystemConfiguration (ConfigGroup, ConfigKey, ConfigValue, ValueType, Description)
 VALUES 
@@ -2001,6 +1990,31 @@ VALUES
 
 GO
 
+-- Validation List
+INSERT INTO SystemConfiguration (ConfigGroup, ConfigKey, ConfigValue, ValueType, Description)
+VALUES 
+('ValidationVariable', 'GrowthExponent', '1.4', 'int', 'Growth Exponent'),
+('ValidationVariable', 'InitialBranchingCoefficient', '5', 'int', 'Initial Branching Coefficient'),
+('ValidationVariable', 'MinTime', '1', 'double', 'Minimum Time'),
+('ValidationVariable', 'MaxTime', '35', 'double', 'Maximum Time'),
+('ValidationVariable', 'MaximumGraftingLimit', '100', 'int', 'Maximum Grafting Limit');
+
+GO
+
+-- Danh sách Config trong farm
+INSERT INTO SystemConfiguration (ConfigGroup,ConfigKey, ConfigValue, ValueType, Description)
+VALUES 
+('ValidationVariable','MinLenght', '1', 'double', N'Độ dài tối thiểu'),
+('ValidationVariable','MinWidth', '1', 'double', N'Ðộ dài tối đa'),
+('ValidationVariable','MinArea', '1', 'double', N'Diện tích tối thiểu'),
+('ValidationVariable','MinRowOfLandPlot', '1', 'int', N'Số hàng tôi thiểu của 1 LandPlot'),
+('ValidationVariable','CoordiantionPointRequired', '3', 'int', N'Số điểm tối đa của thửa plantLot'),
+('ValidationVariable','MinDistancePlant', '2.5', 'double', N'Khoảng cách tối thiểu giữa các cây'),
+('ValidationVariable','MinPlantOfLandRow', '1', 'int', N'Số cây tối thiểu 1 Hàng'),
+('ValidationVariable','EditInDay', '3', 'int', N'Số ngày có thể chỉnh sửa sau khi đã được ghi nhận'),
+('ValidationVariable','RecordAfterDate', '3', 'int', N'Sau bao nhiêu ngày có thể ghi nhận thu hoạch'),
+('ValidationVariable','AllowAreaDeviationPercent', '15', 'double', N'Phần trăm diện tích chênh lệch khi tạo thửa-hàng');
+GO
 
 -- Criteria Apply
 --INSERT INTO SystemConfiguration (ConfigGroup, ConfigKey, ConfigValue, ValueType, Description, ReferenceConfigId)
@@ -2116,19 +2130,7 @@ JOIN SystemConfiguration b
     AND b.ConfigGroup = 'Criteria'
     AND a.ConfigKey = b.ConfigKey;
 	GO
--- Danh sách Config trong farm
-INSERT INTO SystemConfiguration (ConfigGroup,ConfigKey, ConfigValue, ValueType, Description)
-VALUES 
-('ValidationVariable','MinLenght', '1', 'double', N'Độ dài tối thiểu'),
-('ValidationVariable','MinWidth', '1', 'double', N'Ðộ dài tối đa'),
-('ValidationVariable','MinArea', '1', 'double', N'Diện tích tối thiểu'),
-('ValidationVariable','MinRowOfLandPlot', '1', 'int', N'Số hàng tôi thiểu của 1 LandPlot'),
-('ValidationVariable','CoordiantionPointRequired', '3', 'int', N'Số điểm tối đa của thửa plantLot'),
-('ValidationVariable','MinDistancePlant', '2.5', 'double', N'Khoảng cách tối thiểu giữa các cây'),
-('ValidationVariable','MinPlantOfLandRow', '1', 'int', N'Số cây tối thiểu 1 Hàng'),
-('ValidationVariable','EditInDay', '3', 'int', N'Số ngày có thể chỉnh sửa sau khi đã được ghi nhận'),
-('ValidationVariable','RecordAfterDate', '3', 'int', N'Sau bao nhiêu ngày có thể ghi nhận thu hoạch');
-GO
+
 
 INSERT INTO SystemConfiguration (ConfigGroup, ConfigKey, ConfigValue, ValueType, Description)
 VALUES 
@@ -2353,6 +2355,100 @@ VALUES
     ('REP018', N'Report description 18', '2025-04-09 12:50:00', N'Plant grows well but bears no fruit?', N'Might need pollination or change of variety.', 'https://res.cloudinary.com/dgshx4n2c/image/upload/v1744012238/hemiriqcnbaa1ult00r7.jpg', 1, 4, 15),
     ('REP019', N'Report description 19', '2025-04-09 16:30:00', N'Tree sheds many leaves after flowering?', N'Nutrient or temperature shock.', 'https://res.cloudinary.com/dgshx4n2c/image/upload/v1744012238/hemiriqcnbaa1ult00r7.jpg', 1, 2, 10),
     ('REP020', N'Report description 20', '2025-04-09 18:15:00', N'Can lime powder be used for soil treatment?', N'Yes, but apply with proper dosage.', 'https://res.cloudinary.com/dgshx4n2c/image/upload/v1744012238/hemiriqcnbaa1ult00r7.jpg', 0, 1, 11);
+	GO
+	-- =============================================
+-- 1. Insert Process: Quy trình mẫu chăm sóc cây bưởi bị sâu vẽ bùa
+-- =============================================
+INSERT INTO Process (ProcessCode, ProcessName, isDefault, isActive, isSample, CreateDate, IsDeleted, FarmID, MasterTypeID, PlanTargetInProcess)
+VALUES (N'PR001', N'Quy trình mẫu - Chăm sóc cây bưởi bị sâu vẽ bùa', 1, 1, 1, GETDATE(), 0, 1,15, 1);
+
+DECLARE @ProcessId INT = SCOPE_IDENTITY();
+
+-- =============================================
+-- 2. Insert SubProcess: Các bước chi tiết trong quy trình mẫu
+-- =============================================
+INSERT INTO SubProcess (SubProcessCode, SubProcessName, ProcessID, [Order], isDefault, isActive, CreateDate, IsDeleted, FarmID)
+VALUES 
+(N'SP001', N'Khảo sát và chẩn đoán sâu bệnh', @ProcessId, 1, 1, 1, GETDATE(), 0, 1),
+(N'SP002', N'Tỉa cành và vệ sinh vườn', @ProcessId, 2, 1, 1, GETDATE(), 0, 1),
+(N'SP003', N'Phun thuốc trị sâu vẽ bùa', @ProcessId, 3, 1, 1, GETDATE(), 0, 1),
+(N'SP004', N'Theo dõi và đánh giá hiệu quả', @ProcessId, 4, 1, 1, GETDATE(), 0, 1),
+(N'SP005', N'Bón phân hồi phục', @ProcessId, 5, 1, 1, GETDATE(), 0, 1);
+
+-- =============================================
+-- 3. Insert Plan mẫu cho từng SubProcess
+-- =============================================
+DECLARE @SubProcess1 INT = (SELECT TOP 1 SubProcessID FROM SubProcess WHERE SubProcessCode = 'SP001' ORDER BY SubProcessID ASC);
+DECLARE @SubProcess2 INT = (SELECT TOP 1 SubProcessID FROM SubProcess WHERE SubProcessCode = 'SP002' ORDER BY SubProcessID ASC);
+DECLARE @SubProcess3 INT = (SELECT TOP 1 SubProcessID FROM SubProcess WHERE SubProcessCode = 'SP003' ORDER BY SubProcessID ASC);
+DECLARE @SubProcess4 INT = (SELECT TOP 1 SubProcessID FROM SubProcess WHERE SubProcessCode = 'SP004' ORDER BY SubProcessID ASC);
+DECLARE @SubProcess5 INT = (SELECT TOP 1 SubProcessID FROM SubProcess WHERE SubProcessCode = 'SP005' ORDER BY SubProcessID ASC);
+
+INSERT INTO [Plan] (PlanCode, PlanName, Status, CreateDate, StartDate, EndDate, IsActive, SubProcessID, FarmID, IsSample)
+VALUES
+(N'PL002', N'Khảo sát ban đầu', N'Active', GETDATE(), NULL, NULL, 1, @SubProcess1, 1, 1),
+(N'PL003', N'Tỉa và vệ sinh', N'Active', GETDATE(), NULL, NULL, 1, @SubProcess2, 1,1 ),
+(N'PL004', N'Phun thuốc trị sâu vẽ bùa lần 1', N'Active', GETDATE(), NULL, NULL, 1, @SubProcess3, 1, 1 ),
+(N'PL005', N'Theo dõi sau phun', N'Active', GETDATE(), NULL, NULL, 1, @SubProcess4, 1, 1),
+(N'PL006', N'Bón phân khôi phục', N'Active', GETDATE(), NULL, NULL, 1, @SubProcess5, 1, 1);
+GO
+
+-- Declare variables
+DECLARE @TodayDate DATE = CAST(GETDATE() AS DATE);
+DECLARE @StartTime TIME = '07:30:00';
+DECLARE @EndTime TIME = '10:30:00';
+
+-- 1. Insert Plan
+INSERT INTO [ipas].dbo.[Plan] 
+(Status, PlanCode, CreateDate, StartDate, EndDate, UpdateDate, isActive, PlanName, FarmID)
+VALUES 
+('Active', CONCAT('PLAN_', FORMAT(GETDATE(), 'yyyyMMdd_HHmmss')), GETDATE(), @TodayDate, @TodayDate, NULL, 1, N'Chăm sóc cây bưởi sâu vẽ bùa (hôm nay)', 1);
+
+-- 2. Get PlanID
+DECLARE @PlanID INT = SCOPE_IDENTITY();
+
+-- 3. Insert CarePlanSchedule
+INSERT INTO [ipas].dbo.CarePlanSchedule 
+(Status, CarePlanID, StartTime, EndTime, DayOfWeek, CustomDates, FarmID)
+VALUES 
+('Active', @PlanID, @StartTime, @EndTime, NULL, '["2025/04/23"]', 1);
+
+-- 4. Get ScheduleID
+DECLARE @ScheduleID INT = SCOPE_IDENTITY();
+
+-- 5. Insert WorkLog
+INSERT INTO [ipas].dbo.WorkLog 
+(WorkLogCode, WorkLogName, Status, [Date], IsConfirm, ScheduleID, ActualStartTime, ActualEndTime)
+VALUES 
+(CONCAT('WL_ABC123456', FORMAT(GETDATE(), 'yyyyMMdd_HHmmss')), N'Công việc cắt tỉa - gia cố cành cho cây', 'Not Started', @TodayDate, 0, @ScheduleID, @StartTime, @EndTime);
+
+-- 6. Get WorkLogID
+DECLARE @WorkLogID INT = SCOPE_IDENTITY();
+
+-- 7. Insert 2 PlanTarget (PlantID = 1 và 2)
+INSERT INTO [ipas].dbo.PlanTarget (PlanID, LandPlotID)
+VALUES
+(@PlanID, 1),
+(@PlanID, 2);
+
+-- 8. Insert 2 UserWorkLog
+DECLARE @UserID1 INT, @UserID2 INT;
+
+-- Lấy 2 user Role = 5 từ UserFarm
+SELECT TOP 2 @UserID1 = UserID
+FROM [ipas].dbo.UserFarm
+WHERE RoleId = 5;
+
+SELECT TOP 1 @UserID2 = uf.UserId
+FROM [ipas].dbo.UserFarm uf
+WHERE  uf.RoleId = 5 AND uf.UserId <> @UserID1;
+
+-- Insert 2 user vào WorkLog
+INSERT INTO [ipas].dbo.UserWorkLog (WorkLogID, UserID, IsReporter, CreateDate)
+VALUES 
+(@WorkLogID, @UserID1, 1, GETDATE()),
+(@WorkLogID, @UserID2, 0, GETDATE());
+GO
 
 INSERT INTO [dbo].[EmployeeSkill] ([EmployeeID], [FarmID], [WorkTypeID], [ScoreOfSkill])
 VALUES

@@ -23,6 +23,7 @@ using Org.BouncyCastle.Ocsp;
 using CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.FarmBsModels.GraftedModel;
 using System.Net.WebSockets;
 using CapstoneProject_SP25_IPAS_Common.Enum;
+using System.Runtime.Versioning;
 
 namespace CapstoneProject_SP25_IPAS_Service.Service
 {
@@ -169,12 +170,16 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         if (resource.File != null)
                         {
                             var cloudinaryUrl = await _cloudinaryService.UploadResourceAsync(resource.File, CloudinaryPath.PLANT_GROWTH_HISTORY);
+                            if (cloudinaryUrl.Data == null) continue;
+                            if (Util.IsVideo(Path.GetExtension(resource.File.FileName)?.TrimStart('.').ToLower()))
+                                resource.FileFormat = FileFormatConst.VIDEO.ToLower();
+                            else resource.FileFormat = FileFormatConst.IMAGE.ToLower();
                             var newRes = new Resource
                             {
-                                ResourceCode = "",
+                                ResourceCode = CodeAliasEntityConst.RESOURCE + CodeHelper.GenerateCode(),
                                 ResourceURL = (string)cloudinaryUrl.Data! ?? null,
                                 ResourceType = ResourceTypeConst.PLANT_GROWTH_HISTORY,
-                                FileFormat = FileFormatConst.IMAGE,
+                                FileFormat = resource.FileFormat,
                                 CreateDate = DateTime.UtcNow,
                                 PlantGrowthHistoryID = plantGrowthHistory.PlantGrowthHistoryId
                             };
