@@ -14,6 +14,8 @@ using Microsoft.AspNetCore.Http.Features;
 using CapstoneProject_SP25_IPAS_API.ProgramConfig.BindingConfig;
 using CapstoneProject_SP25_IPAS_Service.IService;
 using CapstoneProject_SP25_IPAS_Service.Service;
+using FirebaseAdmin;
+using Google.Apis.Auth.OAuth2;
 
 var builder = WebApplication.CreateBuilder(args);
 builder.WebHost.UseUrls("http://0.0.0.0:5242");
@@ -57,6 +59,12 @@ builder.Services.AddSwaggerGen(option =>
 builder.Services.Configure<FormOptions>(options =>
 {
     options.MultipartBodyLengthLimit = 104857600; // 100MB
+});
+
+// setup firebase
+FirebaseApp.Create(new AppOptions()
+{
+    Credential = GoogleCredential.FromFile("capstone-ipas-firebase-adminsdk-fbsvc-6a52a8e4c2.json")
 });
 
 //Config Jwt Token

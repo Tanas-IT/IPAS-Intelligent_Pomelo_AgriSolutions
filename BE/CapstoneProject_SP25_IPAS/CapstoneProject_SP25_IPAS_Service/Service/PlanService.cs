@@ -1,7 +1,6 @@
 ﻿using AutoMapper;
 using CapstoneProject_SP25_IPAS_BussinessObject.Entities;
 using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.CriteriaRequest.CriteriaTagerRequest;
-using CapstoneProject_SP25_IPAS_Common;
 using CapstoneProject_SP25_IPAS_Common.Constants;
 using CapstoneProject_SP25_IPAS_Common.Utils;
 using CapstoneProject_SP25_IPAS_Repository.UnitOfWork;
@@ -476,6 +475,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                             UserID = employee.UserId,
                             isRead = false,
                         };
+                        await _unitOfWork.NotificationRepository.PushMessageFirebase(addNotification.Title, addNotification.Content, employee.UserId);
 
                         await _unitOfWork.PlanNotificationRepository.Insert(addPlanNotification);
                     }
@@ -1552,6 +1552,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                             UserID = employeeModel.UserId
                                         };
                                         await _unitOfWork.PlanNotificationRepository.Insert(addEmployeeNotification);
+                                        await _unitOfWork.NotificationRepository.PushMessageFirebase(addNotification.Title, addNotification.Content, employeeModel.UserId);
                                         await _webSocketService.SendToUser(employeeModel.UserId, addNotification);
                                     }
                                 }

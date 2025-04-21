@@ -11,5 +11,7 @@ namespace CapstoneProject_SP25_IPAS_Repository.IRepository
     {
         public Task<List<Notification>> GetListNotificationByUserId(int userId);
         public Task<List<PlanNotification>> GetListNotificationUnReadByUserId(int userId);
+        public Task<bool> PushMessageFirebase(string title, string body, int userId);
+        public Task<bool> PushListMessageFirebase(string title, string body, List<string> fcmTokens);
     }
 }
