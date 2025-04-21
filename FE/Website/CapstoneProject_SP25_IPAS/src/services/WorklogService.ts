@@ -127,7 +127,20 @@ export const addWorklogNote = async (
     return res.data as ApiResponse<DependencyWorklog[]>;
   };
 
-  export const getEmployeesByWorkSkill = async (farmId: number, workTypeId?: number): Promise<ApiResponse<EmployeeWithSkills[]>> => {
-    const res = await axiosAuth.axiosJsonRequest.get(`work-log/filter-employee?farmId=${farmId}&workTypeId=${workTypeId}`);
+  export const getEmployeesByWorkSkill = async (
+    farmId: number,
+    workTypeId?: number
+  ): Promise<ApiResponse<EmployeeWithSkills[]>> => {
+    const params = new URLSearchParams({ farmId: farmId.toString() });
+  
+    if (workTypeId !== undefined && workTypeId !== null) {
+      params.append("workTypeId", workTypeId.toString());
+    }
+  
+    const res = await axiosAuth.axiosJsonRequest.get(
+      `work-log/filter-employee?${params.toString()}`
+    );
+  
     return res.data as ApiResponse<EmployeeWithSkills[]>;
-  }
+  };
+  

@@ -76,7 +76,7 @@ const EditWorklogModal: React.FC<EditWorklogModalProps> = ({
             setTempReporterId(initialReporterId);
           } else {
             if (worklog && worklog?.replacementEmployee?.length > 0) {
-              const replacementReporter = worklog.replacementEmployee.find((emp) => emp.isRepoter);
+              const replacementReporter = worklog.replacementEmployee.find((emp) => emp.replaceUserIsRepoter);
               if (replacementReporter) {
                 setTempReporterId(replacementReporter.replaceUserId);
                 return;

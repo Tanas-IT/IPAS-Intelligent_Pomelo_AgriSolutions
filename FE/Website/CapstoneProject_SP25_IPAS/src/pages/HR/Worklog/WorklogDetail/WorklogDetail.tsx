@@ -194,7 +194,7 @@ function WorklogDetail() {
             let isReporterReplacement = false;
             if (worklogDetail?.replacementEmployee?.length > 0) {
               const replacementReporter = worklogDetail.replacementEmployee.find(
-                (emp) => emp.isRepoter && emp.replaceUserId === replaceUserIdNum
+                (emp) => emp.replaceUserIsRepoter && emp.replaceUserId === replaceUserIdNum
               );
               if (replacementReporter) {
                 isReporterReplacement = true;
@@ -517,7 +517,7 @@ function WorklogDetail() {
 
       let initialReporterId: number | undefined;
       if (res.replacementEmployee?.length > 0) {
-        const replacementReporter = res.replacementEmployee.find((emp) => emp.isRepoter);
+        const replacementReporter = res.replacementEmployee.find((emp) => emp.replaceUserIsRepoter);
         if (replacementReporter) {
           initialReporterId = replacementReporter.replaceUserId;
         }
@@ -525,6 +525,8 @@ function WorklogDetail() {
       if (!initialReporterId && res.reporter?.length > 0) {
         initialReporterId = res.reporter.find((emp) => emp.isReporter)?.userId;
       }
+      console.log("reporter hiện tại", initialReporterId);
+      
       setInitialReporterId(initialReporterId);
 
       setInfoFieldsLeft([

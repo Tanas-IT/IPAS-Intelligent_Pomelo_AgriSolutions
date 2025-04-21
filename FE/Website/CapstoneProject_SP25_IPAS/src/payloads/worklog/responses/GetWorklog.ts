@@ -127,7 +127,7 @@ export interface ReplacementEmployee {
   avatar?: string;
   replaceUserFullName?: string;
   replaceUserAvatar?: string;
-  isRepoter?: boolean
+  replaceUserIsRepoter?: boolean
 }
 
 export interface GetWorklogNote {
