@@ -118,14 +118,13 @@ const GraftedPlantSectionHeader = ({
           {onExport && (
             <CustomButton label="Export" icon={<Icons.download />} handleOnClick={onExport} />
           )}
-          {(onAddNewIssue && !graftedPlant.isDead) ||
-            (graftedPlant.status !== GRAFTED_STATUS.USED && (
-              <CustomButton
-                label="Add New Issue"
-                icon={<Icons.plus />}
-                handleOnClick={onAddNewIssue}
-              />
-            ))}
+          {onAddNewIssue && !graftedPlant.isDead && graftedPlant.status !== GRAFTED_STATUS.USED && (
+            <CustomButton
+              label="Add New Issue"
+              icon={<Icons.plus />}
+              handleOnClick={onAddNewIssue}
+            />
+          )}
         </Flex>
       </Flex>
       <label className={style.subTitle}>Code: {graftedPlant.graftedPlantCode}</label>

@@ -5,7 +5,7 @@ import { ActionMenuItem } from "@/types";
 
 interface ActionMenuProps {
   onEdit: () => void;
-  onDelete: () => void;
+  onDelete?: () => void;
 }
 
 const ActionMenuRecord: FC<ActionMenuProps> = ({ onEdit, onDelete }) => {
@@ -15,11 +15,13 @@ const ActionMenuRecord: FC<ActionMenuProps> = ({ onEdit, onDelete }) => {
       label: "Update Record",
       onClick: () => onEdit(),
     },
-    {
-      icon: <Icons.delete />,
-      label: "Delete Record",
-      onClick: () => onDelete(),
-    },
+    onDelete
+      ? {
+          icon: <Icons.delete />,
+          label: "Delete Record",
+          onClick: () => onDelete(),
+        }
+      : null,
   ].filter(Boolean) as ActionMenuItem[];
 
   return (

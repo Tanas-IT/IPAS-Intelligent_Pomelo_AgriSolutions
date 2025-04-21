@@ -145,20 +145,30 @@ const Sidebar: React.FC<SidebarProps> = ({ isDefault = false }) => {
       isView: !isDefault,
       roles: [UserRolesStr.Employee],
     },
-    // {
-    //   key: "Plants",
-    //   label: "Plant Management",
-    //   icon: <Icons.plantFill />,
-    //   category: "Main",
-    //   to: PATHS.FARM.FARM_PLANT_LIST,
-    //   activePaths: [
-    //     PATHS.FARM.FARM_PLANT_LIST,
-    //     PATHS.FARM.FARM_PLANT_DETAIL,
-    //     PATHS.FARM.FARM_PLANT_DETAIL_FROM_ROW,
-    //   ],
-    //   isView: !isDefault,
-    //   roles: [UserRolesStr.Employee],
-    // },
+    {
+      key: "Plants",
+      label: "Plant Management",
+      icon: <Icons.plantFill />,
+      category: "Main",
+      to: PATHS.FARM.FARM_PLANT_LIST,
+      activePaths: [
+        PATHS.FARM.FARM_PLANT_LIST,
+        PATHS.FARM.FARM_PLANT_DETAIL,
+        PATHS.FARM.FARM_PLANT_DETAIL_FROM_ROW,
+      ],
+      isView: !isDefault,
+      roles: [UserRolesStr.Employee],
+    },
+    {
+      key: "GraftedPlants",
+      label: "Grafted Plant Management",
+      icon: <Icons.seedling />,
+      category: "Main",
+      to: PATHS.FARM.GRAFTED_PLANT_LIST,
+      activePaths: [PATHS.FARM.GRAFTED_PLANT_LIST, PATHS.FARM.GRAFTED_PLANT_DETAIL],
+      isView: !isDefault,
+      roles: [UserRolesStr.Employee],
+    },
     {
       key: "Dashboard",
       label: "Dashboard",
@@ -281,7 +291,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isDefault = false }) => {
         PATHS.FARM.GRAFTED_PLANT_DETAIL,
         PATHS.FARM.CRITERIA_LIST,
       ],
-      roles: [UserRolesStr.Owner],
+      roles: [UserRolesStr.Owner, UserRolesStr.Manager],
       subMenuItems: [
         {
           key: "Farm Information",
@@ -289,6 +299,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isDefault = false }) => {
           icon: Images.radius,
           to: PATHS.FARM.FARM_INFO,
           activePaths: [PATHS.FARM.FARM_INFO],
+          roles: [UserRolesStr.Owner],
         },
         {
           key: "Manage Plots",
@@ -446,7 +457,17 @@ const Sidebar: React.FC<SidebarProps> = ({ isDefault = false }) => {
 
   const handleLogout = useLogout();
 
-  menuItems = mergeActivePaths(menuItems);
+  const filteredMenuItems = useMemo(() => {
+    return menuItems.filter((item) => {
+      // Nếu không có roles nghĩa là ai cũng xem được
+      if (!item.roles) return true;
+
+      // Nếu có roles, chỉ hiển thị nếu userRole khớp
+      return item.roles.includes(currentUserRole);
+    });
+  }, [menuItems, currentUserRole]);
+
+  menuItems = mergeActivePaths(filteredMenuItems);
 
   const findMatchingPath = (paths: string[], pathname: string) => {
     return paths.some((path) => {

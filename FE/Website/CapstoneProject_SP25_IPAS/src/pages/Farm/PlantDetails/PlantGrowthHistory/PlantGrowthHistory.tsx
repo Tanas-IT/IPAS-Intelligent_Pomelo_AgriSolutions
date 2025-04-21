@@ -15,12 +15,19 @@ import { Dayjs } from "dayjs";
 import { useDirtyStore, usePlantStore } from "@/stores";
 import { plantService } from "@/services";
 import { GetPlantGrowthHistory, PlantGrowthHistoryRequest } from "@/payloads";
-import { useHasChanges, useModal, useTableAdd, useTableUpdate } from "@/hooks";
+import {
+  useHasChanges,
+  useModal,
+  useSystemConfigOptions,
+  useTableAdd,
+  useTableUpdate,
+} from "@/hooks";
 import { toast } from "react-toastify";
-import { DEFAULT_RECORDS_IN_DETAIL } from "@/constants";
+import { DEFAULT_RECORDS_IN_DETAIL, SYSTEM_CONFIG_GROUP, SYSTEM_CONFIG_KEY } from "@/constants";
 
 function PlantGrowthHistory() {
   const { plant, isGrowthDetailView, setIsGrowthDetailView } = usePlantStore();
+  if (!plant) return;
   const { isDirty } = useDirtyStore();
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isFirstLoad, setIsFirstLoad] = useState<boolean>(true);
@@ -33,8 +40,12 @@ function PlantGrowthHistory() {
   const issueModal = useModal<{ item: GetPlantGrowthHistory }>();
   const cancelConfirmModal = useModal();
   const deleteConfirmModal = useModal<{ id: number }>();
-
-  if (!plant) return;
+  const { options, loading } = useSystemConfigOptions(
+    SYSTEM_CONFIG_GROUP.VALIDATION_VARIABLE,
+    SYSTEM_CONFIG_KEY.EDIT_IN_DAY,
+    true,
+  );
+  const limitDays = parseInt(String(options?.[0]?.label || "0"), 10);
 
   const fetchData = async () => {
     if (isFirstLoad || isLoading) await new Promise((resolve) => setTimeout(resolve, 500));
@@ -144,6 +155,9 @@ function PlantGrowthHistory() {
       {isGrowthDetailView ? (
         <GrowthDetailContent
           history={selectedHistory}
+          limitDays={limitDays}
+          isDisable={plant.isDead}
+          isLoading={loading}
           actionMenu={(item: GetPlantGrowthHistory) => (
             <ActionMenuGrowth
               onEdit={() => issueModal.showModal({ item: item })}
@@ -157,7 +171,9 @@ function PlantGrowthHistory() {
             <TimelineFilter dateRange={dateRange} onDateChange={handleDateChange} />
             <GrowthTimeline
               data={data}
-              isLoading={isLoading}
+              limitDays={limitDays}
+              isDisable={plant.isDead}
+              isLoading={isLoading && loading}
               totalIssues={totalIssues}
               onViewDetail={handleViewDetail}
               onLoadMore={() => setCurrentPage((prev) => prev + 1)}

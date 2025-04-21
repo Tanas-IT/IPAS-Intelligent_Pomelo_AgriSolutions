@@ -5,17 +5,25 @@ import { formatDayMonthAndTime } from "@/utils";
 import { FILE_FORMAT } from "@/constants";
 import { FileResource } from "@/types";
 import { UserAvatar } from "@/components";
+import { useModifyPermission } from "@/hooks";
 
 interface GrowthDetailContentProps<T extends { [key: string]: any }> {
   history: T | null;
+  limitDays: number;
+  isDisable: boolean;
+  isLoading: boolean;
   actionMenu: (item: T) => React.ReactNode;
 }
 
 function GrowthDetailContent<T extends { [key: string]: any }>({
   history,
+  limitDays,
+  isDisable,
+  isLoading,
   actionMenu,
 }: GrowthDetailContentProps<T>) {
   if (!history) return null;
+  const { canEdit } = useModifyPermission(history.createDate, history.userId, limitDays, isLoading);
 
   const images = history.resources
     .filter((res: FileResource) => res.fileFormat === FILE_FORMAT.IMAGE)
@@ -36,7 +44,7 @@ function GrowthDetailContent<T extends { [key: string]: any }>({
             <span className={style.createdDate}>{formatDayMonthAndTime(history.createDate)}</span>
           </Flex>
 
-          {actionMenu(history)}
+          {canEdit && !isDisable && actionMenu(history)}
         </Flex>
         {/* <Button icon={<Icons.back />} className={style.backButton} onClick={onBack}>
           Back to Growth History
@@ -78,7 +86,7 @@ function GrowthDetailContent<T extends { [key: string]: any }>({
                       src={img}
                       width={120}
                       height={120}
-                      style={{ borderRadius: "5px", objectFit: "cover" }}
+                      style={{ borderRadius: "8px", objectFit: "cover" }}
                       crossOrigin="anonymous"
                     />
                   ))}
@@ -92,9 +100,14 @@ function GrowthDetailContent<T extends { [key: string]: any }>({
                   {videos.map((vid: string, index: number) => (
                     <video
                       key={index}
-                      width="200"
+                      width="250"
+                      height="200"
                       controls
-                      style={{ borderRadius: "5px" }}
+                      style={{
+                        borderRadius: "8px",
+                        border: "1px solid #d9d9d9",
+                        objectFit: "cover",
+                      }}
                       crossOrigin="anonymous"
                     >
                       <source src={vid} type="video/mp4" />

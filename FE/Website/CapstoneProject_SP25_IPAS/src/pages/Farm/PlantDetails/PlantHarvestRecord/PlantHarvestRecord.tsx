@@ -13,16 +13,27 @@ import { useEffect, useState } from "react";
 import { Dayjs } from "dayjs";
 import { formatDate, formatDayMonthAndTime } from "@/utils";
 import { GetPlantRecord, UpdateProductHarvestRequest } from "@/payloads";
-import { DEFAULT_RECORDS_IN_DETAIL, MASTER_TYPE } from "@/constants";
+import {
+  DEFAULT_RECORDS_IN_DETAIL,
+  MASTER_TYPE,
+  SYSTEM_CONFIG_GROUP,
+  SYSTEM_CONFIG_KEY,
+} from "@/constants";
 import { usePlantStore } from "@/stores";
 import { harvestService, plantService } from "@/services";
-import { useMasterTypeOptions, useModal } from "@/hooks";
+import {
+  useMasterTypeOptions,
+  useModal,
+  useModifyPermission,
+  useSystemConfigOptions,
+} from "@/hooks";
 import { toast } from "react-toastify";
 
 const { Text } = Typography;
 
 function PlantHarvestRecord() {
   const { plant } = usePlantStore();
+  if (!plant) return;
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isFirstLoad, setIsFirstLoad] = useState<boolean>(true);
   const { options: productOptions } = useMasterTypeOptions(MASTER_TYPE.PRODUCT);
@@ -35,7 +46,13 @@ function PlantHarvestRecord() {
   const [currentPage, setCurrentPage] = useState(1);
   const deleteConfirmModal = useModal<{ id: number }>();
   const formModal = useModal<{ id: number; quantity: number }>();
-  if (!plant) return;
+  const { options, loading } = useSystemConfigOptions(
+    SYSTEM_CONFIG_GROUP.VALIDATION_VARIABLE,
+    SYSTEM_CONFIG_KEY.RECORD_AFTER_DATE,
+    true,
+  );
+
+  const limitDays = parseInt(String(options?.[0]?.label || "0"), 10);
 
   const fetchData = async () => {
     if (isFirstLoad || isLoading) await new Promise((resolve) => setTimeout(resolve, 500));
@@ -159,58 +176,71 @@ function PlantHarvestRecord() {
               <Empty description="No Record Data Available" />
             </Flex>
           ) : (
-            data.map((record, index) => (
-              <>
-                <Flex key={index} className={style.historyContainer}>
-                  <Flex className={style.historyWrapper}>
-                    <div className={style.historyDot} />
-                    <div className={style.historyDash} />
-                  </Flex>
-                  <div className={style.timelineDetail}>
-                    <Flex gap={10} align="center">
-                      <UserAvatar avatarURL={record?.avartarRecord} size={30} />
-                      <span className={style.userName}>{record.recordBy}</span>
-                      <span>recorded a harvest</span>
-                      <span className={style.createdDate}>
-                        {formatDayMonthAndTime(record.recordDate)}
-                      </span>
+            data.map((record, index) => {
+              const { canEdit, isEmployee } = useModifyPermission(
+                record.recordDate,
+                record.userID,
+                limitDays,
+                loading,
+              );
+              return (
+                <>
+                  <Flex key={index} className={style.historyContainer}>
+                    <Flex className={style.historyWrapper}>
+                      <div className={style.historyDot} />
+                      <div className={style.historyDash} />
                     </Flex>
-                    <Flex className={style.infoRow}>
-                      <span className={style.label}>Crop Name:</span>
-                      <span className={style.noteContent}>{record.cropName}</span>
-                    </Flex>
-                    <Flex className={style.infoRow}>
-                      <span className={style.label}>Harvest Date:</span>
-                      <span className={style.noteContent}>{formatDate(record.harvestDate)}</span>
-                    </Flex>
-                    <Flex className={style.infoRow}>
-                      <span className={style.label}>Product Name:</span>
-                      <span className={style.noteContent}>{record.productName}</span>
-                    </Flex>
-                    <Flex justify="space-between">
-                      <Flex className={style.infoRow}>
-                        <span className={style.label}>Yield:</span>
-                        <span className={style.noteContent}>
-                          {record.actualQuantity} {record.unit}
+                    <div className={style.timelineDetail}>
+                      <Flex gap={10} align="center">
+                        <UserAvatar avatarURL={record?.avartarRecord} size={30} />
+                        <span className={style.userName}>{record.recordBy}</span>
+                        <span>recorded a harvest</span>
+                        <span className={style.createdDate}>
+                          {formatDayMonthAndTime(record.recordDate)}
                         </span>
                       </Flex>
-                      <ActionMenuRecord
-                        onEdit={() =>
-                          formModal.showModal({
-                            id: record.productHarvestHistoryId,
-                            quantity: record.actualQuantity,
-                          })
-                        }
-                        onDelete={() =>
-                          deleteConfirmModal.showModal({ id: record.productHarvestHistoryId })
-                        }
-                      />
-                    </Flex>
-                  </div>
-                </Flex>
-                {index < data.length - 1 && <Divider className={style.dividerBold} />}
-              </>
-            ))
+                      <Flex className={style.infoRow}>
+                        <span className={style.label}>Crop Name:</span>
+                        <span className={style.noteContent}>{record.cropName}</span>
+                      </Flex>
+                      <Flex className={style.infoRow}>
+                        <span className={style.label}>Harvest Date:</span>
+                        <span className={style.noteContent}>{formatDate(record.harvestDate)}</span>
+                      </Flex>
+                      <Flex className={style.infoRow}>
+                        <span className={style.label}>Product Name:</span>
+                        <span className={style.noteContent}>{record.productName}</span>
+                      </Flex>
+                      <Flex justify="space-between">
+                        <Flex className={style.infoRow}>
+                          <span className={style.label}>Yield:</span>
+                          <span className={style.noteContent}>
+                            {record.actualQuantity} {record.unit}
+                          </span>
+                        </Flex>
+                        {canEdit && !plant.isDead && (
+                          <ActionMenuRecord
+                            onEdit={() =>
+                              formModal.showModal({
+                                id: record.productHarvestHistoryId,
+                                quantity: record.actualQuantity,
+                              })
+                            }
+                            {...(!isEmployee && {
+                              onDelete: () =>
+                                deleteConfirmModal.showModal({
+                                  id: record.productHarvestHistoryId,
+                                }),
+                            })}
+                          />
+                        )}
+                      </Flex>
+                    </div>
+                  </Flex>
+                  {index < data.length - 1 && <Divider className={style.dividerBold} />}
+                </>
+              );
+            })
           )}
         </Flex>
 

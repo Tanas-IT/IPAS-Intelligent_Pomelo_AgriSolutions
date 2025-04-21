@@ -71,6 +71,7 @@ export interface GetPlantTargetResponse {
 }
 
 export interface GetPlantGrowthHistory {
+  userId: number;
   plantId: number;
   plantGrowthHistoryId: number;
   plantGrowthHistoryCode: string;
@@ -85,6 +86,7 @@ export interface GetPlantGrowthHistory {
 }
 
 export interface GetPlantRecord {
+  userID: number;
   productHarvestHistoryId: number;
   unit: string;
   actualQuantity: number;
