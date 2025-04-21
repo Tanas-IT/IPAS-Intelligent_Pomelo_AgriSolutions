@@ -1,6 +1,6 @@
 import { axiosAuth } from "@/api";
 import { ROLE } from "@/constants";
-import { ApiResponse, GetData, GetEmployee, GetUserRoleEmployee } from "@/payloads";
+import { AddUserFarmRequest, ApiResponse, GetData, GetEmployee, GetUserRoleEmployee } from "@/payloads";
 import { buildParams } from "@/utils";
 
 export const getEmployeeList = async (
@@ -24,17 +24,22 @@ export const getEmployeeList = async (
   return apiResponse.data as GetData<GetEmployee>;
 };
 
-export const updateEmployee = async (
-  userId: number,
-  roleName?: string,
-  isActive?: boolean,
-): Promise<ApiResponse<Object>> => {
-  const payload: Record<string, any> = { userId };
+// export const updateEmployee = async (
+//   userId: number,
+//   roleName?: string,
+//   isActive?: boolean,
+// ): Promise<ApiResponse<Object>> => {
+//   const payload: Record<string, any> = { userId };
 
-  if (roleName !== undefined) payload.roleName = roleName;
-  if (isActive !== undefined) payload.isActive = isActive;
+//   if (roleName !== undefined) payload.roleName = roleName;
+//   if (isActive !== undefined) payload.isActive = isActive;
 
-  const res = await axiosAuth.axiosJsonRequest.put("farms/user-farm", payload);
+//   const res = await axiosAuth.axiosJsonRequest.put("farms/user-farm", payload);
+//   return res.data as ApiResponse<Object>;
+// };
+
+export const updateEmployee = async (data: AddUserFarmRequest): Promise<ApiResponse<Object>> => {
+  const res = await axiosAuth.axiosJsonRequest.put("farms/user-farm", data);
   return res.data as ApiResponse<Object>;
 };
 
@@ -46,12 +51,8 @@ export const getUserByEmail = async (
   return apiResponse;
 };
 
-export const addNewUserInFarm = async (userId: number): Promise<ApiResponse<Object>> => {
-  const res = await axiosAuth.axiosJsonRequest.post(`farms/user-farm`, {
-    userId,
-    roleName: ROLE.EMPLOYEE,
-    isActive: true,
-  });
+export const addNewUserInFarm = async (data: AddUserFarmRequest): Promise<ApiResponse<Object>> => {
+  const res = await axiosAuth.axiosJsonRequest.post(`farms/user-farm`, data);
   const apiResponse = res.data as ApiResponse<Object>;
   return apiResponse;
 };

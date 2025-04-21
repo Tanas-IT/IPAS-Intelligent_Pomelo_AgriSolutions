@@ -276,5 +276,40 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
                 return grouped;
             }
         }
+
+        public async Task PlusScoreForEmployee(int? workLogId)
+        {
+            var getListUserWorkLog = await _context.UserWorkLogs.Where(x => x.WorkLogId == workLogId && x.IsDeleted == false).ToListAsync();
+            var getMasterType = await _context.WorkLogs
+                                            .Include(x => x.Schedule.CarePlan.MasterType)
+                                            .FirstOrDefaultAsync(x => x.WorkLogId == workLogId);
+            if(getMasterType.Schedule.CarePlan != null && getMasterType.Schedule.CarePlan.MasterType != null)
+            {
+                foreach(var employee in getListUserWorkLog)
+                {
+                    var getEmployeeSkill = await _context.EmployeeSkills
+                                    .Where(x => x.WorkTypeID == getMasterType.Schedule.CarePlan.MasterType.MasterTypeId && x.EmployeeID == employee.UserId)
+                                    .FirstOrDefaultAsync();
+                    if(getEmployeeSkill != null)
+                    {
+                        getEmployeeSkill.ScoreOfSkill = getEmployeeSkill.ScoreOfSkill + 1;
+                        _context.EmployeeSkills.Update(getEmployeeSkill);
+                    }
+                    else
+                    {
+                        var newEmployeeSkill = new EmployeeSkill()
+                        {
+                            EmployeeID = employee.UserId,
+                            WorkTypeID = getMasterType.Schedule.CarePlan.MasterType.MasterTypeId,
+                            ScoreOfSkill = 1,
+                            FarmID = getMasterType.Schedule.CarePlan.FarmID
+                        };
+                         _context.EmployeeSkills.Add(newEmployeeSkill);
+                    }
+
+                }
+            }
+            await _context.SaveChangesAsync();
+        }
     }
 }

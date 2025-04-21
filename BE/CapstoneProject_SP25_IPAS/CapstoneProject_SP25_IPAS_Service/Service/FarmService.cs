@@ -637,8 +637,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         orderBy = x => x.OrderByDescending(x => x.User);
                         break;
                 }
-                string includeProperties = "Role,User,Farm,EmployeeSkills";
-                var entities = await _unitOfWork.UserFarmRepository.Get(filter: filter, orderBy: orderBy, includeProperties: includeProperties, pageIndex: paginationParameter.PageIndex, pageSize: paginationParameter.PageSize);
+                var entities = await _unitOfWork.UserFarmRepository.GetUserFarmList(filter: filter, orderBy: orderBy, pageIndex: paginationParameter.PageIndex, pageSize: paginationParameter.PageSize);
                 var pagin = new PageEntity<UserFarmModel>();
                 pagin.List = _mapper.Map<List<UserFarmModel>>(entities);
                 pagin.List.ToList().ForEach(uf =>
@@ -694,6 +693,18 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     if (updateRequest.IsActive.HasValue)
                     {
                         userInfarm.IsActive = updateRequest.IsActive;
+                    }
+                    if(updateRequest.Skills != null)
+                    {
+                        foreach (var employeeSkill in updateRequest.Skills)
+                        {
+                            var getEmployeeSkill = await _unitOfWork.EmployeeSkillRepository.GetByCondition(x => x.WorkTypeID == employeeSkill.SkillID && x.EmployeeID == updateRequest.UserId && x.FarmID == updateRequest.FarmId);
+                            if(getEmployeeSkill != null)
+                            {
+                                getEmployeeSkill.ScoreOfSkill = employeeSkill.ScoreOfSkill;
+                                _unitOfWork.EmployeeSkillRepository.Update(getEmployeeSkill);
+                            }
+                        }
                     }
 
                     _unitOfWork.UserFarmRepository.Update(userInfarm);

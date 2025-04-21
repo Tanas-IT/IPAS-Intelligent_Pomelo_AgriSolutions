@@ -103,6 +103,7 @@ export interface GetWorklogDetail {
   listNoteOfWorkLog: NoteOfWorkLog[];
   processName: string;
   masterTypeName: string;
+  masterTypeId: number;
   cropName: string;
   replacementEmployee: ReplacementEmployee[];
   planId: number;
@@ -111,6 +112,7 @@ export interface GetWorklogDetail {
   isHarvest: boolean;
   isTakeAttendance: boolean;
   redoWorkLog: RedoWorkLog;
+  assignorName: string;
 }
 
 interface RedoWorkLog {
@@ -127,6 +129,7 @@ export interface ReplacementEmployee {
   avatar?: string;
   replaceUserFullName?: string;
   replaceUserAvatar?: string;
+  replaceUserIsRepoter?: boolean
 }
 
 export interface GetWorklogNote {
@@ -156,4 +159,29 @@ export interface GetEmpListForUpdate {
 
 export interface WorklogStatusResponse {
   status: string[];
+}
+
+export interface DependencyWorklog {
+  workLogId: number;
+  planId: number;
+  planName: string;
+  startDate: string;
+  endDate: string;
+  startTime: string;
+  endTime: string;
+  status: string;
+  order: string;
+  date: string;
+}
+
+export interface SkillWithScore {
+  skillName: string;
+  score: number;
+}
+
+export interface EmployeeWithSkills {
+  userId: number;
+  fullName: string;
+  avatarURL: string;
+  skillWithScore: SkillWithScore[];
 }

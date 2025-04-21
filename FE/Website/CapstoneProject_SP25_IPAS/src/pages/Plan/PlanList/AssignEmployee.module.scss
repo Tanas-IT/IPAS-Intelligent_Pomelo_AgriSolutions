@@ -1,0 +1,149 @@
+@use "@/styles/variables.scss" as vars;
+
+.assignMembers {
+  width: 100%;
+  padding: 16px;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+
+  .label {
+    font-weight: 600;
+    font-size: 16px;
+    color: vars.$color_primary;
+  }
+
+  .membersContainer {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+  
+  .memberCard {
+    padding: 16px;
+    border-radius: 12px;
+    background: #fff;
+    border: 1px solid #f0f0f0;
+    transition: all 0.3s ease;
+    cursor: pointer;
+  
+    &:hover {
+      border-color: #d0e3ff;
+      box-shadow: 0 4px 12px rgba(24, 144, 255, 0.1);
+      transform: translateY(-2px);
+    }
+  
+    &[data-selected="true"] {
+      border-color: #1890ff;
+      background: #f0f9ff;
+      
+      .reporterRadio {
+        span {
+          color: #1890ff;
+          font-weight: 500;
+        }
+      }
+    }
+  }
+  
+  .avatar {
+    border: 2px solid #fff;
+    box-shadow: 0 0 0 2px #e6f7ff;
+    transition: all 0.3s;
+  }
+  
+  .memberName {
+    font-size: 15px;
+    font-weight: 500;
+    color: rgba(0, 0, 0, 0.88);
+  }
+  
+  .skillsContainer {
+    margin-top: 8px;
+  }
+  
+  .reporterRadio {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    white-space: nowrap;
+    
+    .ant-radio {
+      &-inner {
+        border-color: #d9d9d9;
+        &::after {
+          background-color: transparent;
+          transform: scale(0.8);
+          transition: all 0.2s;
+        }
+      }
+      
+      &-checked {
+        .ant-radio-inner {
+          border-color: #1890ff;
+          &::after {
+            background-color: #1890ff;
+          }
+        }
+      }
+    }
+    
+    span:not(.ant-radio) {
+      color: #8c8c8c;
+      transition: all 0.3s;
+      font-size: 14px;
+    }
+    
+    svg {
+      font-size: 16px;
+    }
+  }
+
+  .avatar {
+    border: 2px solid #fff;
+    box-shadow: 0 0 0 2px vars.$color_second;
+  }
+
+  .btnAssign {
+    background-color: vars.$color_second;
+    color: vars.$color_primary;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    border: none;
+    height: 40px;
+    
+    &:hover {
+      opacity: 0.9;
+      background-color: vars.$color_second !important;
+      color: #fff !important;
+      transform: translateY(-1px);
+    }
+    
+    &:active {
+      transform: translateY(0);
+    }
+  }
+
+  .reporterRadio {
+    margin-left: auto;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    
+    .ant-radio-inner {
+      border-color: vars.$color_second;
+    }
+    
+    .ant-radio-checked .ant-radio-inner {
+      border-color: vars.$color_second;
+      background-color: vars.$color_second;
+    }
+    
+    span:not(.ant-radio) {
+      color: vars.$color_primary;
+      font-weight: 500;
+    }
+  }
+}

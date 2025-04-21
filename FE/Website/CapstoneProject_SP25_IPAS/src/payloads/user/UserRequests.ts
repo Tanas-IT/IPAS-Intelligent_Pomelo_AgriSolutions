@@ -8,3 +8,16 @@ export interface UserRequest {
   gender: string;
   roleName: string;
 }
+
+export interface Skill {
+  skillID: number;
+  scoreOfSkill: number;
+}
+
+export interface AddUserFarmRequest {
+  farmId: number;
+  userId: number;
+  roleName: string;
+  isActive: boolean;
+  skills: Skill[];
+}

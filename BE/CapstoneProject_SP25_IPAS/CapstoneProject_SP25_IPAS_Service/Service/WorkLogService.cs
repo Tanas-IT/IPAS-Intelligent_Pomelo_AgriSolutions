@@ -356,32 +356,48 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     var workDate = getDetailWorkLog.Date.Value.Date;
                     var today = DateTime.Now.Date;
 
-                    if (workDate <= today && getDetailWorkLog.Status!.Equals(getStatusNotStarted))
+                    if (workDate <= today)
                     {
-                        // Trường hợp ngày làm việc là hôm nay
-                        if (workDate == today)
+                        if(getDetailWorkLog.Status!.Equals(getStatusNotStarted))
                         {
-                            if (getDetailWorkLog.ActualStartTime <= DateTime.Now.TimeOfDay)
+                            // Trường hợp ngày làm việc là hôm nay
+                            if (workDate == today)
                             {
-                                getDetailWorkLog.Status = getStatusInProgress;
-                                _unitOfWork.WorkLogRepository.Update(getDetailWorkLog);
-                                await _unitOfWork.SaveAsync();
-                            }
+                                if (getDetailWorkLog.ActualStartTime <= DateTime.Now.TimeOfDay && DateTime.Now.TimeOfDay <= getDetailWorkLog.ActualEndTime)
+                                {
+                                    getDetailWorkLog.Status = getStatusInProgress;
+                                    _unitOfWork.WorkLogRepository.Update(getDetailWorkLog);
+                                    await _unitOfWork.SaveAsync();
+                                }
 
-                            if (getDetailWorkLog.ActualEndTime <= DateTime.Now.TimeOfDay)
+                                if (getDetailWorkLog.ActualEndTime < DateTime.Now.TimeOfDay)
+                                {
+                                    getDetailWorkLog.Status = getStatusOverdue;
+                                    _unitOfWork.WorkLogRepository.Update(getDetailWorkLog);
+                                    await _unitOfWork.SaveAsync();
+                                }
+                            }
+                            // Trường hợp ngày làm việc đã trôi qua
+                            else if (workDate < today)
                             {
                                 getDetailWorkLog.Status = getStatusOverdue;
                                 _unitOfWork.WorkLogRepository.Update(getDetailWorkLog);
                                 await _unitOfWork.SaveAsync();
                             }
                         }
-                        // Trường hợp ngày làm việc đã trôi qua
-                        else
+                        else if(getDetailWorkLog.Status!.Equals(getStatusInProgress))
                         {
-                            getDetailWorkLog.Status = getStatusOverdue;
-                            _unitOfWork.WorkLogRepository.Update(getDetailWorkLog);
-                            await _unitOfWork.SaveAsync();
+                            if (workDate <= today)
+                            {
+                                if (getDetailWorkLog.ActualEndTime < DateTime.Now.TimeOfDay)
+                                {
+                                    getDetailWorkLog.Status = getStatusOverdue;
+                                    _unitOfWork.WorkLogRepository.Update(getDetailWorkLog);
+                                    await _unitOfWork.SaveAsync();
+                                }
+                            }
                         }
+                        
                     }
                 }
                 var result = _mapper.Map<WorkLogDetailModel>(getDetailWorkLog);
@@ -1644,6 +1660,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
                 _unitOfWork.WorkLogRepository.Update(getWorkLogToUpdate);
                 var result = await _unitOfWork.SaveAsync();
+
                 if (result > 0)
                 {
 
