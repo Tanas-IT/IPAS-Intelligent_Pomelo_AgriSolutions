@@ -20,5 +20,6 @@ export interface GetEmployee {
   skills: {
     skillID: number;
     scoreOfSkill: number;
+    skillName: string;
   }[];
 }

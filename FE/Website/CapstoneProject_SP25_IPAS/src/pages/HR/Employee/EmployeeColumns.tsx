@@ -38,9 +38,9 @@ export const EmployeeColumns: TableColumn<GetEmployee>[] = [
   },
   {
     header: "Skills",
-    field: "skills", // Đổi từ "user.skills" thành "skills"
-    accessor: (item) => { // Nhận toàn bộ item thay vì destructure user
-      console.log("Full item data:", item); // Log để kiểm tra
+    field: "skills",
+    accessor: (item) => {
+      console.log("Full item data:", item);
       
       return (
         <Flex gap={4} wrap="wrap">
@@ -55,7 +55,7 @@ export const EmployeeColumns: TableColumn<GetEmployee>[] = [
                   color="geekblue" 
                   style={{ margin: 0, cursor: 'pointer' }}
                 >
-                  Skill #{skill.skillID}
+                  {skill.skillName}: {skill.scoreOfSkill}
                 </Tag>
               </Tooltip>
             ))
