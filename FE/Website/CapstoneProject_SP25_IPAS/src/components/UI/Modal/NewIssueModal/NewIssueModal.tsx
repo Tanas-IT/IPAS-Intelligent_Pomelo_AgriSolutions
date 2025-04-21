@@ -1,27 +1,32 @@
-import { Flex, Form, Image, Upload, UploadFile, UploadProps } from "antd";
+import { Flex, Form, Image, Modal, Upload, UploadFile, UploadProps } from "antd";
 import { useState, useEffect } from "react";
 import { FormFieldModal, ModalForm, SectionWrapper } from "@/components";
 import style from "./NewIssueModal.module.scss";
 import { getBase64, RulesManager } from "@/utils";
 import { Icons } from "@/assets";
 import { toast } from "react-toastify";
-import { MESSAGES, plantGrowthHistoryFormFields } from "@/constants";
-import { PlantGrowthHistoryRequest } from "@/payloads";
-import { FileType } from "@/types";
+import { FILE_FORMAT, MESSAGES, plantGrowthHistoryFormFields } from "@/constants";
+import { FileResource, FileType } from "@/types";
 import { useStyle } from "@/hooks";
-import { useDirtyStore, usePlantStore } from "@/stores";
+import { useDirtyStore } from "@/stores";
+
+type BaseIssueType = {
+  issueName: string;
+  content: string;
+  resources: FileResource[];
+};
 
 type NewIssueModalProps<T extends { [key: string]: any }> = {
-  data: T;
+  data?: T;
   idKey: keyof T;
   id: number;
   isOpen: boolean;
-  onClose: (values: T) => void;
+  onClose: (values: T, isUpdate: boolean) => void;
   onSave: (values: T) => void;
   isLoading: boolean;
 };
 
-const NewIssueModal = <T extends { [key: string]: any }>({
+const NewIssueModal = <T extends BaseIssueType>({
   data,
   idKey,
   id,
@@ -33,10 +38,47 @@ const NewIssueModal = <T extends { [key: string]: any }>({
   const { styles } = useStyle();
   const { setIsDirty } = useDirtyStore();
   const [form] = Form.useForm();
-  const [fileList, setFileList] = useState<UploadFile[]>([]);
+  const [imageList, setImageList] = useState<UploadFile[]>([]);
+  const [videoList, setVideoList] = useState<UploadFile[]>([]);
   const [previewOpen, setPreviewOpen] = useState(false);
   const [previewImage, setPreviewImage] = useState("");
   const [previewVideo, setPreviewVideo] = useState("");
+  const isUpdate = Boolean(data);
+
+  const resetForm = () => {
+    setImageList([]);
+    setVideoList([]);
+    setPreviewImage("");
+    setPreviewVideo("");
+    setIsDirty(false);
+    form.resetFields();
+  };
+
+  useEffect(() => {
+    resetForm();
+    if (isOpen && data) {
+      console.log(data);
+      form.setFieldsValue({
+        [plantGrowthHistoryFormFields.issueName]: data.issueName,
+        [plantGrowthHistoryFormFields.content]: data.content,
+      });
+      const imageResources =
+        data.resources?.filter((r) => r.fileFormat === FILE_FORMAT.IMAGE) || [];
+      const videoResources =
+        data.resources?.filter((r) => r.fileFormat === FILE_FORMAT.VIDEO) || [];
+      const convertToUploadFile = (r: FileResource): UploadFile => ({
+        uid: r.resourceID.toString(),
+        name: r.resourceCode || r.fileFormat || "file",
+        status: "done",
+        url: r.resourceURL,
+        type: r.fileFormat.startsWith("image") ? "image/" + r.fileFormat : "video/" + r.fileFormat,
+        crossOrigin: "anonymous",
+      });
+
+      setImageList(imageResources.map(convertToUploadFile));
+      setVideoList(videoResources.map(convertToUploadFile));
+    }
+  }, [isOpen, data]);
 
   const handlePreview = async (file: UploadFile) => {
     if (!file.url && !file.preview) {
@@ -54,30 +96,39 @@ const NewIssueModal = <T extends { [key: string]: any }>({
     setPreviewOpen(true);
   };
 
-  const handleFileChange: UploadProps["onChange"] = ({ fileList }) => {
-    setFileList(fileList);
-    form.setFieldsValue({ plantResources: fileList.length > 0 ? fileList : undefined });
-    if (fileList.length > 0) {
-      setIsDirty(true);
-    } else {
-      setIsDirty(false);
-    }
+  const updateFormResources = (images: UploadFile[], videos: UploadFile[]) => {
+    const combined = [...images, ...videos];
+    setIsDirty(combined.length > 0);
+    form.setFieldsValue({ plantResources: combined.length > 0 ? combined : undefined });
   };
 
-  useEffect(() => {
-    if (isOpen) {
-      form.resetFields();
-    }
-  }, [isOpen]);
+  const handleImageChange: UploadProps["onChange"] = ({ fileList }) => {
+    setImageList(fileList);
+    updateFormResources(fileList, videoList);
+  };
+
+  const handleVideoChange: UploadProps["onChange"] = ({ fileList }) => {
+    setVideoList(fileList);
+    updateFormResources(imageList, fileList);
+  };
 
   const getFormData = (): T => {
+    const existingResources = [...imageList, ...videoList].map((file) => {
+      // File mới (chưa có ID)
+      if (!file.uid || isNaN(Number(file.uid))) {
+        return file.originFileObj as File;
+      }
+
+      // File cũ giữ nguyên (đã có ID)
+      return {
+        resourceID: Number(file.uid),
+      };
+    });
     return {
       [idKey]: id,
       issueName: form.getFieldValue(plantGrowthHistoryFormFields.issueName),
       content: form.getFieldValue(plantGrowthHistoryFormFields.content),
-      resources: fileList
-        .map((file) => file.originFileObj as File | undefined)
-        .filter((file): file is File => Boolean(file)), // Loại bỏ undefined
+      resources: existingResources,
     } as unknown as T;
   };
 
@@ -87,25 +138,20 @@ const NewIssueModal = <T extends { [key: string]: any }>({
     onSave(getFormData());
   };
 
-  const handleCancel = () => onClose(getFormData());
+  const handleCancel = () => onClose(getFormData(), isUpdate);
 
-  const handleBeforeUpload = (file: FileType) => {
-    const isMedia = [
-      "image/png",
-      "image/jpeg",
-      "image/jpg",
-      "image/gif",
-      "image/webp",
-      "video/mp4",
-      "video/webm",
-      "video/ogg",
-    ].includes(file.type);
+  const beforeUploadImage = (file: FileType) => {
+    const isImage = ["image/png", "image/jpeg", "image/jpg", "image/gif", "image/webp"].includes(
+      file.type,
+    );
+    if (!isImage) toast.error(MESSAGES.IMAGE_INVALID);
+    return isImage ? false : Upload.LIST_IGNORE;
+  };
 
-    if (!isMedia) {
-      toast.error(MESSAGES.IMAGE_OR_VIDEO_INVALID);
-    }
-
-    return isMedia ? false : Upload.LIST_IGNORE;
+  const beforeUploadVideo = (file: FileType) => {
+    const isVideo = ["video/mp4", "video/webm", "video/ogg"].includes(file.type);
+    if (!isVideo) toast.error(MESSAGES.IMAGE_INVALID);
+    return isVideo ? false : Upload.LIST_IGNORE;
   };
 
   const uploadButton = (
@@ -120,6 +166,7 @@ const NewIssueModal = <T extends { [key: string]: any }>({
       isOpen={isOpen}
       onClose={handleCancel}
       onSave={handleOk}
+      isUpdate={isUpdate}
       isLoading={isLoading}
       title={"Add New Issue"}
       size="large"
@@ -141,23 +188,56 @@ const NewIssueModal = <T extends { [key: string]: any }>({
         />
 
         <SectionWrapper
-          title="Resources:"
-          name={"plantResources"}
-          valuePropName="fileList"
-          description="Supported formats: Images (PNG, JPG, GIF, WEBP) & Videos (MP4, WEBM, OGG). You can upload up to 10 files."
+          title="Image Upload"
+          name="imageResources"
+          description="Upload up to 5 images (PNG, JPG, GIF, WEBP)."
         >
           <Upload
             className={styles.customUpload}
             listType="picture-card"
-            fileList={fileList}
-            accept="image/png, image/jpeg, image/jpg, image/gif, image/webp, video/mp4, video/webm, video/ogg"
-            multiple={true}
+            fileList={imageList}
+            accept="image/png, image/jpeg, image/jpg, image/gif, image/webp"
+            multiple
             onPreview={handlePreview}
-            onChange={handleFileChange}
-            beforeUpload={handleBeforeUpload}
-            maxCount={10}
+            onChange={handleImageChange}
+            beforeUpload={beforeUploadImage}
+            maxCount={5}
           >
-            {fileList.length >= 10 ? null : uploadButton}
+            {imageList.length >= 5 ? null : uploadButton}
+          </Upload>
+        </SectionWrapper>
+
+        <SectionWrapper
+          title="Video Upload"
+          name="videoResources"
+          description="Upload up to 5 videos (MP4, WEBM, OGG)."
+        >
+          <Upload
+            className={styles.customUpload}
+            listType="picture-card"
+            fileList={videoList}
+            accept="video/mp4, video/webm, video/ogg"
+            multiple
+            onPreview={handlePreview}
+            onChange={handleVideoChange}
+            beforeUpload={beforeUploadVideo}
+            maxCount={5}
+            itemRender={(originNode, file, fileList, actions) => {
+              return (
+                <div className={style.videoWrapper}>
+                  <video
+                    src={file.url || (file.preview as string)}
+                    style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                  />
+                  <div className={style.previewOverlay}>
+                    <Icons.eye onClick={() => handlePreview(file)} />
+                    <Icons.delete onClick={() => actions.remove?.()} />
+                  </div>
+                </div>
+              );
+            }}
+          >
+            {videoList.length >= 5 ? null : uploadButton}
           </Upload>
         </SectionWrapper>
 
@@ -170,15 +250,24 @@ const NewIssueModal = <T extends { [key: string]: any }>({
               afterOpenChange: (visible) => !visible && setPreviewImage(""),
             }}
             src={previewImage}
+            crossOrigin="anonymous"
           />
         )}
 
-        {previewVideo && (
-          <video controls style={{ width: "100%" }}>
+        <Modal
+          open={previewOpen && !!previewVideo}
+          footer={null}
+          onCancel={() => {
+            setPreviewOpen(false);
+            setPreviewVideo("");
+          }}
+          width={800}
+        >
+          <video key={previewVideo} controls className={style.videoPreview} crossOrigin="anonymous">
             <source src={previewVideo} type="video/mp4" />
             Your browser does not support the video tag.
           </video>
-        )}
+        </Modal>
       </Form>
     </ModalForm>
   );

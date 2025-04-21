@@ -8,16 +8,12 @@ import { UserAvatar } from "@/components";
 
 interface GrowthDetailContentProps<T extends { [key: string]: any }> {
   history: T | null;
-  onBack: () => void;
-  onDelete: (id: number) => void;
-  idKey: keyof T;
+  actionMenu: (item: T) => React.ReactNode;
 }
 
 function GrowthDetailContent<T extends { [key: string]: any }>({
   history,
-  onBack,
-  onDelete,
-  idKey,
+  actionMenu,
 }: GrowthDetailContentProps<T>) {
   if (!history) return null;
 
@@ -32,16 +28,19 @@ function GrowthDetailContent<T extends { [key: string]: any }>({
   return (
     <Flex className={style.detailWrapper} vertical>
       <Flex gap={12} className={style.modalHeader}>
-        <Flex justify="center" align="center" gap={10}>
-          <UserAvatar avatarURL={history.noteTakerAvatar || undefined} size={40} />
+        <Flex justify="space-between" align="center" style={{ width: "100%" }}>
+          <Flex justify="center" align="center" gap={10}>
+            <UserAvatar avatarURL={history.noteTakerAvatar || undefined} size={40} />
+            <span className={style.userName}>{history.noteTakerName}</span>
+            <span>created this note</span>
+            <span className={style.createdDate}>{formatDayMonthAndTime(history.createDate)}</span>
+          </Flex>
 
-          <span className={style.userName}>{history.noteTakerName}</span>
-          <span>created this note</span>
-          <span className={style.createdDate}>{formatDayMonthAndTime(history.createDate)}</span>
+          {actionMenu(history)}
         </Flex>
-        <Button icon={<Icons.back />} className={style.backButton} onClick={onBack}>
+        {/* <Button icon={<Icons.back />} className={style.backButton} onClick={onBack}>
           Back to Growth History
-        </Button>
+        </Button> */}
       </Flex>
 
       <Flex className={style.modalInfoRow}>
@@ -107,17 +106,6 @@ function GrowthDetailContent<T extends { [key: string]: any }>({
             )}
           </Flex>
         )}
-      </Flex>
-      <Flex justify="end">
-        <Button
-          danger
-          icon={<Icons.delete />}
-          onClick={(e) => {
-            onDelete((history as any)[idKey]);
-          }}
-        >
-          Delete
-        </Button>
       </Flex>
     </Flex>
   );

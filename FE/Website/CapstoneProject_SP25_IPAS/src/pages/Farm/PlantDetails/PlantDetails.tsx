@@ -78,12 +78,12 @@ function PlantDetails() {
       label: <label className={style.titleTab}>Growth History</label>,
       children: <PlantGrowthHistory />,
     },
-    {
-      key: "5",
-      icon: <Icons.tool className={style.iconTab} />,
-      label: <label className={style.titleTab}>Care History</label>,
-      children: <PlantCareHistory />,
-    },
+    // {
+    //   key: "5",
+    //   icon: <Icons.tool className={style.iconTab} />,
+    //   label: <label className={style.titleTab}>Care History</label>,
+    //   children: <PlantCareHistory />,
+    // },
     {
       key: "6",
       icon: <Icons.plant className={style.iconTab} />,

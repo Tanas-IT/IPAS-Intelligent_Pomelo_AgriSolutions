@@ -2,7 +2,7 @@ import { Flex, Form } from "antd";
 import { useEffect } from "react";
 import { FormFieldModal, ModalForm } from "@/components";
 import { formatDateReq, RulesManager } from "@/utils";
-import { USER_ROLE_OPTIONS, userFormFields } from "@/constants";
+import { GENDER_OPTIONS, USER_ROLE_OPTIONS, userFormFields } from "@/constants";
 import { GetUser2, UserRequest } from "@/payloads";
 import dayjs from "dayjs";
 
@@ -115,10 +115,7 @@ const UserModal = ({ isOpen, onClose, onSave, userData, isLoadingAction }: UserM
             type="select"
             label="Gender"
             name={userFormFields.gender}
-            options={[
-              { label: "Male", value: "Male" },
-              { label: "Female", value: "Female" },
-            ]}
+            options={GENDER_OPTIONS}
           />
 
           <FormFieldModal

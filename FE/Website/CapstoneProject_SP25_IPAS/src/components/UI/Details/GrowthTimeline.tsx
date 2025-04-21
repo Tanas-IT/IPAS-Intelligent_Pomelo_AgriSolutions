@@ -1,28 +1,26 @@
 import { Divider, Empty, Flex } from "antd";
-import { Icons } from "@/assets";
 import { LoadingSkeleton, UserAvatar } from "@/components";
 import { formatDayMonthAndTime } from "@/utils";
 import style from "./Details.module.scss";
 
 interface GrowthTimelineProps<T extends { [key: string]: any }> {
   data: T[];
-  idKey: keyof T;
   isLoading: boolean;
   totalIssues: number;
   onLoadMore: () => void;
   onViewDetail: (item: T) => void;
-  onDelete: (id: number) => void;
+  actionMenu: (item: T) => React.ReactNode;
 }
 
 const GrowthTimeline = <T extends { [key: string]: any }>({
   data,
-  idKey,
   isLoading,
   totalIssues,
   onLoadMore,
   onViewDetail,
-  onDelete,
-}: GrowthTimelineProps<T>) => {
+  actionMenu,
+}: 
+GrowthTimelineProps<T>) => {
   return (
     <Flex className={style.historyTimeline}>
       {isLoading ? (
@@ -63,13 +61,7 @@ const GrowthTimeline = <T extends { [key: string]: any }>({
                       {item.numberImage} Images | {item.numberVideos} Videos
                     </span>
                   </Flex>
-                  <Icons.delete
-                    className={style.iconEdit}
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      onDelete((item as any)[idKey]);
-                    }}
-                  />
+                  <div onClick={(e) => e.stopPropagation()}>{actionMenu(item)}</div>
                 </Flex>
               </div>
             </Flex>

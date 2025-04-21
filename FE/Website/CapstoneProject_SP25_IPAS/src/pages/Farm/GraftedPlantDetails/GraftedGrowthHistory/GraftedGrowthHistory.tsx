@@ -1,6 +1,7 @@
 import style from "./GraftedGrowthHistory.module.scss";
 import { Divider, Flex } from "antd";
 import {
+  ActionMenuGrowth,
   ConfirmModal,
   GraftedPlantSectionHeader,
   GrowthDetailContent,
@@ -150,9 +151,12 @@ function GraftedGrowthHistory() {
       {isGrowthDetailView ? (
         <GrowthDetailContent
           history={selectedHistory}
-          idKey="graftedPlantNoteId"
-          onBack={handleBackToList}
-          onDelete={(id) => deleteConfirmModal.showModal({ id })}
+          actionMenu={(item: GetGraftedGrowthHistory) => (
+            <ActionMenuGrowth
+              onEdit={() => {}}
+              onDelete={() => deleteConfirmModal.showModal({ id: item.graftedPlantNoteId })}
+            />
+          )}
         />
       ) : (
         <>
@@ -160,12 +164,16 @@ function GraftedGrowthHistory() {
             <TimelineFilter dateRange={dateRange} onDateChange={handleDateChange} />
             <GrowthTimeline
               data={data}
-              idKey="graftedPlantNoteId"
               isLoading={isLoading}
               totalIssues={totalIssues}
               onViewDetail={handleViewDetail}
               onLoadMore={() => setCurrentPage((prev) => prev + 1)}
-              onDelete={(id) => deleteConfirmModal.showModal({ id })}
+              actionMenu={(item: GetGraftedGrowthHistory) => (
+                <ActionMenuGrowth
+                  onEdit={() => {}}
+                  onDelete={() => deleteConfirmModal.showModal({ id: item.graftedPlantNoteId })}
+                />
+              )}
             />
           </Flex>
         </>

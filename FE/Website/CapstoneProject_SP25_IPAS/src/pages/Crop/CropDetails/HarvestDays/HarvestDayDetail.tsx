@@ -25,11 +25,10 @@ import { toast } from "react-toastify";
 
 interface HarvestDayDetailProps {
   selectedHarvest: GetHarvestDay | null;
-  onBack: () => void;
   actionMenu: React.ReactNode;
 }
 
-function HarvestDayDetail({ selectedHarvest, onBack, actionMenu }: HarvestDayDetailProps) {
+function HarvestDayDetail({ selectedHarvest, actionMenu }: HarvestDayDetailProps) {
   const navigate = useNavigate();
   const [harvestData, setHarvestData] = useState<GetHarvestDayDetail | null>(null);
   const [productId, setProductId] = useState<number | null>(null);
@@ -76,7 +75,7 @@ function HarvestDayDetail({ selectedHarvest, onBack, actionMenu }: HarvestDayDet
   }, [productId]);
 
   const handleUpdateProductHarvest = async (values: UpdateProductHarvestRequest) => {
-    const res = await harvestService.UpdateProductHarvest(values);
+    const res = await harvestService.updateProductHarvest(values);
     if (res.statusCode === 200) {
       toast.success(res.message);
       formModal.hideModal();

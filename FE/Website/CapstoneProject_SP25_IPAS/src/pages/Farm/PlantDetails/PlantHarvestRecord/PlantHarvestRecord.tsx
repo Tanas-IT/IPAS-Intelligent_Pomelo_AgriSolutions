@@ -7,17 +7,16 @@ import {
   UpdateProductHarvestModal,
   UserAvatar,
 } from "@/components";
-import { Button, Divider, Empty, Flex, InputNumber, Select, Typography } from "antd";
+import { Divider, Empty, Flex, InputNumber, Select, Typography } from "antd";
 import style from "./PlantHarvestRecord.module.scss";
 import { useEffect, useState } from "react";
 import { Dayjs } from "dayjs";
 import { formatDate, formatDayMonthAndTime } from "@/utils";
-import { GetPlantRecord, productHarvestHistoryRes, UpdateProductHarvestRequest } from "@/payloads";
+import { GetPlantRecord, UpdateProductHarvestRequest } from "@/payloads";
 import { DEFAULT_RECORDS_IN_DETAIL, MASTER_TYPE } from "@/constants";
-import { useDirtyStore, usePlantStore } from "@/stores";
+import { usePlantStore } from "@/stores";
 import { harvestService, plantService } from "@/services";
 import { useMasterTypeOptions, useModal } from "@/hooks";
-import { Icons } from "@/assets";
 import { toast } from "react-toastify";
 
 const { Text } = Typography;

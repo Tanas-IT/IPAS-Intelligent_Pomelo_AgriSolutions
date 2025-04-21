@@ -36,6 +36,7 @@ export { default as ActionMenuGraftedPlant } from "@/components/UI/ActionMenu/Ac
 export { default as ActionMenuCrop } from "@/components/UI/ActionMenu/ActionMenuCrop";
 export { default as ActionMenuHarvest } from "@/components/UI/ActionMenu/ActionMenuHarvest";
 export { default as ActionMenuChat } from "@/components/UI/ActionMenu/ActionMenuChat";
+export { default as ActionMenuGrowth } from "@/components/UI/ActionMenu/ActionMenuGrowth";
 export { default as ActionMenuRecord } from "@/components/UI/ActionMenu/ActionMenuRecord";
 export { default as ActionMenuSystemConfig } from "@/components/UI/ActionMenu/ActionMenuSystemConfig";
 export { default as ActionMenuUser } from "@/components/UI/ActionMenu/ActionMenuUser";

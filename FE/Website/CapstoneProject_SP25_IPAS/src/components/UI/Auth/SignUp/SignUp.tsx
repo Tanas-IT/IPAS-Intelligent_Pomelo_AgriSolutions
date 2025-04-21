@@ -10,6 +10,7 @@ import dayjs from "dayjs";
 import { authService } from "@/services";
 import { toast } from "react-toastify";
 import { PATHS } from "@/routes";
+import { GENDER_OPTIONS } from "@/constants";
 
 interface Props {
   toggleForm: () => void;
@@ -161,8 +162,11 @@ const SignUp: React.FC<Props> = ({ toggleForm, isSignUp, handleGoogleLoginSucces
                 style={{ height: "43px", fontSize: "16px" }}
                 className={`${styles.customPlaceholder}`}
               >
-                <Select.Option value="male">Male</Select.Option>
-                <Select.Option value="female">Female</Select.Option>
+                {GENDER_OPTIONS.map((option) => (
+                  <Select.Option key={option.value} value={option.value}>
+                    {option.label}
+                  </Select.Option>
+                ))}
               </Select>
             </Form.Item>
           </Col>
