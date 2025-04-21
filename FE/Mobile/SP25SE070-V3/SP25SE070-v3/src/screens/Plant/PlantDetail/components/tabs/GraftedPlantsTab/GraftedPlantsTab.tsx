@@ -168,18 +168,6 @@ const GraftedPlantsTab: React.FC<{ plantId: number }> = ({ plantId }) => {
       </View>
 
       <View style={styles.cardFooter}>
-        <View style={styles.badgeContainer}>
-          {grafted.isCompleted && (
-            <View style={styles.completedBadge}>
-              <TextCustom style={styles.badgeText}>Completed</TextCustom>
-            </View>
-          )}
-          {grafted.isDead && (
-            <View style={styles.deadBadge}>
-              <TextCustom style={styles.badgeText}>Dead</TextCustom>
-            </View>
-          )}
-        </View>
         <TouchableOpacity
           style={styles.detailButton}
           onPress={() =>

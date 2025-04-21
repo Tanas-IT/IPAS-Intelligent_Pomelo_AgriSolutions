@@ -152,7 +152,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
 
         // Cập nhật thông tin cây ghép
         [HttpPut(APIRoutes.GraftedPlant.updateGraftedInfo, Name = "updateGraftedPlant")]
-        [HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)}")]
+        [HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)},{nameof(RoleEnum.EMPLOYEE)}")]
         [CheckUserFarmAccess]
         //[FarmExpired]
         public async Task<IActionResult> UpdateGraftedPlantAsync([FromBody] UpdateGraftedPlantRequest updateRequest)

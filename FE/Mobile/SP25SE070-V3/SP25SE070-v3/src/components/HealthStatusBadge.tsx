@@ -7,20 +7,28 @@ import CustomIcon from "./CustomIcon";
 
 interface HealthStatusBadgeProps {
   status: string;
+  isChange: boolean;
 }
 
-const HealthStatusBadge: React.FC<HealthStatusBadgeProps> = ({ status }) => {
+const HealthStatusBadge: React.FC<HealthStatusBadgeProps> = ({
+  status,
+  isChange,
+}) => {
   return (
     <View style={[styles.statusBadge, getBadgeStyle(status), styles.row]}>
       <TextCustom style={[styles.statusText, getTextStyle(status)]}>
         {status}
       </TextCustom>
-      <CustomIcon name="autorenew" size={18} type="MaterialCommunityIcons" />
+      {isChange && (
+        <CustomIcon name="autorenew" size={18} type="MaterialCommunityIcons" />
+      )}
     </View>
   );
 };
 
 const getBadgeStyle = (status: string) => {
+  console.log(status);
+
   switch (status) {
     case HEALTH_STATUS.HEALTHY:
       return styles.statusHealthy;
@@ -31,7 +39,7 @@ const getBadgeStyle = (status: string) => {
     case HEALTH_STATUS.DEAD:
       return styles.statusDead;
     default:
-      return {};
+      return styles.statusDefault;
   }
 };
 
@@ -46,7 +54,7 @@ const getTextStyle = (status: string) => {
     case HEALTH_STATUS.DEAD:
       return styles.textDead;
     default:
-      return {};
+      return styles.textDefault;
   }
 };
 
@@ -71,11 +79,15 @@ const styles = StyleSheet.create({
   statusDead: {
     backgroundColor: theme.colors.statusDeadBg,
   },
+  statusDefault: {
+    backgroundColor: theme.colors.statusDefaultBg,
+    borderColor: theme.colors.statusDefaultBorder,
+  },
   statusText: {
     color: "white",
     fontWeight: "600",
     fontSize: 12,
-    minWidth: 50,
+    marginRight: 4,
   },
   textHealthy: {
     color: theme.colors.statusHealthyText,
@@ -88,6 +100,9 @@ const styles = StyleSheet.create({
   },
   textDead: {
     color: theme.colors.statusDeadText,
+  },
+  textDefault: {
+    color: theme.colors.statusDefaultText, // Màu chữ mặc định
   },
   row: {
     flexDirection: "row",

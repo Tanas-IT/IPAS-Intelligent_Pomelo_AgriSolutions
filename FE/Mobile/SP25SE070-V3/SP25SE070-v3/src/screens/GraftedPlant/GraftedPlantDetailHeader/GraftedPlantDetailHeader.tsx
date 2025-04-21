@@ -8,7 +8,7 @@ import { RootStackNavigationProp } from "@/constants/Types";
 import { ROUTE_NAMES } from "@/constants/RouteNames";
 import { CustomIcon, HealthStatusBadge, TextCustom } from "@/components";
 import { useGraftedPlantStore } from "@/store";
-import { HEALTH_STATUS } from "@/constants";
+import { GRAFTED_STATUS, HEALTH_STATUS } from "@/constants";
 import { styles } from "./GraftedPlantDetailHeader.styles";
 import { useActionSheet } from "@expo/react-native-action-sheet";
 import { GraftedPlantService } from "@/services";
@@ -19,6 +19,8 @@ const GraftedPlantDetailHeader: React.FC = () => {
   const { showActionSheetWithOptions } = useActionSheet();
 
   if (!graftedPlant) return;
+  const isInactive =
+    graftedPlant.isDead || graftedPlant.status === GRAFTED_STATUS.USED;
   const statusList = [
     HEALTH_STATUS.HEALTHY,
     HEALTH_STATUS.MINOR_ISSUE,
@@ -106,8 +108,14 @@ const GraftedPlantDetailHeader: React.FC = () => {
           </TextCustom>
 
           <View style={styles.statusRow}>
-            <TouchableOpacity onPress={openStatusSelector}>
-              <HealthStatusBadge status={graftedPlant.status} />
+            <TouchableOpacity
+              onPress={openStatusSelector}
+              disabled={isInactive}
+            >
+              <HealthStatusBadge
+                status={graftedPlant.status}
+                isChange={!isInactive}
+              />
             </TouchableOpacity>
           </View>
         </View>

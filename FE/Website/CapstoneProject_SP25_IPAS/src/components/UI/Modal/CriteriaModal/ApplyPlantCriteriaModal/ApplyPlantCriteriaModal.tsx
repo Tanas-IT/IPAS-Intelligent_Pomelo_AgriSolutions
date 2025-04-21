@@ -56,8 +56,6 @@ const ApplyPlantCriteriaModal = ({
   }, [isOpen]);
 
   const handleOk = async () => {
-    setDataSource([]);
-    setCriteriaOptions([]);
     if (!isCriteriaListValid()) return;
     if (!plantIds) return;
     await form.validateFields();

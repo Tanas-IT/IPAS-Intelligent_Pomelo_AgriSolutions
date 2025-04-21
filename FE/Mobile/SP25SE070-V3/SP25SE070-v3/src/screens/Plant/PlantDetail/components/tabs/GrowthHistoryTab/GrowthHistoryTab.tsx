@@ -12,6 +12,7 @@ import { RootStackNavigationProp } from "@/constants/Types";
 import { styles } from "./GrowthHistoryTab.styles";
 import {
   CustomIcon,
+  DateRangePicker,
   FloatingAddButton,
   Loading,
   NoteDetailModal,
@@ -23,7 +24,6 @@ import { usePlantStore } from "@/store";
 import { GetPlantGrowthHistory } from "@/payloads";
 import { DEFAULT_RECORDS_IN_DETAIL, ROUTE_NAMES } from "@/constants";
 import { PlantService } from "@/services";
-import DateRangePicker from "../../DateRangePicker";
 import { processResourcesToImages, processResourcesToVideos } from "@/utils";
 
 const GrowthHistoryTab: React.FC = () => {
@@ -213,7 +213,8 @@ const GrowthHistoryTab: React.FC = () => {
           ) : (
             <TimelineItem
               history={item}
-              isDead={plant.isDead}
+              isDisable={plant.isDead}
+              idKey="plantGrowthHistoryId"
               index={index}
               totalItems={data.length}
               onEdit={() =>

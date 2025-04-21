@@ -6,26 +6,29 @@ import { CustomIcon, TextCustom } from "@/components";
 import { formatDateAndTime } from "@/utils";
 import { TouchableOpacity, Image } from "react-native";
 import { styles } from "./Details.styles";
+import { BaseHistory } from "@/types";
 
-interface TimelineItemProps {
-  history: GetPlantGrowthHistory;
-  isDead: boolean;
+interface TimelineItemProps<T> {
+  history: T;
+  isDisable: boolean;
+  idKey: keyof T;
   index: number;
   totalItems: number;
-  onEdit: (history: GetPlantGrowthHistory) => void;
+  onEdit: (history: T) => void;
   onDelete: (historyId: number) => void;
-  showDetailModal: (history: GetPlantGrowthHistory) => void;
+  showDetailModal: (history: T) => void;
 }
 
-export const TimelineItem: React.FC<TimelineItemProps> = ({
+export const TimelineItem = <T extends BaseHistory>({
   history,
-  isDead,
+  isDisable,
+  idKey,
   index,
   totalItems,
   onEdit,
   onDelete,
   showDetailModal,
-}) => {
+}: TimelineItemProps<T>) => {
   const { options, loading } = useSystemConfigOptions(
     SYSTEM_CONFIG_GROUP.VALIDATION_VARIABLE,
     SYSTEM_CONFIG_KEY.EDIT_IN_DAY,
@@ -67,7 +70,7 @@ export const TimelineItem: React.FC<TimelineItemProps> = ({
               </TextCustom>
             </View>
           </View>
-          {canEdit && !isDead && (
+          {canEdit && !isDisable && (
             <View style={styles.actionButtons}>
               <TouchableOpacity onPress={() => onEdit(history)}>
                 <CustomIcon
@@ -78,7 +81,7 @@ export const TimelineItem: React.FC<TimelineItemProps> = ({
                 />
               </TouchableOpacity>
               <TouchableOpacity
-                onPress={() => onDelete(history.plantGrowthHistoryId)}
+                onPress={() => onDelete((history as any)[idKey])}
                 style={{ marginLeft: 10 }}
               >
                 <CustomIcon

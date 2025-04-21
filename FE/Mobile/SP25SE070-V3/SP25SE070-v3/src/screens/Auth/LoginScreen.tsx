@@ -8,14 +8,13 @@ import { loginSchema } from "@/validations/authSchemas";
 import Toast from "react-native-toast-message";
 import { useNavigation } from "@react-navigation/native";
 import { KeyboardAvoidingView, VStack } from "native-base";
-import { AuthNavigationProp, ROUTE_NAMES } from "@/constants";
+import { AuthNavigationProp, ROUTE_NAMES, UserRolesStr } from "@/constants";
 import { AuthService } from "@/services";
 import theme from "@/theme";
 import { styles } from "./LoginScreen.styles";
 import { CustomTextInput, TextCustom } from "@/components";
 import { useAuthStore } from "@/store";
 import { getRoleId, getUserId } from "@/utils";
-import { UserRole } from "@/constants";
 import { logo } from "@/assets/images";
 import { ScrollView } from "react-native-gesture-handler";
 
@@ -54,11 +53,15 @@ export const LoginScreen = () => {
           type: "success",
           text1: res.message,
         });
-        if (roleId === UserRole.User.toString())
+        if (roleId === UserRolesStr.User)
           navigation.navigate(ROUTE_NAMES.MAIN.DRAWER, {
             screen: ROUTE_NAMES.FARM.FARM_PICKER,
           });
-        if (roleId === UserRole.Admin.toString())
+        if (roleId === UserRolesStr.Admin)
+          navigation.navigate(ROUTE_NAMES.MAIN.DRAWER, {
+            screen: ROUTE_NAMES.MAIN.MAIN_TABS,
+          });
+        if (roleId === UserRolesStr.Owner || roleId === UserRolesStr.Manager)
           navigation.navigate(ROUTE_NAMES.MAIN.DRAWER, {
             screen: ROUTE_NAMES.MAIN.MAIN_TABS,
           });

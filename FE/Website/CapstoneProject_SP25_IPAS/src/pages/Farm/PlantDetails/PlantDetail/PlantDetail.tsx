@@ -121,19 +121,14 @@ function PlantDetail() {
 
   const handleMarkAsDead = async (plantId?: number) => {
     if (!plantId) return;
-    try {
-      markAsDeadConfirmModal.hideModal();
-      setIsLoading(true);
-      var res = await plantService.updatePlantDead(plantId);
-      if (res.statusCode === 200) {
-        toast.success(res.message);
-        markAsDeadModal.hideModal();
-        await fetchPlant();
-      } else {
-        toast.error(res.message);
-      }
-    } finally {
-      setIsLoading(false);
+    markAsDeadConfirmModal.hideModal();
+    var res = await plantService.updatePlantDead(plantId);
+    if (res.statusCode === 200) {
+      toast.success(res.message);
+      markAsDeadModal.hideModal();
+      await fetchPlant();
+    } else {
+      toast.error(res.message);
     }
   };
 

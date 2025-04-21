@@ -12,22 +12,26 @@ import { RootStackNavigationProp } from "@/constants/Types";
 import { styles } from "./GrowthHistoryTab.styles";
 import {
   CustomIcon,
+  DateRangePicker,
   FloatingAddButton,
   Loading,
   NoteDetailModal,
+  SkeletonItem,
   TextCustom,
+  TimelineItem,
 } from "@/components";
-import { usePlantStore } from "@/store";
-import { GetPlantGrowthHistory } from "@/payloads";
-import { DEFAULT_RECORDS_IN_DETAIL, ROUTE_NAMES } from "@/constants";
-import { PlantService } from "@/services";
-import DateRangePicker from "../../DateRangePicker";
+import { useGraftedPlantStore } from "@/store";
+import { GetGraftedGrowthHistory } from "@/payloads";
+import {
+  DEFAULT_RECORDS_IN_DETAIL,
+  GRAFTED_STATUS,
+  ROUTE_NAMES,
+} from "@/constants";
+import { GraftedPlantService } from "@/services";
 import { processResourcesToImages, processResourcesToVideos } from "@/utils";
-import { TimelineItem } from "./TimelineItem";
-import { SkeletonItem } from "./SkeletonItem";
 
 const GrowthHistoryTab: React.FC = () => {
-  const [data, setData] = useState<GetPlantGrowthHistory[]>([]);
+  const [data, setData] = useState<GetGraftedGrowthHistory[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [isFirstLoad, setIsFirstLoad] = useState<boolean>(true);
   const [currentPage, setCurrentPage] = useState(1);
@@ -39,12 +43,12 @@ const GrowthHistoryTab: React.FC = () => {
   const navigation = useNavigation<RootStackNavigationProp>();
   const [modalVisible, setModalVisible] = useState(false);
   const [selectedHistory, setSelectedHistory] =
-    useState<GetPlantGrowthHistory | null>(null);
+    useState<GetGraftedGrowthHistory | null>(null);
   const isFocused = useIsFocused();
-  const { plant } = usePlantStore();
+  const { graftedPlant } = useGraftedPlantStore();
   const pageSize = DEFAULT_RECORDS_IN_DETAIL || 10;
 
-  if (!plant) return null;
+  if (!graftedPlant) return null;
 
   const fetchData = useCallback(
     async (page: number, reset: boolean = false) => {
@@ -60,8 +64,8 @@ const GrowthHistoryTab: React.FC = () => {
           ? end.toISOString().split("T")[0]
           : undefined;
 
-        const res = await PlantService.getPlantGrowthHistory(
-          plant.plantId,
+        const res = await GraftedPlantService.getGraftedPlantGrowthHistory(
+          graftedPlant.graftedPlantId,
           pageSize,
           page,
           hasValidRange ? startDateParam : undefined,
@@ -79,7 +83,7 @@ const GrowthHistoryTab: React.FC = () => {
         if (reset) setIsFirstLoad(false);
       }
     },
-    [plant.plantId, pageSize, dateRange, isLoading, totalIssues]
+    [graftedPlant, pageSize, dateRange, isLoading, totalIssues]
   );
 
   useEffect(() => {
@@ -104,7 +108,7 @@ const GrowthHistoryTab: React.FC = () => {
     setDateRange(updatedRange);
   };
 
-  const showDetailModal = (history: GetPlantGrowthHistory) => {
+  const showDetailModal = (history: GetGraftedGrowthHistory) => {
     setSelectedHistory({ ...history });
     setModalVisible(true);
   };
@@ -126,12 +130,13 @@ const GrowthHistoryTab: React.FC = () => {
           text: "Yes",
           style: "destructive",
           onPress: async () => {
-            const res = await PlantService.deletePlantGrowthHistory(historyId);
+            const res =
+              await GraftedPlantService.deleteGraftedPlantGrowthHistory(
+                historyId
+              );
             if (res.statusCode === 200) {
               setData((prevData) =>
-                prevData.filter(
-                  (item) => item.plantGrowthHistoryId !== historyId
-                )
+                prevData.filter((item) => item.graftedPlantNoteId !== historyId)
               );
               Toast.show({
                 type: "success",
@@ -178,13 +183,16 @@ const GrowthHistoryTab: React.FC = () => {
 
   return (
     <View style={styles.container}>
-      <FloatingAddButton
-        onPress={() =>
-          navigation.navigate(ROUTE_NAMES.PLANT.ADD_NOTE, {
-            plantId: plant.plantId,
-          })
-        }
-      />
+      {!graftedPlant.isDead ||
+        (graftedPlant.status !== GRAFTED_STATUS.USED && (
+          <FloatingAddButton
+            onPress={() =>
+              navigation.navigate(ROUTE_NAMES.GRAFTED_PLANT.ADD_NOTE, {
+                graftedPlantId: graftedPlant.graftedPlantId,
+              })
+            }
+          />
+        ))}
 
       <View style={styles.filterContainer}>
         <DateRangePicker
@@ -211,12 +219,17 @@ const GrowthHistoryTab: React.FC = () => {
           ) : (
             <TimelineItem
               history={item}
+              isDisable={
+                graftedPlant.isDead ||
+                graftedPlant.status === GRAFTED_STATUS.USED
+              }
+              idKey="graftedPlantNoteId"
               index={index}
               totalItems={data.length}
               onEdit={() =>
-                navigation.navigate(ROUTE_NAMES.PLANT.ADD_NOTE, {
-                  plantId: plant.plantId,
-                  historyId: item.plantGrowthHistoryId,
+                navigation.navigate(ROUTE_NAMES.GRAFTED_PLANT.ADD_NOTE, {
+                  graftedPlantId: graftedPlant.graftedPlantId,
+                  historyId: item.graftedPlantNoteId,
                   initialData: {
                     content: item.content,
                     issueName: item.issueName || undefined,
@@ -233,7 +246,7 @@ const GrowthHistoryTab: React.FC = () => {
         keyExtractor={(item, index) =>
           isFirstLoad && !data.length
             ? index.toString()
-            : item.plantGrowthHistoryId.toString()
+            : item.graftedPlantNoteId.toString()
         }
         ListEmptyComponent={
           data.length === 0 && !isFirstLoad ? renderEmpty : null

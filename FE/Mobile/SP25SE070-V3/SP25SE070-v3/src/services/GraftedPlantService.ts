@@ -13,6 +13,26 @@ import {
 } from "@/payloads";
 import { getFileFormat, getUserId } from "@/utils";
 
+export const getGraftedPlantGrowthHistory = async (
+  graftedPlantId: number,
+  pageSize: number,
+  pageIndex: number,
+  createFrom?: string,
+  createTo?: string
+): Promise<ApiResponse<GetData<GetGraftedGrowthHistory>>> => {
+  const res = await axiosAuth.axiosJsonRequest.get("grafted-plant/note/pagin", {
+    params: {
+      graftedPlantId,
+      pageSize,
+      pageIndex,
+      createFrom,
+      createTo,
+    },
+  });
+  const apiResponse = res.data as ApiResponse<GetData<GetGraftedGrowthHistory>>;
+  return apiResponse;
+};
+
 export const getGraftedPlantSelect = async (farmId: number) => {
   const res = await axiosAuth.axiosJsonRequest.get(
     `grafted-plant/get-for-selected/${farmId}`
@@ -109,7 +129,7 @@ export const updateGraftedPlantGrowthHistory = async (
   req: GraftedGrowthHistoryRequest
 ): Promise<ApiResponse<Object>> => {
   const formData = new FormData();
-  formData.append("GraftedPlantNoteId", req.GraftedPlantNoteId.toString());
+  formData.append("GraftedPlantNoteId", req.graftedPlantNoteId.toString());
   formData.append("UserId", req.userId.toString());
   formData.append("IssueName", req.issueName);
   formData.append("Content", req.content);

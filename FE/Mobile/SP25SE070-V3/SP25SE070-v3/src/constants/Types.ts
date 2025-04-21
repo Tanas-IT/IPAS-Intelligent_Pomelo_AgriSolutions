@@ -21,6 +21,11 @@ export type RootStackParamList = {
     initialData?: NoteFormData;
   };
   [ROUTE_NAMES.GRAFTED_PLANT.GRAFTED_PLANT_DETAIL]: { graftedPlantId: string };
+  [ROUTE_NAMES.GRAFTED_PLANT.ADD_NOTE]: {
+    graftedPlantId: number;
+    historyId?: number;
+    initialData?: NoteFormData;
+  };
   [ROUTE_NAMES.WORKLOG.WORKLOG_DETAIL]: { worklogId: string };
   [ROUTE_NAMES.WORKLOG.ADD_NOTE_WORKLOG]: {
     worklogId: number;

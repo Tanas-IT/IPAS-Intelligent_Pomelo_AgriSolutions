@@ -14,7 +14,7 @@ export const ROUTE_NAMES = {
   },
   GRAFTED_PLANT: {
     GRAFTED_PLANT_DETAIL: "GraftedPlantDetail",
-    ADD_NOTE: "NoteForm",
+    ADD_NOTE: "GraftedNoteScreen",
   },
   FARM: {
     FARM_PICKER: "FarmPickerScreen",

@@ -21,6 +21,7 @@ export const GRAFTED_STATUS = {
   HEALTHY: "Healthy",
   MINOR_ISSUE: "Minor Issues",
   SERIOUS_ISSUE: "Serious Issues",
+  DEAD: "Dead",
   USED: "Used",
 } as const;
 

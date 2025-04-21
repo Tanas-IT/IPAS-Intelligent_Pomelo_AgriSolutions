@@ -109,7 +109,10 @@ const PlantDetailHeader: React.FC = () => {
               onPress={openStatusSelector}
               disabled={plant.isDead}
             >
-              <HealthStatusBadge status={plant.healthStatus} />
+              <HealthStatusBadge
+                status={plant.healthStatus}
+                isChange={!plant.isDead}
+              />
             </TouchableOpacity>
 
             <View style={styles.growthStageBadge}>

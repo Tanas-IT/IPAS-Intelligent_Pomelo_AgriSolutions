@@ -8,3 +8,4 @@ export { default as AddNoteWorklogScreen } from "@/screens/Worklog/AddNoteWorklo
 export { default as PestDetectionScreen } from "@/screens/PestDetection/PestDetection";
 export { default as ReportResponseScreen } from "@/screens/ReportResponse/ReportResponseScreen";
 export { default as GraftedPlantDetail } from "@/screens/GraftedPlant/GraftedPlantDetail/GraftedPlantDetail";
+export { default as GraftedNoteScreen } from "@/screens/GraftedPlant/GraftedPlantDetail/tabs/GrowthHistoryTab/GraftedNoteScreen";

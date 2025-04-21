@@ -11,6 +11,7 @@ import {
 } from "@/constants";
 import {
   AddNoteWorklogScreen,
+  GraftedNoteScreen,
   GraftedPlantDetail,
   LoginScreen,
   NoteFormScreen,
@@ -88,6 +89,11 @@ export default function AppNavigation() {
       <Stack.Screen
         name={ROUTE_NAMES.GRAFTED_PLANT.GRAFTED_PLANT_DETAIL}
         component={GraftedPlantDetail}
+        options={{ headerShown: false }}
+      />
+      <Stack.Screen
+        name={ROUTE_NAMES.GRAFTED_PLANT.ADD_NOTE}
+        component={GraftedNoteScreen}
         options={{ headerShown: false }}
       />
       <Stack.Screen

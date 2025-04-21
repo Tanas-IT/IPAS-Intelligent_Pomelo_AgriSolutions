@@ -7,7 +7,7 @@ import {
   UpdateHarvestRecordRequest,
 } from "@/types/harvest";
 import Toast from "react-native-toast-message";
-import DateRangePicker from "../../DateRangePicker";
+import DateRangePicker from "../../../../../../components/DateRangePicker";
 import TimelineItem from "./TimelineItem";
 import AddRecordModal from "./AddRecordModal";
 import ConfirmModal from "../../ConfirmModal";
@@ -217,7 +217,10 @@ const RecordYieldTab: React.FC = () => {
     });
 
     for (const date in dateMap) {
-      grouped.push({ date, records: dateMap[date] });
+      const sortedRecords = dateMap[date].sort(
+        (a, b) => b.productHarvestHistoryId - a.productHarvestHistoryId
+      );
+      grouped.push({ date, records: sortedRecords });
     }
 
     return grouped.sort(

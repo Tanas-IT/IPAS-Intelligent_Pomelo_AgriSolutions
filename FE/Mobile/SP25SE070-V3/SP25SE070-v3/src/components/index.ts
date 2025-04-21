@@ -10,6 +10,7 @@ export { default as TextCustom } from "@/components/TextCustom";
 export { default as HealthStatusBadge } from "@/components/HealthStatusBadge";
 export { default as FloatingAddButton } from "@/components/FloatingAddButton";
 export { default as TabButton } from "@/components/TabButton";
+export { default as DateRangePicker } from "@/components/DateRangePicker";
 export { default as SkeletonItem } from "@/components/Details/SkeletonItem";
 export { default as TimelineItem } from "@/components/Details/TimelineItem";
 export { default as NoteFormContent } from "@/components/Details/NoteFormContent";

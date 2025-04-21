@@ -27,3 +27,18 @@ export interface NoteFormData {
   images?: MediaFile[];
   videos?: MediaFile[];
 }
+
+export interface BaseHistory {
+  createDate: string;
+  userId: number;
+  noteTakerName: string;
+  noteTakerAvatar: string;
+  issueName?: string;
+  content?: string;
+  numberImage: number;
+  numberVideos: number;
+  resources?: any[];
+  plantGrowthHistoryId: number;
+  graftedPlantId: number;
+  graftedPlantNoteId: number;
+}

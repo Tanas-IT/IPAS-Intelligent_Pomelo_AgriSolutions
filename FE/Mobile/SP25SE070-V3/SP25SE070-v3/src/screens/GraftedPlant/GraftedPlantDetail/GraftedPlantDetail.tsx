@@ -6,6 +6,7 @@ import { styles } from "./GraftedPlantDetail.styles";
 import { TabButton } from "@/components";
 import GraftedPlantDetailHeader from "../GraftedPlantDetailHeader/GraftedPlantDetailHeader";
 import BasicInfoTab from "./tabs/BasicInfoTab/BasicInfoTab";
+import GrowthHistoryTab from "./tabs/GrowthHistoryTab/GrowthHistoryTab";
 
 const tabs = [
   { iconName: "information", label: "Basic", value: "basic" },
@@ -21,8 +22,8 @@ const GraftedPlantDetail: React.FC = () => {
     switch (activeTab) {
       case "basic":
         return <BasicInfoTab graftedPlantId={Number(graftedPlantId)} />;
-      //   case "growth":
-      //     return <GrowthHistoryTab />;
+      case "growth":
+        return <GrowthHistoryTab />;
       default:
         return <BasicInfoTab graftedPlantId={Number(graftedPlantId)} />;
     }
