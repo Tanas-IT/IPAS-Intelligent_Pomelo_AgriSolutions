@@ -24,17 +24,22 @@ export const getEmployeeList = async (
   return apiResponse.data as GetData<GetEmployee>;
 };
 
-export const updateEmployee = async (
-  userId: number,
-  roleName?: string,
-  isActive?: boolean,
-): Promise<ApiResponse<Object>> => {
-  const payload: Record<string, any> = { userId };
+// export const updateEmployee = async (
+//   userId: number,
+//   roleName?: string,
+//   isActive?: boolean,
+// ): Promise<ApiResponse<Object>> => {
+//   const payload: Record<string, any> = { userId };
 
-  if (roleName !== undefined) payload.roleName = roleName;
-  if (isActive !== undefined) payload.isActive = isActive;
+//   if (roleName !== undefined) payload.roleName = roleName;
+//   if (isActive !== undefined) payload.isActive = isActive;
 
-  const res = await axiosAuth.axiosJsonRequest.put("farms/user-farm", payload);
+//   const res = await axiosAuth.axiosJsonRequest.put("farms/user-farm", payload);
+//   return res.data as ApiResponse<Object>;
+// };
+
+export const updateEmployee = async (data: AddUserFarmRequest): Promise<ApiResponse<Object>> => {
+  const res = await axiosAuth.axiosJsonRequest.put("farms/user-farm", data);
   return res.data as ApiResponse<Object>;
 };
 

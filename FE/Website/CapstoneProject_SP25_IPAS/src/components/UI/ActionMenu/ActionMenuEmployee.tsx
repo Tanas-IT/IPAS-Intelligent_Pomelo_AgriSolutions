@@ -1,19 +1,25 @@
-import { FC, useEffect, useState } from "react";
+import { FC, useState } from "react";
 import { Icons } from "@/assets";
 import ActionMenu from "./ActionMenu/ActionMenu";
-import { Button, Flex, Menu, Popover } from "antd";
+import { Flex, Popover } from "antd";
 import { ROLE } from "@/constants";
 import style from "./ActionMenu/ActionMenu.module.scss";
 import ConfirmModal from "../ConfirmModal/ConfirmModal";
-import { GetEmployee } from "@/payloads";
+import { GetEmployee, Skill } from "@/payloads";
 
 interface ActionMenuProps {
   employee: GetEmployee;
-  onConfirmUpdate: (userId: number, newRole?: string, isActive?: boolean) => void;
+  onConfirmUpdate: (userId: number, newRole?: string, isActive?: boolean, skills?: Skill[]) => void;
+  onEditSkills: () => void;
   onDelete: () => void;
 }
 
-const ActionMenuEmployee: FC<ActionMenuProps> = ({ employee, onConfirmUpdate, onDelete }) => {
+const ActionMenuEmployee: FC<ActionMenuProps> = ({
+  employee,
+  onConfirmUpdate,
+  onEditSkills,
+  onDelete,
+}) => {
   const [popoverVisible, setPopoverVisible] = useState(false);
   const [actionMenuVisible, setActionMenuVisible] = useState(false);
   const [confirmVisible, setConfirmVisible] = useState(false);
@@ -79,6 +85,14 @@ const ActionMenuEmployee: FC<ActionMenuProps> = ({ employee, onConfirmUpdate, on
       onClick: () => setPopoverVisible(true),
     },
     {
+      icon: <Icons.edit />,
+      label: "Edit skills",
+      onClick: () => {
+        onEditSkills();
+        setActionMenuVisible(false);
+      },
+    },
+    {
       icon: employee.isActive ? <Icons.ban /> : <Icons.checkSuccuss />,
       label: employee.isActive ? "De-activate user" : "Activate user",
       onClick: () => {
@@ -101,7 +115,6 @@ const ActionMenuEmployee: FC<ActionMenuProps> = ({ employee, onConfirmUpdate, on
         visible={actionMenuVisible}
         setVisible={handleActionMenuVisibleChange}
       />
-      {/* Confirm Update Modal */}
       <ConfirmModal
         visible={confirmVisible}
         onConfirm={handleConfirmUpdate}
