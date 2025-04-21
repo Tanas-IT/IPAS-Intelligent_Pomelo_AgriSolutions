@@ -1,6 +1,7 @@
 ﻿using CapstoneProject_SP25_IPAS_BussinessObject.Entities;
 using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.ReportModel;
 using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.WorkLogRequest;
+using CapstoneProject_SP25_IPAS_Common.Enum;
 using CapstoneProject_SP25_IPAS_Repository.IRepository;
 using CloudinaryDotNet;
 using Microsoft.EntityFrameworkCore;
@@ -117,6 +118,7 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
         public async Task<List<UserFarm>> GetUserWorkLogsByEmployeeIds(int? top, int? farmId, string? search)
         {
             var query = _context.UserFarms
+                .Where(x => x.RoleId != (int)RoleEnum.OWNER)
         .Include(uf => uf.User)
             .ThenInclude(u => u.UserWorkLogs.Where(uw => uw.IsDeleted != true))
             .ThenInclude(x => x.WorkLog)
