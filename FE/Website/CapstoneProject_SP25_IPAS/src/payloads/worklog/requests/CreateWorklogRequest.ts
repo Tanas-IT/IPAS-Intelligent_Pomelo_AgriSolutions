@@ -43,10 +43,10 @@ export interface ListEmployeeUpdate {
 
 export interface UpdateWorklogReq {
   workLogId: number,
-  listEmployeeUpdate: ListEmployeeUpdate[],
-  dateWork: string,
-  startTime: string,
-  endTime: string,
+  listEmployeeUpdate?: ListEmployeeUpdate[],
+  dateWork?: string,
+  startTime?: string,
+  endTime?: string,
 }
 
 export interface CancelReplacementRequest {

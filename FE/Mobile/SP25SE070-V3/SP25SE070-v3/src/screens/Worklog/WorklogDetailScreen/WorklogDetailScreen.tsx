@@ -570,6 +570,18 @@ const WorklogDetailScreen: React.FC<WorklogDetailScreenProps> = ({ route }) => {
               {worklog.planTargetModels[0]?.landPlotName}
             </TextCustom>
           </View>
+          <View style={styles.detailItem}>
+            <CustomIcon
+              name="basket"
+              size={20}
+              color="#064944"
+              type="MaterialCommunityIcons"
+            />
+            <TextCustom style={styles.detailLabel}>Harvest</TextCustom>
+            <TextCustom style={styles.detailValue}>
+              {worklog.isHarvest ? "Yes" : "No"}
+            </TextCustom>
+          </View>
         </View>
       </View>
 

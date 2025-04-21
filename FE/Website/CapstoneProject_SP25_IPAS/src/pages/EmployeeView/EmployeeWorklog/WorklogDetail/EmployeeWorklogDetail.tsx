@@ -118,19 +118,19 @@ function EmployeeWorklogDetail() {
             {/* Assigned Info */}
             <Flex vertical gap={10} className={style.contentSectionUser}>
                 <Flex vertical={false} gap={15}>
-                    <Image src={worklogDetail?.reporter[0]?.avatar || Images.avatar} width={25} className={style.avt} crossOrigin="anonymous" />
-                    <label className={style.createdBy}>{worklogDetail?.reporter[0]?.fullName || "laggg"}</label>
+                    <Image src={worklogDetail?.reporter[0]?.avatarURL || Images.avatar} width={25} className={style.avt} crossOrigin="anonymous" />
+                    <label className={style.createdBy}>{worklogDetail?.assignorName || "laggg"}</label>
                     <label className={style.textCreated}>created this plan</label>
                     <label className={style.createdDate}>{formatDateW(worklogDetail?.date ?? "2")}</label>
                 </Flex>
                 <Flex gap={15}>
                     <label className={style.textUpdated}>Assigned To:</label>
-                    <Image src={worklogDetail?.listEmployee[0]?.avatar || Images.avatar} width={25} className={style.avt} crossOrigin="anonymous" />
+                    <Image src={worklogDetail?.listEmployee[0]?.avatarURL || Images.avatar} width={25} className={style.avt} crossOrigin="anonymous" />
                     <label className={style.createdBy}>{worklogDetail?.listEmployee[0]?.fullName || "Jane Smith"}</label>
                 </Flex>
                 <Flex gap={15}>
                     <label className={style.textUpdated}>Reporter:</label>
-                    <Image src={worklogDetail?.reporter[0]?.avatar || Images.avatar} width={25} className={style.avt} crossOrigin="anonymous" />
+                    <Image src={worklogDetail?.reporter[0]?.avatarURL || Images.avatar} width={25} className={style.avt} crossOrigin="anonymous" />
                     <label className={style.createdBy}>{worklogDetail?.reporter[0]?.fullName || "Alex Johnson"}</label>
                 </Flex>
             </Flex>

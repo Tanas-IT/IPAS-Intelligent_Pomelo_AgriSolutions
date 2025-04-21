@@ -71,7 +71,8 @@ const NotificationScreen = () => {
 
   const test = NotificationService.getNotificationByUser(Number(userId));
 
-  const NotificationItem = ({ item }: { item: GetNotification }) => (
+  const NotificationItem = ({ item }: { item: GetNotification }) => {
+    return (
     <TouchableOpacity
       style={[styles.itemContainer, item.isRead && styles.readItem]}
       onPress={() => handleItemPress(item)}
@@ -109,7 +110,7 @@ const NotificationScreen = () => {
 
       {!item.isRead && <View style={styles.unreadDot} />}
     </TouchableOpacity>
-  );
+  )};
 
   const groupedNotifications = groupAndSortNotifications(filteredNotifications);
 

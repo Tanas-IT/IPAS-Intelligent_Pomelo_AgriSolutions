@@ -1,6 +1,6 @@
 import { TableColumn } from "@/types";
 import { GetEmployee } from "@/payloads";
-import { TableCell, UserAvatar } from "@/components";
+import { TableCell, Tooltip, UserAvatar } from "@/components";
 import { formatDate } from "@/utils";
 import { Flex, Tag } from "antd";
 
@@ -35,6 +35,37 @@ export const EmployeeColumns: TableColumn<GetEmployee>[] = [
     field: "roleName",
     accessor: (item) => <TableCell value={item.roleName} />,
     width: 180,
+  },
+  {
+    header: "Skills",
+    field: "skills",
+    accessor: (item) => {
+      console.log("Full item data:", item);
+      
+      return (
+        <Flex gap={4} wrap="wrap">
+          {item.skills?.length ? (
+            item.skills.map((skill, index) => (
+              <Tooltip 
+                key={index} 
+                title={`Score: ${skill.scoreOfSkill}`}
+                color="blue"
+              >
+                <Tag 
+                  color="geekblue" 
+                  style={{ margin: 0, cursor: 'pointer' }}
+                >
+                  {skill.skillName}: {skill.scoreOfSkill}
+                </Tag>
+              </Tooltip>
+            ))
+          ) : (
+            <Tag color="default">No skills</Tag>
+          )}
+        </Flex>
+      );
+    },
+    width: 250,
   },
   {
     header: "Gender",
