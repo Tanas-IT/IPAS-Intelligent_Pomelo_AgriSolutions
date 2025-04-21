@@ -162,14 +162,18 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         if (resource.File != null)
                         {
                             var cloudinaryUrl = await _cloudinaryService.UploadResourceAsync(resource.File, CloudinaryPath.GRAFTED_PLANT_NOTE);
+                            if (cloudinaryUrl.Data == null) continue;
+                            if (Util.IsVideo(Path.GetExtension(resource.File.FileName)?.TrimStart('.').ToLower()))
+                                resource.FileFormat = FileFormatConst.VIDEO.ToLower();
+                            else resource.FileFormat = FileFormatConst.IMAGE.ToLower();
                             var newRes = new Resource
                             {
                                 ResourceCode = "",
                                 ResourceURL = (string)cloudinaryUrl.Data! ?? null,
                                 ResourceType = ResourceTypeConst.PLANT_GROWTH_HISTORY,
-                                FileFormat = FileFormatConst.IMAGE,
+                                FileFormat = resource.FileFormat,
                                 CreateDate = DateTime.UtcNow,
-                                PlantGrowthHistoryID = plantGrowthHistory.GraftedPlantNoteId
+                                GraftedPlantNoteID = plantGrowthHistory.GraftedPlantNoteId
                             };
                             plantGrowthHistory.Resources.Add(newRes);
                         }
