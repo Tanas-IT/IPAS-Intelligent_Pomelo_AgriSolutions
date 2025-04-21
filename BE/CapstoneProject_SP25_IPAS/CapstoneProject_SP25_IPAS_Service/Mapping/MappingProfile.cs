@@ -79,8 +79,9 @@ namespace CapstoneProject_SP25_IPAS_Service.Mapping
                 //.ForMember(dest => dest.LandPlotCrops, opt => opt.MapFrom(src => src.LandPlotCrops))
                 .ReverseMap();
 
-            CreateMap<EmployeeSkill, SkillModel>()
+            CreateMap<EmployeeSkill, SkillResponseModel>()
                  .ForMember(dest => dest.SkillID, opt => opt.MapFrom(src => src.WorkTypeID))
+                 .ForMember(dest => dest.SkillName, opt => opt.MapFrom(src => src.WorkType.MasterTypeName))
                 .ForMember(dest => dest.ScoreOfSkill, opt => opt.MapFrom(src => src.ScoreOfSkill))
                 .ReverseMap();
             CreateMap<UserFarm, UserFarmModel>()
