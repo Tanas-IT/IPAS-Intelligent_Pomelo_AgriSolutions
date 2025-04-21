@@ -36,7 +36,7 @@ namespace CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.LandPlotRequest
         public double LineSpacing { get; set; }
         [Required]
         public int NumberOfRows { get; set; }
-        [Required]
+        //[Required]
         public double? MinLength { get; set; }
         public double? MaxLength { get; set; }
         public double? MinWidth { get; set; }

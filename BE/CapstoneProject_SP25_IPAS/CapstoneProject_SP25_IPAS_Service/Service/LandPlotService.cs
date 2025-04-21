@@ -49,7 +49,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     if (checkExistFarm == null)
                         return new BusinessResult(Const.WARNING_GET_FARM_NOT_EXIST_CODE, Const.WARNING_GET_FARM_NOT_EXIST_MSG);
                     // Kiểm tra dữ liệu đầu vào
-                    var validationResult = await ValidateLandPlot(createRequest);
+                    var validationResult = await ValidateLandPlotCreateAsync(createRequest);
                     if (validationResult.StatusCode != 200) return validationResult;
                     string LandPlotCode = CodeHelper.GenerateCode();
                     var landplotCreateEntity = new LandPlot()
@@ -464,6 +464,11 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     {
                         return new BusinessResult(Const.WARNING_GET_LANDPLOT_NOT_EXIST_CODE, Const.WARNING_GET_LANDPLOT_NOT_EXIST_MSG);
                     }
+                    // validation
+                    var validationResult = await ValidateLandPlotUpdateAsync(landPlotUpdateRequest);
+                    if (validationResult.StatusCode != 200)
+                        return validationResult;
+
                     // Lấy danh sách thuộc tính từ model
                     foreach (var prop in typeof(LandPlotUpdateRequest).GetProperties())
                     {
@@ -513,7 +518,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         return new BusinessResult(Const.WARNING_GET_LANDPLOT_NOT_EXIST_CODE, Const.WARNING_GET_LANDPLOT_NOT_EXIST_MSG);
                     }
                     bool isBeingUsed =
-                //await _unitOfWork.LandPlotCoordinationRepository.AnyAsync(x => x.LandPlotId == landPlotId) ||
+                        //await _unitOfWork.LandPlotCoordinationRepository.AnyAsync(x => x.LandPlotId == landPlotId) ||
                         await _unitOfWork.LandRowRepository.AnyAsync(x => x.LandPlotId == landPlotId) ||
                         await _unitOfWork.LandPlotCropRepository.AnyAsync(x => x.LandPlotId == landPlotId) ||
                         await _unitOfWork.PlanTargetRepository.AnyAsync(x => x.LandPlotID == landPlotId);
@@ -597,7 +602,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             }
         }
 
-        private async Task<BusinessResult> ValidateLandPlot(LandPlotCreateRequest createRequest)
+        private async Task<BusinessResult> ValidateLandPlotCreateAsync(LandPlotCreateRequest createRequest)
         {
             if (createRequest.LandRows == null || !createRequest.LandRows.Any())
                 return new BusinessResult(Const.WARNING_EMPTY_LAND_ROWS_CODE, Const.WARNING_EMPTY_LAND_ROWS_MSG);
@@ -613,8 +618,91 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             var minArea = await _unitOfWork.SystemConfigRepository.GetConfigValue(SystemConfigConst.MIN_AREA.Trim(), (double)1);
             if (createRequest.Area < minArea)
                 return new BusinessResult(400, $"Width of plot must > {minArea}.");
+            // Validate tổng diện tích của các LandRow
+            //double totalRowArea = 0;
+            //foreach (var row in createRequest.LandRows)
+            //{
+            //    if (row.Length <= 0 || row.Width <= 0)
+            //    {
+            //        return new BusinessResult(400, "Each row must have positive Length and Width.");
+            //    }
+            //    totalRowArea += (row.Length * row.Width);
+            //}
+
+            ////  Tính thêm tổng diện tích của các khoảng cách giữa hàng (RowSpacing)
+            //if (createRequest.NumberOfRows > 1 && createRequest.RowSpacing > 0)
+            //{
+            //    totalRowArea += createRequest.RowSpacing * (createRequest.NumberOfRows - 1) * createRequest.PlotWidth;
+            //}
+
+            //var allowDeviationPercent = await _unitOfWork.SystemConfigRepository.GetConfigValue(SystemConfigConst.ALLOW_AREA_DEVIATION_PERCENT.Trim(), (double)15.0);
+            //double allowDeviation = createRequest.Area * (allowDeviationPercent / 100.0);
+
+            //double minAcceptableArea = createRequest.Area - allowDeviation;
+            //double maxAcceptableArea = createRequest.Area + allowDeviation;
+
+            //if (totalRowArea < minAcceptableArea || totalRowArea > maxAcceptableArea)
+            //{
+            //    return new BusinessResult(400, $"Total area of rows ({totalRowArea:F2} m²) must be between {minAcceptableArea:F2} m² and {maxAcceptableArea:F2} m² (allowing {allowDeviationPercent}% deviation).");
+            //}
             return new BusinessResult(200, "No error found");
         }
 
+        private async Task<BusinessResult> ValidateLandPlotUpdateAsync(LandPlotUpdateRequest updateRequest)
+        {
+            try
+            {
+                // Validate Area
+                if (updateRequest.Area.HasValue)
+                {
+                    var areaSystemConfig = await _unitOfWork.SystemConfigRepository.GetConfigValue(SystemConfigConst.MIN_AREA, (double)100);
+                    if (updateRequest.Area < areaSystemConfig)
+                        return new BusinessResult(400, $"Area must be greater than {areaSystemConfig}");
+                }
+
+                // Validate Length & Width
+                if (updateRequest.Length.HasValue)
+                {
+                    var LeghtSystemConfig = await _unitOfWork.SystemConfigRepository.GetConfigValue(SystemConfigConst.MIN_LENGTH, (double)1);
+                    if (updateRequest.Area < LeghtSystemConfig)
+                        return new BusinessResult(400, $"Lenght must be greater than {LeghtSystemConfig}");
+                }
+
+                if (updateRequest.Width.HasValue && updateRequest.Width <= 0)
+                {
+                    var widthSystemConfig = await _unitOfWork.SystemConfigRepository.GetConfigValue(SystemConfigConst.MIN_AREA, (double)1);
+                    if (updateRequest.Area < widthSystemConfig)
+                        return new BusinessResult(400, $"Width must be greater than {widthSystemConfig}");
+                }
+
+                // Validate Min/Max Length
+                //if (updateRequest.MinLength.HasValue && updateRequest.MaxLength.HasValue && updateRequest.MinLength > updateRequest.MaxLength)
+                //{
+                //    return new BusinessResult(400, "MinLength must be less than or equal to MaxLength.");
+                //}
+
+                // Validate Min/Max Width
+                //if (updateRequest.MinWidth.HasValue && updateRequest.MaxWidth.HasValue && updateRequest.MinWidth > updateRequest.MaxWidth)
+                //{
+                //    return new BusinessResult(400, "MinWidth must be less than or equal to MaxWidth.");
+                //}
+
+                // Validate NumberOfRows
+                if (updateRequest.NumberOfRows.HasValue)
+                {
+                    var currentRows = await _unitOfWork.LandRowRepository.GetAllNoPaging(x => x.LandPlotId == updateRequest.LandPlotId && x.IsDeleted == false);
+                    if (updateRequest.NumberOfRows < currentRows.Count())
+                    {
+                        return new BusinessResult(400, $"Cannot set number of rows smaller than existing rows ({currentRows.Count()}).");
+                    }
+                }
+
+                return new BusinessResult(200, "Validation passed.", true);
+            }
+            catch (Exception ex)
+            {
+                return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
+            }
+        }
     }
 }

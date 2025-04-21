@@ -69,7 +69,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
 
 
         [HttpGet(APIRoutes.SystemConfig.getSystemConfigForSelected, Name = "getSystemConfigForSelected")]
-        [HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)},{nameof(RoleEnum.EMPLOYEE)}")]
+        [HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.USER)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)},{nameof(RoleEnum.EMPLOYEE)}")]
 
         public async Task<IActionResult> getSystemConfigForSelected(string configGroup,string? configKey)
         {
@@ -86,7 +86,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
         }
 
         [HttpGet(APIRoutes.SystemConfig.getSystemConfigGroup, Name = "getSystemConfigGroup")]
-        [HybridAuthorize($"{nameof(RoleEnum.ADMIN)}, {nameof(RoleEnum.USER)}, {nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)},{nameof(RoleEnum.EMPLOYEE)}")]
+        [HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.USER)}, {nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)},{nameof(RoleEnum.EMPLOYEE)}")]
         public async Task<IActionResult> getSystemConfigGroup()
         {
             var result = await _systemConfigService.GetSystemConfigGroupsForSelected();
@@ -94,7 +94,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
         }
 
         [HttpGet(APIRoutes.SystemConfig.getSystemConfigNoPagin, Name = "getSystemConfigNoPagin")]
-        [HybridAuthorize($"{nameof(RoleEnum.ADMIN)}")]
+        [HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.USER)}, {nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)},{nameof(RoleEnum.EMPLOYEE)}")]
         public async Task<IActionResult> getSystemConfigNoPagin([FromQuery] GetConfigNoPaginRequest filterRequest)
         {
             var result = await _systemConfigService.getAllSystemConfigNoPagin(filterRequest);
