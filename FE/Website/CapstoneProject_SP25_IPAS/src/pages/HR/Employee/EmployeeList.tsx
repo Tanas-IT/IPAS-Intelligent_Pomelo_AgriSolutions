@@ -73,7 +73,7 @@ function EmployeeList() {
     try {
       setIsAddLoading(true);
       // Replace with actual farmId from your context/props/state
-      const farmId = 1; // TODO: Set the correct farmId
+      const farmId = Number(getFarmId()); // TODO: Set the correct farmId
       const request: AddUserFarmRequest = {
         farmId,
         userId,
