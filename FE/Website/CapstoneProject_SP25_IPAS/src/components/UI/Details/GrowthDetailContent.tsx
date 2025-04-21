@@ -79,7 +79,7 @@ function GrowthDetailContent<T extends { [key: string]: any }>({
                       src={img}
                       width={120}
                       height={120}
-                      style={{ borderRadius: "5px" }}
+                      style={{ borderRadius: "5px", objectFit: "cover" }}
                       crossOrigin="anonymous"
                     />
                   ))}

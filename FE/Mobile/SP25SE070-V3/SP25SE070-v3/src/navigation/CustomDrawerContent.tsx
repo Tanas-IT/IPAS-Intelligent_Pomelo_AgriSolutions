@@ -47,7 +47,11 @@ export default function CustomDrawerContent(
           },
         ]
       : []),
-    { label: "Expert Response", icon: "message-text", screen: ROUTE_NAMES.EXPERT_RESPONSE },
+    {
+      label: "Expert Response",
+      icon: "message-text",
+      screen: ROUTE_NAMES.EXPERT_RESPONSE,
+    },
     { label: "Profile", icon: "account", screen: "Profile" },
     { label: "Settings", icon: "cog", screen: "Settings" },
   ];
@@ -83,7 +87,7 @@ export default function CustomDrawerContent(
             {avatarUrl ? (
               <Image source={{ uri: avatarUrl }} style={styles.avatar} />
             ) : (
-              <Image source={avt} style={styles.avatar} />
+              <CustomIcon name="user" size={32} color="#FFF" type="AntDesign" />
             )}
           </View>
           <View style={styles.userInfo}>

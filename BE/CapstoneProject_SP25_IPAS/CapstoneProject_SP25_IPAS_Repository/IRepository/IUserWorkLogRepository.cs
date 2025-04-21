@@ -28,5 +28,6 @@ namespace CapstoneProject_SP25_IPAS_Repository.IRepository
         public Task<int> GetAiReportsSubmittedAsync(int userId, DateTime from, DateTime to);
         public Task<int> GetPendingTasksTodayAsync(int userId, string status, DateTime today);
         public Task<List<ProductivityChartItem>> GetChartDataAsync(int userId, DateTime from, DateTime to, string timeRange);
+        public Task<List<UserWorkLog>> GetListUserWorkLogByWorkLogIdAndReplaceUserid(int workLogId, int replaceUserId);
     }
 }

@@ -99,6 +99,7 @@ const GraftedPlantSectionHeader = ({
         {!onApplyCriteria && formModal && (
           <Flex>
             <ActionMenuGraftedPlant
+              isDetail={true}
               graftedPlant={graftedPlant}
               onEdit={() => formModal?.showModal(graftedPlant)}
               onDelete={() => deleteConfirmModal?.showModal({ id: graftedPlant.graftedPlantId })}

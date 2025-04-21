@@ -7,6 +7,7 @@ import { ActionMenuItem } from "@/types";
 import { GetGraftedPlant } from "@/payloads";
 
 interface ActionMenuProps {
+  isDetail?: boolean;
   graftedPlant: GetGraftedPlant;
   onEdit: () => void;
   onDelete: () => void;
@@ -18,6 +19,7 @@ interface ActionMenuProps {
 }
 
 const ActionMenuGraftedPlant: FC<ActionMenuProps> = ({
+  isDetail = false,
   graftedPlant,
   onEdit,
   onDelete,
@@ -32,7 +34,7 @@ const ActionMenuGraftedPlant: FC<ActionMenuProps> = ({
   const isUsed = status === GRAFTED_STATUS.USED;
 
   const actionItems = [
-    graftedPlantId !== undefined
+    !isDetail
       ? {
           icon: <Icons.eye />,
           label: "View Details",

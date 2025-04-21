@@ -54,6 +54,7 @@ import {
   AdminDashboard,
   Profile,
   ReportManagement,
+  TagManagement,
 } from "@/pages";
 import {
   AccountLayout,
@@ -173,6 +174,7 @@ export const publicRoutes: RouteItem[] = [
   { path: PATHS.PACKAGE.PACKAGE_LIST, component: PackageList, layout: ManagementLayout },
   { path: PATHS.CHATBOX.AI_CHATBOX, component: ChatBox, layout: ManagementLayout },
   { path: PATHS.EXPERT.REPORT_LIST, component: ReportManagement, layout: ManagementLayout },
+  { path: PATHS.EXPERT.TAG_MANAGEMENT, component: TagManagement, layout: ManagementLayout },
 ];
 
 export const privateRoutes: RouteItem[] = [];

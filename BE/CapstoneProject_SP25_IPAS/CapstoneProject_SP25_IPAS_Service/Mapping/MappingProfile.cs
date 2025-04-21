@@ -541,13 +541,13 @@ namespace CapstoneProject_SP25_IPAS_Service.Mapping
             .ForMember(dest => dest.WarningName, opt => opt.MapFrom(src => src.Warning.WarningName))
            .ForMember(dest => dest.ReplacementEmployee, opt => opt.MapFrom(src =>
                                                                 src.UserWorkLogs
-                                                                    .Where(uwl => src.UserWorkLogs.Any(r => r.ReplaceUserId == uwl.UserId)) // Chỉ lấy nhân viên bị thay
+                                                                    .Where(uwl => src.UserWorkLogs.Any(r => r.ReplaceUserId == uwl.UserId && uwl.IsDeleted == false)) // Chỉ lấy nhân viên bị thay
                                                                     .Select(uwl => new ReplacementEmployeeModel
                                                                     {
                                                                         ReplaceUserId = uwl.UserId,
                                                                         ReplaceUserFullName = uwl.User.FullName,
                                                                         ReplaceUserAvatar = uwl.User.AvatarURL,
-                                                                        IsRepoter = uwl.IsReporter,
+                                                                        ReplaceUserIsRepoter = uwl.IsReporter,
                                                                         // Lấy thông tin nhân viên thay thế
                                                                         UserId = src.UserWorkLogs
                                                                             .Where(r => r.ReplaceUserId == uwl.UserId)

@@ -12,6 +12,10 @@ export const ROUTE_NAMES = {
     PLANT_DETAIL: "PlantDetail",
     ADD_NOTE: "NoteForm",
   },
+  GRAFTED_PLANT: {
+    GRAFTED_PLANT_DETAIL: "GraftedPlantDetail",
+    ADD_NOTE: "GraftedNoteScreen",
+  },
   FARM: {
     FARM_PICKER: "FarmPickerScreen",
   },
@@ -24,5 +28,5 @@ export const ROUTE_NAMES = {
     PEST_DETECTION: "PestDetection",
     SPLASH_SCREEN: "SplashScreen",
   },
-  EXPERT_RESPONSE: "ExpertResponse"
+  EXPERT_RESPONSE: "ExpertResponse",
 } as const;

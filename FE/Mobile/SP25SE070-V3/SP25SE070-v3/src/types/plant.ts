@@ -71,12 +71,12 @@ interface HarvestSummary {
   marketValue: number;
 }
 
-export interface NoteFormData {
-  content: string;
-  issueName?: string | undefined;
-  // images?: string[];
-  images: { uri: string; type: string; name: string }[];
-}
+// export interface NoteFormData {
+//   content: string;
+//   issueName?: string | undefined;
+//   // images?: string[];
+//   images: { uri: string; type: string; name: string }[];
+// }
 
 export interface GraftedPlant {
   graftedPlantId: number;

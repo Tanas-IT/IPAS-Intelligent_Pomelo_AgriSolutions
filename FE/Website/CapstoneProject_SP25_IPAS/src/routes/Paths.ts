@@ -123,5 +123,6 @@ export const PATHS = {
     REPORT_DETAIL: "/expert/report-list/:id",
     IMAGE_LIST: "/expert/image-list",
     IMAGE_DETAIL: "/expert/image-list/:id",
+    TAG_MANAGEMENT: "/expert/tags",
   },
 };
