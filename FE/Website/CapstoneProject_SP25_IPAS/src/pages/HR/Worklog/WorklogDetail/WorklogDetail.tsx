@@ -667,7 +667,7 @@ function WorklogDetail() {
               className={style.avt}
               crossOrigin="anonymous"
             />
-            <label className={style.createdBy}>{worklogDetail?.reporter[0]?.fullName || "laggg"}</label>
+            <label className={style.createdBy}>{worklogDetail?.assignorName || "laggg"}</label>
             <label className={style.textCreated}>created this plan</label>
             <label className={style.createdDate}>{formatDateW(worklogDetail?.date ?? "2")}</label>
             <Button

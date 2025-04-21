@@ -54,7 +54,7 @@ const EditWorklogModal: React.FC<EditWorklogModalProps> = ({
   const fetchEmployees = async () => {
       try {
         const farmId = getFarmId();
-        const response = await worklogService.getEmployeesByWorkSkill(Number(farmId));
+        const response = await worklogService.getEmployeesByWorkSkill(Number(farmId), worklog?.masterTypeId);
         if (response.statusCode === 200) {
           setEmployee(response.data);
         } else {
@@ -155,6 +155,7 @@ const EditWorklogModal: React.FC<EditWorklogModalProps> = ({
         isEditable={isEditable}
         initialReporterId={initialReporterId}
         tempReporterId={tempReporterId}
+        worklog={worklog}
       />
 
       <Flex vertical gap={16} style={{ marginTop: 16 }}>

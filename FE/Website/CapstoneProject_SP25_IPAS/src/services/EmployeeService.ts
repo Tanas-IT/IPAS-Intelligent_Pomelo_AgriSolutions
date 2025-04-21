@@ -1,6 +1,6 @@
 import { axiosAuth } from "@/api";
 import { ROLE } from "@/constants";
-import { ApiResponse, GetData, GetEmployee, GetUserRoleEmployee } from "@/payloads";
+import { AddUserFarmRequest, ApiResponse, GetData, GetEmployee, GetUserRoleEmployee } from "@/payloads";
 import { buildParams } from "@/utils";
 
 export const getEmployeeList = async (
@@ -46,12 +46,8 @@ export const getUserByEmail = async (
   return apiResponse;
 };
 
-export const addNewUserInFarm = async (userId: number): Promise<ApiResponse<Object>> => {
-  const res = await axiosAuth.axiosJsonRequest.post(`farms/user-farm`, {
-    userId,
-    roleName: ROLE.EMPLOYEE,
-    isActive: true,
-  });
+export const addNewUserInFarm = async (data: AddUserFarmRequest): Promise<ApiResponse<Object>> => {
+  const res = await axiosAuth.axiosJsonRequest.post(`farms/user-farm`, data);
   const apiResponse = res.data as ApiResponse<Object>;
   return apiResponse;
 };

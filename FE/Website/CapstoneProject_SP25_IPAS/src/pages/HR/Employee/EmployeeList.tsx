@@ -1,10 +1,10 @@
 import { useFetchData, useFilters, useModal, useTableDelete } from "@/hooks";
 import style from "./EmployeeList.module.scss";
-import { GetEmployee } from "@/payloads";
+import { AddUserFarmRequest, GetEmployee, Skill } from "@/payloads";
 import { employeeService } from "@/services";
 import { useEffect, useState } from "react";
 import { FilterEmployeeState } from "@/types";
-import { DEFAULT_EMPLOYEE_FILTERS, getOptions } from "@/utils";
+import { DEFAULT_EMPLOYEE_FILTERS, getFarmId, getOptions } from "@/utils";
 import { Flex } from "antd";
 import {
   ActionMenuEmployee,
@@ -18,6 +18,7 @@ import { EmployeeColumns } from "./EmployeeColumns";
 import EmployeeFilter from "./EmployeeFilter";
 import { toast } from "react-toastify";
 import AddEmployeeModel from "./AddEmployeeModal";
+import { ROLE } from "@/constants";
 function EmployeeList() {
   const [isAddLoading, setIsAddLoading] = useState(false);
   const addEmployeeModal = useModal<{ userId: number }>();
@@ -68,17 +69,29 @@ function EmployeeList() {
     }
   };
 
-  const handleAdd = async (userId: number) => {
+  const handleAdd = async (userId: number, skills: Skill[]) => {
     try {
       setIsAddLoading(true);
-      const res = await employeeService.addNewUserInFarm(userId);
+      // Replace with actual farmId from your context/props/state
+      const farmId = 1; // TODO: Set the correct farmId
+      const request: AddUserFarmRequest = {
+        farmId,
+        userId,
+        roleName: ROLE.EMPLOYEE,
+        isActive: true,
+        skills
+      };
+
+      const res = await employeeService.addNewUserInFarm(request);
       if (res.statusCode === 200 || res.statusCode === 201) {
-        toast.success(res.message);
+        toast.success(res.message || "Employee added successfully");
         addEmployeeModal.hideModal();
         await fetchData();
       } else {
-        toast.error(res.message);
+        toast.error(res.message || "Failed to add employee");
       }
+    } catch (error) {
+      toast.error("An error occurred while adding the employee");
     } finally {
       setIsAddLoading(false);
     }

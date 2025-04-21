@@ -103,6 +103,7 @@ export interface GetWorklogDetail {
   listNoteOfWorkLog: NoteOfWorkLog[];
   processName: string;
   masterTypeName: string;
+  masterTypeId: number;
   cropName: string;
   replacementEmployee: ReplacementEmployee[];
   planId: number;
@@ -111,6 +112,7 @@ export interface GetWorklogDetail {
   isHarvest: boolean;
   isTakeAttendance: boolean;
   redoWorkLog: RedoWorkLog;
+  assignorName: string;
 }
 
 interface RedoWorkLog {

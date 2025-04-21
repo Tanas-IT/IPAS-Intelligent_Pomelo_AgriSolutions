@@ -3,9 +3,10 @@ import { Table, Flex, Image, Tag, Button, Select, Radio } from "antd";
 import { GetUser } from "@/payloads";
 import { Icons, Images } from "@/assets";
 import { fetchUserInfoByRole, getFarmId } from "@/utils";
-import { EmployeeWithSkills, GetAttendanceList } from "@/payloads/worklog";
+import { EmployeeWithSkills, GetAttendanceList, GetWorklogDetail } from "@/payloads/worklog";
 import { worklogService } from "@/services";
 import { toast } from "react-toastify";
+import { worklog } from "@/assets/images/images";
 
 type EmployeeType = { fullName: string; avatarURL: string; userId: number };
 
@@ -18,6 +19,7 @@ interface EmployeeTableProps {
   isEditable: boolean;
   initialReporterId?: number;
   tempReporterId?: number;
+  worklog?: GetWorklogDetail;
 }
 
 const EmployeeTable: React.FC<EmployeeTableProps> = ({
@@ -29,23 +31,16 @@ const EmployeeTable: React.FC<EmployeeTableProps> = ({
   isEditable,
   initialReporterId,
   tempReporterId,
+  worklog
 }) => {
   const [replacingStates, setReplacingStates] = useState<{ [key: number]: number | null }>({});
   const [employee, setEmployee] = useState<EmployeeType[]>([]);
-
-  // useEffect(() => {
-  //   const fetchAllEmployees = async () => {
-  //     const users = await fetchUserInfoByRole("User");
-  //     setEmployee(users);
-  //   };
-  //   fetchAllEmployees();
-  // }, []);
 
   useEffect(() => {
     const fetchEmployees = async () => {
       try {
         const farmId = getFarmId();
-        const response = await worklogService.getEmployeesByWorkSkill(Number(farmId));
+        const response = await worklogService.getEmployeesByWorkSkill(Number(farmId), worklog?.masterTypeId);
         if (response.statusCode === 200) {
           setEmployee(response.data);
         } else {
