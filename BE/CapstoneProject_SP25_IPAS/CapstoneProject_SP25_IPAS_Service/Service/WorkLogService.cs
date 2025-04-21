@@ -2047,11 +2047,29 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                             else
                             {
                                 // Nếu thực sự đổi người mới
-                                getUserToUpdate.StatusOfUserWorkLog = getStatusBeReplaced;
-                                getUserToUpdate.ReplaceUserId = changeEmployee.NewUserId;
-                                getUserToUpdate.IsDeleted = true;
-                                _unitOfWork.UserWorkLogRepository.Update(getUserToUpdate);
+                                if(getUserToUpdate.StatusOfUserWorkLog != null && getUserToUpdate.StatusOfUserWorkLog.Equals(getStatusReplaced))
+                                {
+                                    _unitOfWork.UserWorkLogRepository.Delete(getUserToUpdate);
+                                }
+                                else
+                                {
+                                    getUserToUpdate.StatusOfUserWorkLog = getStatusBeReplaced;
+                                    getUserToUpdate.ReplaceUserId = changeEmployee.NewUserId;
+                                    getUserToUpdate.IsDeleted = true;
+                                    _unitOfWork.UserWorkLogRepository.Update(getUserToUpdate);
+                                }
+                               
                                 await _unitOfWork.SaveAsync();
+
+                                var previousReplaced = await _unitOfWork.UserWorkLogRepository.GetListUserWorkLogByWorkLogIdAndReplaceUserid(
+                                                     changeEmployeeOfWorkLog.WorkLogId, changeEmployee.OldUserId);
+
+                                foreach(var previousEmployee in previousReplaced)
+                                {
+                                    previousEmployee.ReplaceUserId = changeEmployee.NewUserId;
+                                    _unitOfWork.UserWorkLogRepository.Update(previousEmployee);
+                                    await _unitOfWork.SaveAsync();
+                                }
 
                                 var newUserWorkLog = new UserWorkLog()
                                 {
