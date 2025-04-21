@@ -2,7 +2,7 @@ import { Flex, Form } from "antd";
 import { useState, useEffect } from "react";
 import { FormFieldModal, ModalForm } from "@/components";
 import { RulesManager } from "@/utils";
-import { lotFormFields, MASTER_TYPE, PARTNER } from "@/constants";
+import { LOT_STATUS, lotFormFields, MASTER_TYPE, PARTNER } from "@/constants";
 import { GetPlantLot2, PlantLotRequest } from "@/payloads";
 import { partnerService } from "@/services";
 import { SelectOption } from "@/types";
@@ -109,14 +109,15 @@ const LotModal = ({ isOpen, onClose, onSave, lotData, isLoadingAction }: LotModa
               options={partnerOptions}
             />
           )}
-
-          <FormFieldModal
-            type="select"
-            label="Cultivar"
-            name={lotFormFields.masterTypeId}
-            rules={RulesManager.getCultivarRules()}
-            options={cultivarTypeOptions}
-          />
+          {lotData?.status !== LOT_STATUS.USED && (
+            <FormFieldModal
+              type="select"
+              label="Cultivar"
+              name={lotFormFields.masterTypeId}
+              rules={RulesManager.getCultivarRules()}
+              options={cultivarTypeOptions}
+            />
+          )}
         </Flex>
 
         <Flex gap={20}>

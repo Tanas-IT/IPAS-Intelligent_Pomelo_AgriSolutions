@@ -45,7 +45,8 @@ export const handleApiError = async (error: any) => {
         if (errorStatusCode === 401) {
           redirectToHomeWithMessage(error.response.data.Message);
         } else {
-          redirectToHomeWithMessage(MESSAGES.NO_PERMISSION);
+          toast.error(MESSAGES.NO_PERMISSION);
+          // redirectToHomeWithMessage(MESSAGES.NO_PERMISSION);
         }
         break;
       case 400:

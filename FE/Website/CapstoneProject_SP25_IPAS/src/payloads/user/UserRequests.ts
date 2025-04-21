@@ -5,6 +5,19 @@ export interface UserRequest {
   fullName: string;
   phoneNumber: string;
   dob: string;
-  gender: "Male" | "Female";
+  gender: string;
   roleName: string;
+}
+
+export interface Skill {
+  skillID: number;
+  scoreOfSkill: number;
+}
+
+export interface AddUserFarmRequest {
+  farmId: number;
+  userId: number;
+  roleName: string;
+  isActive: boolean;
+  skills: Skill[];
 }

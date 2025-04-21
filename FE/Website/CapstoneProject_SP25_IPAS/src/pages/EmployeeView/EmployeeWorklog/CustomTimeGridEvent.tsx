@@ -20,8 +20,6 @@ export default function CustomTimeGridEvent({ calendarEvent }: props) {
     navigate(`/employee/worklog/${calendarEvent.id}`);
   };
   const calendarId = calendarEvent.calendarId;
-  console.log(calendarEvent);
-  console.log(calendarId);
 
   return (
     <div

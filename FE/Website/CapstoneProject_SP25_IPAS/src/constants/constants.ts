@@ -44,6 +44,12 @@ export const SYSTEM_CONFIG_KEY = {
   RECORD_AFTER_DATE: "RecordAfterDate",
 };
 
+export const GENDER_OPTIONS = [
+  { label: "Male", value: "Male" },
+  { label: "Female", value: "Female" },
+  { label: "Other", value: "Other" },
+];
+
 export const MASTER_TYPE_SHOW_TABLE = {
   PROCESS: "Process",
   DOCUMENT: "Document",

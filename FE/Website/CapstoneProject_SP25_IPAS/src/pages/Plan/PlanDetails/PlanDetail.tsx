@@ -6,11 +6,12 @@ import { Icons, Images } from "@/assets";
 import { CustomButton, Loading } from "@/components";
 import { ToastContainer } from "react-toastify";
 import StatusTag from "@/components/UI/StatusTag/StatusTag";
-import { useEffect, useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { planService } from "@/services";
-import { GetPlan, PlanTargetModel } from "@/payloads/plan";
+import { GetPlan, PlanNodes, PlanTargetModel, ProcessByPlanResponse, SubProcessNodes } from "@/payloads/plan";
 import PlanTargetTable from "./PlanTargetTable";
 import { formatDate, formatDateW } from "@/utils";
+import ProcessFlow from "./ProcessFlow";
 
 interface GeneralCalendarProps {
     selectedDays: number[];
@@ -68,6 +69,7 @@ const InfoField = ({
 function PlanDetail() {
     const navigate = useNavigate();
     const [isLoading, setIsLoading] = useState<boolean>(false);
+    const [processTree, setProcessTree] = useState<ProcessByPlanResponse | null>(null);
     const { id } = useParams<{ id: string }>();
 
     const selectedDaysOfMonth = [10, 31];
@@ -99,38 +101,53 @@ function PlanDetail() {
         { label: "Type", value: "Watering", icon: Icons.category, isTag: true },
     ]);
 
-    useEffect(() => {
+    const fetchPlanDetail = async () => {
         if (!id) {
             navigate("/404");
             return;
         }
-        const fetchPlanDetail = async () => {
-            try {
-                setIsLoading(true);
-                const res = await planService.getPlanDetail(id);
-                setInfoFieldsLeft([
-                    { label: "Crop", value: res?.cropName || "None", icon: Icons.growth },
-                    { label: "Growth Stage", value: planDetail?.growthStages.map((g) => g.name).join(",") || "None", icon: Icons.plant }
-                ]);
-                setInfoFieldsRight([
-                    { label: "Process Name", value: res?.processName || "None", icon: Icons.process },
-                    { label: "Type", value: res?.masterTypeName || "None", icon: Icons.category, isTag: true },
-                ])
-                console.log("res", res);
+        try {
+            setIsLoading(true);
+            const res = await planService.getPlanDetail(id);
+            setInfoFieldsLeft([
+                { label: "Crop", value: res?.cropName || "None", icon: Icons.growth },
+                { label: "Growth Stage", value: planDetail?.growthStages.map((g) => g.name).join(",") || "None", icon: Icons.plant }
+            ]);
+            setInfoFieldsRight([
+                { label: "Process Name", value: res?.processName || "None", icon: Icons.process },
+                { label: "Type", value: res?.masterTypeName || "None", icon: Icons.category, isTag: true },
+            ])
+            console.log("res", res);
 
-                setPlanDetail(res);
-            } catch (error) {
-                console.error("error", error);
-                navigate("/error");
-            } finally {
-                setIsLoading(false);
-            }
-        };
+            setPlanDetail(res);
+        } catch (error) {
+            console.error("error", error);
+            navigate("/error");
+        } finally {
+            setIsLoading(false);
+        }
+    };
 
+    const fetchProcessTree = async () => {
+        try {
+            const numericPlanId = Number(id);
+            if (isNaN(numericPlanId)) throw new Error('Invalid plan ID');
+
+            const response = await planService.getProcessByPlanId(numericPlanId, 1); // farmId = 1
+            console.log("tree", response);
+            
+            setProcessTree(response.data);
+        } catch (error) {
+            console.error('Failed to fetch process tree', error);
+        }
+    };
+
+    useEffect(() => {
         fetchPlanDetail();
+        fetchProcessTree();
     }, [id]);
 
-    
+
 
     const workLogs = [
         { id: 1, task: "Watering in plot 123", type: "Watering", status: "completed", date: "2nd Dec 2024" },
@@ -226,6 +243,14 @@ function PlanDetail() {
             return data;
         });
     };
+
+    const handleNodeClick = useCallback((node: PlanNodes | SubProcessNodes) => {
+        if ('subProcessID' in node) {
+          console.log('SubProcess clicked:', node);
+        } else {
+          console.log('Plan clicked:', node);
+        }
+      }, []);
 
     if (isLoading)
         return (
@@ -347,6 +372,15 @@ function PlanDetail() {
 
             </div>
 
+            <Divider className={style.divider} />
+            <section className="process-flow-section">
+                <h2>Process Flow</h2>
+                <ProcessFlow
+                    data={processTree}
+                    currentPlanId={Number(id)}
+                    onNodeClick={handleNodeClick}
+                />
+            </section>
             <Divider className={style.divider} />
             <PlanTargetTable
                 data={planDetail?.planTargetModels ? transformPlanTargetData(planDetail.planTargetModels) : []}
