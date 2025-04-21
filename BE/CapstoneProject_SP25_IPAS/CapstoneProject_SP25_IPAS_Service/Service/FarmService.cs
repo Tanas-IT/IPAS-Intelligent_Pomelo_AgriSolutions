@@ -778,15 +778,21 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         Status = UserFarmStatusEnum.Active.ToString(),
                         IsActive = true,
                     };
-                    var newEmployeeSkill = new EmployeeSkill()
+                    if(createRequest.Skills != null)
                     {
-                        EmployeeID = checkUserExist.UserId,
-                        WorkTypeID = createRequest.SkillID,
-                        ScoreOfSkill = createRequest.ScoreOfSkill,
-                        FarmID = createRequest.FarmId!.Value,
-                    };
+                        foreach (var skill in createRequest.Skills)
+                        {
+                            var newEmployeeSkill = new EmployeeSkill()
+                            {
+                                EmployeeID = checkUserExist.UserId,
+                                WorkTypeID = skill.SkillID,
+                                ScoreOfSkill = skill.ScoreOfSkill,
+                                FarmID = createRequest.FarmId!.Value,
+                            };
+                            await _unitOfWork.EmployeeSkillRepository.Insert(newEmployeeSkill);
+                        }
+                    }
                     await _unitOfWork.UserFarmRepository.Insert(newUserFarm);
-                    await _unitOfWork.EmployeeSkillRepository.Insert(newEmployeeSkill);
                     int result = await _unitOfWork.SaveAsync();
                     if (result > 0)
                     {
