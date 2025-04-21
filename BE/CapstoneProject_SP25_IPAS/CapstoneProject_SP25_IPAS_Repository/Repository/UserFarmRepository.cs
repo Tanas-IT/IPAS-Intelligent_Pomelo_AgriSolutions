@@ -4,6 +4,7 @@ using Microsoft.EntityFrameworkCore;
 using System;
 using System.Collections.Generic;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Text;
 using System.Threading.Tasks;
 
@@ -81,6 +82,46 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
                 .Include(x => x.Role)
                 .Where(x => x.Role.RoleName.ToLower().Equals("expert")).ToListAsync();
             return result;
+        }
+
+        public virtual async Task<IEnumerable<UserFarm>> GetUserFarmList(
+           Expression<Func<UserFarm, bool>> filter = null!,
+           Func<IQueryable<UserFarm>, IOrderedQueryable<UserFarm>> orderBy = null!,
+           int? pageIndex = null, // Optional parameter for pagination (page number)
+           int? pageSize = null)  // Optional parameter for pagination (number of records per page)
+        {
+            IQueryable<UserFarm> query = dbSet;
+
+            if (filter != null)
+            {
+                query = query.Where(filter);
+            }
+
+          
+                    //Role,User,Farm,EmployeeSkills
+                    query = query.Include(x => x.Role)
+                                  .Include(x => x.User)
+                                  .Include(x => x.Farm)
+                                  .Include(x => x.EmployeeSkills)
+                                  .ThenInclude(x => x.WorkType);
+           
+
+            if (orderBy != null)
+            {
+                query = orderBy(query);
+            }
+
+            // Implementing pagination
+            if (pageIndex.HasValue && pageSize.HasValue)
+            {
+                // Ensure the pageIndex and pageSize are valid
+                int validPageIndex = pageIndex.Value > 0 ? pageIndex.Value - 1 : 0;
+                int validPageSize = pageSize.Value > 0 ? pageSize.Value : 5; // Assuming a default pageSize of 10 if an invalid value is passed
+
+                query = query.Skip(validPageIndex * validPageSize).Take(validPageSize);
+            }
+
+            return await query.AsNoTracking().ToListAsync();
         }
     }
 }
