@@ -47,8 +47,9 @@ const GrowthHistoryTab: React.FC = () => {
   const isFocused = useIsFocused();
   const { graftedPlant } = useGraftedPlantStore();
   const pageSize = DEFAULT_RECORDS_IN_DETAIL || 10;
-
   if (!graftedPlant) return null;
+  const canAddNote =
+    !graftedPlant.isDead && graftedPlant.status !== GRAFTED_STATUS.USED;
 
   const fetchData = useCallback(
     async (page: number, reset: boolean = false) => {
@@ -183,16 +184,15 @@ const GrowthHistoryTab: React.FC = () => {
 
   return (
     <View style={styles.container}>
-      {!graftedPlant.isDead ||
-        (graftedPlant.status !== GRAFTED_STATUS.USED && (
-          <FloatingAddButton
-            onPress={() =>
-              navigation.navigate(ROUTE_NAMES.GRAFTED_PLANT.ADD_NOTE, {
-                graftedPlantId: graftedPlant.graftedPlantId,
-              })
-            }
-          />
-        ))}
+      {canAddNote && (
+        <FloatingAddButton
+          onPress={() =>
+            navigation.navigate(ROUTE_NAMES.GRAFTED_PLANT.ADD_NOTE, {
+              graftedPlantId: graftedPlant.graftedPlantId,
+            })
+          }
+        />
+      )}
 
       <View style={styles.filterContainer}>
         <DateRangePicker
@@ -219,10 +219,7 @@ const GrowthHistoryTab: React.FC = () => {
           ) : (
             <TimelineItem
               history={item}
-              isDisable={
-                graftedPlant.isDead ||
-                graftedPlant.status === GRAFTED_STATUS.USED
-              }
+              isDisable={!canAddNote}
               idKey="graftedPlantNoteId"
               index={index}
               totalItems={data.length}

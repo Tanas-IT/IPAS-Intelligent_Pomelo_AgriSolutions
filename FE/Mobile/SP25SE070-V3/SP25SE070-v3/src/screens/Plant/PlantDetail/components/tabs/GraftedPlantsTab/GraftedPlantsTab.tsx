@@ -75,7 +75,7 @@ const GraftedPlantsTab: React.FC<{ plantId: number }> = ({ plantId }) => {
   };
 
   const renderItem = ({ item: grafted }: { item: GraftedPlant }) => (
-    <TouchableOpacity style={styles.card} activeOpacity={0.8}>
+    <TouchableOpacity style={styles.card} activeOpacity={1}>
       <View style={styles.tagContainer}>
         <LinearGradient
           colors={["#BCD379", "#BCD379"]}
@@ -171,9 +171,12 @@ const GraftedPlantsTab: React.FC<{ plantId: number }> = ({ plantId }) => {
         <TouchableOpacity
           style={styles.detailButton}
           onPress={() =>
-            navigation.navigate(ROUTE_NAMES.PLANT.PLANT_DETAIL, {
-              plantId: grafted.graftedPlantId.toString(),
-            })
+            navigation.navigate(
+              ROUTE_NAMES.GRAFTED_PLANT.GRAFTED_PLANT_DETAIL,
+              {
+                graftedPlantId: grafted.graftedPlantId.toString(),
+              }
+            )
           }
         >
           <TextCustom style={styles.detailButtonText}>View Detail</TextCustom>

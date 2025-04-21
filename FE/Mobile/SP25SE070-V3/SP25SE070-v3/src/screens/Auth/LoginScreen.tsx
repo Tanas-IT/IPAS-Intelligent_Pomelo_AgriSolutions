@@ -57,14 +57,10 @@ export const LoginScreen = () => {
           navigation.navigate(ROUTE_NAMES.MAIN.DRAWER, {
             screen: ROUTE_NAMES.FARM.FARM_PICKER,
           });
-        if (roleId === UserRolesStr.Admin)
-          navigation.navigate(ROUTE_NAMES.MAIN.DRAWER, {
-            screen: ROUTE_NAMES.MAIN.MAIN_TABS,
-          });
-        if (roleId === UserRolesStr.Owner || roleId === UserRolesStr.Manager)
-          navigation.navigate(ROUTE_NAMES.MAIN.DRAWER, {
-            screen: ROUTE_NAMES.MAIN.MAIN_TABS,
-          });
+        if (roleId === UserRolesStr.Admin) return;
+        // navigation.navigate(ROUTE_NAMES.MAIN.DRAWER, {
+        //   screen: ROUTE_NAMES.MAIN.MAIN_TABS,
+        // });
         reset({
           email: "",
           password: "",
@@ -75,11 +71,6 @@ export const LoginScreen = () => {
           text1: res.message,
         });
       }
-    } catch (error) {
-      Toast.show({
-        type: "error",
-        text1: "Login failed",
-      });
     } finally {
       setIsLoading(false);
     }

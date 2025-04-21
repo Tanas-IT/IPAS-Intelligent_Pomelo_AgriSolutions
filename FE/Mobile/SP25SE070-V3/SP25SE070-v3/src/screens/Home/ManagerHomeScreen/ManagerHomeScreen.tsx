@@ -1,11 +1,5 @@
 import React from "react";
-import {
-  View,
-  ScrollView,
-  TouchableOpacity,
-  StyleSheet,
-  Dimensions,
-} from "react-native";
+import { View, ScrollView, TouchableOpacity, Dimensions } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { useNavigation } from "@react-navigation/native";
 import { PieChart } from "react-native-chart-kit";
@@ -99,7 +93,9 @@ const ManagerHomeScreen = () => {
               <TextCustom style={styles.dashboardValue}>
                 {farmOverview.totalTrees}
               </TextCustom>
-              <TextCustom style={styles.dashboardLabel}>Total Trees</TextCustom>
+              <TextCustom style={styles.dashboardLabel}>
+                Total Plants
+              </TextCustom>
             </View>
             <View style={styles.dashboardItem}>
               <TextCustom style={styles.dashboardValue}>

@@ -7,12 +7,12 @@ import CustomIcon from "./CustomIcon";
 
 interface HealthStatusBadgeProps {
   status: string;
-  isChange: boolean;
+  isChange?: boolean;
 }
 
 const HealthStatusBadge: React.FC<HealthStatusBadgeProps> = ({
   status,
-  isChange,
+  isChange = false,
 }) => {
   return (
     <View style={[styles.statusBadge, getBadgeStyle(status), styles.row]}>
@@ -27,8 +27,6 @@ const HealthStatusBadge: React.FC<HealthStatusBadgeProps> = ({
 };
 
 const getBadgeStyle = (status: string) => {
-  console.log(status);
-
   switch (status) {
     case HEALTH_STATUS.HEALTHY:
       return styles.statusHealthy;
