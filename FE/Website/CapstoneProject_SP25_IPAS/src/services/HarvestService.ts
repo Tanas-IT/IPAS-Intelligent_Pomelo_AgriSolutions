@@ -120,7 +120,7 @@ export const importRecordHarvest = async (
   return apiResponse;
 };
 
-export const UpdateProductHarvest = async (
+export const updateProductHarvest = async (
   req: UpdateProductHarvestRequest,
 ): Promise<ApiResponse<productHarvestHistoryRes>> => {
   const res = await axiosAuth.axiosJsonRequest.put(`harvests/update-product-harvest`, req);

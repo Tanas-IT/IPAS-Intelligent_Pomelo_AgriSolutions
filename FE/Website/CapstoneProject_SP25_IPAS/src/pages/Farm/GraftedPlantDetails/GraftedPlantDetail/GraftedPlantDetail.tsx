@@ -205,13 +205,13 @@ function GraftedPlantDetail() {
 
   const infoFieldsLeft = [
     {
-      label: "Separated Date",
-      value: graftedPlant?.separatedDate ? formatDayMonth(graftedPlant.separatedDate) : "N/A",
+      label: "Grafted Date",
+      value: graftedPlant?.graftedDate ? formatDayMonth(graftedPlant.graftedDate) : "N/A",
       icon: Icons.time,
     },
     {
-      label: "Grafted Date",
-      value: graftedPlant?.graftedDate ? formatDayMonth(graftedPlant.graftedDate) : "N/A",
+      label: "Separated Date",
+      value: graftedPlant?.separatedDate ? formatDayMonth(graftedPlant.separatedDate) : "N/A",
       icon: Icons.time,
     },
     { label: "Note", value: graftedPlant?.note ?? "N/A", icon: Icons.description },

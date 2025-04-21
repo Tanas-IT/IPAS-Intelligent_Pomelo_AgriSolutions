@@ -40,6 +40,10 @@ const colors = {
 
   statusDeadBg: "gray",
   statusDeadText: "#ffffff",
+
+  statusDefaultBg: "#fafafa",
+  statusDefaultBorder: "#d9d9d9",
+  statusDefaultText: "#000000e0",
 };
 
 export default colors;

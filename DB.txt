@@ -1261,7 +1261,8 @@ VALUES
 	(41,'MT041', 'Green Skin Pomelo Grade 1', 'Criteria', 'Evaluation criteria for Green Skin Pomelo Grade 1', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1, NULL, 'Product', NULL, NULL),
     (42,'MT042', 'Green Skin Pomelo Grade 2', 'Criteria', 'Evaluation criteria for Green Skin Pomelo Grade 2', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1, NULL, 'Product', NULL, NULL),
     (43,'MT043', 'Green Skin Pomelo Grade 3', 'Criteria', 'Evaluation criteria for Green Skin Pomelo Grade 3', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1, NULL, 'Product', NULL, NULL),
-    (44,'MT044', 'Grafting', 'Work', 'Take care grafted plant', '#F2F2F2', '#4A4A4A', NULL, 0, 1, GETDATE(), 0, 1, 0, 'Others', 60, 240);
+    (44,'MT044', 'Grafting', 'Work', 'Take care grafted plant', '#F2F2F2', '#4A4A4A', NULL, 0, 1, GETDATE(), 0, 1, 0, 'Others', 60, 240),
+    (45,'MT045', 'Spraying', 'Work', 'Spraying to limit the pest on plant', '#F2F2F2', '#4A4A4A', NULL, 0, 1, GETDATE(), 0, 1, 0, 'Others', 60, 240);
 	SET IDENTITY_INSERT [ipas].[dbo].[MasterType] OFF;
 GO
 
@@ -2448,3 +2449,23 @@ VALUES
 (@WorkLogID, @UserID1, 1, GETDATE()),
 (@WorkLogID, @UserID2, 0, GETDATE());
 GO
+
+INSERT INTO [dbo].[EmployeeSkill] ([EmployeeID], [FarmID], [WorkTypeID], [ScoreOfSkill])
+VALUES
+(7, 1, 15, 6),
+(7, 1, 16, 10),
+(7, 1, 17, 7),
+(7, 1, 18, 8),
+(7, 1, 19, 9),
+
+(8, 1, 15, 5),
+(8, 1, 16, 8),
+(8, 1, 17, 9),
+(8, 1, 18, 10),
+(8, 1, 19, 6),
+
+(6, 1, 15, 10),
+(6, 1, 16, 10),
+(6, 1, 17, 9),
+(6, 1, 18, 5),
+(6, 1, 19, 3);

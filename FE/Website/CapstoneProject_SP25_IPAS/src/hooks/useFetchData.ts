@@ -53,6 +53,7 @@ function useFetchData<T>({ fetchFunction, additionalParams = {} }: useFetchDataP
             searchValue,
             additionalParams,
           );
+
           if (result && Array.isArray(result.list)) {
             setData(result.list);
             setTotalPages(result.totalPage);

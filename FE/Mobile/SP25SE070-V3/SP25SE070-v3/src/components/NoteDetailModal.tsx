@@ -1,12 +1,13 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import {
   View,
   Text,
   StyleSheet,
-  Modal,
   FlatList,
   Image,
   TouchableOpacity,
+  Pressable,
+  Modal,
 } from "react-native";
 import CustomIcon from "./CustomIcon";
 import { useVideoPlayer, VideoView } from "expo-video";
@@ -61,6 +62,7 @@ const NoteDetailModal: React.FC<NoteDetailModalProps> = ({
 }) => {
   const flatListRef = useRef<FlatList>(null);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
+  const [selectedImageUrl, setSelectedImageUrl] = useState<string | null>(null);
   const [selectedVideoUrl, setSelectedVideoUrl] = useState<string | null>(null);
 
   const getFormat = (res: CommonResource): string => {
@@ -77,8 +79,6 @@ const NoteDetailModal: React.FC<NoteDetailModalProps> = ({
 
     const images: string[] = [];
     const videos: string[] = [];
-    console.log("resources",resources);
-    
 
     resources.forEach((res) => {
       // const format = res.fileFormat.toLowerCase();
@@ -99,7 +99,6 @@ const NoteDetailModal: React.FC<NoteDetailModalProps> = ({
       }
     });
 
-    console.log("Processed resources:", { images, videos });
     return { images, videos };
   };
 
@@ -122,7 +121,14 @@ const NoteDetailModal: React.FC<NoteDetailModalProps> = ({
   const handleNext = () => scrollToIndex(currentImageIndex + 1);
 
   const renderImageItem = ({ item }: { item: string }) => (
-    <Image source={{ uri: item }} style={styles.modalImage} />
+    <TouchableOpacity
+      onPress={() => {
+        setSelectedImageUrl(item);
+      }}
+      activeOpacity={1}
+    >
+      <Image source={{ uri: item }} style={styles.modalImage} />
+    </TouchableOpacity>
   );
 
   const renderVideoThumbnail = ({ item }: { item: string }) => (
@@ -137,12 +143,11 @@ const NoteDetailModal: React.FC<NoteDetailModalProps> = ({
   return (
     <>
       <Modal
-        visible={visible && !selectedVideoUrl}
+        visible={visible && !selectedVideoUrl && !selectedImageUrl}
         transparent
         animationType="slide"
-        onRequestClose={onClose}
       >
-        <TouchableOpacity style={styles.modalOverlay} onPress={onClose}>
+        <View style={styles.modalOverlay}>
           <View style={styles.modalContent}>
             <TextCustom style={styles.modalTitle}>Note Details</TextCustom>
 
@@ -234,8 +239,36 @@ const NoteDetailModal: React.FC<NoteDetailModalProps> = ({
               <TextCustom style={styles.closeButtonText}>Close</TextCustom>
             </TouchableOpacity>
           </View>
-        </TouchableOpacity>
+        </View>
       </Modal>
+
+      {selectedImageUrl !== null && (
+        <Modal
+          visible={!!selectedImageUrl}
+          transparent={false}
+          animationType="fade"
+          onRequestClose={() => setSelectedImageUrl(null)}
+        >
+          <View style={styles.fullscreenContainer}>
+            <Image
+              source={{ uri: selectedImageUrl }}
+              style={styles.fullscreenImage}
+              resizeMode="contain"
+            />
+            <TouchableOpacity
+              style={styles.fullscreenCloseButton}
+              onPress={() => setSelectedImageUrl(null)}
+            >
+              <CustomIcon
+                name="close"
+                size={30}
+                color="#fff"
+                type="MaterialCommunityIcons"
+              />
+            </TouchableOpacity>
+          </View>
+        </Modal>
+      )}
 
       {/* Fullscreen cho video */}
       {selectedVideoUrl && (
@@ -355,6 +388,12 @@ const styles = StyleSheet.create({
   fullscreenVideo: {
     width: "100%",
     height: "100%",
+  },
+  fullscreenImage: {
+    flex: 1,
+    width: "100%",
+    height: "100%",
+    resizeMode: "contain",
   },
   fullscreenCloseButton: {
     position: "absolute",

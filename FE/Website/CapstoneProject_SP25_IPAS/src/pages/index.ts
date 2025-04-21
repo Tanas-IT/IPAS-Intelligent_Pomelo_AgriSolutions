@@ -77,5 +77,6 @@ export { default as PackageList } from "@/pages/Admin/PackageList/PackageList";
 export { default as SystemConfiguration } from "@/pages/Admin/SystemConfiguration/SystemConfiguration";
 export { default as Profile } from "@/pages/Account/Profile/Profile";
 export { default as ReportManagement } from "@/pages/ExpertView/ReportManagement/ReportManagement";
+export { default as TagManagement } from "@/pages/ExpertView/TagManagement/TagManagement";
 
 

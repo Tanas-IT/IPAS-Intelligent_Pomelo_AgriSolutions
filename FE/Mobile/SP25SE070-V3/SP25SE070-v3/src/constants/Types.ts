@@ -1,4 +1,3 @@
-import { NoteFormData } from "@/types/plant";
 import { NavigatorScreenParams, RouteProp } from "@react-navigation/native";
 import {
   NativeStackNavigationProp,
@@ -6,6 +5,7 @@ import {
 } from "@react-navigation/native-stack";
 import { WorklogNoteFormData } from "@/types/worklog";
 import { ROUTE_NAMES } from "@/constants";
+import { NoteFormData } from "@/types";
 
 export type RootStackParamList = {
   [ROUTE_NAMES.AUTH.LOGIN]: undefined;
@@ -13,10 +13,16 @@ export type RootStackParamList = {
     screen?: keyof DrawerParamList;
     params?: NavigatorScreenParams<MainTabParamList>;
   };
-  [ROUTE_NAMES.PLANT.PLANT_DETAIL]: { plantId: string };
   [ROUTE_NAMES.NOTIFICATION]: undefined;
+  [ROUTE_NAMES.PLANT.PLANT_DETAIL]: { plantId: string };
   [ROUTE_NAMES.PLANT.ADD_NOTE]: {
     plantId: number;
+    historyId?: number;
+    initialData?: NoteFormData;
+  };
+  [ROUTE_NAMES.GRAFTED_PLANT.GRAFTED_PLANT_DETAIL]: { graftedPlantId: string };
+  [ROUTE_NAMES.GRAFTED_PLANT.ADD_NOTE]: {
+    graftedPlantId: number;
     historyId?: number;
     initialData?: NoteFormData;
   };
@@ -57,6 +63,10 @@ export type AuthNavigationProp = NativeStackNavigationProp<RootStackParamList>;
 export type PlantDetailRouteProp = RouteProp<
   RootStackParamList,
   typeof ROUTE_NAMES.PLANT.PLANT_DETAIL
+>;
+export type GraftedPlantDetailRouteProp = RouteProp<
+  RootStackParamList,
+  typeof ROUTE_NAMES.GRAFTED_PLANT.GRAFTED_PLANT_DETAIL
 >;
 export type WorklogDetailScreenProps = NativeStackScreenProps<
   RootStackParamList,

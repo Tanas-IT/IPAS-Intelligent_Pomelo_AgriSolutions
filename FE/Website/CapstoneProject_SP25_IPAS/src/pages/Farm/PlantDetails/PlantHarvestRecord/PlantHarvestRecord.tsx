@@ -105,7 +105,7 @@ function PlantHarvestRecord() {
   };
 
   const handleUpdateProductHarvest = async (values: UpdateProductHarvestRequest) => {
-    const res = await harvestService.UpdateProductHarvest(values);
+    const res = await harvestService.updateProductHarvest(values);
     if (res.statusCode === 200) {
       toast.success(res.message);
       formModal.hideModal();
