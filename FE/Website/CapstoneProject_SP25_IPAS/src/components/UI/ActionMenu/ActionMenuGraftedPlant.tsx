@@ -5,6 +5,7 @@ import { useNavigate } from "react-router-dom";
 import { GRAFTED_STATUS, ROUTES } from "@/constants";
 import { ActionMenuItem } from "@/types";
 import { GetGraftedPlant } from "@/payloads";
+import { isEmployee } from "@/utils";
 
 interface ActionMenuProps {
   isDetail?: boolean;
@@ -30,8 +31,10 @@ const ActionMenuGraftedPlant: FC<ActionMenuProps> = ({
   onConvertToPlant,
 }) => {
   const navigate = useNavigate();
+  const isEmployeeIn = isEmployee();
   const { graftedPlantId, isCompleted, isDead, plantLotId, status } = graftedPlant;
   const isUsed = status === GRAFTED_STATUS.USED;
+  const isActive = !isDead && isCompleted && !plantLotId && !isUsed && !isEmployeeIn;
 
   const actionItems = [
     !isDetail
@@ -41,45 +44,49 @@ const ActionMenuGraftedPlant: FC<ActionMenuProps> = ({
           onClick: () => navigate(ROUTES.FARM_GRAFTED_PLANT_DETAIL(graftedPlantId)),
         }
       : null,
-    !isCompleted && onApplyCriteria && !isDead
+    !isCompleted && onApplyCriteria && !isDead && !isEmployeeIn
       ? {
           icon: <Icons.checkSuccuss />,
           label: "Apply Criteria",
           onClick: () => onApplyCriteria?.(),
         }
       : null,
-    {
-      icon: <Icons.edit />,
-      label: "Update Grafted Plant",
-      onClick: () => onEdit(),
-    },
-    {
-      icon: <Icons.delete />,
-      label: "Delete Grafted Plant",
-      onClick: () => onDelete(),
-    },
-    !isDead && !isUsed
+    isEmployeeIn && !isDead
+      ? {
+          icon: <Icons.edit />,
+          label: "Update Grafted Plant",
+          onClick: () => onEdit(),
+        }
+      : null,
+    !isEmployeeIn
+      ? {
+          icon: <Icons.delete />,
+          label: "Delete Grafted Plant",
+          onClick: () => onDelete(),
+        }
+      : null,
+    !isDead && !isUsed && !isEmployeeIn
       ? {
           icon: <Icons.warning />,
           label: "Mark as Dead",
           onClick: () => onMarkAsDead(),
         }
       : null,
-    !isDead && isCompleted && plantLotId === undefined && !isUsed
+    isActive
       ? {
           icon: <Icons.box />,
           label: "Add to Lot",
           onClick: () => onAddToLot(),
         }
       : null,
-    plantLotId !== undefined && !isUsed
+    plantLotId && !isUsed && !isEmployeeIn
       ? {
           icon: <Icons.delete />,
           label: "Remove from Lot",
           onClick: () => onRemoveFromLot(),
         }
       : null,
-    !isDead && isCompleted && !isUsed && !graftedPlant.plantLotId
+    isActive
       ? {
           icon: <Icons.plant />,
           label: "Convert to Plant",

@@ -15,6 +15,7 @@ export interface PlantRequest {
 }
 
 export interface PlantGrowthHistoryRequest {
+  plantGrowthHistoryId: number;
   plantId: number;
   issueName: string;
   content: string;

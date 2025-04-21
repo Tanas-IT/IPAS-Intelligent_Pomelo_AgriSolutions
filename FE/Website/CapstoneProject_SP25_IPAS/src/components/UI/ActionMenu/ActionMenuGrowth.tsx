@@ -5,30 +5,28 @@ import { ActionMenuItem } from "@/types";
 
 interface ActionMenuProps {
   onEdit: () => void;
-  onDelete?: () => void;
+  onDelete: () => void;
 }
 
-const ActionMenuRecord: FC<ActionMenuProps> = ({ onEdit, onDelete }) => {
+const ActionMenuGrowth: FC<ActionMenuProps> = ({ onEdit, onDelete }) => {
   const actionItems = [
     {
       icon: <Icons.edit />,
-      label: "Update Record",
+      label: "Update Note",
       onClick: () => onEdit(),
     },
-    onDelete
-      ? {
-          icon: <Icons.delete />,
-          label: "Delete Record",
-          onClick: () => onDelete(),
-        }
-      : null,
+    {
+      icon: <Icons.delete />,
+      label: "Delete Note",
+      onClick: () => onDelete(),
+    },
   ].filter(Boolean) as ActionMenuItem[];
 
   return (
     <>
-      <ActionMenu title="Record Manage" items={actionItems} />
+      <ActionMenu title="Growth Note Manage" items={actionItems} />
     </>
   );
 };
 
-export default ActionMenuRecord;
+export default ActionMenuGrowth;

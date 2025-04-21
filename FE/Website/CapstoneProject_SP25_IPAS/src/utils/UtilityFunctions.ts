@@ -3,7 +3,7 @@ import { UserRole } from "@/constants/Enum";
 import { camelCase, kebabCase } from "change-case";
 import { jwtDecode } from "jwt-decode";
 import { AnswerData, DecodedToken, FileType } from "@/types";
-import { FILE_FORMAT, LOCAL_STORAGE_KEYS } from "@/constants";
+import { FILE_FORMAT, LOCAL_STORAGE_KEYS, UserRolesStr } from "@/constants";
 import {
   cropService,
   growthStageService,
@@ -213,6 +213,10 @@ export const getFarmId = (): string => {
   const accessToken = localStorage.getItem(LOCAL_STORAGE_KEYS.ACCESS_TOKEN);
   if (!accessToken) return "";
   return jwtDecode<DecodedToken>(accessToken).farmId;
+};
+
+export const isEmployee = () => {
+  return getRoleId() === UserRolesStr.Employee;
 };
 
 export const getRoleName = (): string => {

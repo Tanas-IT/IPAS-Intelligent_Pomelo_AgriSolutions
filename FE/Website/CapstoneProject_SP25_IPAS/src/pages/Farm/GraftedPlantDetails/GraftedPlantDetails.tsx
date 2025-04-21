@@ -7,6 +7,7 @@ import { useNavigate } from "react-router-dom";
 import { PATHS } from "@/routes";
 import { GraftedGrowthHistory, GraftedPlantCriteria, GraftedPlantDetail } from "@/pages";
 import { useGraftedPlantStore } from "@/stores";
+import { isEmployee } from "@/utils";
 
 function GraftedPlantDetails() {
   const navigate = useNavigate();
@@ -32,7 +33,13 @@ function GraftedPlantDetails() {
       label: <label className={style.titleTab}>Growth History</label>,
       children: <GraftedGrowthHistory />,
     },
-  ];
+  ].filter((item) => {
+    const isEmployeeIn = isEmployee();
+    if (isEmployeeIn) {
+      return ["1", "3"].includes(item.key);
+    }
+    return true;
+  });
 
   // const handleBack = () => navigate(PATHS.FARM.GRAFTED_PLANT_LIST);
   const handleBack = () => {

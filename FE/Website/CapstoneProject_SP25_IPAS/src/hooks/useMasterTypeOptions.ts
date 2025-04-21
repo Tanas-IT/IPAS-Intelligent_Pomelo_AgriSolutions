@@ -3,10 +3,10 @@ import { masterTypeService } from "@/services";
 import { ApiResponse, GetMasterType } from "@/payloads";
 import { SelectOption } from "@/types";
 
-const useMasterTypeOptions = (type: string, isUseValueAsName: boolean = false) => {
+const useMasterTypeOptions = (type?: string, isUseValueAsName: boolean = false) => {
   const [options, setOptions] = useState<SelectOption[]>([]);
-
   useEffect(() => {
+    if (!type) return;
     const fetchOptions = async () => {
       const result: ApiResponse<GetMasterType[]> = await masterTypeService.getSelectMasterTypes(
         type,

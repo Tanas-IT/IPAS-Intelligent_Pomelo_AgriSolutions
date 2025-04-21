@@ -4,6 +4,7 @@ import ActionMenu from "./ActionMenu/ActionMenu";
 import { useNavigate } from "react-router-dom";
 import { ActionMenuItem } from "@/types";
 import { ROUTES } from "@/constants";
+import { isEmployee } from "@/utils";
 
 interface ActionMenuProps {
   id?: number;
@@ -23,6 +24,7 @@ const ActionMenuPlant: FC<ActionMenuProps> = ({
   onMarkAsDead,
 }) => {
   const navigate = useNavigate();
+  const isEmployeeIn = isEmployee();
   const actionItems = [
     id !== undefined
       ? {
@@ -31,24 +33,28 @@ const ActionMenuPlant: FC<ActionMenuProps> = ({
           onClick: () => navigate(ROUTES.FARM_PLANT_DETAIL(id ?? 0)),
         }
       : null,
-    onApplyCriteria && !isPlantDead
+    onApplyCriteria && !isPlantDead && !isEmployeeIn
       ? {
           icon: <Icons.checkSuccuss />,
           label: "Apply Criteria",
           onClick: () => onApplyCriteria?.(),
         }
       : null,
-    {
-      icon: <Icons.edit />,
-      label: "Update Plant",
-      onClick: () => onEdit(),
-    },
-    {
-      icon: <Icons.delete />,
-      label: "Delete Plant",
-      onClick: () => onDelete(),
-    },
-    !isPlantDead
+    isEmployeeIn && !isPlantDead
+      ? {
+          icon: <Icons.edit />,
+          label: "Update Plant",
+          onClick: () => onEdit(),
+        }
+      : null,
+    !isEmployeeIn
+      ? {
+          icon: <Icons.delete />,
+          label: "Delete Plant",
+          onClick: () => onDelete(),
+        }
+      : null,
+    !isPlantDead && !isEmployeeIn
       ? {
           icon: <Icons.warning />,
           label: "Mark as Dead",

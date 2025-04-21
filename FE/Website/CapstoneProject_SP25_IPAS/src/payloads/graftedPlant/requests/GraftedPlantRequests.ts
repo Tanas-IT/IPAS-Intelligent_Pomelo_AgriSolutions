@@ -18,6 +18,7 @@ export interface CreateGraftedPlantsRequest {
 }
 
 export interface GraftedGrowthHistoryRequest {
+  graftedPlantNoteId: number;
   graftedPlantId: number;
   issueName: string;
   content: string;

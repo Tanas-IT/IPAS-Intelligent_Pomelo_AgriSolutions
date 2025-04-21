@@ -5,13 +5,8 @@ import { HarvestRecord } from "@/types/harvest";
 import theme from "@/theme";
 import { CustomIcon, TextCustom } from "@/components";
 import { formatDate, formatDateAndTime } from "@/utils";
-import { useAuthStore } from "@/store";
 import { useModifyPermission, useSystemConfigOptions } from "@/hooks";
-import {
-  SYSTEM_CONFIG_GROUP,
-  SYSTEM_CONFIG_KEY,
-  UserRolesStr,
-} from "@/constants";
+import { SYSTEM_CONFIG_GROUP, SYSTEM_CONFIG_KEY } from "@/constants";
 
 interface TimelineItemProps {
   record: HarvestRecord;
