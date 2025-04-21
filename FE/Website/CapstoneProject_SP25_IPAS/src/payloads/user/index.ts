@@ -1,2 +1,2 @@
 export * from "./UserRequests";
-export * from "./UserResponse";
+export * from "./UserResponses";

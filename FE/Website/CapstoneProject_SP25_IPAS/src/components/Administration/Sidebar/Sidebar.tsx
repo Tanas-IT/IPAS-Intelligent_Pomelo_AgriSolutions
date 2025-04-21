@@ -406,6 +406,16 @@ const Sidebar: React.FC<SidebarProps> = ({ isDefault = false }) => {
       roles: [UserRolesStr.Expert],
     },
     {
+      key: "Tag Management",
+      label: "Tag Management",
+      icon: <Icons.tag />, // đổi icon nếu bạn muốn
+      to: PATHS.EXPERT.TAG_MANAGEMENT,
+      activePaths: [PATHS.EXPERT.TAG_MANAGEMENT],
+      category: "Main",
+      isView: !isDefault,
+      roles: [UserRolesStr.Expert],
+    },
+    {
       key: "Setting",
       label: "Setting",
       icon: <Icons.setting />,

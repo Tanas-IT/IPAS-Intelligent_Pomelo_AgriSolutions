@@ -17,11 +17,12 @@ import TimeFilterModal from "./TimeFilterModal";
 import { StatBox } from "../components/StatBox";
 import { reportService } from "@/services";
 import { useAuthStore } from "@/store";
+import { Image } from "native-base";
 
 const { width, height } = Dimensions.get("window");
 
 const EmployeeHomeScreen = () => {
-  const { userId, fullName } = useAuthStore();
+  const { userId, fullName, avatarUrl } = useAuthStore();
   const [metrics, setMetrics] = useState<any>(null);
   const [todaysTasks, setTodaysTasks] = useState<any[]>([]);
   const [loading, setLoading] = useState(false);
@@ -31,12 +32,17 @@ const EmployeeHomeScreen = () => {
   const fetchData = async (filters: { timeRange?: string } = {}) => {
     setLoading(true);
     try {
-      const tasksResponse = await reportService.getTodayTaskEmployee(Number(userId));
+      const tasksResponse = await reportService.getTodayTaskEmployee(
+        Number(userId)
+      );
       if (tasksResponse.statusCode !== 200) {
         throw new Error(tasksResponse.message || "Failed to fetch tasks");
       }
 
-      const metricsResponse = await reportService.getEmployeeProductivity(Number(userId), filters.timeRange || "week");
+      const metricsResponse = await reportService.getEmployeeProductivity(
+        Number(userId),
+        filters.timeRange || "week"
+      );
       if (metricsResponse.statusCode !== 200) {
         throw new Error(metricsResponse.message || "Failed to fetch metrics");
       }
@@ -77,8 +83,14 @@ const EmployeeHomeScreen = () => {
             <TextCustom style={styles.sectionTitle}>Today's Tasks</TextCustom>
           </View>
           <View style={styles.noDataContainer}>
-            <CustomIcon name="clipboard-text-outline" size={48} color="#D1D5DB" />
-            <TextCustom style={styles.noDataText}>No tasks for today</TextCustom>
+            <CustomIcon
+              name="clipboard-text-outline"
+              size={48}
+              color="#D1D5DB"
+            />
+            <TextCustom style={styles.noDataText}>
+              No tasks for today
+            </TextCustom>
           </View>
         </View>
       );
@@ -99,8 +111,8 @@ const EmployeeHomeScreen = () => {
               item.priority === "high"
                 ? "#F87171"
                 : item.priority === "medium"
-                  ? "#FBBF24"
-                  : "#34D399";
+                ? "#FBBF24"
+                : "#34D399";
             const statusKey = item.status?.toLowerCase().replace(/\s+/g, "_");
             const statusInfo = statusMap[statusKey] || {
               color: "#9CA3AF",
@@ -110,14 +122,21 @@ const EmployeeHomeScreen = () => {
             return (
               <View key={`task-${item.workLogId}`} style={styles.taskCard}>
                 <View style={styles.taskHeader}>
-                  <View style={[styles.taskStatusDot, { backgroundColor: statusInfo.color }]} />
-                  <TextCustom style={styles.taskTime}>{item.time || "Flexible"}</TextCustom>
+                  <View
+                    style={[
+                      styles.taskStatusDot,
+                      { backgroundColor: statusInfo.color },
+                    ]}
+                  />
+                  <TextCustom style={styles.taskTime}>
+                    {item.time || "Flexible"}
+                  </TextCustom>
                 </View>
                 <TextCustom style={styles.taskTitle} numberOfLines={2}>
                   {item.workLogName}
                 </TextCustom>
                 <View style={styles.taskFooter}>
-                  <StatusBadge status={item.status}/>
+                  <StatusBadge status={item.status} />
                 </View>
               </View>
             );
@@ -135,8 +154,8 @@ const EmployeeHomeScreen = () => {
       datasets: [
         {
           data: metrics.chartData.tasks.map((d: any) => d.count),
-          colors: metrics.chartData.tasks.map((_: any, i: any) =>
-            `rgba(99, 102, 241, ${0.7 + (i * 0.05)})`
+          colors: metrics.chartData.tasks.map(
+            (_: any, i: any) => `rgba(99, 102, 241, ${0.7 + i * 0.05})`
           ),
         },
       ],
@@ -145,7 +164,9 @@ const EmployeeHomeScreen = () => {
     return (
       <View style={styles.section}>
         <View style={styles.sectionHeader}>
-          <TextCustom style={styles.sectionTitle}>Performance Trends</TextCustom>
+          <TextCustom style={styles.sectionTitle}>
+            Performance Trends
+          </TextCustom>
           <TouchableOpacity
             style={styles.filterButton}
             onPress={() => setTimeFilterVisible(true)}
@@ -238,31 +259,52 @@ const EmployeeHomeScreen = () => {
     <View style={styles.container}>
       <Animated.View style={[styles.header]}>
         <LinearGradient
-          colors={['#bcd379', '#72BA7A', '#20461e']}
+          colors={["#bcd379", "#72BA7A", "#20461e"]}
           start={{ x: 0, y: 0 }}
           end={{ x: 1, y: 1 }}
           style={styles.headerGradient}
         >
           <View style={styles.headerContent}>
-            <View style={styles.userInfo}>
-              <View style={styles.avatarPlaceholder}>
-                <CustomIcon name="user" size={32} color="#FFF" type="AntDesign" />
+            <View style={styles.userContainer}>
+              <View style={styles.avatarContainer}>
+                {avatarUrl ? (
+                  <Image source={{ uri: avatarUrl }} style={styles.avatar} />
+                ) : (
+                  <CustomIcon
+                    name="user"
+                    size={32}
+                    color="#FFF"
+                    type="AntDesign"
+                  />
+                )}
               </View>
-              <View>
-                <TextCustom style={styles.headerGreeting}>Hello,</TextCustom>
-                <TextCustom style={styles.headerUserName}>{fullName}</TextCustom>
+              <View style={styles.userInfo}>
+                <TextCustom style={styles.headerGreeting}>
+                  Welcome back,
+                </TextCustom>
+                <TextCustom style={styles.headerUserName}>
+                  {fullName}
+                </TextCustom>
               </View>
             </View>
 
             <View style={styles.performanceContainer}>
               <View style={styles.performanceItem}>
-                <TextCustom style={styles.performanceLabel}>Today's Tasks</TextCustom>
-                <TextCustom style={styles.performanceValue}>{metrics?.tasksPendingToday || 0}</TextCustom>
+                <TextCustom style={styles.performanceLabel}>
+                  Today's Tasks
+                </TextCustom>
+                <TextCustom style={styles.performanceValue}>
+                  {metrics?.tasksPendingToday || 0}
+                </TextCustom>
               </View>
               <View style={styles.performanceDivider} />
               <View style={styles.performanceItem}>
-                <TextCustom style={styles.performanceLabel}>Skill Score</TextCustom>
-                <TextCustom style={styles.performanceValue}>{metrics?.skillScore || 0}</TextCustom>
+                <TextCustom style={styles.performanceLabel}>
+                  Skill Score
+                </TextCustom>
+                <TextCustom style={styles.performanceValue}>
+                  {metrics?.skillScore || 0}
+                </TextCustom>
               </View>
             </View>
           </View>
@@ -302,15 +344,15 @@ const styles = StyleSheet.create({
     backgroundColor: "#fffcee",
   },
   header: {
-    position: 'absolute',
+    position: "absolute",
     top: 0,
     left: 0,
     right: 0,
     zIndex: 10,
-    overflow: 'hidden',
+    overflow: "hidden",
     borderBottomLeftRadius: 24,
     borderBottomRightRadius: 24,
-    shadowColor: '#4F46E5',
+    shadowColor: "#4F46E5",
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.2,
     shadowRadius: 10,
@@ -318,104 +360,116 @@ const styles = StyleSheet.create({
   },
   headerGradient: {
     flex: 1,
-    paddingTop: Platform.OS === 'ios' ? 50 : 30,
+    paddingTop: Platform.OS === "ios" ? 30 : 30,
     paddingHorizontal: 24,
     paddingBottom: 24,
   },
   headerContent: {
     flex: 1,
-    // justifyContent: 'space-between',
+  },
+  userContainer: {
+    flexDirection: "row",
+    alignItems: "center",
+  },
+  avatarContainer: {
+    width: 60,
+    height: 60,
+    borderRadius: 30,
+    backgroundColor: "white",
+    justifyContent: "center",
+    alignItems: "center",
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.1,
+    shadowRadius: 4,
+    elevation: 3,
+  },
+  avatar: {
+    width: 56,
+    height: 56,
+    borderRadius: 28,
   },
   userInfo: {
-    flexDirection: 'row',
-    alignItems: 'center',
-  },
-  avatarPlaceholder: {
-    width: 48,
-    height: 48,
-    borderRadius: 24,
-    backgroundColor: 'rgba(255, 255, 255, 0.2)',
-    justifyContent: 'center',
-    alignItems: 'center',
-    marginRight: 12,
+    flex: 1,
+    marginLeft: 16,
   },
   headerGreeting: {
     fontSize: 14,
-    color: 'white',
+    color: "white",
     marginBottom: 2,
   },
   headerUserName: {
     fontSize: 20,
-    fontWeight: '600',
-    color: '#FFF',
+    fontWeight: "600",
+    color: "#FFF",
   },
   performanceContainer: {
-    flexDirection: 'row',
-    backgroundColor: 'rgba(255, 255, 255, 0.15)',
+    flexDirection: "row",
+    backgroundColor: "rgba(255, 255, 255, 0.15)",
     borderRadius: 16,
     padding: 16,
     marginTop: 16,
   },
   performanceItem: {
     flex: 1,
-    alignItems: 'center',
+    alignItems: "center",
   },
   performanceDivider: {
     width: 1,
-    backgroundColor: 'rgba(255, 255, 255, 0.2)',
+    backgroundColor: "rgba(255, 255, 255, 0.2)",
     marginVertical: 4,
   },
   performanceLabel: {
     fontSize: 12,
-    color: '#20461e',
+    color: "#20461e",
     marginBottom: 4,
   },
   performanceValue: {
     fontSize: 24,
-    fontWeight: '700',
-    color: '#FFF',
+    fontWeight: "700",
+    color: "#FFF",
   },
   filterButton: {
     width: 40,
     height: 40,
     borderRadius: 20,
-    backgroundColor: '#bcd379',
-    justifyContent: 'center',
-    alignItems: 'center',
+    backgroundColor: "#bcd379",
+    justifyContent: "center",
+    alignItems: "center",
   },
   content: {
     flex: 1,
-    marginTop: Platform.OS === 'ios' ? 230 : 80,
+    marginTop: Platform.OS === "ios" ? 230 : 80,
   },
   contentInner: {
     paddingBottom: 150,
   },
   section: {
-    backgroundColor: '#FFF',
+    backgroundColor: "#FFF",
     borderRadius: 16,
     padding: 16,
     marginHorizontal: 16,
     marginBottom: 16,
-    shadowColor: '#000',
+    shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.05,
     shadowRadius: 6,
     elevation: 2,
   },
   sectionHeader: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
     marginBottom: 12,
   },
   sectionTitle: {
     fontSize: 18,
-    fontWeight: '600',
-    color: '#111827',
+    fontWeight: "600",
+    color: "#111827",
   },
   sectionAction: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
   },
   sectionActionText: {
     fontSize: 14,
@@ -424,12 +478,12 @@ const styles = StyleSheet.create({
   },
   noDataContainer: {
     paddingVertical: 24,
-    justifyContent: 'center',
-    alignItems: 'center',
+    justifyContent: "center",
+    alignItems: "center",
   },
   noDataText: {
     fontSize: 14,
-    color: '#9CA3AF',
+    color: "#9CA3AF",
     marginTop: 8,
   },
   taskScrollContainer: {
@@ -437,16 +491,16 @@ const styles = StyleSheet.create({
   },
   taskCard: {
     width: 180,
-    backgroundColor: '#FFF',
+    backgroundColor: "#FFF",
     borderRadius: 12,
     padding: 16,
     marginRight: 12,
     borderWidth: 1,
-    borderColor: '#F3F4F6',
+    borderColor: "#F3F4F6",
   },
   taskHeader: {
-    flexDirection: 'row',
-    alignItems: 'center',
+    flexDirection: "row",
+    alignItems: "center",
     marginBottom: 8,
   },
   taskStatusDot: {
@@ -457,18 +511,18 @@ const styles = StyleSheet.create({
   },
   taskTime: {
     fontSize: 12,
-    color: '#6B7280',
+    color: "#6B7280",
   },
   taskTitle: {
     fontSize: 15,
-    fontWeight: '500',
-    color: '#111827',
+    fontWeight: "500",
+    color: "#111827",
     height: 40,
   },
   taskFooter: {
-    flexDirection: 'row',
-    justifyContent: 'space-between',
-    alignItems: 'center',
+    flexDirection: "row",
+    justifyContent: "space-between",
+    alignItems: "center",
   },
   priorityBadge: {
     paddingVertical: 4,
@@ -477,19 +531,19 @@ const styles = StyleSheet.create({
   },
   priorityText: {
     fontSize: 12,
-    color: '#FFF',
-    fontWeight: '500',
+    color: "#FFF",
+    fontWeight: "500",
   },
   taskStatus: {
     fontSize: 12,
-    fontWeight: '500',
+    fontWeight: "500",
   },
   statsSection: {
     marginHorizontal: 16,
     marginBottom: 16,
   },
   statsRow: {
-    flexDirection: 'row',
+    flexDirection: "row",
     marginBottom: 12,
   },
   statBoxFirst: {
@@ -497,7 +551,7 @@ const styles = StyleSheet.create({
   },
   chartContainer: {
     borderRadius: 12,
-    overflow: 'hidden',
+    overflow: "hidden",
   },
   chart: {
     marginVertical: 8,

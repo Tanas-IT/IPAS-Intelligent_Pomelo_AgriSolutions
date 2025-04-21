@@ -1,11 +1,4 @@
-export interface FileResource {
-  resourceID: number;
-  resourceCode: string;
-  resourceType: string;
-  resourceURL: string;
-  fileFormat: string;
-  createDate: string;
-}
+import { FileResource } from "@/types";
 
 interface GraftedPlantSummary {
   graftedPlantID: number;
@@ -53,7 +46,10 @@ export interface GetPlant {
 }
 
 export interface GetPlantDetail extends GetPlant {
+  plantReferenceName: string;
+  plantLotName: string;
   characteristic: string;
+  passedDate: string;
 }
 
 export interface GetPlantSelect {

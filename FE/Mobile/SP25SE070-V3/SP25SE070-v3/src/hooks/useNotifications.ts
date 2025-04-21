@@ -13,7 +13,6 @@ import { useAuthStore } from "@/store";
 const WS_URL = process.env.EXPO_PUBLIC_PUBLIC_WS_URL;
 console.log("WS_URL", WS_URL);
 
-
 const useNotifications = () => {
   const [notifications, setNotifications] = useState<GetNotification[]>([]);
   const [unreadCount, setUnreadCount] = useState(0);
@@ -28,13 +27,12 @@ const useNotifications = () => {
     }
 
     try {
-      console.log("ảo z", userId);
-      
-      const response = await NotificationService.getNotificationByUser(Number(userId));
-      console.log("noti", response);
-      
+      const response = await NotificationService.getNotificationByUser(
+        Number(userId)
+      );
+
       if (response.statusCode === 200) {
-        setNotifications(response.data);
+        setNotifications(response.data || []);
       }
     } catch (error: any) {
       console.error("Fetch error:", error);
@@ -166,7 +164,14 @@ const useNotifications = () => {
     }
   }, []);
 
-  return { notifications, unreadCount, markAsRead, fetchNotifications, socket, markAllAsRead };
+  return {
+    notifications,
+    unreadCount,
+    markAsRead,
+    fetchNotifications,
+    socket,
+    markAllAsRead,
+  };
 };
 
 export default useNotifications;

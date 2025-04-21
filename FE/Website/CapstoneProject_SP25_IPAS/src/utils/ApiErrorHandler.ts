@@ -18,15 +18,12 @@ export const handleApiError = async (error: any) => {
   if (error.message === "Network Error" && !error.response) {
     toast.error(MESSAGES.NETWORK_ERROR);
   } else if (error.response) {
-    // console.log(error);
-
     switch (error.response.status) {
       case 401:
         const message = error.response.data.Message;
         if (message.includes("Token is expired!")) {
           const originalRequest = error.config;
           const result = await authService.refreshToken();
-          // console.log(result);
           if (result.statusCode === 200) {
             const newAccessToken = result.data.authenModel.accessToken;
             const newRefreshToken = result.data.authenModel.refreshToken;
@@ -53,6 +50,9 @@ export const handleApiError = async (error: any) => {
         break;
       case 400:
         toast.error(MESSAGES.BAD_REQUEST);
+        break;
+      case 500:
+        toast.error(MESSAGES.ERROR_OCCURRED);
         break;
       default:
         toast.error(MESSAGES.ERROR_OCCURRED);
