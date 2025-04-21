@@ -4,9 +4,11 @@ import EmployeeTable from "./EmployeeTable";
 import EditableTimeRangeField from "./EditableTimeField";
 import dayjs from "dayjs";
 import { Images } from "@/assets";
-import { GetAttendanceList, GetWorklogDetail, ReplacementEmployee } from "@/payloads/worklog";
+import { EmployeeWithSkills, GetAttendanceList, GetWorklogDetail, ReplacementEmployee } from "@/payloads/worklog";
 import { useEffect, useState } from "react";
 import { worklogService } from "@/services";
+import { getFarmId } from "@/utils";
+import { toast } from "react-toastify";
 
 interface EditWorklogModalProps {
   visible: boolean;
@@ -20,7 +22,7 @@ interface EditWorklogModalProps {
   onTimeRangeChange: (newValue: [string, string]) => void;
   selectedDate: string;
   onDateChange: (date: string) => void;
-  onSave: (tempReporterId?: number) => void;
+  onSave: (tempReporterId?: number, replacingStates?: { [key: number]: number | null }) => void;
   replacementEmployees: ReplacementEmployee[];
   worklog?: GetWorklogDetail;
   initialReporterId?: number;
@@ -44,31 +46,75 @@ const EditWorklogModal: React.FC<EditWorklogModalProps> = ({
   initialReporterId,
 }) => {
   const [list, setList] = useState<GetAttendanceList[]>([]);
+  const [employee, setEmployee] = useState<EmployeeWithSkills[]>([]);
   const [tempReporterId, setTempReporterId] = useState<number | undefined>(initialReporterId);
+  const [replacingStates, setReplacingStates] = useState<{ [key: number]: number | null }>({});
   const isEditable = worklog?.status === "Not Started";
 
-  const fetchListAttendance = async () => {
-    try {
-      const result = await worklogService.getEmpListForUpdate(Number(id));
-      if (result.statusCode === 200) {
-        setList(result.data);
+  const fetchEmployees = async () => {
+      try {
+        const farmId = getFarmId();
+        const response = await worklogService.getEmployeesByWorkSkill(Number(farmId));
+        if (response.statusCode === 200) {
+          setEmployee(response.data);
+        } else {
+          toast.error("Failed to fetch employees");
+        }
+      } catch (error) {
+        console.error("Error fetching employees:", error);
+        toast.error("Error fetching employees");
       }
-    } catch (error) {
-      console.error("Error fetching attendance list:", error);
-    }
-  };
+    };
+
+    const fetchListAttendance = async () => {
+      try {
+        const result = await worklogService.getEmpListForUpdate(Number(id));
+        if (result.statusCode === 200) {
+          setList(result.data);
+  
+          if (initialReporterId) {
+            setTempReporterId(initialReporterId);
+          } else {
+            if (worklog && worklog?.replacementEmployee?.length > 0) {
+              const replacementReporter = worklog.replacementEmployee.find((emp) => emp.isRepoter);
+              if (replacementReporter) {
+                setTempReporterId(replacementReporter.replaceUserId);
+                return;
+              }
+            }
+            if (worklog && worklog?.reporter?.length > 0) {
+              const reporterEmp = worklog.reporter.find((emp) => emp.isReporter);
+              if (reporterEmp) {
+                setTempReporterId(reporterEmp.userId);
+              } else {
+                console.log("[DEBUG] No reporter found in worklog.reporter");
+              }
+            } else {
+              console.log("[DEBUG] No worklog.reporter available");
+            }
+          }
+        } else {
+          toast.error("Failed to fetch attendance list");
+        }
+      } catch (error) {
+        console.error("Error fetching attendance list:", error);
+        toast.error("Error fetching attendance list");
+      }
+    };
 
   useEffect(() => {
     if (visible) {
       fetchListAttendance();
-      setTempReporterId(initialReporterId);
+      fetchEmployees();
+      setReplacingStates({});
     }
-  }, [visible, initialReporterId]);
+  }, [visible, initialReporterId, id, worklog]);
 
   const handleClose = () => {
     onClose();
     setList(list);
     setTempReporterId(initialReporterId);
+    setReplacingStates({});
   };
 
   const handleUpdateTempReporter = (userId: number) => {
@@ -77,8 +123,12 @@ const EditWorklogModal: React.FC<EditWorklogModalProps> = ({
     }
   };
 
+  const handleUpdateReplacingStates = (states: { [key: number]: number | null }) => {
+    setReplacingStates(states);
+  };
+
   const handleSave = () => {
-    onSave(tempReporterId);
+    onSave(tempReporterId, replacingStates);
   };
 
   return (
@@ -94,13 +144,14 @@ const EditWorklogModal: React.FC<EditWorklogModalProps> = ({
           Save
         </Button>,
       ]}
-      width={800}
+      width={1000}
     >
       <EmployeeTable
         employees={list}
         attendanceStatus={attendanceStatus}
         onReplaceEmployee={onReplaceEmployee}
         onUpdateTempReporter={handleUpdateTempReporter}
+        onUpdateReplacingStates={handleUpdateReplacingStates}
         isEditable={isEditable}
         initialReporterId={initialReporterId}
         tempReporterId={tempReporterId}

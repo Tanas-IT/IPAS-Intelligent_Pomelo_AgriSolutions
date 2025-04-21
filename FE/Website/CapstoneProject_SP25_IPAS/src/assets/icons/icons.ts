@@ -31,7 +31,8 @@ export {
   MdOutlinePermMedia as media,
   MdBarChart as chart,
   MdOutlineReport as unanswered,
-  MdReportProblem as trainned
+  MdReportProblem as trainned,
+  MdGrade as grade
 } from "react-icons/md";
 export {
   LuUsers as users,
@@ -66,7 +67,9 @@ export {
   FaTasks as task,
   FaLeaf as leaf,
   FaMoneyBillAlt as money,
-  FaClock as clock
+  FaClock as clock,
+  FaCrown as score,
+  FaCaretDown as caretDown
 } from "react-icons/fa";
 export {
   PiFarm as farms,

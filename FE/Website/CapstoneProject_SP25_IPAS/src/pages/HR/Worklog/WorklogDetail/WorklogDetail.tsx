@@ -9,24 +9,17 @@ import { useModal } from "@/hooks";
 import { CreateFeedbackRequest, GetFeedback } from "@/payloads/feedback";
 import { useEffect, useState } from "react";
 import FeedbackModal from "./FeedbackModal/FeedbackModal";
-import WeatherAlerts from "./WeatherAlerts/WeatherAlerts";
 import { feedbackService, worklogService } from "@/services";
 import { CancelReplacementRequest, GetAttendanceList, GetWorklogDetail, ListEmployeeUpdate, TaskFeedback, UpdateWorklogReq } from "@/payloads/worklog";
 import { formatDate, formatDateW, getUserId } from "@/utils";
-import { getUserById } from "@/services/UserService";
 import { GetUser, PlanTarget, PlanTargetModel } from "@/payloads";
 import { ConfirmModal, CustomButton, Loading, Tooltip } from "@/components";
 import PlanTargetTable from "@/pages/Plan/PlanDetails/PlanTargetTable";
-import EmployeeDropdown from "./EmployeeDropdown";
-import moment from "moment";
-import EditableTimeRangeField from "./EditableTimeField";
 import AttendanceModal from "./AttendanceModal";
 import EditWorklogModal from "./EditWorklogModal";
-import { Dayjs } from "dayjs";
 import RedoWorklogModal from "./RedoWorklogModal";
 import { statusIconMap } from "@/constants/statusMap";
 import DependencyModal from "./DependencyModal";
-import { identity } from "lodash";
 
 const InfoField = ({
   icon: Icon,
@@ -79,7 +72,6 @@ function WorklogDetail() {
   const navigate = useNavigate();
   const formModal = useModal<GetFeedback>();
   const [warning, setWarning] = useState<{ message: string; names: string[] } | null>(null);
-  const [manager, setManager] = useState<GetUser | null>(null);
   const [feedbackList, setFeedbackList] = useState<TaskFeedback[]>([]);
   const { id } = useParams();
   const [worklogDetail, setWorklogDetail] = useState<GetWorklogDetail | undefined>();
@@ -133,13 +125,15 @@ function WorklogDetail() {
     );
 
     const updatedReplacementEmployees = [
-      ...(worklogDetail.replacementEmployee || []),
+      ...(worklogDetail.replacementEmployee || []).filter(
+        (rep) => rep.replaceUserId !== replaceUserId
+      ),
       { replaceUserId, userId: replacementUserId },
     ];
 
     setWorklogDetail({
       ...worklogDetail,
-      listEmployee: updatedEmployees || [],
+      listEmployee: updatedEmployees,
       reporter: updatedReporter,
       replacementEmployee: updatedReplacementEmployees,
     });
@@ -178,67 +172,99 @@ function WorklogDetail() {
       toast.success("Removed successfully!");
       await fetchPlanDetail();
     } catch (error) {
-      console.error("Error removing replacement:", error);
       toast.error("Failed to remove replacement.");
     }
   };
 
-  const handleSaveEdit = async (tempReporterId?: number) => {
+  const handleSaveEdit = async (tempReporterId?: number, replacingStates?: { [key: number]: number | null }) => {
     if (!worklogDetail || !id) return;
+    console.log("tempReporterId", tempReporterId);
+    console.log("initialReporterId", initialReporterId);
+    console.log("replacingStates", replacingStates);
+
 
     try {
       const listEmployeeUpdate: ListEmployeeUpdate[] = [];
 
-      // Xử lý thay thế reporter
-      if (tempReporterId && tempReporterId !== initialReporterId && typeof tempReporterId === "number") {
-        const originalReporter = worklogDetail.reporter[0];
-        if (originalReporter) {
+      // Handle reporter replacement
+      if (replacingStates) {
+        Object.entries(replacingStates).forEach(([replaceUserId, replacementUserId]) => {
+          if (replacementUserId !== null) {
+            const replaceUserIdNum = Number(replaceUserId);
+            let isReporterReplacement = false;
+            if (worklogDetail?.replacementEmployee?.length > 0) {
+              const replacementReporter = worklogDetail.replacementEmployee.find(
+                (emp) => emp.isRepoter && emp.replaceUserId === replaceUserIdNum
+              );
+              if (replacementReporter) {
+                isReporterReplacement = true;
+                console.log("[DEBUG] Found reporter in replacementEmployee:", replacementReporter);
+              }
+            }
+
+            if (!isReporterReplacement && worklogDetail?.reporter?.length > 0) {
+              isReporterReplacement = worklogDetail.reporter.some(
+                (rep) => rep.isReporter && rep.userId === replaceUserIdNum
+              );
+              if (isReporterReplacement) {
+                console.log("[DEBUG] Found reporter in reporter:", replaceUserIdNum);
+              }
+            }
+
+            if (isReporterReplacement) {
+              listEmployeeUpdate.push({
+                oldUserId: replaceUserIdNum,
+                newUserId: replacementUserId,
+                isReporter: true,
+                status: "update"
+              });
+
+              if (tempReporterId === replaceUserIdNum) {
+                tempReporterId = replacementUserId;
+              }
+            } else {
+              const targetUser = [
+                ...worklogDetail.listEmployee,
+                ...worklogDetail.reporter
+              ].find(user => user.userId === replaceUserIdNum);
+
+              if (targetUser) {
+                listEmployeeUpdate.push({
+                  oldUserId: replaceUserIdNum,
+                  newUserId: replacementUserId,
+                  isReporter: false,
+                  status: targetUser.statusOfUserWorkLog === "Rejected" ? "add" : "update"
+                });
+              }
+            }
+          }
+        });
+      }
+
+      if (tempReporterId && tempReporterId !== initialReporterId) {
+        const existingUpdate = listEmployeeUpdate.find(
+          item => item.isReporter && item.oldUserId === initialReporterId
+        );
+
+        if (!existingUpdate) {
           listEmployeeUpdate.push({
-            oldUserId: originalReporter.userId,
+            oldUserId: initialReporterId!,
             newUserId: tempReporterId,
             isReporter: true,
-            status: "update",
-          });
-        } else {
-          listEmployeeUpdate.push({
-            oldUserId: 0,
-            newUserId: tempReporterId,
-            isReporter: true,
-            status: "add",
+            status: "update"
           });
         }
       }
-
-      // Xử lý thay thế employee
-      worklogDetail.replacementEmployee?.forEach((replacement) => {
-        const originalEmployee = worklogDetail.listEmployee.find(
-          (emp) => emp.userId === replacement.replaceUserId
-        );
-        if (originalEmployee) {
-          const isReporterReplacement = worklogDetail.reporter.some(
-            (rep) => rep.userId === replacement.replaceUserId
-          );
-          const isRejected = originalEmployee.statusOfUserWorkLog === "Rejected";
-          listEmployeeUpdate.push({
-            oldUserId: replacement.replaceUserId,
-            newUserId: replacement.userId,
-            isReporter: isReporterReplacement,
-            status: isRejected ? "add" : "update",
-          });
-        }
-      });
-
-      // Khởi tạo payload chỉ với workLogId
       const payload: UpdateWorklogReq = {
         workLogId: Number(id),
       };
+      console.log("listEmployeeUpdate", listEmployeeUpdate);
 
-      // Chỉ thêm listEmployeeUpdate nếu có thay đổi
+
       if (listEmployeeUpdate.length > 0) {
         payload.listEmployeeUpdate = listEmployeeUpdate;
       }
 
-      // Chỉ thêm các trường thay đổi
       if (selectedDate && selectedDate !== worklogDetail.date) {
         payload.dateWork = selectedDate;
       }
@@ -248,8 +274,7 @@ function WorklogDetail() {
       if (selectedTimeRange[1] && selectedTimeRange[1] !== worklogDetail.actualEndTime) {
         payload.endTime = selectedTimeRange[1];
       }
-
-      // Nếu không có thay đổi, thông báo và thoát
+      console.log("payloadddđ", payload);
       if (
         !payload.listEmployeeUpdate &&
         !payload.dateWork &&
@@ -260,26 +285,57 @@ function WorklogDetail() {
         setIsEditModalVisible(false);
         return;
       }
-
       console.log("Final payload:", payload);
 
       const response = await worklogService.updateWorklog(payload);
 
       if (response?.statusCode === 200) {
-        // Cập nhật worklogDetail chỉ khi API thành công
+        let updatedEmployees = worklogDetail.listEmployee;
+        let updatedReporter = worklogDetail.reporter;
+        let updatedReplacementEmployees = worklogDetail.replacementEmployee || [];
+
         if (tempReporterId && tempReporterId !== initialReporterId && typeof tempReporterId === "number") {
-          const updatedEmployees = worklogDetail.listEmployee.map((employee) => ({
+          updatedEmployees = worklogDetail.listEmployee.map((employee) => ({
             ...employee,
             isReporter: employee.userId === tempReporterId,
           }));
-          const updatedReporter = updatedEmployees.filter((emp) => emp.isReporter);
-          setWorklogDetail({
-            ...worklogDetail,
-            listEmployee: updatedEmployees,
-            reporter: updatedReporter.length > 0 ? [updatedReporter[0]] : [],
-          });
+          updatedReporter = updatedEmployees.filter((emp) => emp.isReporter);
           setInitialReporterId(tempReporterId);
         }
+
+        if (replacingStates) {
+          updatedEmployees = worklogDetail.listEmployee.map((employee) => {
+            const replacementUserId = replacingStates[employee.userId];
+            if (replacementUserId !== undefined && replacementUserId !== null) {
+              return { ...employee, statusOfUserWorkLog: "BeReplaced" };
+            }
+            return employee;
+          });
+          updatedReporter = updatedReporter.map((rep) => {
+            const replacementUserId = replacingStates[rep.userId];
+            if (replacementUserId !== undefined && replacementUserId !== null) {
+              return { ...rep, statusOfUserWorkLog: "BeReplaced" };
+            }
+            return rep;
+          });
+          updatedReplacementEmployees = Object.entries(replacingStates)
+            .filter(([_, userId]) => userId !== null)
+            .map(([replaceUserId, userId]) => ({
+              replaceUserId: Number(replaceUserId),
+              userId: userId as number,
+            }));
+        }
+
+        setWorklogDetail({
+          ...worklogDetail,
+          listEmployee: updatedEmployees,
+          reporter: updatedReporter.length > 0 ? [updatedReporter[0]] : [],
+          replacementEmployee: updatedReplacementEmployees,
+          date: payload.dateWork || worklogDetail.date,
+          actualStartTime: payload.startTime || worklogDetail.actualStartTime,
+          actualEndTime: payload.endTime || worklogDetail.actualEndTime,
+        });
+
         toast.success("Worklog updated successfully!");
         await fetchPlanDetail();
         setIsEditModalVisible(false);
@@ -324,7 +380,7 @@ function WorklogDetail() {
     formModal.showModal();
   };
 
-  const handleAdd = () => {};
+  const handleAdd = () => { };
 
   const determineUnit = (planTargetModels: PlanTargetModel) => {
     const { rows, plants, landPlotName, graftedPlants, plantLots } = planTargetModels;
@@ -458,7 +514,18 @@ function WorklogDetail() {
       setFeedbackList(res.listTaskFeedback || []);
       setSelectedTimeRange([res.actualStartTime || "", res.actualEndTime || ""]);
       setSelectedDate(res.date || "");
-      setInitialReporterId(res.reporter[0]?.userId);
+
+      let initialReporterId: number | undefined;
+      if (res.replacementEmployee?.length > 0) {
+        const replacementReporter = res.replacementEmployee.find((emp) => emp.isRepoter);
+        if (replacementReporter) {
+          initialReporterId = replacementReporter.replaceUserId;
+        }
+      }
+      if (!initialReporterId && res.reporter?.length > 0) {
+        initialReporterId = res.reporter.find((emp) => emp.isReporter)?.userId;
+      }
+      setInitialReporterId(initialReporterId);
 
       setInfoFieldsLeft([
         { label: "Crop", value: res.cropName || "None", icon: Icons.growth },
@@ -494,7 +561,6 @@ function WorklogDetail() {
       setIsLoading(false);
     }
   };
-
   useEffect(() => {
     if (!id) {
       navigate("/404");
@@ -837,11 +903,10 @@ function WorklogDetail() {
             {feedbackList.map((item, index) => (
               <div
                 key={index}
-                className={`${style.feedbackItem} ${
-                  worklogDetail?.status === "Redo" || worklogDetail?.status === "Failed"
-                    ? style.redoBackground
-                    : style.doneBackground
-                }`}
+                className={`${style.feedbackItem} ${worklogDetail?.status === "Redo" || worklogDetail?.status === "Failed"
+                  ? style.redoBackground
+                  : style.doneBackground
+                  }`}
               >
                 <Image
                   src={item.avatarURL}

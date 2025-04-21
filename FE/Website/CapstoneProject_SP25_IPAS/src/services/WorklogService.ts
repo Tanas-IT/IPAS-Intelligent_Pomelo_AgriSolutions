@@ -127,7 +127,7 @@ export const addWorklogNote = async (
     return res.data as ApiResponse<DependencyWorklog[]>;
   };
 
-  export const getEmployeesByWorkSkill = async (farmId: number): Promise<ApiResponse<EmployeeWithSkills[]>> => {
-    const res = await axiosAuth.axiosJsonRequest.get(`work-log/filter-employee?farmId=${farmId}`);
+  export const getEmployeesByWorkSkill = async (farmId: number, workTypeId?: number): Promise<ApiResponse<EmployeeWithSkills[]>> => {
+    const res = await axiosAuth.axiosJsonRequest.get(`work-log/filter-employee?farmId=${farmId}&workTypeId=${workTypeId}`);
     return res.data as ApiResponse<EmployeeWithSkills[]>;
   }

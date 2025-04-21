@@ -127,6 +127,7 @@ export interface ReplacementEmployee {
   avatar?: string;
   replaceUserFullName?: string;
   replaceUserAvatar?: string;
+  isRepoter?: boolean
 }
 
 export interface GetWorklogNote {
@@ -171,10 +172,14 @@ export interface DependencyWorklog {
   date: string;
 }
 
+export interface SkillWithScore {
+  skillName: string;
+  score: number;
+}
+
 export interface EmployeeWithSkills {
   userId: number;
   fullName: string;
   avatarURL: string;
-  workSkillName: string[];
-  scoreOfSkill: number;
+  skillWithScore: SkillWithScore[];
 }
