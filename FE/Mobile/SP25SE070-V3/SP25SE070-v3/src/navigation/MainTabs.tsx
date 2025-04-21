@@ -14,10 +14,14 @@ import theme from "@/theme";
 import SplashScreen from "@/screens/PestDetection/SplashScreen/SplashScreen";
 import ManagerHomeScreen from "@/screens/Home/ManagerHomeScreen/ManagerHomeScreen";
 import { CustomIcon } from "@/components";
+import { useAuthStore } from "@/store";
+import { UserRolesStr } from "@/constants";
 
 const Tab = createBottomTabNavigator<MainTabParamList>();
 
 export default function MainTabs() {
+  const { roleId } = useAuthStore();
+  const isEmployee = roleId === UserRolesStr.Employee;
   return (
     <Tab.Navigator
       screenOptions={({ route, navigation }) => ({
@@ -84,8 +88,7 @@ export default function MainTabs() {
     >
       <Tab.Screen
         name="Home"
-        component={EmployeeHomeScreen}
-        // component={ManagerHomeScreen}
+        component={isEmployee ? EmployeeHomeScreen : ManagerHomeScreen}
         options={{
           tabBarLabel: "Home",
           headerShown: false,

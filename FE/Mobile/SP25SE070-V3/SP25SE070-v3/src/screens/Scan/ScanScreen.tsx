@@ -10,7 +10,6 @@ import { styles } from "./ScanScreen.styles";
 export default function ScanScreen() {
   const [permission, requestPermission] = useCameraPermissions();
   const [scanned, setScanned] = useState(false);
-  // const navigation = useNavigation();
 
   useEffect(() => {
     if (!permission) {
@@ -38,17 +37,17 @@ export default function ScanScreen() {
     if (!id) {
       Toast.show({
         type: "error",
-        text1: "QR không hợp lệ hoặc thiếu ID",
+        text1: "Invalid QR",
       });
       return;
     }
 
     if (type === "PLANT") {
       navigation.navigate(ROUTE_NAMES.PLANT.PLANT_DETAIL, { plantId: id });
-      // console.log("Scanned QR:", { type, id });
     } else if (type === "GRAFTED") {
-      console.log("Scanned QR:", { type, id });
-      // navigation.navigate(ROUTE_NAMES.PLANT.GRAFTED_PLANT_DETAIL, { plantId });
+      navigation.navigate(ROUTE_NAMES.GRAFTED_PLANT.GRAFTED_PLANT_DETAIL, {
+        graftedPlantId: id,
+      });
     } else {
       Toast.show({
         type: "error",

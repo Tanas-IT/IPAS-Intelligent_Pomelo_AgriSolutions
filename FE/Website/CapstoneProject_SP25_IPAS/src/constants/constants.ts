@@ -25,6 +25,7 @@ export const SYSTEM_CONFIG_GROUP = {
   CLIMATE_ZONE: "ClimateZone",
   HARVEST_SEASON: "HarvestSeason",
   YIELD_THRESHOLD: "YieldThreshold",
+  VALIDATION_VARIABLE: "ValidationVariable",
 };
 
 export const criteriaGroupsHasReference = [
@@ -39,6 +40,8 @@ export const SYSTEM_CONFIG_KEY = {
   GRAFTED_CRITERIA: "GraftedCriteria",
   PLANT_LOT_CRITERIA: "PlantLotCriteria",
   PRODUCT_CRITERIA: "ProductCriteria",
+  EDIT_IN_DAY: "EditInDay",
+  RECORD_AFTER_DATE: "RecordAfterDate",
 };
 
 export const MASTER_TYPE_SHOW_TABLE = {

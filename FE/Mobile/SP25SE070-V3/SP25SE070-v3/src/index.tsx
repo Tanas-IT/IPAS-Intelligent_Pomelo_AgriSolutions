@@ -10,6 +10,7 @@ import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { useFonts } from "expo-font";
 import { DefaultTheme, PaperProvider } from "react-native-paper";
 import { Keyboard } from "react-native";
+import { navigationRef } from "./services/NavigationService";
 // import { PushNotificationService } from "./services/pushNotificationService";
 
 const themeCustome = {
@@ -64,7 +65,7 @@ export default function MainApp() {
     >
       <NativeBaseProvider theme={theme}>
         <PaperProvider theme={themeCustome}>
-          <NavigationContainer>
+          <NavigationContainer ref={navigationRef}>
             <StatusBar style="auto" />
             {isAppReady && <AppNavigation />}
             <Toast />

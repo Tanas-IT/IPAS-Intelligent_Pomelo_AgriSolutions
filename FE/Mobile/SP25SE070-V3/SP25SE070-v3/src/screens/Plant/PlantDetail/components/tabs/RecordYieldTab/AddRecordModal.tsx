@@ -20,6 +20,7 @@ import { CustomDropdown, CustomIcon, TextCustom } from "@/components";
 import { PlantService } from "@/services";
 import theme from "@/theme";
 import { useAuthStore } from "@/store";
+import { formatDate } from "@/utils";
 
 interface AddRecordModalProps {
   visible: boolean;
@@ -40,9 +41,11 @@ const AddRecordModal: React.FC<AddRecordModalProps> = ({
   onSubmit,
   plantId,
 }) => {
-  const {userId} = useAuthStore();
+  const { userId } = useAuthStore();
   const [modalVisible, setModalVisible] = useState<string | null>(null);
-  const [availableHarvests, setAvailableHarvests] = useState<AvailableHarvest[]>([]);
+  const [availableHarvests, setAvailableHarvests] = useState<
+    AvailableHarvest[]
+  >([]);
   const [productOptions, setProductOptions] = useState<
     { id: number; name: string }[]
   >([]);
@@ -67,12 +70,10 @@ const AddRecordModal: React.FC<AddRecordModalProps> = ({
   useEffect(() => {
     if (visible) {
       const fetchHarvests = async () => {
-        try {
-          const response = await PlantService.getAvailableHarvestsForPlant(plantId);
-          setAvailableHarvests(response.data);
-        } catch (error) {
-          console.error("Fetch harvests error:", error);
-        }
+        const response = await PlantService.getAvailableHarvestsForPlant(
+          plantId
+        );
+        setAvailableHarvests(response.data);
       };
       fetchHarvests();
     }
@@ -116,7 +117,7 @@ const AddRecordModal: React.FC<AddRecordModalProps> = ({
 
   const harvestOptions = availableHarvests.map((h) => ({
     id: h.harvestHistoryId,
-    code: h.harvestHistoryCode,
+    code: `${h.cropName} - ${formatDate(h.dateHarvest)}`,
   }));
 
   return (
@@ -140,14 +141,14 @@ const AddRecordModal: React.FC<AddRecordModalProps> = ({
 
             <View style={styles.form}>
               <CustomDropdown
-                label="Harvest Session"
+                label="Harvest Day"
                 name="harvestHistoryId"
                 control={control}
                 errors={errors}
                 options={harvestOptions}
                 valueKey="id"
                 displayKey="code"
-                placeholder="Select Harvest Session"
+                placeholder="Select Harvest Day"
                 modalVisible={modalVisible}
                 setModalVisible={setModalVisible}
                 modalKey="harvest"

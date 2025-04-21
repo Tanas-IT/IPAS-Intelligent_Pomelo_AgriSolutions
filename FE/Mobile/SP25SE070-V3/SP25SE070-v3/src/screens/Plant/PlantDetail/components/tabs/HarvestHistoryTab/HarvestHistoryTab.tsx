@@ -156,7 +156,13 @@ const HarvestHistoryTab: React.FC<{ plantId: number }> = ({ plantId }) => {
         <View style={styles.filterRow}>
           {renderDropdown("From", yearFrom, setYearFrom, years, "yearFrom")}
           {renderDropdown("To", yearTo, setYearTo, years, "yearTo")}
-          {renderDropdown("Product", productId, setProductId, productOptions, "product")}
+          {renderDropdown(
+            "Product",
+            productId,
+            setProductId,
+            productOptions,
+            "product"
+          )}
         </View>
       </LinearGradient>
 
@@ -188,7 +194,9 @@ const HarvestHistoryTab: React.FC<{ plantId: number }> = ({ plantId }) => {
                   <View style={styles.quantityBadge}>
                     <TextCustom style={styles.quantityText}>
                       {item.totalQuantity}
-                      {data?.masterTypeName?.toLowerCase().includes("branches") ? " bundle" : " kg"}
+                      {data?.masterTypeName?.toLowerCase().includes("branches")
+                        ? " bundle"
+                        : " kg"}
                     </TextCustom>
                   </View>
                   <TextCustom style={styles.productType}>
@@ -196,7 +204,7 @@ const HarvestHistoryTab: React.FC<{ plantId: number }> = ({ plantId }) => {
                   </TextCustom>
                 </View>
 
-                <View style={styles.detailRow}>
+                {/* <View style={styles.detailRow}>
                   <CustomIcon
                     name="cash"
                     size={22}
@@ -204,10 +212,12 @@ const HarvestHistoryTab: React.FC<{ plantId: number }> = ({ plantId }) => {
                     type="MaterialCommunityIcons"
                   />
                   <TextCustom style={styles.detailText}>
-                    Market Value: <TextCustom style={{ color: "red" }}>${(item.totalQuantity * 2.5).toFixed(2)}</TextCustom>
+                    Market Value:{" "}
+                    <TextCustom style={{ color: "red" }}>
+                      ${(item.totalQuantity * 2.5).toFixed(2)}
+                    </TextCustom>
                   </TextCustom>
-
-                </View>
+                </View> */}
 
                 <View style={styles.detailRow}>
                   <CustomIcon
@@ -223,7 +233,6 @@ const HarvestHistoryTab: React.FC<{ plantId: number }> = ({ plantId }) => {
                     </TextCustom>{" "}
                     {item.harvestCount > 1 ? "times" : "time"}
                   </TextCustom>
-
                 </View>
               </View>
             </Animated.View>
@@ -242,9 +251,7 @@ const HarvestHistoryTab: React.FC<{ plantId: number }> = ({ plantId }) => {
                 type="MaterialCommunityIcons"
               />
             </LinearGradient>
-            <TextCustom style={styles.emptyText}>
-              No harvest history
-            </TextCustom>
+            <TextCustom style={styles.emptyText}>No harvest history</TextCustom>
           </View>
         }
       />

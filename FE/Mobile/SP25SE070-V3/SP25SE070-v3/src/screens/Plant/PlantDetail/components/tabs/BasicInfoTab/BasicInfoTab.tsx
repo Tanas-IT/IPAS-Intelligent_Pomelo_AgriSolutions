@@ -69,8 +69,13 @@ const BasicInfoTab: FC<{ plantId: number }> = ({ plantId }) => {
         />
         <InfoRow
           icon="tree"
+          label="Plant Lot"
+          value={plant?.plantLotName ? plant.plantLotName : "N/A"}
+        />
+        <InfoRow
+          icon="tree"
           label="Mother Plan"
-          value={plant?.plantReferenceCode ? plant.plantReferenceCode : "N/A"}
+          value={plant?.plantReferenceName ? plant.plantReferenceName : "N/A"}
         />
       </View>
 

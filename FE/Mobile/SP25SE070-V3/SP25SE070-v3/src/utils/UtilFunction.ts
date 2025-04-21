@@ -1,11 +1,15 @@
-import { UserRole } from "@/constants";
-import { DecodedToken } from "@/types";
+import { FILE_FORMAT, UserRole } from "@/constants";
+import { DecodedToken, FileResource } from "@/types";
 import { format } from "date-fns";
 import { jwtDecode } from "jwt-decode";
 import moment from "moment";
 
 export const formatDate = (date: Date | string): string => {
   return format(new Date(date), "dd/MM/yyyy");
+};
+
+export const formatDateAndTime = (date: Date | string): string => {
+  return format(new Date(date), "dd/MM/yyyy hh:mm a");
 };
 
 export const formatDayMonth = (date: Date | string): string => {
@@ -55,10 +59,13 @@ export const getRoleName = (roleId: number): string => {
 };
 
 export const darkenColor = (hex: string, amount = 80): string => {
-  hex = hex.replace('#', '');
+  hex = hex.replace("#", "");
 
   if (hex.length === 3) {
-    hex = hex.split('').map(c => c + c).join('');
+    hex = hex
+      .split("")
+      .map((c) => c + c)
+      .join("");
   }
 
   const num = parseInt(hex, 16);
@@ -91,4 +98,85 @@ export const generateYearOptions = (
   }
 
   return years;
+};
+
+export const getFileFormat = (
+  mimeType: string
+): (typeof FILE_FORMAT)[keyof typeof FILE_FORMAT] | null => {
+  if (!mimeType) return null;
+  if (mimeType.startsWith("image/")) return FILE_FORMAT.IMAGE;
+  if (mimeType.startsWith("video/")) return FILE_FORMAT.VIDEO;
+  return null;
+};
+
+export const processResourcesToImages = (resources?: FileResource[]) => {
+  if (!resources || resources.length === 0) return [];
+
+  const images = resources
+    .filter((res) => {
+      const format = res.fileFormat.toLowerCase();
+      const url = res.resourceURL.toLowerCase();
+      return (
+        ["jpeg", "jpg", "png", "gif"].includes(format) ||
+        (format === "image" && /\.(jpg|jpeg|png|gif)$/i.test(url))
+      );
+    })
+    .map((res, index) => {
+      const format = res.fileFormat.toLowerCase();
+      return {
+        id: res.resourceID,
+        uri: res.resourceURL,
+        type:
+          format === "png"
+            ? "image/png"
+            : format === "gif"
+            ? "image/gif"
+            : format === "image" &&
+              res.resourceURL.toLowerCase().endsWith(".png")
+            ? "image/png"
+            : format === "image" &&
+              res.resourceURL.toLowerCase().endsWith(".gif")
+            ? "image/gif"
+            : "image/jpeg",
+        name:
+          res.resourceURL.split("/").pop() ||
+          `image_${index + 1}.${format === "image" ? "jpg" : format}`,
+      };
+    });
+
+  return images;
+};
+
+export const processResourcesToVideos = (resources?: FileResource[]) => {
+  if (!resources || resources.length === 0) return [];
+
+  const videos = resources
+    .filter((res) => {
+      const format = res.fileFormat.toLowerCase();
+      const url = res.resourceURL.toLowerCase();
+      return (
+        ["mp4", "mov", "avi", "mkv"].includes(format) ||
+        (format === "video" && /\.(mp4|mov|avi|mkv)$/i.test(url))
+      );
+    })
+    .map((res, index) => {
+      const format = res.fileFormat.toLowerCase();
+      return {
+        id: res.resourceID,
+        uri: res.resourceURL,
+        type:
+          format === "mov"
+            ? "video/quicktime"
+            : format === "avi"
+            ? "video/x-msvideo"
+            : format === "mkv"
+            ? "video/x-matroska"
+            : "video/mp4",
+        name:
+          res.resourceURL.split("/").pop() ||
+          `video_${index + 1}.${format === "video" ? "mp4" : format}`,
+      };
+    });
+
+  return videos;
 };

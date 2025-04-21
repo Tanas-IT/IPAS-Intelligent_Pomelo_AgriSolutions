@@ -8,14 +8,13 @@ import { loginSchema } from "@/validations/authSchemas";
 import Toast from "react-native-toast-message";
 import { useNavigation } from "@react-navigation/native";
 import { KeyboardAvoidingView, VStack } from "native-base";
-import { AuthNavigationProp, ROUTE_NAMES } from "@/constants";
+import { AuthNavigationProp, ROUTE_NAMES, UserRolesStr } from "@/constants";
 import { AuthService } from "@/services";
 import theme from "@/theme";
 import { styles } from "./LoginScreen.styles";
 import { CustomTextInput, TextCustom } from "@/components";
 import { useAuthStore } from "@/store";
 import { getRoleId, getUserId } from "@/utils";
-import { UserRole } from "@/constants";
 import { logo } from "@/assets/images";
 import { ScrollView } from "react-native-gesture-handler";
 
@@ -45,8 +44,7 @@ export const LoginScreen = () => {
     setIsLoading(true);
     try {
       const res = await AuthService.login(data);
-      console.log("Login response:", res);
-      
+
       if (res.statusCode === 200) {
         const roleId = getRoleId(res.data.authenModel.accessToken);
         const userId = getUserId(res.data.authenModel.accessToken);
@@ -55,14 +53,14 @@ export const LoginScreen = () => {
           type: "success",
           text1: res.message,
         });
-        if (roleId === UserRole.User.toString())
+        if (roleId === UserRolesStr.User)
           navigation.navigate(ROUTE_NAMES.MAIN.DRAWER, {
             screen: ROUTE_NAMES.FARM.FARM_PICKER,
           });
-        if (roleId === UserRole.Admin.toString())
-          navigation.navigate(ROUTE_NAMES.MAIN.DRAWER, {
-            screen: ROUTE_NAMES.MAIN.MAIN_TABS,
-          });
+        if (roleId === UserRolesStr.Admin) return;
+        // navigation.navigate(ROUTE_NAMES.MAIN.DRAWER, {
+        //   screen: ROUTE_NAMES.MAIN.MAIN_TABS,
+        // });
         reset({
           email: "",
           password: "",
@@ -73,11 +71,6 @@ export const LoginScreen = () => {
           text1: res.message,
         });
       }
-    } catch (error) {
-      Toast.show({
-        type: "error",
-        text1: "Login failed",
-      });
     } finally {
       setIsLoading(false);
     }

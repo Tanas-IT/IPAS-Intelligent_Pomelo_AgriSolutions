@@ -7,9 +7,9 @@ import GrowthHistoryTab from "./components/tabs/GrowthHistoryTab/GrowthHistoryTa
 import GraftedPlantsTab from "./components/tabs/GraftedPlantsTab/GraftedPlantsTab";
 import HarvestHistoryTab from "./components/tabs/HarvestHistoryTab/HarvestHistoryTab";
 import { styles } from "./PlantDetailScreen.styles";
-import TabButton from "./components/TabButton";
 import RecordYieldTab from "./components/tabs/RecordYieldTab/RecordYieldTab";
 import PlantDetailHeader from "../PlantDetailHeader/PlantDetailHeader";
+import { TabButton } from "@/components";
 
 const tabs = [
   { iconName: "information", label: "Basic", value: "basic" },
@@ -33,7 +33,7 @@ const PlantDetailScreen: React.FC = () => {
       case "grafted":
         return <GraftedPlantsTab plantId={Number(plantId)} />;
       case "record":
-        return <RecordYieldTab plantId={Number(plantId)} />;
+        return <RecordYieldTab />;
       case "harvest":
         return <HarvestHistoryTab plantId={Number(plantId)} />;
       default:

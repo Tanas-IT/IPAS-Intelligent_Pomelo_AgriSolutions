@@ -60,8 +60,6 @@ const ApplyCriteriaLotModal = ({
   }, [isOpen]);
 
   const handleOk = async () => {
-    setDataSource([]);
-    setCriteriaOptions([]);
     if (!isCriteriaListValid()) return;
     if (!lotId) return;
     await form.validateFields();
