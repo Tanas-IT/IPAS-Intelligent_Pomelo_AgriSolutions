@@ -33,6 +33,7 @@ using CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.ProcessModel;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
 using CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.FarmBsModels;
 using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.LandPlotRequest;
+using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.WorkLogRequest;
 
 namespace CapstoneProject_SP25_IPAS_Service.Service
 {
@@ -78,6 +79,47 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                             throw new Exception($"StartDate and EndDate of plan must be within the duration of process from " +
                                 $"{checkExistProcess.StartDate:dd/MM/yyyy} to {checkExistProcess.EndDate:dd/MM/yyyy}");
 
+                        }
+                    }
+                    if (createPlanModel.StartDate < DateTime.Now.Date)
+                    {
+                        throw new Exception("StartDate must be today or a future date");
+                    }
+                    if (createPlanModel.StartTime != null && createPlanModel.EndTime != null)
+                    {
+                        var startTime = TimeSpan.Parse(createPlanModel.StartTime);
+                        var endTime = TimeSpan.Parse(createPlanModel.EndTime);
+                        var now = DateTime.Now;
+
+                        // Check: StartTime phải trước EndTime
+                        if (startTime >= endTime)
+                            throw new Exception("Start time must be less than End Time");
+
+                        var startDate = createPlanModel.StartDate.Date;
+                        var endDate = createPlanModel.EndDate.Date;
+
+                        // Nếu StartDate và EndDate là hôm nay
+                        if (startDate == now.Date && endDate == now.Date)
+                        {
+                            if (startTime <= now.TimeOfDay)
+                                throw new Exception("Start time must be later than the current time");
+
+                            if (endTime <= startTime)
+                                throw new Exception("End time must be greater than start time");
+                        }
+
+                        // Nếu chỉ StartDate là hôm nay
+                        else if (startDate == now.Date)
+                        {
+                            if (startTime <= now.TimeOfDay)
+                                throw new Exception("Start time must be later than the current time");
+                        }
+
+                        // Nếu chỉ EndDate là hôm nay
+                        else if (endDate == now.Date)
+                        {
+                            if (endTime <= now.TimeOfDay)
+                                throw new Exception("End time must be later than the current time");
                         }
                     }
                     if (createPlanModel.StartTime != null && createPlanModel.EndTime != null)
@@ -2744,7 +2786,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     var errors = await ValidatePlansAgainstTemplate(processId, createPlanModel);
                     if(errors.Any())
                     {
-                        return new BusinessResult(400, string.Join("\n", errors));
+                        return new BusinessResult(400, string.Join(",", errors));
                     }
                     foreach (var createPlan in createPlanModel)
                     {
@@ -3134,23 +3176,23 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
                 if (plan.StartDate == null || plan.EndDate == null)
                 {
-                    errors.Add($"- Plan \"{plan.PlanName ?? "Unknown"}\" does not have startDate and endDate.");
+                    errors.Add($"- Plan {plan.PlanName ?? "Unknown"} does not have startDate and endDate.");
                     continue;
                 }
 
                 if (parentStart.HasValue && plan.StartDate < parentStart)
                 {
-                    errors.Add($"- Plan \"{plan.PlanName}\" has startDate before startDate of {parentName}.");
+                    errors.Add($"- Plan {plan.PlanName} has startDate before startDate of {parentName}.");
                 }
 
                 if (parentEnd.HasValue && plan.EndDate > parentEnd)
                 {
-                    errors.Add($"- Plan \"{plan.PlanName}\" has endDate after endDate of {parentName}.");
+                    errors.Add($"- Plan {plan.PlanName} has endDate after endDate of {parentName}.");
                 }
 
                 if (plan.StartDate > plan.EndDate)
                 {
-                    errors.Add($"- Plan \"{plan.PlanName}\" has startDate after endDate.");
+                    errors.Add($"- Plan {plan.PlanName} has startDate after endDate.");
                 }
             }
 

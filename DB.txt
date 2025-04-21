@@ -1261,7 +1261,8 @@ VALUES
 	(41,'MT041', 'Green Skin Pomelo Grade 1', 'Criteria', 'Evaluation criteria for Green Skin Pomelo Grade 1', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1, NULL, 'Product', NULL, NULL),
     (42,'MT042', 'Green Skin Pomelo Grade 2', 'Criteria', 'Evaluation criteria for Green Skin Pomelo Grade 2', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1, NULL, 'Product', NULL, NULL),
     (43,'MT043', 'Green Skin Pomelo Grade 3', 'Criteria', 'Evaluation criteria for Green Skin Pomelo Grade 3', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1, NULL, 'Product', NULL, NULL),
-    (44,'MT044', 'Grafting', 'Work', 'Take care grafted plant', '#F2F2F2', '#4A4A4A', NULL, 0, 1, GETDATE(), 0, 1, 0, 'Others', 60, 240);
+    (44,'MT044', 'Grafting', 'Work', 'Take care grafted plant', '#F2F2F2', '#4A4A4A', NULL, 0, 1, GETDATE(), 0, 1, 0, 'Others', 60, 240),
+    (45,'MT045', 'Spraying', 'Work', 'Spraying to limit the pest on plant', '#F2F2F2', '#4A4A4A', NULL, 0, 1, GETDATE(), 0, 1, 0, 'Others', 60, 240);
 	SET IDENTITY_INSERT [ipas].[dbo].[MasterType] OFF;
 GO
 
@@ -2352,3 +2353,23 @@ VALUES
     ('REP018', N'Report description 18', '2025-04-09 12:50:00', N'Plant grows well but bears no fruit?', N'Might need pollination or change of variety.', 'https://res.cloudinary.com/dgshx4n2c/image/upload/v1744012238/hemiriqcnbaa1ult00r7.jpg', 1, 4, 15),
     ('REP019', N'Report description 19', '2025-04-09 16:30:00', N'Tree sheds many leaves after flowering?', N'Nutrient or temperature shock.', 'https://res.cloudinary.com/dgshx4n2c/image/upload/v1744012238/hemiriqcnbaa1ult00r7.jpg', 1, 2, 10),
     ('REP020', N'Report description 20', '2025-04-09 18:15:00', N'Can lime powder be used for soil treatment?', N'Yes, but apply with proper dosage.', 'https://res.cloudinary.com/dgshx4n2c/image/upload/v1744012238/hemiriqcnbaa1ult00r7.jpg', 0, 1, 11);
+
+INSERT INTO [dbo].[EmployeeSkill] ([EmployeeID], [FarmID], [WorkTypeID], [ScoreOfSkill])
+VALUES
+(7, 1, 15, 6),
+(7, 1, 16, 10),
+(7, 1, 17, 7),
+(7, 1, 18, 8),
+(7, 1, 19, 9),
+
+(8, 1, 15, 5),
+(8, 1, 16, 8),
+(8, 1, 17, 9),
+(8, 1, 18, 10),
+(8, 1, 19, 6),
+
+(6, 1, 15, 10),
+(6, 1, 16, 10),
+(6, 1, 17, 9),
+(6, 1, 18, 5),
+(6, 1, 19, 3);
