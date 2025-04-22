@@ -68,6 +68,7 @@ namespace CapstoneProject_SP25_IPAS_API.Payload
             public const string updateUserAvatar = Base + "/users/update-user-avatar/{userId}";
             public const string searchUserByEmail = Base + "/users/search-by-email/";
             public const string changePassword = Base + "/users/change-password/";
+            public const string updateFCM = Base + "/users/update-fcm-token/";
         }
 
         public static class PlantLot

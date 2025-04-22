@@ -45,5 +45,6 @@ namespace CapstoneProject_SP25_IPAS_Service.IService
         public Task<BusinessResult> UpdateTokenOfUser(string jwtToken);
         public Task<BusinessResult> SearchByEmail(string? email);
         public Task<BusinessResult> ChangePassword(int userId, ChangePasswordModel changePasswordModel);
+        public Task<BusinessResult> UpdateFcmTokenAsync(string? email, string? fcmToken);
     }
 }

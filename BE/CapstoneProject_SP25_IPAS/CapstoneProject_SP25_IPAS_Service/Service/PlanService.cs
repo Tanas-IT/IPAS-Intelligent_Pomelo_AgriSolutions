@@ -1,7 +1,6 @@
 ﻿using AutoMapper;
 using CapstoneProject_SP25_IPAS_BussinessObject.Entities;
 using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.CriteriaRequest.CriteriaTagerRequest;
-using CapstoneProject_SP25_IPAS_Common;
 using CapstoneProject_SP25_IPAS_Common.Constants;
 using CapstoneProject_SP25_IPAS_Common.Utils;
 using CapstoneProject_SP25_IPAS_Repository.UnitOfWork;
@@ -173,7 +172,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         newPlan.StartDate = createPlanModel.StartDate.Add(TimeSpan.Parse(createPlanModel.StartTime));
                         newPlan.EndDate = createPlanModel.EndDate.Add(TimeSpan.Parse(createPlanModel.EndTime));
                     }
-                    if (createPlanModel.Frequency != null && createPlanModel.Frequency.ToLower().Equals("none") && createPlanModel.CustomDates != null && createPlanModel.CustomDates.Count < 2)
+                    if (createPlanModel.Frequency != null && createPlanModel.Frequency.ToLower().Equals("none") && createPlanModel.CustomDates != null && createPlanModel.CustomDates.Any())
                     {
                         newPlan.StartDate = createPlanModel.CustomDates.First().Add(TimeSpan.Parse(createPlanModel.StartTime));
                         newPlan.EndDate = createPlanModel.CustomDates.First().Add(TimeSpan.Parse(createPlanModel.EndTime));
@@ -476,6 +475,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                             UserID = employee.UserId,
                             isRead = false,
                         };
+                        await _unitOfWork.NotificationRepository.PushMessageFirebase(addNotification.Title, addNotification.Content, employee.UserId);
 
                         await _unitOfWork.PlanNotificationRepository.Insert(addPlanNotification);
                     }
@@ -862,11 +862,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             try
             {
                 string key = CacheKeyConst.PLAN + $"{planId}";
-                var cachedData = await _responseCacheService.GetCacheObjectAsync<BusinessResult<PlanModel>>(key);
-                if (cachedData != null)
-                {
-                    return new BusinessResult(cachedData.StatusCode, cachedData.Message, cachedData.Data);
-                }
+                
                 var getPlan = await _unitOfWork.PlanRepository.GetPlanByInclude(planId);
                 if (getPlan != null)
                 {
@@ -875,7 +871,34 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     // Ánh xạ danh sách PlanTarget thành PlanTargetModels
                     var mappedPlanTargets = MapPlanTargets(getPlan.PlanTargets.ToList());
                     result.PlanTargetModels = mappedPlanTargets;
+                    var plan = await _unitOfWork.PlanRepository.GetPlanWithEmployeeSkill(planId);
 
+                    if (plan != null)
+                    {
+                        var users = plan?.CarePlanSchedule?
+                                        .WorkLogs?
+                                        .SelectMany(wl => wl.UserWorkLogs ?? new List<UserWorkLog>())
+                                        .Select(uwl => uwl.User)
+                                        .Where(u => u != null)
+                                        .DistinctBy(u => u.UserId)
+                                        .ToList() ?? new List<User>();
+
+                        var employeeWithSkills = users.Select(u => new EmployeeWithSkills
+                        {
+                            UserId = u.UserId,
+                            FullName = u.FullName,
+                            AvatarURL = u.AvatarURL,
+                            SkillWithScore = u.UserFarms?
+                                .SelectMany(uf => uf.EmployeeSkills ?? new List<EmployeeSkill>())
+                                .Where(es => es.WorkTypeID != null)
+                                .Select(es => new SkillWithScore
+                                {
+                                    SkillName = es.WorkType?.MasterTypeName,
+                                    Score = es.ScoreOfSkill
+                                }).ToList()
+                        }).ToList();
+                        result.EmployeeWithSkills = employeeWithSkills;
+                    }
 
                     result.Progress = Math.Round(calculateProgress, 2).ToString();
                     if (result != null)
@@ -1552,6 +1575,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                             UserID = employeeModel.UserId
                                         };
                                         await _unitOfWork.PlanNotificationRepository.Insert(addEmployeeNotification);
+                                        await _unitOfWork.NotificationRepository.PushMessageFirebase(addNotification.Title, addNotification.Content, employeeModel.UserId);
                                         await _webSocketService.SendToUser(employeeModel.UserId, addNotification);
                                     }
                                 }
@@ -2874,6 +2898,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 }
                 SortSubProcessTree(rootSubProcesses);
 
+                var getProcessToDisplay = await _unitOfWork.ProcessRepository.GetByCondition(x => x.ProcessId == processId, "Plans");
+
                 var result = new ProcessWithDetailsDto
                 {
                     ProcessId = process.ProcessId,
@@ -2881,7 +2907,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     StartDate = process.StartDate,
                     EndDate = process.EndDate,
                     Order = process.Order,
-                    Plans = process.Plans.Select(p => new PlanDto
+                    Plans = getProcessToDisplay.Plans.Select(p => new PlanDto
                     {
                         PlanId = p.PlanId,
                         PlanName = p.PlanName,

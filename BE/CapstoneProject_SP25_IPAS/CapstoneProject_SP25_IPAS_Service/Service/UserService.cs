@@ -1,6 +1,5 @@
 ﻿using AutoMapper;
 using CapstoneProject_SP25_IPAS_BussinessObject.Entities;
-using CapstoneProject_SP25_IPAS_Common;
 using CapstoneProject_SP25_IPAS_Common.Enum;
 using CapstoneProject_SP25_IPAS_Common.Mail;
 using CapstoneProject_SP25_IPAS_Common.Utils;
@@ -1520,6 +1519,22 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             {
                 return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
             }
+        }
+
+        public async Task<BusinessResult> UpdateFcmTokenAsync(string? email, string? fcmToken)
+        {
+            var user = await _unitOfWork.UserRepository.GetUserByEmailAsync(email != null ? email : "-1");
+            if (user != null && !string.IsNullOrEmpty(fcmToken))
+            {
+                if (user.Fcmtoken != fcmToken)
+                {
+                    user.Fcmtoken = fcmToken;
+                     _unitOfWork.UserRepository.Update(user);
+                    var result = await _unitOfWork.SaveAsync();
+                    return new BusinessResult(200, "Update FCM success", result > 0);
+                }
+            }
+            return new BusinessResult(400, "Update FCM failed", false);
         }
     }
 }

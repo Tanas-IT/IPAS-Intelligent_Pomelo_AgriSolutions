@@ -34,5 +34,6 @@ namespace CapstoneProject_SP25_IPAS_Repository.IRepository
         public Task<List<Plan>> GetListPlanByProcessId(int processId);
         public Task<List<Plan>> GetPlansBySubProcessIds(List<int> subProcessIds);
         public Task<List<Plan>> GetPlanByPlantId(int plantId);
+        public Task<Plan> GetPlanWithEmployeeSkill(int planId);
     }
 }

@@ -1,4 +1,5 @@
 ﻿using CapstoneProject_SP25_IPAS_BussinessObject.Entities;
+using CapstoneProject_SP25_IPAS_Common.Utils;
 using CapstoneProject_SP25_IPAS_Repository.IRepository;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -34,6 +35,31 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
                 .ThenInclude(x => x.MasterType)
                 .Where(x => x.UserID == userId && x.isRead == false).ToListAsync();
             return result;
+        }
+
+        public async Task<bool> PushMessageFirebase(string title, string body, int userId)
+        {
+            var user = await _context.Users.FirstOrDefaultAsync(x => x.UserId == userId);
+            if (user != null)
+            {
+                var fcmToken = user.Fcmtoken;
+                if (fcmToken != null)
+                {
+                    await FirebaseLibrary.SendMessageFireBase(title, body, fcmToken);
+                    return true;
+                }
+            }
+            return false;
+        }
+
+        public async Task<bool> PushListMessageFirebase(string title, string body, List<string> fcmTokens)
+        {
+            if (fcmTokens.Any())
+            {
+                await FirebaseLibrary.SendRangeMessageFireBase(title, body, fcmTokens);
+                return true;
+            }
+            return false;
         }
     }
 }
