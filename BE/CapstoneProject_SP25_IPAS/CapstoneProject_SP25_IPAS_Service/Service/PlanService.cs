@@ -172,7 +172,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         newPlan.StartDate = createPlanModel.StartDate.Add(TimeSpan.Parse(createPlanModel.StartTime));
                         newPlan.EndDate = createPlanModel.EndDate.Add(TimeSpan.Parse(createPlanModel.EndTime));
                     }
-                    if (createPlanModel.Frequency != null && createPlanModel.Frequency.ToLower().Equals("none") && createPlanModel.CustomDates != null && createPlanModel.CustomDates.Any())
+                    if (createPlanModel.Frequency != null && createPlanModel.Frequency.ToLower().Equals("none") && createPlanModel.CustomDates != null && createPlanModel.CustomDates.Count() == 1)
                     {
                         newPlan.StartDate = createPlanModel.CustomDates.First().Add(TimeSpan.Parse(createPlanModel.StartTime));
                         newPlan.EndDate = createPlanModel.CustomDates.First().Add(TimeSpan.Parse(createPlanModel.EndTime));
@@ -3263,7 +3263,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     {
                         if (prevPlan.EndDate != null && nextPlan.StartDate != null && prevPlan.EndDate >= nextPlan.StartDate.Date)
                         {
-                            errors.Add($"- Plan \"{prevPlan.PlanName}\" in \"{currentGroupName}\" ends at {prevPlan.EndDate:dd/MM/yyyy}, which overlaps with Plan \"{nextPlan.PlanName}\" in \"{nextGroupName}\" starting at {nextPlan.StartDate:dd/MM/yyyy}.");
+                            errors.Add($"- Plan \"{prevPlan.PlanName}\" in \"{currentGroupName}\" ends at {prevPlan.EndDate:dd/MM/yyyy}, which overlaps with Plan \"{nextPlan.PlanName}\" in \"{nextGroupName}\" starting at {nextPlan.StartDate:dd/MM/yyyy}.\n");
                         }
                     }
                 }
