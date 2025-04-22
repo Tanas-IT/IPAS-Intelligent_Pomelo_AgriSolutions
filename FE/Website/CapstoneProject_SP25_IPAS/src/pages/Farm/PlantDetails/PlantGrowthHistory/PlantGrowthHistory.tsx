@@ -1,6 +1,7 @@
 import style from "./PlantGrowthHistory.module.scss";
 import { Divider, Flex } from "antd";
 import {
+  ActionMenuGrowth,
   ConfirmModal,
   GrowthDetailContent,
   GrowthTimeline,
@@ -14,12 +15,19 @@ import { Dayjs } from "dayjs";
 import { useDirtyStore, usePlantStore } from "@/stores";
 import { plantService } from "@/services";
 import { GetPlantGrowthHistory, PlantGrowthHistoryRequest } from "@/payloads";
-import { useHasChanges, useModal, useTableAdd } from "@/hooks";
+import {
+  useHasChanges,
+  useModal,
+  useSystemConfigOptions,
+  useTableAdd,
+  useTableUpdate,
+} from "@/hooks";
 import { toast } from "react-toastify";
-import { DEFAULT_RECORDS_IN_DETAIL } from "@/constants";
+import { DEFAULT_RECORDS_IN_DETAIL, SYSTEM_CONFIG_GROUP, SYSTEM_CONFIG_KEY } from "@/constants";
 
 function PlantGrowthHistory() {
   const { plant, isGrowthDetailView, setIsGrowthDetailView } = usePlantStore();
+  if (!plant) return;
   const { isDirty } = useDirtyStore();
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isFirstLoad, setIsFirstLoad] = useState<boolean>(true);
@@ -29,11 +37,15 @@ function PlantGrowthHistory() {
   const [totalIssues, setTotalIssues] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedHistory, setSelectedHistory] = useState<GetPlantGrowthHistory | null>(null);
-  const addIssueModal = useModal<GetPlantGrowthHistory>();
+  const issueModal = useModal<{ item: GetPlantGrowthHistory }>();
   const cancelConfirmModal = useModal();
   const deleteConfirmModal = useModal<{ id: number }>();
-
-  if (!plant) return;
+  const { options, loading } = useSystemConfigOptions(
+    SYSTEM_CONFIG_GROUP.VALIDATION_VARIABLE,
+    SYSTEM_CONFIG_KEY.EDIT_IN_DAY,
+    true,
+  );
+  const limitDays = parseInt(String(options?.[0]?.label || "0"), 10);
 
   const fetchData = async () => {
     if (isFirstLoad || isLoading) await new Promise((resolve) => setTimeout(resolve, 500));
@@ -48,6 +60,12 @@ function PlantGrowthHistory() {
       if (res.statusCode === 200) {
         setData((prevData) => (currentPage > 1 ? [...prevData, ...res.data.list] : res.data.list));
         setTotalIssues(res.data.totalRecord);
+        if (isGrowthDetailView && selectedHistory) {
+          const updatedHistory = res.data.list.find(
+            (item) => item.plantGrowthHistoryId === selectedHistory?.plantGrowthHistoryId,
+          );
+          if (updatedHistory) setSelectedHistory(updatedHistory);
+        }
       }
     } finally {
       setIsLoading(false);
@@ -89,15 +107,15 @@ function PlantGrowthHistory() {
 
   const hasChanges = useHasChanges<PlantGrowthHistoryRequest>(data);
 
-  const handleCancelConfirm = (req: PlantGrowthHistoryRequest) => {
-    const hasUnsavedChanges = hasChanges(req, undefined, {
-      plantId: plant.plantId,
-    });
+  const handleCancelConfirm = (req: PlantGrowthHistoryRequest, isUpdate: boolean) => {
+    const hasUnsavedChanges = isUpdate
+      ? hasChanges(req, "plantGrowthHistoryId")
+      : hasChanges(req, undefined, { plantId: plant.plantId });
 
     if (hasUnsavedChanges || isDirty) {
       cancelConfirmModal.showModal();
     } else {
-      addIssueModal.hideModal();
+      issueModal.hideModal();
     }
   };
 
@@ -105,8 +123,16 @@ function PlantGrowthHistory() {
     addService: plantService.createPlantGrowthHistory,
     fetchData: handleResetData,
     onSuccess: () => {
-      addIssueModal.hideModal();
+      issueModal.hideModal();
       setIsGrowthDetailView(false);
+    },
+  });
+
+  const { handleUpdate: handleUpdateIssue, isUpdating } = useTableUpdate({
+    updateService: plantService.updatePlantGrowthHistory,
+    fetchData: handleResetData,
+    onSuccess: () => {
+      issueModal.hideModal();
     },
   });
 
@@ -124,14 +150,20 @@ function PlantGrowthHistory() {
 
   return (
     <Flex className={style.contentDetailWrapper}>
-      <PlantSectionHeader onAddNewIssue={() => addIssueModal.showModal()} />
+      <PlantSectionHeader onAddNewIssue={() => issueModal.showModal()} />
       <Divider className={style.divider} />
       {isGrowthDetailView ? (
         <GrowthDetailContent
           history={selectedHistory}
-          idKey="plantGrowthHistoryId"
-          onBack={handleBackToList}
-          onDelete={(id) => deleteConfirmModal.showModal({ id })}
+          limitDays={limitDays}
+          isDisable={plant.isDead}
+          isLoading={loading}
+          actionMenu={(item: GetPlantGrowthHistory) => (
+            <ActionMenuGrowth
+              onEdit={() => issueModal.showModal({ item: item })}
+              onDelete={() => deleteConfirmModal.showModal({ id: item.plantGrowthHistoryId })}
+            />
+          )}
         />
       ) : (
         <>
@@ -139,24 +171,34 @@ function PlantGrowthHistory() {
             <TimelineFilter dateRange={dateRange} onDateChange={handleDateChange} />
             <GrowthTimeline
               data={data}
-              idKey="plantGrowthHistoryId"
-              isLoading={isLoading}
+              limitDays={limitDays}
+              isDisable={plant.isDead}
+              isLoading={isLoading && loading}
               totalIssues={totalIssues}
               onViewDetail={handleViewDetail}
               onLoadMore={() => setCurrentPage((prev) => prev + 1)}
-              onDelete={(id) => deleteConfirmModal.showModal({ id })}
+              actionMenu={(item: GetPlantGrowthHistory) => (
+                <ActionMenuGrowth
+                  onEdit={() => issueModal.showModal({ item: item })}
+                  onDelete={() => deleteConfirmModal.showModal({ id: item.plantGrowthHistoryId })}
+                />
+              )}
             />
           </Flex>
         </>
       )}
       <NewIssueModal
-        data={data[0]}
-        idKey="plantId"
-        id={plant.plantId}
-        isOpen={addIssueModal.modalState.visible}
+        data={issueModal.modalState.data?.item}
+        idKey={issueModal.modalState.data?.item ? "plantGrowthHistoryId" : "plantId"}
+        id={
+          issueModal.modalState.data?.item
+            ? issueModal.modalState.data?.item.plantGrowthHistoryId
+            : plant.plantId
+        }
+        isOpen={issueModal.modalState.visible}
         onClose={handleCancelConfirm}
-        onSave={handleAddNewIssue}
-        isLoading={isAdding}
+        onSave={issueModal.modalState.data?.item ? handleUpdateIssue : handleAddNewIssue}
+        isLoading={issueModal.modalState.data?.item ? isUpdating : isAdding}
       />
       {/* Confirm Delete Modal */}
       <ConfirmModal
@@ -172,7 +214,7 @@ function PlantGrowthHistory() {
         actionType="unsaved"
         onConfirm={() => {
           cancelConfirmModal.hideModal();
-          addIssueModal.hideModal();
+          issueModal.hideModal();
         }}
         onCancel={cancelConfirmModal.hideModal}
       />

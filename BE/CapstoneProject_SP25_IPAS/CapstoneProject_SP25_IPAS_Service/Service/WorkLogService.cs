@@ -7,7 +7,6 @@ using CapstoneProject_SP25_IPAS_BussinessObject.Payloads.Request;
 using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.AuthensRequest;
 using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.PlanRequest;
 using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.WorkLogRequest;
-using CapstoneProject_SP25_IPAS_Common;
 using CapstoneProject_SP25_IPAS_Common.Constants;
 using CapstoneProject_SP25_IPAS_Common.Enum;
 using CapstoneProject_SP25_IPAS_Common.Upload;
@@ -236,6 +235,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     foreach (var employeeModel in addNewTaskModel.listEmployee)
                     {
                         await _webSocketService.SendToUser(employeeModel.UserId, addNotification);
+                        await _unitOfWork.NotificationRepository.PushMessageFirebase(addNotification.Title, addNotification.Content, employeeModel.UserId);
                     }
                     var getListManagerOfFarm = await _unitOfWork.UserFarmRepository.GetManagerOffarm(farmId);
 
@@ -249,6 +249,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                             isRead = false,
                         };
                         await _unitOfWork.PlanNotificationRepository.Insert(addPlanNotification);
+                        await _unitOfWork.NotificationRepository.PushMessageFirebase(addNotification.Title, addNotification.Content, employee.UserId);
                         await _webSocketService.SendToUser(employee.UserId, addNotification);
 
                     }
@@ -861,6 +862,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         UserID = createNoteModel.UserId
                     };
                     await _unitOfWork.PlanNotificationRepository.Insert(addNotificationForNote);
+                    await _unitOfWork.NotificationRepository.PushMessageFirebase(addNotification.Title, addNotification.Content, createNoteModel.UserId.Value);
                     await _webSocketService.SendToUser(createNoteModel.UserId.Value, addNotification);
                     var getListManagerOfFarm = await _unitOfWork.UserFarmRepository.GetManagerOffarm(farmId);
 
@@ -874,10 +876,10 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                             UserID = employee.UserId
                         };
                         await _unitOfWork.PlanNotificationRepository.Insert(addNotificationManagerForNote);
+                        await _unitOfWork.NotificationRepository.PushMessageFirebase(addNotification.Title, addNotification.Content, employee.UserId);
                         await _webSocketService.SendToUser(employee.UserId, addNotification);
 
                     }
-                    await _webSocketService.SendToUser(createNoteModel.UserId.Value, addNotification);
                     var result = await _unitOfWork.SaveAsync();
                     if (result > 0)
                     {
@@ -1283,6 +1285,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                 UserID = employeeModel.UserId,
                             };
                             await _unitOfWork.PlanNotificationRepository.Insert(addEmployeeNotification);
+                            await _unitOfWork.NotificationRepository.PushMessageFirebase(addNotification.Title, addNotification.Content, employeeModel.UserId);
                             await _webSocketService.SendToUser(employeeModel.UserId, addNotification);
                         }
                         var getListManagerOfFarm = await _unitOfWork.UserFarmRepository.GetManagerOffarm(farmId);
@@ -1297,6 +1300,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                 UserID = employee.UserId,
                             };
                             await _unitOfWork.PlanNotificationRepository.Insert(addNotificationForManager);
+                            await _unitOfWork.NotificationRepository.PushMessageFirebase(addNotification.Title, addNotification.Content, employee.UserId);
                             await _webSocketService.SendToUser(employee.UserId, addNotification);
 
                         }
@@ -1577,6 +1581,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         };
 
                         await _unitOfWork.PlanNotificationRepository.Insert(addPlanNotification);
+                        await _unitOfWork.NotificationRepository.PushMessageFirebase(addNotification.Title, addNotification.Content, employee.UserId);
                     }
 
                     var getListManagerOfFarm = await _unitOfWork.UserFarmRepository.GetManagerOffarm(farmId);
@@ -1591,6 +1596,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                             isRead = false,
                         };
                         await _unitOfWork.PlanNotificationRepository.Insert(addPlanNotificationForManager);
+                        await _unitOfWork.NotificationRepository.PushMessageFirebase(addNotification.Title, addNotification.Content, employee.UserId);
                         await _webSocketService.SendToUser(employee.UserId, addNotification);
 
                     }
@@ -1688,6 +1694,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                             isRead = false,
                         };
                         await _unitOfWork.PlanNotificationRepository.Insert(addPlanNotification);
+                        await _unitOfWork.NotificationRepository.PushMessageFirebase(addNotification.Title, addNotification.Content, employee.UserId);
                     }
 
                     foreach (var employee in getWorkLogToUpdate.UserWorkLogs)
@@ -1699,7 +1706,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                             UserID = employee.UserId,
                             isRead = false,
                         };
-
+                        await _unitOfWork.NotificationRepository.PushMessageFirebase(addNotification.Title, addNotification.Content, employee.UserId);
                         await _unitOfWork.PlanNotificationRepository.Insert(addPlanNotification);
                     }
 
@@ -1821,6 +1828,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                 isRead = false,
                             };
                             await _unitOfWork.PlanNotificationRepository.Insert(addPlanNotification);
+                            await _unitOfWork.NotificationRepository.PushMessageFirebase(addNotification.Title, addNotification.Content, employee.UserId);
                             await _webSocketService.SendToUser(employee.UserId, addNotification);
 
                         }
@@ -1834,7 +1842,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                 UserID = employee.UserId,
                                 isRead = false,
                             };
-
+                            await _unitOfWork.NotificationRepository.PushMessageFirebase(addNotification.Title, addNotification.Content, employee.UserId);
                             await _unitOfWork.PlanNotificationRepository.Insert(addPlanNotification);
                         }
 
@@ -2056,7 +2064,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                     };
                                     await _unitOfWork.PlanNotificationRepository.Insert(addOldUserRepoterNotification);
                                     await _unitOfWork.PlanNotificationRepository.Insert(addNewUserRepoterNotification);
-
+                                    await _unitOfWork.NotificationRepository.PushMessageFirebase(addNotification.Title, addNotification.Content, changeEmployee.OldUserId);
+                                    await _unitOfWork.NotificationRepository.PushMessageFirebase(addNotification.Title, addNotification.Content, changeEmployee.NewUserId);
                                     await _webSocketService.SendToUser(changeEmployee.OldUserId, addNotification);
                                     await _webSocketService.SendToUser(changeEmployee.NewUserId, addNotification);
                                 }
@@ -2115,6 +2124,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                 await _unitOfWork.PlanNotificationRepository.Insert(addOldUserNotification);
                                 await _webSocketService.SendToUser(changeEmployee.NewUserId, addNotification);
                                 await _webSocketService.SendToUser(changeEmployee.OldUserId, addNotification);
+                                await _unitOfWork.NotificationRepository.PushMessageFirebase(addNotification.Title, addNotification.Content, changeEmployee.OldUserId);
+                                await _unitOfWork.NotificationRepository.PushMessageFirebase(addNotification.Title, addNotification.Content, changeEmployee.NewUserId);
                                 await _unitOfWork.UserWorkLogRepository.Insert(newUserWorkLog);
                             }
 
@@ -2191,6 +2202,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         UserID = employee.UserId
                     };
                     await _unitOfWork.PlanNotificationRepository.Insert(addNewUserNotification);
+                    await _unitOfWork.NotificationRepository.PushMessageFirebase(addNotification.Title, addNotification.Content, employee.UserId);
                     await _webSocketService.SendToUser(employee.UserId, addNotification);
 
                 }
@@ -2263,6 +2275,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         UserID = employee.UserId,
                         isRead = false,
                     };
+                    await _unitOfWork.NotificationRepository.PushMessageFirebase(addNotification.Title, addNotification.Content, employee.UserId);
+
                     await _unitOfWork.PlanNotificationRepository.Insert(addPlanNotification);
                     await _webSocketService.SendToUser(employee.UserId, addNotification);
 
@@ -2362,6 +2376,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     }
                     foreach (var employeeModel in getWorkLog.UserWorkLogs)
                     {
+                        await _unitOfWork.NotificationRepository.PushMessageFirebase(addNotification.Title, addNotification.Content, employeeModel.UserId);
+
                         await _webSocketService.SendToUser(employeeModel.UserId, addNotification);
                     }
 
@@ -2377,6 +2393,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                             isRead = false,
                         };
                         await _unitOfWork.PlanNotificationRepository.Insert(addPlanNotification);
+                        await _unitOfWork.NotificationRepository.PushMessageFirebase(addNotification.Title, addNotification.Content, employee.UserId);
+
                         await _webSocketService.SendToUser(employee.UserId, addNotification);
 
                     }

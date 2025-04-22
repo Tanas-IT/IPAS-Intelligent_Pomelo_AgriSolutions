@@ -12,6 +12,7 @@ import {
   PlantGrowthHistoryRequest,
   PlantRequest,
 } from "@/payloads";
+import { FileResource } from "@/types";
 import { buildParams, getFarmId, getFileFormat, getUserId } from "@/utils";
 
 export const getPlants = async (landRowId: number): Promise<ApiResponse<GetPlantSelect[]>> => {
@@ -203,6 +204,36 @@ export const createPlantGrowthHistory = async (
     });
   }
   const res = await axiosAuth.axiosMultipartForm.post(`plant-growth-history`, formData);
+  const apiResponse = res.data as ApiResponse<Object>;
+  return apiResponse;
+};
+
+export const updatePlantGrowthHistory = async (
+  req: PlantGrowthHistoryRequest,
+): Promise<ApiResponse<Object>> => {
+  const formData = new FormData();
+  formData.append("PlantGrowthHistoryId", req.plantGrowthHistoryId.toString());
+  formData.append("UserId", getUserId());
+  formData.append("IssueName", req.issueName);
+  formData.append("Content", req.content);
+
+  (req.resources || []).forEach((resource, i) => {
+    const isOldFile = (resource as FileResource).resourceID !== undefined;
+
+    if (isOldFile) {
+      const fileResource = resource as FileResource;
+      formData.append(`Resource[${i}].resourceID`, fileResource.resourceID.toString());
+    } else {
+      const file = resource as File;
+      const format = getFileFormat(file.type);
+      if (format) {
+        formData.append(`Resource[${i}].fileFormat`, format);
+        formData.append(`Resource[${i}].file`, file, file.name);
+      }
+    }
+  });
+
+  const res = await axiosAuth.axiosMultipartForm.put("plant-growth-history", formData);
   const apiResponse = res.data as ApiResponse<Object>;
   return apiResponse;
 };

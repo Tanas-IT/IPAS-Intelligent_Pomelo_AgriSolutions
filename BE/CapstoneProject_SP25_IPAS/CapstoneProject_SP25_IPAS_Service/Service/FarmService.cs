@@ -6,7 +6,6 @@ using CapstoneProject_SP25_IPAS_BussinessObject.Entities;
 using CapstoneProject_SP25_IPAS_BussinessObject.ProgramSetUpObject.SoftDeleteInterceptors;
 using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.FarmRequest;
 using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.FarmRequest.UserFarmRequest;
-using CapstoneProject_SP25_IPAS_Common;
 using CapstoneProject_SP25_IPAS_Common.Constants;
 using CapstoneProject_SP25_IPAS_Common.Enum;
 using CapstoneProject_SP25_IPAS_Common.Upload;
@@ -693,6 +692,18 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     if (updateRequest.IsActive.HasValue)
                     {
                         userInfarm.IsActive = updateRequest.IsActive;
+                    }
+                    if(updateRequest.Skills != null)
+                    {
+                        foreach (var employeeSkill in updateRequest.Skills)
+                        {
+                            var getEmployeeSkill = await _unitOfWork.EmployeeSkillRepository.GetByCondition(x => x.WorkTypeID == employeeSkill.SkillID && x.EmployeeID == updateRequest.UserId && x.FarmID == updateRequest.FarmId);
+                            if(getEmployeeSkill != null)
+                            {
+                                getEmployeeSkill.ScoreOfSkill = employeeSkill.ScoreOfSkill;
+                                _unitOfWork.EmployeeSkillRepository.Update(getEmployeeSkill);
+                            }
+                        }
                     }
 
                     _unitOfWork.UserFarmRepository.Update(userInfarm);

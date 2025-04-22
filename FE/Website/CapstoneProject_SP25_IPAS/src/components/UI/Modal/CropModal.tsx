@@ -2,7 +2,7 @@ import { Flex, Form } from "antd";
 import { useEffect } from "react";
 import { FormFieldModal, ModalForm } from "@/components";
 import { formatDateReq, RulesManager } from "@/utils";
-import { cropFormFields, HARVEST_SEASON_OPTIONS, SYSTEM_CONFIG_GROUP } from "@/constants";
+import { cropFormFields, SYSTEM_CONFIG_GROUP } from "@/constants";
 import { CropRequest, GetCrop2 } from "@/payloads";
 import { useLandPlotOptions, useSystemConfigOptions } from "@/hooks";
 import dayjs from "dayjs";

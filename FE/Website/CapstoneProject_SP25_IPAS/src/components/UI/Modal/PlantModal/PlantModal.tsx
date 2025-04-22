@@ -1,7 +1,7 @@
 import { Flex, Form } from "antd";
 import { useState, useEffect } from "react";
 import { FormFieldModal, ModalForm } from "@/components";
-import { formatDateReq, RulesManager } from "@/utils";
+import { formatDateReq, isEmployee, RulesManager } from "@/utils";
 import { HEALTH_STATUS, MASTER_TYPE, plantFormFields } from "@/constants";
 import { GetPlant, PlantRequest } from "@/payloads";
 import { useMasterTypeOptions } from "@/hooks";
@@ -20,10 +20,12 @@ type PlantModalProps = {
 
 const PlantModal = ({ isOpen, onClose, onSave, plantData, isLoadingAction }: PlantModalProps) => {
   const [form] = Form.useForm();
+  const isEmployeeIn = isEmployee();
   const isUpdate = !!plantData;
   const isPlantDead = plantData && plantData.isDead;
-  const { options: cultivarTypeOptions } = useMasterTypeOptions(MASTER_TYPE.CULTIVAR);
-
+  const { options: cultivarTypeOptions } = useMasterTypeOptions(
+    isEmployeeIn ? undefined : MASTER_TYPE.CULTIVAR,
+  );
   const [loading, setLoading] = useState({
     plots: false,
     motherPlant: false,
@@ -53,7 +55,7 @@ const PlantModal = ({ isOpen, onClose, onSave, plantData, isLoadingAction }: Pla
       setImage(undefined);
     }
 
-    fetchPlantData();
+    if (!isEmployeeIn) fetchPlantData();
   }, [isOpen, plantData]);
 
   const fetchPlantData = async () => {
@@ -204,6 +206,17 @@ const PlantModal = ({ isOpen, onClose, onSave, plantData, isLoadingAction }: Pla
             name={plantFormFields.description}
             placeholder="Enter the description"
           />
+        ) : isEmployeeIn ? (
+          <FormFieldModal
+            type="select"
+            label="Health Status"
+            name={plantFormFields.healthStatus}
+            rules={RulesManager.getSelectHealthStatusRules()}
+            options={Object.keys(HEALTH_STATUS).map((key) => ({
+              value: HEALTH_STATUS[key as keyof typeof HEALTH_STATUS],
+              label: HEALTH_STATUS[key as keyof typeof HEALTH_STATUS],
+            }))}
+          />
         ) : (
           <>
             <Flex justify="space-between" gap={20}>
@@ -285,18 +298,6 @@ const PlantModal = ({ isOpen, onClose, onSave, plantData, isLoadingAction }: Pla
               name={plantFormFields.description}
               placeholder="Enter the description"
             />
-            {/* {!isUpdate && (
-          <FormFieldModal
-            label="Upload Image"
-            type="image"
-            image={image || form.getFieldValue(plantFormFields.imageUrl)}
-            name={plantFormFields.imageUrl}
-            onChange={(file) => {
-              setImage(file); // Lưu file mới vào state
-              form.setFieldsValue({ [plantFormFields.imageUrl]: file }); // Cập nhật vào form
-            }}
-          />
-        )} */}
           </>
         )}
       </Form>

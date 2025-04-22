@@ -22,7 +22,7 @@ import {
   useTableUpdate,
 } from "@/hooks";
 import { useEffect, useState } from "react";
-import { DEFAULT_PLANT_FILTERS, getOptions } from "@/utils";
+import { DEFAULT_PLANT_FILTERS, getOptions, isEmployee } from "@/utils";
 import { criteriaService, plantService } from "@/services";
 import PlantFilter from "./PlantFilter";
 import { plantColumns } from "./PlantColumns";
@@ -225,7 +225,8 @@ function PlantList() {
               importLabel="Import Plants"
               onAdd={() => formModal.showModal()}
               onImport={() => importModal.showModal()}
-              noImport={false}
+              noAdd={isEmployee()}
+              noImport={isEmployee()}
             />
           }
           isOnRowEvent={true}
