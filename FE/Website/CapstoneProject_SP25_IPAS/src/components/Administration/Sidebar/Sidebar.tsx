@@ -177,7 +177,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isDefault = false }) => {
       activePaths: [PATHS.DASHBOARD],
       category: "Main",
       isView: !isDefault,
-      roles: [UserRolesStr.Owner],
+      roles: [UserRolesStr.Owner, UserRolesStr.Manager],
     },
     {
       key: "Weather",
@@ -187,7 +187,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isDefault = false }) => {
       activePaths: [PATHS.WEATHER.WEATHER],
       category: "Main",
       isView: !isDefault,
-      roles: [UserRolesStr.Owner],
+      roles: [UserRolesStr.Owner, UserRolesStr.Manager],
     },
     {
       key: "Crop Management",
@@ -196,7 +196,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isDefault = false }) => {
       activePaths: [PATHS.CROP.CROP_LIST, PATHS.CROP.CROP_DETAIL, PATHS.CROP.PLANT_YIELD],
       category: "Main",
       isView: !isDefault,
-      roles: [UserRolesStr.Owner],
+      roles: [UserRolesStr.Owner, UserRolesStr.Manager],
       subMenuItems: [
         {
           key: "Manage Crop",
@@ -229,7 +229,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isDefault = false }) => {
       activePaths: [PATHS.PROCESS.PROCESS_LIST, PATHS.PROCESS.PROCESS_DETAIL],
       category: "Main",
       isView: !isDefault,
-      roles: [UserRolesStr.Owner],
+      roles: [UserRolesStr.Owner, UserRolesStr.Manager],
     },
     {
       key: "Classification Management",
@@ -244,7 +244,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isDefault = false }) => {
       ],
       category: "Main",
       isView: !isDefault,
-      roles: [UserRolesStr.Owner],
+      roles: [UserRolesStr.Owner, UserRolesStr.Manager],
       subMenuItems: [
         {
           key: "Growth Stage",
@@ -359,7 +359,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isDefault = false }) => {
       to: PATHS.PLAN.PLAN_LIST,
       category: "Main",
       isView: !isDefault,
-      roles: [UserRolesStr.Owner],
+      roles: [UserRolesStr.Owner, UserRolesStr.Manager],
     },
     {
       key: "AI Chatbox",
@@ -376,7 +376,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isDefault = false }) => {
       label: "Staff Management",
       icon: <Icons.people />,
       activePaths: [PATHS.HR.EMPLOYEES, PATHS.HR.WORKLOG_CALENDAR],
-      roles: [UserRolesStr.Owner],
+      roles: [UserRolesStr.Owner, UserRolesStr.Manager],
       subMenuItems: [
         {
           key: "Manage Employees",
@@ -384,6 +384,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isDefault = false }) => {
           icon: Images.radius,
           to: PATHS.HR.EMPLOYEES,
           activePaths: [PATHS.HR.EMPLOYEES],
+          roles: [UserRolesStr.Owner],
         },
         {
           key: "Work Schedules",

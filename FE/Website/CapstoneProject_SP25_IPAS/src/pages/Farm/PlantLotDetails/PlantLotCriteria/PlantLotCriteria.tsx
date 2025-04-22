@@ -9,7 +9,7 @@ import {
 } from "@/components";
 import { useEffect, useState } from "react";
 import { useDirtyStore, usePlantLotStore } from "@/stores";
-import { useModal, useStyle } from "@/hooks";
+import { useExportFile, useModal, useStyle } from "@/hooks";
 import { criteriaService, plantLotService } from "@/services";
 import {
   CriteriaApplyRequest,
@@ -24,20 +24,22 @@ import { CRITERIA_TARGETS } from "@/constants";
 import PanelTitle from "./PanelTitle";
 
 function PlantLotCriteria() {
+  const { lot, markForRefetch } = usePlantLotStore();
+  if (!lot) return;
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isFirstLoad, setIsFirstLoad] = useState<boolean>(true);
   const [initialCriteriaGroups, setInitialCriteriaGroups] = useState<GetCriteriaObject[]>([]);
   const [criteriaGroups, setCriteriaGroups] = useState<GetCriteriaObject[]>([]);
   const [initialCriteria, setInitialGroups] = useState<Record<number, number>>({});
   const [updatedCriteria, setUpdatedCriteria] = useState<Record<number, number>>({});
-  const { lot, markForRefetch } = usePlantLotStore();
   const { styles } = useStyle();
   const { isDirty } = useDirtyStore();
   const criteriaModal = useModal<{ id?: number }>();
   const cancelConfirmModal = useModal();
   const deleteConfirmModal = useModal<{ id: number }>();
   const quantityModal = useModal<{ target: string; isAllPass: boolean }>();
-  if (!lot) return;
+  const useHandleExport = useExportFile(criteriaService.exportCriteriaByObject);
+  const handleExport = () => useHandleExport("PlantLotID", lot.plantLotId);
 
   const fetchCriteriaPlantLot = async () => {
     setIsLoading(true);
@@ -239,6 +241,7 @@ function PlantLotCriteria() {
       <LotSectionHeader
         isCriteria={true}
         onApplyCriteria={() => criteriaModal.showModal({ id: lot?.plantLotId })}
+        onExport={handleExport}
       />
       <Divider className={style.divider} />
       {criteriaGroups.length > 0 ? (

@@ -9,7 +9,7 @@ import {
 } from "@/components";
 import { useEffect, useState } from "react";
 import { useDirtyStore, usePlantStore } from "@/stores";
-import { useModal, useStyle } from "@/hooks";
+import { useExportFile, useModal, useStyle } from "@/hooks";
 import { criteriaService } from "@/services";
 import {
   CriteriaCheckData,
@@ -23,13 +23,14 @@ import { toast } from "react-toastify";
 import { PlantPanelTitle } from "./PlantPanelTitle";
 
 function PlantCriteria() {
+  const { plant, setPlant } = usePlantStore();
+  if (!plant) return;
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isFirstLoad, setIsFirstLoad] = useState<boolean>(true);
   const [initialCriteriaGroups, setInitialCriteriaGroups] = useState<GetCriteriaObject[]>([]);
   const [criteriaGroups, setCriteriaGroups] = useState<GetCriteriaObject[]>([]);
   const [initialCriteria, setInitialGroups] = useState<Record<number, number>>({});
   const [updatedCriteria, setUpdatedCriteria] = useState<Record<number, number>>({});
-  const { plant, setPlant } = usePlantStore();
   const { styles } = useStyle();
   const { isDirty } = useDirtyStore();
   const criteriaModal = useModal<{ id?: number }>();
@@ -37,7 +38,8 @@ function PlantCriteria() {
   const deleteConfirmModal = useModal<{ id: number }>();
   const resetConfirmModal = useModal<{ id: number; isPass: boolean }>();
 
-  if (!plant) return;
+  const useHandleExport = useExportFile(criteriaService.exportCriteriaByObject);
+  const handleExport = () => useHandleExport("PlantID", plant.plantId);
 
   const fetchCriteriaPlant = async () => {
     setIsLoading(true);
@@ -207,7 +209,10 @@ function PlantCriteria() {
 
   return (
     <Flex className={style.contentDetailWrapper}>
-      <PlantSectionHeader onApplyCriteria={() => criteriaModal.showModal({ id: plant?.plantId })} />
+      <PlantSectionHeader
+        onApplyCriteria={() => criteriaModal.showModal({ id: plant?.plantId })}
+        onExport={handleExport}
+      />
       <Divider className={style.divider} />
       {criteriaGroups.length > 0 ? (
         <Flex className={style.contentSectionBody}>

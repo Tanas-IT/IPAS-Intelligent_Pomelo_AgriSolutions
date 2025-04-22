@@ -6,7 +6,14 @@ import {
   Table,
   TableTitle,
 } from "@/components";
-import { useFetchData, useFilters, useLandPlotOptions, useModal, useTableDelete } from "@/hooks";
+import {
+  useExportFile,
+  useFetchData,
+  useFilters,
+  useLandPlotOptions,
+  useModal,
+  useTableDelete,
+} from "@/hooks";
 import { GetLandRow } from "@/payloads";
 import { landRowService } from "@/services";
 import { DEFAULT_LAND_ROW_FILTERS, getOptions } from "@/utils";
@@ -106,6 +113,9 @@ function LandRow() {
     },
   );
 
+  const useHandleExport = useExportFile(landRowService.exportLandRows);
+  const handleExport = () => useHandleExport(filters);
+
   const filterContent = (
     <LandRowFilter
       filters={filters}
@@ -148,7 +158,12 @@ function LandRow() {
             rowKey="landRowCode"
             idName="landRowId"
             title={
-              <TableTitle onSearch={handleSearch} filterContent={filterContent} noAdd={true} />
+              <TableTitle
+                onSearch={handleSearch}
+                filterContent={filterContent}
+                noAdd={true}
+                onExport={handleExport}
+              />
             }
             handleSortClick={handleSortChange}
             selectedColumn={sortField}

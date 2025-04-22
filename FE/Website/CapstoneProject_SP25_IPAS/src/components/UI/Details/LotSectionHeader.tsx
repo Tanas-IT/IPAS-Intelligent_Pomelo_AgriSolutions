@@ -15,11 +15,13 @@ const LotSectionHeader = ({
   onApplyCriteria,
   formModal,
   deleteConfirmModal,
+  onExport,
 }: {
   isCriteria?: boolean;
   onApplyCriteria?: () => void;
   formModal?: ReturnType<typeof useModal<GetPlantLotDetail>>;
   deleteConfirmModal?: ReturnType<typeof useModal<{ id: number }>>;
+  onExport?: () => void;
 }) => {
   const { lot, setLot } = usePlantLotStore();
   const updateConfirmModal = useModal();
@@ -95,16 +97,19 @@ const LotSectionHeader = ({
           </Flex>
         </Flex>
 
-        {isCriteria && (
-          <Flex>
+        <Flex gap={20}>
+          {onExport && (
+            <CustomButton label="Export" icon={<Icons.download />} handleOnClick={onExport} />
+          )}
+          {isCriteria && (
             <CustomButton
               label="Add New Criteria"
               icon={<Icons.plus />}
               handleOnClick={onApplyCriteria}
               disabled={lot.isPassed}
             />
-          </Flex>
-        )}
+          )}
+        </Flex>
         {!isCriteria && (
           <Flex>
             <ActionMenuLot
