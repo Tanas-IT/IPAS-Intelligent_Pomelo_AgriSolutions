@@ -300,5 +300,11 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
          .FirstOrDefaultAsync(p => p.PlanId == planId);
             return result;
         }
+
+        public async Task<Plan> GetPlanByWorkLogId(int workLogId)
+        {
+            var getPlan = await _context.Plans.Where(x => x.CarePlanSchedule.WorkLogs.Any(y => y.WorkLogId == workLogId)).FirstOrDefaultAsync();
+            return getPlan;
+        }
     }
 }
