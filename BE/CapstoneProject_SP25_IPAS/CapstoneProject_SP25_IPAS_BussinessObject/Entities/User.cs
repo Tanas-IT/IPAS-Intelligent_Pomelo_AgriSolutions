@@ -42,6 +42,7 @@ public partial class User
     public DateTime? ExpiredOtpTime { get; set; }
 
     public string? Address { get; set; }
+    public string? Fcmtoken { get; set; }
 
     public int? RemainDays { get; set; }
 

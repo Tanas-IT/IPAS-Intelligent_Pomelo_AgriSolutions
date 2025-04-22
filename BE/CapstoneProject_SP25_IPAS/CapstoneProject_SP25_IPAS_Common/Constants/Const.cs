@@ -6,7 +6,7 @@ using System.Text;
 using System.Threading.Tasks;
 using static System.Net.WebRequestMethods;
 
-namespace CapstoneProject_SP25_IPAS_Common
+namespace CapstoneProject_SP25_IPAS_Common.Constants
 {
     public static class Const
     {
@@ -451,7 +451,7 @@ namespace CapstoneProject_SP25_IPAS_Common
         public static int SUCCESS_GET_DASHBOARD_REPORT_CODE = 200;
         public static string SUCCESS_GET_DASHBOARD_REPORT_MSG = "Get dashboard report success";
         public static int SUCCESS_GET_MATERIALS_IN_STORE_REPORT_CODE = 200;
-        public static string SUCCESS_GET_MATERIALS_IN_STORE_REPORT_MSG = "Get materials in store report success"; 
+        public static string SUCCESS_GET_MATERIALS_IN_STORE_REPORT_MSG = "Get materials in store report success";
         public static int SUCCESS_GET_PRODUCTIVITY_BY_PLOT_REPORT_CODE = 200;
         public static string SUCCESS_GET_PRODUCTIVITY_BY_PLOT_REPORT_MSG = "Get productivity by plot report success";
         public static int SUCCESS_GET_POMELO_QUALITY_BREAK_DOWN_REPORT_CODE = 200;
@@ -475,7 +475,7 @@ namespace CapstoneProject_SP25_IPAS_Common
         public static int SUCCESS_DELETE_PERMANENTLY_GRAFTED_PLANT_CODE = 200;
         public static string SUCCESS_DELETE_PERMANENTLY_GRAFTED_PLANT_MSG = "Delete permanent grafted plant success";
         public static int SUCCESS_UPDATE_GRAFTED_PLANT_CODE = 200;
-        public static string SUCCESS_UPDATE_GRAFTED_PLANT_MSG = "Update grafted plant success"; 
+        public static string SUCCESS_UPDATE_GRAFTED_PLANT_MSG = "Update grafted plant success";
         public static int SUCCESS_GET_GRAFTED_PLANT_CODE = 200;
         public static string SUCCESS_GET_GRAFTED_OF_PLANT_MSG = "Get grafted of plant success";
         public static string SUCCESS_GET_GRAFTED_NOTE_MSG = "Get grafted note success";

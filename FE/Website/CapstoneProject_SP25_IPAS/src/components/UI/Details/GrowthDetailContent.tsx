@@ -5,21 +5,25 @@ import { formatDayMonthAndTime } from "@/utils";
 import { FILE_FORMAT } from "@/constants";
 import { FileResource } from "@/types";
 import { UserAvatar } from "@/components";
+import { useModifyPermission } from "@/hooks";
 
 interface GrowthDetailContentProps<T extends { [key: string]: any }> {
   history: T | null;
-  onBack: () => void;
-  onDelete: (id: number) => void;
-  idKey: keyof T;
+  limitDays: number;
+  isDisable: boolean;
+  isLoading: boolean;
+  actionMenu: (item: T) => React.ReactNode;
 }
 
 function GrowthDetailContent<T extends { [key: string]: any }>({
   history,
-  onBack,
-  onDelete,
-  idKey,
+  limitDays,
+  isDisable,
+  isLoading,
+  actionMenu,
 }: GrowthDetailContentProps<T>) {
   if (!history) return null;
+  const { canEdit } = useModifyPermission(history.createDate, history.userId, limitDays, isLoading);
 
   const images = history.resources
     .filter((res: FileResource) => res.fileFormat === FILE_FORMAT.IMAGE)
@@ -32,16 +36,19 @@ function GrowthDetailContent<T extends { [key: string]: any }>({
   return (
     <Flex className={style.detailWrapper} vertical>
       <Flex gap={12} className={style.modalHeader}>
-        <Flex justify="center" align="center" gap={10}>
-          <UserAvatar avatarURL={history.noteTakerAvatar || undefined} size={40} />
+        <Flex justify="space-between" align="center" style={{ width: "100%" }}>
+          <Flex justify="center" align="center" gap={10}>
+            <UserAvatar avatarURL={history.noteTakerAvatar || undefined} size={40} />
+            <span className={style.userName}>{history.noteTakerName}</span>
+            <span>created this note</span>
+            <span className={style.createdDate}>{formatDayMonthAndTime(history.createDate)}</span>
+          </Flex>
 
-          <span className={style.userName}>{history.noteTakerName}</span>
-          <span>created this note</span>
-          <span className={style.createdDate}>{formatDayMonthAndTime(history.createDate)}</span>
+          {canEdit && !isDisable && actionMenu(history)}
         </Flex>
-        <Button icon={<Icons.back />} className={style.backButton} onClick={onBack}>
+        {/* <Button icon={<Icons.back />} className={style.backButton} onClick={onBack}>
           Back to Growth History
-        </Button>
+        </Button> */}
       </Flex>
 
       <Flex className={style.modalInfoRow}>
@@ -79,7 +86,7 @@ function GrowthDetailContent<T extends { [key: string]: any }>({
                       src={img}
                       width={120}
                       height={120}
-                      style={{ borderRadius: "5px", objectFit: "cover" }}
+                      style={{ borderRadius: "8px", objectFit: "cover" }}
                       crossOrigin="anonymous"
                     />
                   ))}
@@ -93,9 +100,14 @@ function GrowthDetailContent<T extends { [key: string]: any }>({
                   {videos.map((vid: string, index: number) => (
                     <video
                       key={index}
-                      width="200"
+                      width="250"
+                      height="200"
                       controls
-                      style={{ borderRadius: "5px" }}
+                      style={{
+                        borderRadius: "8px",
+                        border: "1px solid #d9d9d9",
+                        objectFit: "cover",
+                      }}
                       crossOrigin="anonymous"
                     >
                       <source src={vid} type="video/mp4" />
@@ -107,17 +119,6 @@ function GrowthDetailContent<T extends { [key: string]: any }>({
             )}
           </Flex>
         )}
-      </Flex>
-      <Flex justify="end">
-        <Button
-          danger
-          icon={<Icons.delete />}
-          onClick={(e) => {
-            onDelete((history as any)[idKey]);
-          }}
-        >
-          Delete
-        </Button>
       </Flex>
     </Flex>
   );

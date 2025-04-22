@@ -5,7 +5,7 @@ import { ActionMenuGraftedPlant, CustomButton, CuttingGraftedModal } from "@/com
 import { useGraftedPlantStore } from "@/stores";
 import { useModal } from "@/hooks";
 import { GetGraftedPlantDetail } from "@/payloads";
-import { healthStatusColors } from "@/constants";
+import { GRAFTED_STATUS, healthStatusColors } from "@/constants";
 import { useState } from "react";
 import { graftedPlantService } from "@/services";
 import { toast } from "react-toastify";
@@ -114,16 +114,18 @@ const GraftedPlantSectionHeader = ({
             />
           </Flex>
         )}
-        {onAddNewIssue && !graftedPlant.isDead && (
-          <Flex gap={20}>
+        <Flex gap={20}>
+          {onExport && (
             <CustomButton label="Export" icon={<Icons.download />} handleOnClick={onExport} />
+          )}
+          {onAddNewIssue && !graftedPlant.isDead && graftedPlant.status !== GRAFTED_STATUS.USED && (
             <CustomButton
               label="Add New Issue"
               icon={<Icons.plus />}
               handleOnClick={onAddNewIssue}
             />
-          </Flex>
-        )}
+          )}
+        </Flex>
       </Flex>
       <label className={style.subTitle}>Code: {graftedPlant.graftedPlantCode}</label>
       <CuttingGraftedModal

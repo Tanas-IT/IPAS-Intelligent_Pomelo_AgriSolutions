@@ -9,6 +9,7 @@ interface user {
   avatarURL: string;
   createDate: Date;
   status: string;
+  
 }
 export interface GetEmployee {
   userId: number;
@@ -16,4 +17,9 @@ export interface GetEmployee {
   roleName: string;
   user: user;
   isActive: boolean;
+  skills: {
+    skillID: number;
+    scoreOfSkill: number;
+    skillName: string;
+  }[];
 }

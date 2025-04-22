@@ -1,6 +1,6 @@
 import { axiosAuth } from "@/api";
 import { ApiResponse } from "@/payloads";
-import { CancelReplacementRequest, CreateRedoWorklogRequest, CreateWorklogRequest, GetAttendanceList, GetEmpListForUpdate, GetWorklog, GetWorklogDetail, GetWorklogNote, ListEmployeeAttendance, UpdateWorklogReq, WorklogStatusResponse } from "@/payloads/worklog";
+import { CancelReplacementRequest, CreateRedoWorklogRequest, CreateWorklogRequest, DependencyWorklog, EmployeeWithSkills, GetAttendanceList, GetEmpListForUpdate, GetWorklog, GetWorklogDetail, GetWorklogNote, ListEmployeeAttendance, UpdateWorklogReq, WorklogStatusResponse } from "@/payloads/worklog";
 
 // export const getWorklog = async () => {
 //     const res = await axiosAuth.axiosJsonRequest.get("work-log/get-all-schedule");
@@ -120,5 +120,27 @@ export const addWorklogNote = async (
   export const getWorklogStatus = async (): Promise<ApiResponse<WorklogStatusResponse>> => {
     const res = await axiosAuth.axiosJsonRequest.get(`work-log/status-work-log-for-manager`);
     return res.data as ApiResponse<WorklogStatusResponse>;
+  };
+  
+  export const getDependencyWorklog = async (worklogId: number): Promise<ApiResponse<DependencyWorklog[]>> => {
+    const res = await axiosAuth.axiosJsonRequest.get(`work-log/get-dependency-worklog/${worklogId}`);
+    return res.data as ApiResponse<DependencyWorklog[]>;
+  };
+
+  export const getEmployeesByWorkSkill = async (
+    farmId: number,
+    workTypeId?: number
+  ): Promise<ApiResponse<EmployeeWithSkills[]>> => {
+    const params = new URLSearchParams({ farmId: farmId.toString() });
+  
+    if (workTypeId !== undefined && workTypeId !== null) {
+      params.append("workTypeId", workTypeId.toString());
+    }
+  
+    const res = await axiosAuth.axiosJsonRequest.get(
+      `work-log/filter-employee?${params.toString()}`
+    );
+  
+    return res.data as ApiResponse<EmployeeWithSkills[]>;
   };
   

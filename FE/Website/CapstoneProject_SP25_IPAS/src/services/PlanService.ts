@@ -1,6 +1,6 @@
 import { axiosAuth } from "@/api";
 import { ApiResponse, GetData, GetMasterType, GetPlant, GetPlantLot2, GetPlantTargetResponse } from "@/payloads";
-import { GetPlan, GetPlanSelect } from "@/payloads/plan";
+import { GetPlan, GetPlanSelect, ProcessByPlanResponse, ProcessResponse } from "@/payloads/plan";
 import { PlanRequest, UpdatePlanRequest } from "@/payloads/plan/requests/PlanRequest";
 import { buildParams, convertKeysToKebabCase } from "@/utils";
 
@@ -146,3 +146,15 @@ export const getPlansForSelect = async (farmId: number): Promise<ApiResponse<Get
   const apiResponse = res.data as ApiResponse<GetPlanSelect[]>;
   return apiResponse;
 };
+
+export const getPlanByProcessId = async (processId: number): Promise<ApiResponse<ProcessResponse>> => {
+  const res = await axiosAuth.axiosJsonRequest.get(`plan/get-plan-by-process-id/${processId}`);
+  const apiResponse = res.data as ApiResponse<ProcessResponse>;
+  return apiResponse;
+};
+
+export const getProcessByPlanId = async (planId: number, farmId: number): Promise<ApiResponse<ProcessByPlanResponse>> => {
+  const res = await axiosAuth.axiosJsonRequest.get(`plan/get-process-by-plan-id/${planId}?farmId=${farmId}`);
+  const apiResponse = res.data as ApiResponse<ProcessByPlanResponse>;
+  return apiResponse;
+}

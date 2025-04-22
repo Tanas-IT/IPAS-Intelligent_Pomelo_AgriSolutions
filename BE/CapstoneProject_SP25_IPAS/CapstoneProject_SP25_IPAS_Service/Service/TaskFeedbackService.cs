@@ -1,7 +1,6 @@
 ﻿using AutoMapper;
 using CapstoneProject_SP25_IPAS_BussinessObject.Entities;
 using CapstoneProject_SP25_IPAS_Common.Constants;
-using CapstoneProject_SP25_IPAS_Common;
 using CapstoneProject_SP25_IPAS_Common.Utils;
 using CapstoneProject_SP25_IPAS_Repository.IRepository;
 using CapstoneProject_SP25_IPAS_Repository.UnitOfWork;
@@ -48,10 +47,16 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         ManagerId = createTaskFeedbackModel.ManagerId,
                         WorkLogId = createTaskFeedbackModel.WorkLogId
                     };
+                    var getStatusDone = await _unitOfWork.SystemConfigRepository
+                                      .GetConfigValue(SystemConfigConst.DONE.Trim(), "Done");
+                    var getStatusRedo = await _unitOfWork.SystemConfigRepository
+                                      .GetConfigValue(SystemConfigConst.REDO.Trim(), "Redo");
+                    var getStatusFailed = await _unitOfWork.SystemConfigRepository
+                                      .GetConfigValue(SystemConfigConst.FAILED.Trim(), "Failed");
                     var getWorkLog = await _unitOfWork.WorkLogRepository.GetByCondition( x=> x.WorkLogId == createTaskFeedbackModel.WorkLogId, "UserWorkLogs");
                     if(createTaskFeedbackModel.Status != null && getWorkLog != null)
                     {
-                        if(createTaskFeedbackModel.Status.ToLower().Equals("redo") || createTaskFeedbackModel.Status.ToLower().Equals("failed"))
+                        if(createTaskFeedbackModel.Status.ToLower().Equals(getStatusRedo.ToLower()) || createTaskFeedbackModel.Status.ToLower().Equals(getStatusFailed.ToLower()))
                         {
                             getWorkLog.Status = createTaskFeedbackModel.Status ;
                             getWorkLog.ReasonDelay = createTaskFeedbackModel.Reason;
@@ -59,6 +64,10 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         else
                         {
                             getWorkLog.Status = createTaskFeedbackModel.Status;
+                        }
+                        if(createTaskFeedbackModel.Status.Equals(getStatusDone))
+                        {
+                            await _unitOfWork.UserWorkLogRepository.PlusScoreForEmployee(createTaskFeedbackModel.WorkLogId);
                         }
                         _unitOfWork.WorkLogRepository.Update(getWorkLog);
                     }

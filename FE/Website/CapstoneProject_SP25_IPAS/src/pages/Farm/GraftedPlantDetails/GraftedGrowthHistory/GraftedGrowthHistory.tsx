@@ -1,6 +1,7 @@
 import style from "./GraftedGrowthHistory.module.scss";
 import { Divider, Flex } from "antd";
 import {
+  ActionMenuGrowth,
   ConfirmModal,
   GraftedPlantSectionHeader,
   GrowthDetailContent,
@@ -14,12 +15,24 @@ import { Dayjs } from "dayjs";
 import { useDirtyStore, useGraftedPlantStore } from "@/stores";
 import { graftedPlantService } from "@/services";
 import { GetGraftedGrowthHistory, GraftedGrowthHistoryRequest } from "@/payloads";
-import { useHasChanges, useModal, useTableAdd } from "@/hooks";
+import {
+  useHasChanges,
+  useModal,
+  useSystemConfigOptions,
+  useTableAdd,
+  useTableUpdate,
+} from "@/hooks";
 import { toast } from "react-toastify";
-import { DEFAULT_RECORDS_IN_DETAIL } from "@/constants";
+import {
+  DEFAULT_RECORDS_IN_DETAIL,
+  GRAFTED_STATUS,
+  SYSTEM_CONFIG_GROUP,
+  SYSTEM_CONFIG_KEY,
+} from "@/constants";
 
 function GraftedGrowthHistory() {
   const { graftedPlant, isGrowthDetailView, setIsGrowthDetailView } = useGraftedPlantStore();
+  if (!graftedPlant) return;
   const { isDirty } = useDirtyStore();
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isFirstLoad, setIsFirstLoad] = useState<boolean>(true);
@@ -29,11 +42,16 @@ function GraftedGrowthHistory() {
   const [totalIssues, setTotalIssues] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
   const [selectedHistory, setSelectedHistory] = useState<GetGraftedGrowthHistory | null>(null);
-  const addIssueModal = useModal<GetGraftedGrowthHistory>();
+  const issueModal = useModal<{ item: GetGraftedGrowthHistory }>();
   const cancelConfirmModal = useModal();
   const deleteConfirmModal = useModal<{ id: number }>();
-
-  if (!graftedPlant) return;
+  const canAddNote = !graftedPlant.isDead && graftedPlant.status !== GRAFTED_STATUS.USED;
+  const { options, loading } = useSystemConfigOptions(
+    SYSTEM_CONFIG_GROUP.VALIDATION_VARIABLE,
+    SYSTEM_CONFIG_KEY.EDIT_IN_DAY,
+    true,
+  );
+  const limitDays = parseInt(String(options?.[0]?.label || "0"), 10);
 
   const fetchData = async () => {
     if (isFirstLoad || isLoading) await new Promise((resolve) => setTimeout(resolve, 500));
@@ -49,6 +67,12 @@ function GraftedGrowthHistory() {
       if (res.statusCode === 200) {
         setData((prevData) => (currentPage > 1 ? [...prevData, ...res.data.list] : res.data.list));
         setTotalIssues(res.data.totalRecord);
+        if (isGrowthDetailView && selectedHistory) {
+          const updatedHistory = res.data.list.find(
+            (item) => item.graftedPlantNoteId === selectedHistory?.graftedPlantNoteId,
+          );
+          if (updatedHistory) setSelectedHistory(updatedHistory);
+        }
       }
     } finally {
       setIsLoading(false);
@@ -90,15 +114,15 @@ function GraftedGrowthHistory() {
 
   const hasChanges = useHasChanges<GraftedGrowthHistoryRequest>(data);
 
-  const handleCancelConfirm = (req: GraftedGrowthHistoryRequest) => {
-    const hasUnsavedChanges = hasChanges(req, undefined, {
-      graftedPlantId: graftedPlant.graftedPlantId,
-    });
+  const handleCancelConfirm = (req: GraftedGrowthHistoryRequest, isUpdate: boolean) => {
+    const hasUnsavedChanges = isUpdate
+      ? hasChanges(req, "graftedPlantNoteId")
+      : hasChanges(req, undefined, { graftedPlantId: graftedPlant.graftedPlantId });
 
     if (hasUnsavedChanges || isDirty) {
       cancelConfirmModal.showModal();
     } else {
-      addIssueModal.hideModal();
+      issueModal.hideModal();
     }
   };
 
@@ -106,8 +130,16 @@ function GraftedGrowthHistory() {
     addService: graftedPlantService.createGraftedPlantGrowthHistory,
     fetchData: handleResetData,
     onSuccess: () => {
-      addIssueModal.hideModal();
+      issueModal.hideModal();
       setIsGrowthDetailView(false);
+    },
+  });
+
+  const { handleUpdate: handleUpdateIssue, isUpdating } = useTableUpdate({
+    updateService: graftedPlantService.updateGraftedPlantGrowthHistory,
+    fetchData: handleResetData,
+    onSuccess: () => {
+      issueModal.hideModal();
     },
   });
 
@@ -143,16 +175,22 @@ function GraftedGrowthHistory() {
   return (
     <Flex className={style.contentDetailWrapper}>
       <GraftedPlantSectionHeader
-        onAddNewIssue={() => addIssueModal.showModal()}
+        onAddNewIssue={() => issueModal.showModal()}
         onExport={handleExport}
       />
       <Divider className={style.divider} />
       {isGrowthDetailView ? (
         <GrowthDetailContent
           history={selectedHistory}
-          idKey="graftedPlantNoteId"
-          onBack={handleBackToList}
-          onDelete={(id) => deleteConfirmModal.showModal({ id })}
+          limitDays={limitDays}
+          isDisable={!canAddNote}
+          isLoading={loading}
+          actionMenu={(item: GetGraftedGrowthHistory) => (
+            <ActionMenuGrowth
+              onEdit={() => issueModal.showModal({ item: item })}
+              onDelete={() => deleteConfirmModal.showModal({ id: item.graftedPlantNoteId })}
+            />
+          )}
         />
       ) : (
         <>
@@ -160,24 +198,34 @@ function GraftedGrowthHistory() {
             <TimelineFilter dateRange={dateRange} onDateChange={handleDateChange} />
             <GrowthTimeline
               data={data}
-              idKey="graftedPlantNoteId"
-              isLoading={isLoading}
+              limitDays={limitDays}
+              isDisable={!canAddNote}
+              isLoading={isLoading && loading}
               totalIssues={totalIssues}
               onViewDetail={handleViewDetail}
               onLoadMore={() => setCurrentPage((prev) => prev + 1)}
-              onDelete={(id) => deleteConfirmModal.showModal({ id })}
+              actionMenu={(item: GetGraftedGrowthHistory) => (
+                <ActionMenuGrowth
+                  onEdit={() => issueModal.showModal({ item: item })}
+                  onDelete={() => deleteConfirmModal.showModal({ id: item.graftedPlantNoteId })}
+                />
+              )}
             />
           </Flex>
         </>
       )}
       <NewIssueModal
-        data={data[0]}
-        idKey="graftedPlantId"
-        id={graftedPlant.graftedPlantId}
-        isOpen={addIssueModal.modalState.visible}
+        data={issueModal.modalState.data?.item}
+        idKey={issueModal.modalState.data?.item ? "graftedPlantNoteId" : "graftedPlantId"}
+        id={
+          issueModal.modalState.data?.item
+            ? issueModal.modalState.data?.item.graftedPlantNoteId
+            : graftedPlant.graftedPlantId
+        }
+        isOpen={issueModal.modalState.visible}
         onClose={handleCancelConfirm}
-        onSave={handleAddNewIssue}
-        isLoading={isAdding}
+        onSave={issueModal.modalState.data?.item ? handleUpdateIssue : handleAddNewIssue}
+        isLoading={issueModal.modalState.data?.item ? isUpdating : isAdding}
       />
       {/* Confirm Delete Modal */}
       <ConfirmModal
@@ -193,7 +241,7 @@ function GraftedGrowthHistory() {
         actionType="unsaved"
         onConfirm={() => {
           cancelConfirmModal.hideModal();
-          addIssueModal.hideModal();
+          issueModal.hideModal();
         }}
         onCancel={cancelConfirmModal.hideModal}
       />

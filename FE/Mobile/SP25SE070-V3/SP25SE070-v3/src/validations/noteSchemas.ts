@@ -4,13 +4,11 @@ export const noteSchemas = {
   content: yup
     .string()
     .required("Note content is required")
-    .min(5, "Note must be at least 5 characters")
     .max(1000, "Note cannot exceed 1000 characters"),
 
   issueName: yup
     .string()
     .required("Issue name is required")
-    .min(5, "Issue name must be at least 5 characters")
     .max(100, "Issue name cannot exceed 100 characters"),
 
   images: yup

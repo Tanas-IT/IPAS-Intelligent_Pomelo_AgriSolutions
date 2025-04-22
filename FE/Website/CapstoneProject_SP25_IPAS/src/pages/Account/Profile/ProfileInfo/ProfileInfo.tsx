@@ -10,6 +10,7 @@ import style from "./ProfileInfo.module.scss";
 import { GetUser2 } from "@/payloads";
 import { userService } from "@/services";
 import { useUserStore } from "@/stores";
+import { GENDER_OPTIONS } from "@/constants";
 
 const { Title } = Typography;
 
@@ -127,8 +128,11 @@ const ProfileInfo: React.FC = () => {
 
           <Form.Item name="gender" label="Gender" className={style.formItemHalf}>
             <Radio.Group>
-              <Radio value="Male">Male</Radio>
-              <Radio value="Female">Female</Radio>
+              {GENDER_OPTIONS.map((option) => (
+                <Radio key={option.value} value={option.value}>
+                  {option.label}
+                </Radio>
+              ))}
             </Radio.Group>
           </Form.Item>
 

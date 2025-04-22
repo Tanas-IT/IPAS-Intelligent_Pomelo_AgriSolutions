@@ -290,5 +290,24 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
                 return BadRequest(response);
             }
         }
+
+        [HttpPut(APIRoutes.User.updateFCM, Name = "updateFCM")]
+        public async Task<IActionResult> UpdateFCM([FromBody] UpdateFcmTokenModel updateFcmTokenModel)
+        {
+            try
+            {
+                var result = await _userService.UpdateFcmTokenAsync(updateFcmTokenModel.Email, updateFcmTokenModel.FcmToken);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                var response = new BaseResponse()
+                {
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    Message = ex.Message
+                };
+                return BadRequest(response);
+            }
+        }
     }
 }

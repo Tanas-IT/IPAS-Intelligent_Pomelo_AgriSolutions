@@ -19,6 +19,7 @@ import {
   PlantOverview,
 } from "@/pages";
 import { plantService } from "@/services";
+import { isEmployee } from "@/utils";
 const TabPane = Tabs.TabPane;
 
 function PlantDetails() {
@@ -78,12 +79,12 @@ function PlantDetails() {
       label: <label className={style.titleTab}>Growth History</label>,
       children: <PlantGrowthHistory />,
     },
-    {
-      key: "5",
-      icon: <Icons.tool className={style.iconTab} />,
-      label: <label className={style.titleTab}>Care History</label>,
-      children: <PlantCareHistory />,
-    },
+    // {
+    //   key: "5",
+    //   icon: <Icons.tool className={style.iconTab} />,
+    //   label: <label className={style.titleTab}>Care History</label>,
+    //   children: <PlantCareHistory />,
+    // },
     {
       key: "6",
       icon: <Icons.plant className={style.iconTab} />,
@@ -96,7 +97,13 @@ function PlantDetails() {
       label: <label className={style.titleTab}>Grafted History</label>,
       children: <PlantGraftedHistory />,
     },
-  ];
+  ].filter((item) => {
+    const isEmployeeIn = isEmployee();
+    if (isEmployeeIn) {
+      return ["2", "4", "6"].includes(item.key);
+    }
+    return true;
+  });
 
   const handleBack = () => {
     if (plotId) {

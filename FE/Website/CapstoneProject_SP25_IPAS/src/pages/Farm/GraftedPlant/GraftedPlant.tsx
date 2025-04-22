@@ -11,7 +11,7 @@ import { CriteriaApplyRequest, GetGraftedPlant, GraftedPlantRequest } from "@/pa
 import { criteriaService, graftedPlantService } from "@/services";
 import { useDirtyStore } from "@/stores";
 import { FilterGraftedPlantState } from "@/types";
-import { DEFAULT_GRAFTED_PLANT_FILTERS, getOptions } from "@/utils";
+import { DEFAULT_GRAFTED_PLANT_FILTERS, getOptions, isEmployee } from "@/utils";
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import GraftedPlantFilter from "./GraftedPlantFilter";
@@ -243,7 +243,13 @@ function GraftedPlant() {
           rows={data}
           rowKey="graftedPlantCode"
           idName="graftedPlantId"
-          title={<TableTitle onSearch={handleSearch} filterContent={filterContent} noAdd={true} />}
+          title={
+            <TableTitle
+              onSearch={handleSearch}
+              filterContent={filterContent}
+              noAdd={isEmployee()}
+            />
+          }
           isOnRowEvent={true}
           onRowDoubleClick={(record) =>
             navigate(ROUTES.FARM_GRAFTED_PLANT_DETAIL(record.graftedPlantId))
