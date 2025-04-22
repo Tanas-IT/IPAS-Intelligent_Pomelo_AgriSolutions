@@ -113,6 +113,8 @@ export interface GetWorklogDetail {
   isTakeAttendance: boolean;
   redoWorkLog: RedoWorkLog;
   assignorName: string;
+  endDate: string;
+  startDate: string;
 }
 
 interface RedoWorkLog {

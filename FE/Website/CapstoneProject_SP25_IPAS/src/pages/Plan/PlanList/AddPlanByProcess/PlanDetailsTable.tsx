@@ -31,6 +31,8 @@ const PlanDetailsTable: React.FC<PlanDetailsTableProps> = ({
 }) => {
     const { styles } = useStyle();
     const [employeeMap, setEmployeeMap] = React.useState<Map<number, GetUser>>(new Map());
+    console.log("dataSource", dataSource);
+    
 
     const hasChildren = (node: DataSourceNode): node is ProcessNode | SubProcessNode => {
         return "children" in node;
@@ -168,11 +170,11 @@ const PlanDetailsTable: React.FC<PlanDetailsTableProps> = ({
                 if (record.type === "plan") {
                     return <span style={{ paddingLeft: 20 }}>{text}</span>;
                 }
-                return (
-                    <span>
-                        {text}
-                    </span>
-                );
+                if (record.type === "subProcess") {
+                    const order = record.subProcessOrder !== null ? record.subProcessOrder : "N/A";
+                    return <span>{`${text} (Sub: ${order})`}</span>;
+                }
+                return <span>{text}</span>;
             },
         },
         {
