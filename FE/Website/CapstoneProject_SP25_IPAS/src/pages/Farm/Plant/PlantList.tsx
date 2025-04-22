@@ -13,6 +13,7 @@ import {
 } from "@/components";
 import { GetPlant, PlantCriteriaApplyRequest, PlantRequest } from "@/payloads";
 import {
+  useExportFile,
   useFetchData,
   useFilters,
   useHasChanges,
@@ -158,6 +159,9 @@ function PlantList() {
     }
   };
 
+  const useHandleExport = useExportFile(plantService.exportPlants);
+  const handleExport = () => useHandleExport(filters);
+
   const handleMarkAsDead = async (plantId?: number) => {
     if (!plantId) return;
     try {
@@ -222,9 +226,9 @@ function PlantList() {
               onSearch={handleSearch}
               filterContent={filterContent}
               addLabel="Add New Plant"
-              importLabel="Import Plants"
               onAdd={() => formModal.showModal()}
               onImport={() => importModal.showModal()}
+              onExport={handleExport}
               noAdd={isEmployee()}
               noImport={isEmployee()}
             />

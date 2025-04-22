@@ -92,6 +92,8 @@ const PlantFilter = ({ filters, updateFilters, onClear, onApply }: FilterProps) 
   const isFilterEmpty = !(
     filters.plantingDateFrom ||
     filters.plantingDateTo ||
+    filters.passedDateFrom ||
+    filters.passedDateTo ||
     (filters.landRowIds && filters.landRowIds.length > 0) ||
     selectedTreeValues.length > 0 ||
     (filters.cultivarIds && filters.cultivarIds.length > 0) ||
@@ -122,26 +124,26 @@ const PlantFilter = ({ filters, updateFilters, onClear, onApply }: FilterProps) 
             updateFilters("plantingDateTo", dates?.[1] ? dates[1].format("YYYY-MM-DD") : "");
           }}
         />
-
-        <FormFieldFilter
-          label="Plant Location"
-          fieldType="treeSelect"
-          value={selectedTreeValues}
-          treeData={treeData}
-          onChange={handleTreeSelectChange}
-          loadData={handleLoadData}
-        />
-
-        <FormFieldFilter
-          label="Health Status"
-          fieldType="select"
-          value={filters.healthStatus}
-          options={Object.values(HEALTH_STATUS).map((status) => ({
-            value: status,
-            label: status,
-          }))}
-          onChange={(value) => updateFilters("healthStatus", value)}
-        />
+        <Flex gap={20}>
+          <FormFieldFilter
+            label="Plant Location"
+            fieldType="treeSelect"
+            value={selectedTreeValues}
+            treeData={treeData}
+            onChange={handleTreeSelectChange}
+            loadData={handleLoadData}
+          />
+          <FormFieldFilter
+            label="Health Status"
+            fieldType="select"
+            value={filters.healthStatus}
+            options={Object.values(HEALTH_STATUS).map((status) => ({
+              value: status,
+              label: status,
+            }))}
+            onChange={(value) => updateFilters("healthStatus", value)}
+          />
+        </Flex>
 
         <Flex className={style.row}>
           <FormFieldFilter
@@ -160,6 +162,16 @@ const PlantFilter = ({ filters, updateFilters, onClear, onApply }: FilterProps) 
             onChange={(value) => updateFilters("growthStageIds", value)}
           />
         </Flex>
+
+        <FormFieldFilter
+          label="Passed Date"
+          fieldType="date"
+          value={[filters.passedDateFrom, filters.passedDateTo]}
+          onChange={(dates) => {
+            updateFilters("passedDateFrom", dates?.[0] ? dates[0].format("YYYY-MM-DD") : "");
+            updateFilters("passedDateTo", dates?.[1] ? dates[1].format("YYYY-MM-DD") : "");
+          }}
+        />
 
         <FormFieldFilter
           label="Passed for Grafting"

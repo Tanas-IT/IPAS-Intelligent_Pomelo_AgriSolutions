@@ -1,12 +1,4 @@
-import { Images } from "@/assets";
-import {
-  GetFarmDocuments,
-  GetFarmInfo,
-  GetPlant,
-  LandPlotRequest,
-  GetPlantDetail,
-} from "@/payloads";
-import { GetPlan } from "@/payloads/plan";
+import { GetFarmInfo, LandPlotRequest, GetPlantDetail } from "@/payloads";
 import {
   CoordsState,
   FilterConfigTypeState,
@@ -126,8 +118,8 @@ export const DEFAULT_FARM_FILTERS: FilterFarmState = {
 };
 
 export const DEFAULT_PAYMENT_HISTORY_FILTERS: FilterPaymentHistoryState = {
-  createDateFrom: "",
-  createDateTo: "",
+  orderDateFrom: "",
+  orderDateTo: "",
   enrolledDateFrom: "",
   enrolledDateTo: "",
   expiredDateFrom: "",
@@ -179,6 +171,8 @@ export const DEFAULT_CRITERIA_FILTERS: FilterCriteriaState = {
 export const DEFAULT_PLANT_FILTERS: FilterPlantState = {
   plantingDateFrom: "",
   plantingDateTo: "",
+  passedDateFrom: "",
+  passedDateTo: "",
   landPlotIds: [] as string[],
   landRowIds: [] as string[],
   cultivarIds: [] as string[],

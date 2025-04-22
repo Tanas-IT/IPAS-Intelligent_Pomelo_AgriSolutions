@@ -8,7 +8,7 @@ import {
   GetData,
 } from "@/payloads";
 import { CropResponse, GetCrop, GetLandPlotOfCrop } from "@/payloads";
-import { buildParams } from "@/utils";
+import { buildParams, extractFilenameFromHeader } from "@/utils";
 
 export const getCrops = async (
   currentPage?: number,
@@ -142,4 +142,25 @@ export const getLandPlotOfCrop = async (cropId: number) => {
   const res = await axiosAuth.axiosJsonRequest.get(`crops/get-landPlot-of-crop/${cropId}`);
   const apiResponse = res.data as ApiResponse<GetLandPlotOfCrop[]>;
   return apiResponse;
+};
+
+export const exportCrops = async (
+  additionalParams?: Record<string, any>,
+): Promise<{ blob: Blob; filename: string }> => {
+  const params = buildParams(
+    undefined,
+    undefined,
+    undefined,
+    undefined,
+    undefined,
+    additionalParams,
+  );
+  const res = await axiosAuth.axiosJsonRequest.get(`crops/export-csv`, {
+    params,
+    responseType: "blob",
+  });
+
+  const filename = extractFilenameFromHeader(res.headers["content-disposition"]);
+
+  return { blob: res.data, filename };
 };

@@ -40,21 +40,12 @@ export const EmployeeColumns: TableColumn<GetEmployee>[] = [
     header: "Skills",
     field: "skills",
     accessor: (item) => {
-      console.log("Full item data:", item);
-      
       return (
-        <Flex gap={4} wrap="wrap">
+        <Flex gap={4} wrap="wrap" justify="center">
           {item.skills?.length ? (
             item.skills.map((skill, index) => (
-              <Tooltip 
-                key={index} 
-                title={`Score: ${skill.scoreOfSkill}`}
-                color="blue"
-              >
-                <Tag 
-                  color="geekblue" 
-                  style={{ margin: 0, cursor: 'pointer' }}
-                >
+              <Tooltip key={index} title={`Score: ${skill.scoreOfSkill}`} color="blue">
+                <Tag color="geekblue" style={{ margin: 0, cursor: "pointer" }}>
                   {skill.skillName}: {skill.scoreOfSkill}
                 </Tag>
               </Tooltip>

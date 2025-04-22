@@ -11,6 +11,7 @@ type TableTitleProps = {
   importLabel?: string;
   onAdd?: () => void;
   onImport?: () => void;
+  onExport?: () => void;
   noAdd?: boolean;
   noFilter?: boolean;
   noImport?: boolean;
@@ -27,6 +28,7 @@ const TableTitle = ({
   importLabel = "Import",
   onAdd,
   onImport,
+  onExport,
   noAdd = false,
   noFilter = false,
   noImport = true,
@@ -40,7 +42,7 @@ const TableTitle = ({
         <Searchbar onSearch={onSearch} />
         {!noFilter && (
           <Popover
-            zIndex={1}
+            zIndex={9}
             content={filterContent}
             trigger="click"
             placement="bottomRight"
@@ -58,6 +60,9 @@ const TableTitle = ({
         {extraContent && <> {extraContent}</>}
       </Flex>
       <Flex className={`${style.sectionRight} ${style[sectionRightSize]}`} gap={20}>
+        {onExport && (
+          <CustomButton label="Export" icon={<Icons.download />} handleOnClick={onExport} />
+        )}
         {!noImport && (
           <CustomButton label={importLabel} icon={<Icons.upload />} handleOnClick={onImport} />
         )}

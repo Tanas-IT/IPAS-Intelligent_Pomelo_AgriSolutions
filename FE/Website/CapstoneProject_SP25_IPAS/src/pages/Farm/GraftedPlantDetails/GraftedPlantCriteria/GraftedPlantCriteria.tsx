@@ -9,7 +9,7 @@ import {
 } from "@/components";
 import { useEffect, useState } from "react";
 import { useDirtyStore, useGraftedPlantStore } from "@/stores";
-import { useModal, useStyle } from "@/hooks";
+import { useExportFile, useModal, useStyle } from "@/hooks";
 import { criteriaService } from "@/services";
 import {
   CriteriaApplyRequest,
@@ -22,20 +22,22 @@ import { toast } from "react-toastify";
 import { GraftedPlantPanelTitle } from "./GraftedPlantPanelTitle";
 
 function GraftedPlantCriteria() {
+  const { graftedPlant } = useGraftedPlantStore();
+  if (!graftedPlant) return;
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isFirstLoad, setIsFirstLoad] = useState<boolean>(true);
   const [initialCriteriaGroups, setInitialCriteriaGroups] = useState<GetCriteriaObject[]>([]);
   const [criteriaGroups, setCriteriaGroups] = useState<GetCriteriaObject[]>([]);
   const [initialCriteria, setInitialGroups] = useState<Record<number, number>>({});
   const [updatedCriteria, setUpdatedCriteria] = useState<Record<number, number>>({});
-  const { graftedPlant } = useGraftedPlantStore();
   const { styles } = useStyle();
   const { isDirty } = useDirtyStore();
   const criteriaModal = useModal<{ id?: number }>();
   const cancelConfirmModal = useModal();
   const deleteConfirmModal = useModal<{ id: number }>();
 
-  if (!graftedPlant) return;
+  const useHandleExport = useExportFile(criteriaService.exportCriteriaByObject);
+  const handleExport = () => useHandleExport("graftedPlantID", graftedPlant.graftedPlantId);
 
   const fetchCriteriaGraftedPlant = async () => {
     setIsLoading(true);
@@ -179,6 +181,7 @@ function GraftedPlantCriteria() {
     <Flex className={style.contentDetailWrapper}>
       <GraftedPlantSectionHeader
         onApplyCriteria={() => criteriaModal.showModal({ id: graftedPlant?.graftedPlantId })}
+        onExport={handleExport}
       />
       <Divider className={style.divider} />
       {criteriaGroups.length > 0 ? (

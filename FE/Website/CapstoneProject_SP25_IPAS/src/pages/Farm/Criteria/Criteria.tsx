@@ -1,16 +1,16 @@
-import React, { useEffect, useState } from "react";
+import { useEffect } from "react";
 import { List, Collapse, Flex, Tag } from "antd";
 import style from "./Criteria.module.scss";
 import {
   ActionMenuCriteria,
   ConfirmModal,
-  LoadingSkeleton,
   NavigationDot,
   SectionTitle,
   TableTitle,
 } from "@/components";
 import { DEFAULT_CRITERIA_FILTERS, formatDate, getCriteriaOptions } from "@/utils";
 import {
+  useExportFile,
   useFetchData,
   useFilters,
   useHasChanges,
@@ -128,6 +128,9 @@ function CriteriaList() {
     onSuccess: () => formModal.hideModal(),
   });
 
+  const useHandleExport = useExportFile(criteriaService.exportCriteria);
+  const handleExport = () => useHandleExport(filters);
+
   const filterContent = (
     <CriteriaFilter
       filters={filters}
@@ -146,6 +149,7 @@ function CriteriaList() {
           filterContent={filterContent}
           addLabel="Add New Criteria"
           onAdd={() => formModal.showModal()}
+          onExport={handleExport}
         />
       </Flex>
       <Flex className={style.table}>
