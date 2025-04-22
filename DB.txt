@@ -2361,7 +2361,7 @@ VALUES
 -- 1. Insert Process: Quy trình mẫu chăm sóc cây bưởi bị sâu vẽ bùa
 -- =============================================
 INSERT INTO Process (ProcessCode, ProcessName, isDefault, isActive, isSample, CreateDate, IsDeleted, FarmID, MasterTypeID, PlanTargetInProcess)
-VALUES (N'PR001', N'Quy trình mẫu - Chăm sóc cây bưởi bị sâu vẽ bùa', 1, 1, 1, GETDATE(), 0, 1,15, 1);
+VALUES (N'PR001', N'Quy trình mẫu - Chăm sóc cây bưởi bị sâu vẽ bùa', 1, 1, 0, GETDATE(), 0, 1,15, 1);
 
 DECLARE @ProcessId INT = SCOPE_IDENTITY();
 
@@ -2372,8 +2372,8 @@ INSERT INTO SubProcess (SubProcessCode, SubProcessName, ProcessID, [Order], isDe
 VALUES 
 (N'SP001', N'Khảo sát và chẩn đoán sâu bệnh', @ProcessId, 1, 1, 1, GETDATE(), 0, 1),
 (N'SP002', N'Tỉa cành và vệ sinh vườn', @ProcessId, 2, 1, 1, GETDATE(), 0, 1),
-(N'SP003', N'Phun thuốc trị sâu vẽ bùa', @ProcessId, 3, 1, 1, GETDATE(), 0, 1),
-(N'SP004', N'Theo dõi và đánh giá hiệu quả', @ProcessId, 4, 1, 1, GETDATE(), 0, 1),
+--(N'SP003', N'Phun thuốc trị sâu vẽ bùa', @ProcessId, 3, 1, 1, GETDATE(), 0, 1),
+--(N'SP004', N'Theo dõi và đánh giá hiệu quả', @ProcessId, 4, 1, 1, GETDATE(), 0, 1),
 (N'SP005', N'Bón phân hồi phục', @ProcessId, 5, 1, 1, GETDATE(), 0, 1);
 
 -- =============================================
@@ -2381,16 +2381,16 @@ VALUES
 -- =============================================
 DECLARE @SubProcess1 INT = (SELECT TOP 1 SubProcessID FROM SubProcess WHERE SubProcessCode = 'SP001' ORDER BY SubProcessID ASC);
 DECLARE @SubProcess2 INT = (SELECT TOP 1 SubProcessID FROM SubProcess WHERE SubProcessCode = 'SP002' ORDER BY SubProcessID ASC);
-DECLARE @SubProcess3 INT = (SELECT TOP 1 SubProcessID FROM SubProcess WHERE SubProcessCode = 'SP003' ORDER BY SubProcessID ASC);
-DECLARE @SubProcess4 INT = (SELECT TOP 1 SubProcessID FROM SubProcess WHERE SubProcessCode = 'SP004' ORDER BY SubProcessID ASC);
+--DECLARE @SubProcess3 INT = (SELECT TOP 1 SubProcessID FROM SubProcess WHERE SubProcessCode = 'SP003' ORDER BY SubProcessID ASC);
+--DECLARE @SubProcess4 INT = (SELECT TOP 1 SubProcessID FROM SubProcess WHERE SubProcessCode = 'SP004' ORDER BY SubProcessID ASC);
 DECLARE @SubProcess5 INT = (SELECT TOP 1 SubProcessID FROM SubProcess WHERE SubProcessCode = 'SP005' ORDER BY SubProcessID ASC);
 
 INSERT INTO [Plan] (PlanCode, PlanName, Status, CreateDate, StartDate, EndDate, IsActive, SubProcessID, FarmID, IsSample)
 VALUES
 (N'PL002', N'Khảo sát ban đầu', N'Active', GETDATE(), NULL, NULL, 1, @SubProcess1, 1, 1),
 (N'PL003', N'Tỉa và vệ sinh', N'Active', GETDATE(), NULL, NULL, 1, @SubProcess2, 1,1 ),
-(N'PL004', N'Phun thuốc trị sâu vẽ bùa lần 1', N'Active', GETDATE(), NULL, NULL, 1, @SubProcess3, 1, 1 ),
-(N'PL005', N'Theo dõi sau phun', N'Active', GETDATE(), NULL, NULL, 1, @SubProcess4, 1, 1),
+--(N'PL004', N'Phun thuốc trị sâu vẽ bùa lần 1', N'Active', GETDATE(), NULL, NULL, 1, @SubProcess3, 1, 1 ),
+--(N'PL005', N'Theo dõi sau phun', N'Active', GETDATE(), NULL, NULL, 1, @SubProcess4, 1, 1),
 (N'PL006', N'Bón phân khôi phục', N'Active', GETDATE(), NULL, NULL, 1, @SubProcess5, 1, 1);
 GO
 
@@ -2470,3 +2470,143 @@ VALUES
 (6, 1, 17, 9),
 (6, 1, 18, 5),
 (6, 1, 19, 3);
+
+GO
+-- ==========================================
+-- 1. Setup Thông Số Cần Thiết
+-- ==========================================
+DECLARE @TodayDate DATE = CAST(GETDATE() AS DATE);
+DECLARE @BaseStartDate DATE = DATEADD(DAY, -1, @TodayDate);
+DECLARE @DaysPerPlan INT = 2;
+DECLARE @FarmID INT = 1;
+DECLARE @TemplateProcessId INT;
+
+-- Lấy ID Process mẫu
+SELECT TOP 1 @TemplateProcessId = ProcessID 
+FROM Process
+WHERE ProcessCode = 'PR001'; -- Quy trình mẫu Chăm sóc bưởi
+
+-- ==========================================
+-- 2. Khai báo cursor duyệt SubProcess
+-- ==========================================
+DECLARE @SubProcessID INT;
+DECLARE SubProcessCursor CURSOR FOR
+SELECT SubProcessID
+FROM SubProcess
+WHERE ProcessID = @TemplateProcessId
+ORDER BY [Order] ASC;
+
+OPEN SubProcessCursor;
+FETCH NEXT FROM SubProcessCursor INTO @SubProcessID;
+
+WHILE @@FETCH_STATUS = 0
+BEGIN
+    -- ==========================================
+    -- 3. Insert Plan thực tế
+    -- ==========================================
+    INSERT INTO [Plan] (
+        Status, PlanCode, PlanName, CreateDate, StartDate, EndDate, 
+        isActive, SubProcessID, FarmID, IsSample
+    )
+    VALUES (
+        'Active', 
+        CONCAT('PLAN_', FORMAT(GETDATE(), 'yyyyMMdd_HHmmss')), 
+        (SELECT TOP 1 SubProcessName FROM SubProcess WHERE SubProcessID = @SubProcessID),
+        GETDATE(), 
+        @BaseStartDate, 
+        DATEADD(DAY, @DaysPerPlan - 1, @BaseStartDate),
+        1, 
+        @SubProcessID, 
+        @FarmID, 
+        0
+    );
+
+    DECLARE @NewPlanID INT = SCOPE_IDENTITY();
+
+    -- ==========================================
+    -- 4. Insert CarePlanSchedule cho Plan
+    -- ==========================================
+    DECLARE @StartTime TIME = '07:30:00';
+    DECLARE @EndTime TIME = '10:30:00';
+
+    INSERT INTO CarePlanSchedule (
+        Status, CarePlanID, StartTime, EndTime, CustomDates, FarmID
+    )
+    VALUES (
+        'Active', @NewPlanID, @StartTime, @EndTime, 
+        CONCAT('["', FORMAT(@BaseStartDate, 'yyyy/MM/dd'), '","', FORMAT(DATEADD(DAY,1,@BaseStartDate), 'yyyy/MM/dd'), '"]'),
+        @FarmID
+    );
+
+    DECLARE @ScheduleID INT = SCOPE_IDENTITY();
+
+    -- ==========================================
+    -- 5. Insert WorkLog cho từng ngày trong khoảng 2 ngày
+    -- ==========================================
+    DECLARE @LoopDate DATE = @BaseStartDate;
+    WHILE @LoopDate <= DATEADD(DAY, @DaysPerPlan - 1, @BaseStartDate)
+    BEGIN
+        DECLARE @WorkLogStatus NVARCHAR(50);
+        IF @LoopDate < @TodayDate
+            SET @WorkLogStatus = 'Done';
+        ELSE IF @LoopDate = @TodayDate
+            SET @WorkLogStatus = 'In Progress';
+        ELSE
+            SET @WorkLogStatus = 'Not Started';
+
+        INSERT INTO WorkLog (
+            WorkLogCode, WorkLogName, Status, [Date], IsConfirm, 
+            ScheduleID, ActualStartTime, ActualEndTime
+        )
+        VALUES (
+            CONCAT('WL_', FORMAT(GETDATE(), 'yyyyMMdd_HHmmss')), 
+            CONCAT(N'Công việc thực hiện ngày ', FORMAT(@LoopDate, 'yyyy/MM/dd')),
+            @WorkLogStatus, 
+            @LoopDate, 
+            0, 
+            @ScheduleID, 
+            @StartTime, 
+            @EndTime
+        );
+
+        DECLARE @WorkLogID INT = SCOPE_IDENTITY();
+
+        -- ==========================================
+        -- 6. Insert UserWorkLog: 2 nhân sự farm làm chung
+        -- ==========================================
+        DECLARE @UserID1 INT, @UserID2 INT;
+
+        SELECT TOP 1 @UserID1 = uf.UserId
+        FROM UserFarm uf
+        WHERE uf.RoleId = 5 AND uf.FarmId = @FarmID;
+
+        SELECT TOP 1 @UserID2 = uf.UserId
+        FROM UserFarm uf
+        WHERE uf.RoleId = 5 AND uf.FarmId = @FarmID AND uf.UserId <> @UserID1;
+
+        INSERT INTO UserWorkLog (WorkLogID, UserID, IsReporter, CreateDate)
+        VALUES 
+        (@WorkLogID, @UserID1, 1, GETDATE()),
+        (@WorkLogID, @UserID2, 0, GETDATE());
+
+        SET @LoopDate = DATEADD(DAY, 1, @LoopDate);
+    END
+
+    -- ==========================================
+    -- 7. Insert PlanTarget (giả sử PlantID = 1 và 2)
+    -- ==========================================
+    INSERT INTO PlanTarget (PlanID, PlantID)
+    VALUES
+    (@NewPlanID, 1),
+    (@NewPlanID, 2);
+
+    -- ==========================================
+    -- 8. Move BaseStartDate cho Plan kế tiếp
+    -- ==========================================
+    SET @BaseStartDate = DATEADD(DAY, @DaysPerPlan, @BaseStartDate);
+
+    FETCH NEXT FROM SubProcessCursor INTO @SubProcessID;
+END
+
+CLOSE SubProcessCursor;
+DEALLOCATE SubProcessCursor;

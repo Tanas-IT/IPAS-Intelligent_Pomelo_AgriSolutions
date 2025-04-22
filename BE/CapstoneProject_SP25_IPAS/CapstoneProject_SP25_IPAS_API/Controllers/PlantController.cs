@@ -486,6 +486,17 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
         //[FarmExpired]
         public async Task<IActionResult> ExportNotes([FromQuery] GetPlantPaginRequest exportRequest)
         {
+            if (!exportRequest.farmId.HasValue)
+                exportRequest.farmId = _jwtTokenService.GetFarmIdFromToken();
+            if (!exportRequest.farmId.HasValue)
+            {
+                return BadRequest(new BaseResponse
+                {
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    IsSuccess = false,
+                    Message = "Farm Id is require"
+                });
+            }
             var result = await _plantService.ExportExcel(exportRequest);
             if (result.StatusCode != 200)
                 return Ok(result);
