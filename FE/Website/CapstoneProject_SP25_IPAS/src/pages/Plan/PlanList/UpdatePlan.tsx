@@ -36,6 +36,7 @@ import {
     masterTypeService,
     planService,
     processService,
+    worklogService,
 } from "@/services";
 import { toast } from "react-toastify";
 import { useLandPlotOptions, useGraftedPlantOptions, usePlantOfRowOptions, usePlantLotOptions } from "@/hooks";
@@ -44,6 +45,7 @@ import { SelectOption } from "@/types";
 import UpdatePlanTarget from "./UpdatePlanTarget";
 import customParseFormat from 'dayjs/plugin/customParseFormat';
 import { GetPlan, UpdatePlanRequest } from "@/payloads";
+import { EmployeeWithSkills } from "@/payloads/worklog";
 
 dayjs.extend(isBetween);
 dayjs.extend(customParseFormat);
@@ -64,11 +66,11 @@ const UpdatePlan = () => {
     const [isFormDirty, setIsFormDirty] = useState(false);
     const [selectedIds, setSelectedIds] = useState<number[]>([]);
     const [selectedLandPlot, setSelectedLandPlot] = useState<number | null>(null);
-    const [selectedEmployees, setSelectedEmployees] = useState<EmployeeType[]>([]);
+    const [selectedEmployees, setSelectedEmployees] = useState<EmployeeWithSkills[]>([]);
     const [selectedReporter, setSelectedReporter] = useState<number | null>(null);
     const [processFarmOptions, setProcessFarmOptions] = useState<OptionType<number>[]>([]);
     const [workTypeOptions, setWorkTypeOptions] = useState<OptionType<number | string>[]>([]);
-    const [employee, setEmployee] = useState<EmployeeType[]>([]);
+    const [employee, setEmployee] = useState<EmployeeWithSkills[]>([]);
     const [assignorId, setAssignorId] = useState<number>();
     const [frequency, setFrequency] = useState<string>("none");
     const [customDates, setCustomDates] = useState<Dayjs[]>([]);
@@ -533,7 +535,11 @@ const UpdatePlan = () => {
             setIsLoading(true);
             try {
                 setProcessFarmOptions(await fetchProcessesOfFarm(farmId, true));
-                setEmployee(await fetchUserInfoByRole("User"));
+                const response = await worklogService.getEmployeesByWorkSkill(Number(farmId));
+                    if (response.statusCode === 200) {
+                
+                      setEmployee(response.data);
+                    }
 
                 if (id) {
                     const result = await planService.getPlanDetail(id);
@@ -942,7 +948,7 @@ const UpdatePlan = () => {
                                 multiple
                                 value={customDates}
                                 onChange={handleDateChange}
-                                disabledDate={(current) => current && current < moment().endOf("day")}
+                                disabledDate={(current) => current && current.isBefore(dayjs().endOf("day"))}
                             />
                         </Form.Item>
                     )}

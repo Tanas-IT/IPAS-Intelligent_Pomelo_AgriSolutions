@@ -70,7 +70,7 @@ const TaskAssignmentModal: React.FC<TaskAssignmentModalProps> = ({
                     Cancel
                 </Button>,
                 <Button key="save" type="primary" onClick={handleSave}>
-                    Savee
+                    Save
                 </Button>,
             ]}
         >

@@ -168,11 +168,11 @@ const PlanDetailsTable: React.FC<PlanDetailsTableProps> = ({
                 if (record.type === "plan") {
                     return <span style={{ paddingLeft: 20 }}>{text}</span>;
                 }
-                return (
-                    <span>
-                        {text}
-                    </span>
-                );
+                if (record.type === "subProcess") {
+                    const order = record.subProcessOrder !== null ? record.subProcessOrder : "N/A";
+                    return <span>{`${text} (Sub: ${order})`}</span>;
+                }
+                return <span>{text}</span>;
             },
         },
         {

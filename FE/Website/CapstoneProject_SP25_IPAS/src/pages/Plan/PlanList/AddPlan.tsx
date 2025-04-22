@@ -40,6 +40,7 @@ import {
   planService,
   plantLotService,
   processService,
+  worklogService,
 } from "@/services";
 import { toast } from "react-toastify";
 import { PlanRequest } from "@/payloads/plan/requests/PlanRequest";
@@ -52,6 +53,7 @@ import isBetween from "dayjs/plugin/isBetween";
 import { SelectOption } from "@/types";
 import usePlantLotOptions from "@/hooks/usePlantLotOptions";
 import { Rule } from "antd/es/form";
+import { EmployeeWithSkills } from "@/payloads/worklog";
 
 dayjs.extend(isBetween);
 
@@ -72,11 +74,11 @@ const AddPlan = () => {
   const [isFormDirty, setIsFormDirty] = useState(false);
   const [selectedIds, setSelectedIds] = useState<number[]>([]);
   const [selectedLandPlot, setSelectedLandPlot] = useState<number | null>(null);
-  const [selectedEmployees, setSelectedEmployees] = useState<EmployeeType[]>([]);
+  const [selectedEmployees, setSelectedEmployees] = useState<EmployeeWithSkills[]>([]);
   const [selectedReporter, setSelectedReporter] = useState<number | null>(null);
   const [errorMessage, setErrorMessage] = useState("");
   const [processFarmOptions, setProcessFarmOptions] = useState<OptionType<number>[]>([]);
-  const [employee, setEmployee] = useState<EmployeeType[]>([]);
+  const [employee, setEmployee] = useState<EmployeeWithSkills[]>([]);
   const [assignorId, setAssignorId] = useState<number>();
   const [frequency, setFrequency] = useState<string>("none");
   const [customDates, setCustomDates] = useState<Dayjs[]>([]); // Frequency: none
@@ -119,22 +121,6 @@ const AddPlan = () => {
       setLandPlotOfCropOptions([]);
     }
   }, [selectedCrop]);
-
-  // useEffect(() => {
-  //   form.setFieldValue("masterTypeId", undefined);
-  //   if (selectedGrowthStage && selectedGrowthStage.length > 0) {
-  //     planService.filterTypeWorkByGrowthStage(selectedGrowthStage).then((data) => {
-  //       setProcessTypeOptions(
-  //         data.map((item) => ({
-  //           value: item.masterTypeId,
-  //           label: item.masterTypeName,
-  //         }))
-  //       );
-  //     });
-  //   } else {
-  //     setProcessTypeOptions([]);
-  //   }
-  // }, [selectedGrowthStage]);
 
   useEffect(() => {
     const updateProcessFarmOptions = async () => {
@@ -546,7 +532,11 @@ const AddPlan = () => {
 
   const fetchData = async () => {
     setProcessFarmOptions(await fetchProcessesOfFarm(farmId, true));
-    setEmployee(await fetchUserInfoByRole("User"));
+    const response = await worklogService.getEmployeesByWorkSkill(Number(farmId));
+    if (response.statusCode === 200) {
+
+      setEmployee(response.data);
+    }
     // setPlantLotOptions((await usePlantLotOptions()).options);
     const plantLots = await plantLotService.getPlantLotSelected();
     setPlantLotOptions(plantLots)
@@ -921,7 +911,7 @@ const AddPlan = () => {
                 multiple
                 value={customDates}
                 onChange={handleDateChange}
-                disabledDate={(current) => current && current < moment().endOf("day")}
+                disabledDate={(current) => current && current.isBefore(dayjs().endOf("day"))}
               />
             </Form.Item>
           )}
@@ -929,8 +919,6 @@ const AddPlan = () => {
 
         <Divider className={style.divider} />
         <PlanTarget
-          // landPlotOptions={landPlots}
-          // landRows={landRowOptions}
           plants={plantsOptions}
           plantLots={plantLotOptions}
           graftedPlants={graftedPlantsOptions}
