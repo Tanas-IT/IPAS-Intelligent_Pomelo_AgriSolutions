@@ -11,6 +11,7 @@ import {
 } from "@/components";
 import { CropRequest, GetCrop2 } from "@/payloads";
 import {
+  useExportFile,
   useFetchData,
   useFilters,
   useHasChanges,
@@ -119,6 +120,9 @@ function CropList() {
     onSuccess: () => formModal.hideModal(),
   });
 
+  const useHandleExport = useExportFile(cropService.exportCrops);
+  const handleExport = () => useHandleExport();
+
   const filterContent = (
     <CropFilter
       filters={filters}
@@ -143,6 +147,7 @@ function CropList() {
               filterContent={filterContent}
               addLabel="Add New Crop"
               onAdd={() => formModal.showModal()}
+              onExport={handleExport}
             />
           }
           isOnRowEvent={true}

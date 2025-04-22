@@ -1,4 +1,5 @@
-﻿using CapstoneProject_SP25_IPAS_BussinessObject.Entities;
+﻿using CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.PlanModel;
+using CapstoneProject_SP25_IPAS_BussinessObject.Entities;
 using CapstoneProject_SP25_IPAS_Repository.IRepository;
 using Microsoft.EntityFrameworkCore;
 using System;
@@ -285,6 +286,25 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
             return await _context.Plans
                 .Where(p => p.SubProcessId.HasValue && subProcessIds.Contains(p.SubProcessId.Value))
                 .ToListAsync();
+        }
+        public async Task<Plan> GetPlanWithEmployeeSkill(int planId)
+        {
+            var result = await _context.Plans
+         .Include(p => p.CarePlanSchedule)
+             .ThenInclude(cps => cps.WorkLogs)
+                 .ThenInclude(wl => wl.UserWorkLogs)
+                     .ThenInclude(uwl => uwl.User)
+                         .ThenInclude(u => u.UserFarms)
+                             .ThenInclude(uf => uf.EmployeeSkills)
+                                 .ThenInclude(es => es.WorkType)
+         .FirstOrDefaultAsync(p => p.PlanId == planId);
+            return result;
+        }
+
+        public async Task<Plan> GetPlanByWorkLogId(int workLogId)
+        {
+            var getPlan = await _context.Plans.Where(x => x.CarePlanSchedule.WorkLogs.Any(y => y.WorkLogId == workLogId)).FirstOrDefaultAsync();
+            return getPlan;
         }
     }
 }

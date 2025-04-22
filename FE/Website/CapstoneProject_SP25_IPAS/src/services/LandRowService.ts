@@ -1,13 +1,6 @@
 import { axiosAuth } from "@/api";
-import {
-  ApiResponse,
-  GetData,
-  GetLandRow,
-  GetLandRowSelected,
-  landRowDetail,
-  landRowSimulate,
-} from "@/payloads";
-import { buildParams } from "@/utils";
+import { ApiResponse, GetData, GetLandRow, GetLandRowSelected, landRowDetail } from "@/payloads";
+import { buildParams, extractFilenameFromHeader } from "@/utils";
 
 export const getLandRows = async (
   currentPage?: number,
@@ -55,4 +48,25 @@ export const getPlantInRow = async (rowId: number): Promise<ApiResponse<landRowD
   const res = await axiosAuth.axiosJsonRequest.get(`landRows/${rowId}`);
   const apiResponse = res.data as ApiResponse<landRowDetail>;
   return apiResponse;
+};
+
+export const exportLandRows = async (
+  additionalParams?: Record<string, any>,
+): Promise<{ blob: Blob; filename: string }> => {
+  const params = buildParams(
+    undefined,
+    undefined,
+    undefined,
+    undefined,
+    undefined,
+    additionalParams,
+  );
+  const res = await axiosAuth.axiosJsonRequest.get(`landRows/export-csv`, {
+    params,
+    responseType: "blob",
+  });
+
+  const filename = extractFilenameFromHeader(res.headers["content-disposition"]);
+
+  return { blob: res.data, filename };
 };

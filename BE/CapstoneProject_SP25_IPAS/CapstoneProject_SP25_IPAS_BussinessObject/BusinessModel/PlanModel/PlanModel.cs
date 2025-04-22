@@ -1,4 +1,5 @@
 ﻿using CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel;
+using CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.UserBsModels;
 using CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.WorkLogModel;
 using CapstoneProject_SP25_IPAS_BussinessObject.Entities;
 using System;
@@ -75,6 +76,7 @@ namespace CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.PlanModel
         public string? DayOfWeek { get; set; }
         public string? DayOfMonth { get; set; }
         public string? CustomDates { get; set; }
+        public List<EmployeeWithSkills>? EmployeeWithSkills { get; set; }
         public TimeSpan? StartTime { get; set; }
 
         public TimeSpan? EndTime { get; set; }

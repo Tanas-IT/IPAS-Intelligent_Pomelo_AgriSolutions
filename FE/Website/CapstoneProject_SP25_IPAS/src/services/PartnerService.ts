@@ -1,6 +1,6 @@
 import { axiosAuth } from "@/api";
 import { ApiResponse, GetData, GetPartner, GetPartnerSelected, PartnerRequest } from "@/payloads";
-import { buildParams } from "@/utils";
+import { buildParams, extractFilenameFromHeader } from "@/utils";
 
 export const getPartners = async (
   currentPage?: number,
@@ -49,4 +49,25 @@ export const getSelectPartner = async (
   const res = await axiosAuth.axiosJsonRequest.get(`partners/get-for-selected?Major=${major}`);
   const apiResponse = res.data as ApiResponse<GetPartnerSelected[]>;
   return apiResponse;
+};
+
+export const exportPartners = async (
+  additionalParams?: Record<string, any>,
+): Promise<{ blob: Blob; filename: string }> => {
+  const params = buildParams(
+    undefined,
+    undefined,
+    undefined,
+    undefined,
+    undefined,
+    additionalParams,
+  );
+  const res = await axiosAuth.axiosJsonRequest.get(`partners/export-csv`, {
+    params,
+    responseType: "blob",
+  });
+
+  const filename = extractFilenameFromHeader(res.headers["content-disposition"]);
+
+  return { blob: res.data, filename };
 };

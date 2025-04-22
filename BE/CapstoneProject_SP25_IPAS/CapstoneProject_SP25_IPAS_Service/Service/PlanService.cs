@@ -172,7 +172,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         newPlan.StartDate = createPlanModel.StartDate.Add(TimeSpan.Parse(createPlanModel.StartTime));
                         newPlan.EndDate = createPlanModel.EndDate.Add(TimeSpan.Parse(createPlanModel.EndTime));
                     }
-                    if (createPlanModel.Frequency != null && createPlanModel.Frequency.ToLower().Equals("none") && createPlanModel.CustomDates != null && createPlanModel.CustomDates.Count < 2)
+                    if (createPlanModel.Frequency != null && createPlanModel.Frequency.ToLower().Equals("none") && createPlanModel.CustomDates != null && createPlanModel.CustomDates.Any())
                     {
                         newPlan.StartDate = createPlanModel.CustomDates.First().Add(TimeSpan.Parse(createPlanModel.StartTime));
                         newPlan.EndDate = createPlanModel.CustomDates.First().Add(TimeSpan.Parse(createPlanModel.EndTime));
@@ -862,11 +862,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             try
             {
                 string key = CacheKeyConst.PLAN + $"{planId}";
-                var cachedData = await _responseCacheService.GetCacheObjectAsync<BusinessResult<PlanModel>>(key);
-                if (cachedData != null)
-                {
-                    return new BusinessResult(cachedData.StatusCode, cachedData.Message, cachedData.Data);
-                }
+                
                 var getPlan = await _unitOfWork.PlanRepository.GetPlanByInclude(planId);
                 if (getPlan != null)
                 {
@@ -875,7 +871,34 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     // Ánh xạ danh sách PlanTarget thành PlanTargetModels
                     var mappedPlanTargets = MapPlanTargets(getPlan.PlanTargets.ToList());
                     result.PlanTargetModels = mappedPlanTargets;
+                    var plan = await _unitOfWork.PlanRepository.GetPlanWithEmployeeSkill(planId);
 
+                    if (plan != null)
+                    {
+                        var users = plan?.CarePlanSchedule?
+                                        .WorkLogs?
+                                        .SelectMany(wl => wl.UserWorkLogs ?? new List<UserWorkLog>())
+                                        .Select(uwl => uwl.User)
+                                        .Where(u => u != null)
+                                        .DistinctBy(u => u.UserId)
+                                        .ToList() ?? new List<User>();
+
+                        var employeeWithSkills = users.Select(u => new EmployeeWithSkills
+                        {
+                            UserId = u.UserId,
+                            FullName = u.FullName,
+                            AvatarURL = u.AvatarURL,
+                            SkillWithScore = u.UserFarms?
+                                .SelectMany(uf => uf.EmployeeSkills ?? new List<EmployeeSkill>())
+                                .Where(es => es.WorkTypeID != null)
+                                .Select(es => new SkillWithScore
+                                {
+                                    SkillName = es.WorkType?.MasterTypeName,
+                                    Score = es.ScoreOfSkill
+                                }).ToList()
+                        }).ToList();
+                        result.EmployeeWithSkills = employeeWithSkills;
+                    }
 
                     result.Progress = Math.Round(calculateProgress, 2).ToString();
                     if (result != null)
@@ -1650,10 +1673,16 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 //{
                 //    warningAddMessage = $"Warning: The schedule has conflicts on the following dates: {string.Join(", ", conflictCustomDates.Select(d => d.ToString("yyyy-MM-dd")))}. The plan has been created, but please review these conflicts.";
                 //}
-
+                await _unitOfWork.WorkLogRepository.CheckWorkLogAvailabilityWhenAddPlan(
+                                                                       TimeSpan.Parse(createPlanModel.StartTime),
+                                                                       TimeSpan.Parse(createPlanModel.EndTime),
+                                                                       currentDate,
+                                                                       createPlanModel.MasterTypeId,
+                                                                       createPlanModel.ListEmployee.Select(x => x.UserId).ToList()
+                                                                   );
                 foreach (var customeDate in createPlanModel.CustomDates)
                 {
-                    if (customeDate >= currentDate && customeDate <= plan.EndDate)
+                    if (customeDate.Date >= currentDate.Date.Date && customeDate.Date <= plan.EndDate.Value.Date)
                     {
                         var tempModel = conflictCustomDates.Contains(customeDate)
                             ? new CreatePlanModel(createPlanModel) { ListEmployee = null }
@@ -1735,15 +1764,17 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             //        throw new Exception($"WorkLog conflict detected at the same time:\n{conflictDetails}");
             //    }
             //}
-            await _unitOfWork.WorkLogRepository.CheckWorkLogAvailabilityWhenAddPlan(
+            if (plan.Frequency.ToLower() != "none" || createPlanModel.CustomDates == null)
+            {
+                await _unitOfWork.WorkLogRepository.CheckWorkLogAvailabilityWhenAddPlan(
                                                                         TimeSpan.Parse(createPlanModel.StartTime),
                                                                         TimeSpan.Parse(createPlanModel.EndTime),
                                                                         currentDate,
                                                                         createPlanModel.MasterTypeId,
                                                                         createPlanModel.ListEmployee.Select(x => x.UserId).ToList()
                                                                     );
-
-
+            }
+                
             if (schedule.ScheduleId <= 0)
             {
                 await _unitOfWork.CarePlanScheduleRepository.Insert(schedule);
@@ -2019,11 +2050,15 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             //        throw new Exception($"WorkLog conflict detected at the same time:\n{conflictDetails}");
             //    }
             //}
-            await _unitOfWork.WorkLogRepository.CheckWorkLogAvailabilityWhenAddPlan(TimeSpan.Parse(updatePlanModel.StartTime),
-                                                                        TimeSpan.Parse(updatePlanModel.EndTime),
-                                                                        currentDate,
-                                                                       updatePlanModel.MasterTypeId,
-                                                                        updatePlanModel.ListEmployee.Select(x => x.UserId).ToList());
+            if (plan.Frequency.ToLower() != "none" || updatePlanModel.CustomDates == null)
+            {
+                await _unitOfWork.WorkLogRepository.CheckWorkLogAvailabilityWhenAddPlan(TimeSpan.Parse(updatePlanModel.StartTime),
+                                                                       TimeSpan.Parse(updatePlanModel.EndTime),
+                                                                       currentDate,
+                                                                      updatePlanModel.MasterTypeId,
+                                                                       updatePlanModel.ListEmployee.Select(x => x.UserId).ToList());
+            }
+           
             if (schedule.ScheduleId <= 0)
             {
                 plan.CarePlanSchedule = schedule;
@@ -2384,6 +2419,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     {
                         WorkLogId = workLog.WorkLogId,
                         UserId = user.UserId,
+                        CreateDate = DateTime.Now,
                         IsReporter = user.isReporter,
                         IsDeleted = false,
                     });
@@ -2875,6 +2911,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 }
                 SortSubProcessTree(rootSubProcesses);
 
+                var getProcessToDisplay = await _unitOfWork.ProcessRepository.GetByCondition(x => x.ProcessId == processId, "Plans");
+
                 var result = new ProcessWithDetailsDto
                 {
                     ProcessId = process.ProcessId,
@@ -2882,7 +2920,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     StartDate = process.StartDate,
                     EndDate = process.EndDate,
                     Order = process.Order,
-                    Plans = process.Plans.Select(p => new PlanDto
+                    Plans = getProcessToDisplay.Plans.Where(x => x.IsSample == false).Select(p => new PlanDto
                     {
                         PlanId = p.PlanId,
                         PlanName = p.PlanName,
@@ -3219,9 +3257,15 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     ? templateProcess.ProcessName
                     : subProcessDict.GetValueOrDefault(nextGroup.Key)?.SubProcessName ?? $"SubProcess {nextGroup.Key}";
 
-                if (maxCurrentEnd > minNextStart)
+                foreach (var prevPlan in currentGroup)
                 {
-                    errors.Add($"- Plans in \"{currentGroupName}\" must be finished before \"{nextGroupName}\" start.");
+                    foreach (var nextPlan in nextGroup)
+                    {
+                        if (prevPlan.EndDate != null && nextPlan.StartDate != null && prevPlan.EndDate >= nextPlan.StartDate.Date)
+                        {
+                            errors.Add($"- Plan \"{prevPlan.PlanName}\" in \"{currentGroupName}\" ends at {prevPlan.EndDate:dd/MM/yyyy}, which overlaps with Plan \"{nextPlan.PlanName}\" in \"{nextGroupName}\" starting at {nextPlan.StartDate:dd/MM/yyyy}.");
+                        }
+                    }
                 }
             }
 

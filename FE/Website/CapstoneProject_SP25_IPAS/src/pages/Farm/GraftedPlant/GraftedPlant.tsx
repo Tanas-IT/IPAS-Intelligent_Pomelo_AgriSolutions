@@ -1,5 +1,6 @@
 import { HEALTH_STATUS, ROUTES } from "@/constants";
 import {
+  useExportFile,
   useFetchData,
   useFilters,
   useHasChanges,
@@ -225,6 +226,9 @@ function GraftedPlant() {
     }
   };
 
+  const useHandleExport = useExportFile(graftedPlantService.exportGraftedPlants);
+  const handleExport = () => useHandleExport(filters);
+
   const filterContent = (
     <GraftedPlantFilter
       filters={filters}
@@ -248,6 +252,7 @@ function GraftedPlant() {
               onSearch={handleSearch}
               filterContent={filterContent}
               noAdd={isEmployee()}
+              onExport={handleExport}
             />
           }
           isOnRowEvent={true}

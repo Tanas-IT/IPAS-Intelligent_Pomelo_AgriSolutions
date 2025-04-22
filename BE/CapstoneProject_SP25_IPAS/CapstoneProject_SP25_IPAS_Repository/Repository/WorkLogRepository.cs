@@ -476,7 +476,6 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
         {
             var getWorkLog = await _context.WorkLogs
                                 .Include(x => x.Schedule)
-                                .ThenInclude(x => x.CarePlan)
                                 .FirstOrDefaultAsync(x => x.WorkLogId == workLogId);
             return getWorkLog;
         }

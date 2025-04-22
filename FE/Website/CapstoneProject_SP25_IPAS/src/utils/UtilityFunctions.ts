@@ -104,6 +104,25 @@ export const buildParams = (
   );
 };
 
+export const extractFilenameFromHeader = (disposition: string = ""): string => {
+  // Ưu tiên filename="..." trước
+  const matchStandard = disposition.match(/filename="([^"]+)"/i);
+
+  if (matchStandard) {
+    return decodeURIComponent(matchStandard[1]);
+  }
+
+  // Nếu không có, thử với filename*=UTF-8''...
+  const matchEncoded = disposition.match(/filename\*?=(?:UTF-8'')?([^;]+)/i);
+
+  if (matchEncoded) {
+    return decodeURIComponent(matchEncoded[1]);
+  }
+
+  // Fallback mặc định
+  return "export.csv";
+};
+
 export const isValidBreadcrumb = (path: string) => {
   const hasNumberAndSpecialChar = /\d/.test(path) && /[^a-zA-Z0-9]/.test(path);
   const hasNumberAndLetter = /[a-zA-Z]/.test(path) && /\d/.test(path);
