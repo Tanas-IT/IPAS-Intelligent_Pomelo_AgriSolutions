@@ -239,14 +239,22 @@ const AddPlanByProcess = () => {
             setDateRange(null);
             setDateError("Please select a valid date range!");
             scheduleForm.setFieldsValue({ dateRange: null });
+            if (frequency === "Weekly") {
+                setDayOfWeek([]);
+                scheduleForm.setFieldValue("dayOfWeek", []);
+            }
             return;
         }
-
+    
         const [startDate, endDate] = dates as [Dayjs, Dayjs];
         setDateRange([startDate, endDate]);
         setDateError(null);
         scheduleForm.setFieldsValue({ dateRange: [startDate, endDate] });
-
+        if (frequency === "Weekly") {
+            setDayOfWeek([]);
+            scheduleForm.setFieldValue("dayOfWeek", []);
+        }
+    
         if (frequency === "None" && customDates.length === 1) {
             Modal.confirm({
                 title: "Adjust Date Range",
@@ -258,6 +266,7 @@ const AddPlanByProcess = () => {
                 },
                 onCancel: () => {
                     setCustomDates([]);
+                    scheduleForm.setFieldValue("customDates", []);
                 },
             });
         }
@@ -273,6 +282,8 @@ const AddPlanByProcess = () => {
 
         if (validDates.length === 0) {
             setDateError("Selected dates must be within the date range.");
+            setCustomDates([]);
+            scheduleForm.setFieldValue("customDates", []);
             return;
         }
         console.log("validDates", validDates);
@@ -337,8 +348,13 @@ const AddPlanByProcess = () => {
 
         if (validDays.length === 0) {
             setDateError(`All selected ${type === "weekly" ? "days" : "dates"} are not within the date range. Please select again.`);
-            setDayOfWeek([]);
-            setDayOfMonth([]);
+            if (type === "weekly") {
+                setDayOfWeek([]);
+                scheduleForm.setFieldValue("dayOfWeek", []);
+            } else {
+                setDayOfMonth([]);
+                scheduleForm.setFieldValue("dayOfMonth", []);
+            }
             return false;
         }
 
@@ -898,6 +914,41 @@ const AddPlanByProcess = () => {
                         <Form
                             form={scheduleForm}
                             onFinish={(values) => {
+                                // Kiểm tra tính hợp lệ của các giá trị
+                                const { dateRange, timeRange, frequency, dayOfWeek, dayOfMonth, customDates } = values;
+                                if (!dateRange || !timeRange) {
+                                    Modal.error({
+                                        title: "Giá trị không hợp lệ",
+                                        content: "Vui lòng chọn khoảng ngày và khoảng thời gian hợp lệ.",
+                                        okText: "Đóng",
+                                    });
+                                    return;
+                                }
+                                if (frequency === "None" && (!customDates || customDates.length === 0)) {
+                                    Modal.error({
+                                        title: "Giá trị không hợp lệ",
+                                        content: "Vui lòng chọn ít nhất một ngày cụ thể.",
+                                        okText: "Đóng",
+                                    });
+                                    return;
+                                }
+                                if (frequency === "Weekly" && (!dayOfWeek || dayOfWeek.length === 0)) {
+                                    Modal.error({
+                                        title: "Giá trị không hợp lệ",
+                                        content: "Vui lòng chọn ít nhất một ngày trong tuần.",
+                                        okText: "Đóng",
+                                    });
+                                    return;
+                                }
+                                if (frequency === "Monthly" && (!dayOfMonth || dayOfMonth.length === 0)) {
+                                    Modal.error({
+                                        title: "Giá trị không hợp lệ",
+                                        content: "Vui lòng chọn ít nhất một ngày trong tháng.",
+                                        okText: "Đóng",
+                                    });
+                                    return;
+                                }
+                    
                                 handleSaveSchedule(values, selectedPlanId ?? 1);
                                 setIsScheduleModalOpen(false);
                             }}
