@@ -62,6 +62,7 @@ const AddPlanByProcess = () => {
     const [selectedPlanId, setSelectedPlanId] = useState<number | null>(null);
     const [dataSource, setDataSource] = useState<DataSourceNode[]>([]);
     const [filteredEmployees, setFilteredEmployees] = useState<EmployeeWithSkills[]>([]);
+    const [isDaySelectorSaved, setIsDaySelectorSaved] = useState<boolean>(false);
     const [initialValues, setInitialValues] = useState<{
         employees: number[];
         reporter: number;
@@ -245,7 +246,7 @@ const AddPlanByProcess = () => {
             }
             return;
         }
-    
+
         const [startDate, endDate] = dates as [Dayjs, Dayjs];
         setDateRange([startDate, endDate]);
         setDateError(null);
@@ -254,7 +255,7 @@ const AddPlanByProcess = () => {
             setDayOfWeek([]);
             scheduleForm.setFieldValue("dayOfWeek", []);
         }
-    
+
         if (frequency === "None" && customDates.length === 1) {
             Modal.confirm({
                 title: "Adjust Date Range",
@@ -275,9 +276,17 @@ const AddPlanByProcess = () => {
     const handleDateChange = (dates: Dayjs[]) => {
         if (!dateRange) {
             setDateError("Please select the date range first!");
+            setCustomDates([]);
+            scheduleForm.setFieldValue("customDates", []);
             return;
         }
+
         const [startDate, endDate] = dateRange;
+        // Lưu tất cả ngày được chọn, kể cả ngày ngoài dateRange
+        setCustomDates(dates);
+        scheduleForm.setFieldValue("customDates", dates);
+
+        // Kiểm tra các ngày hợp lệ trong dateRange hiện tại
         const validDates = dates.filter((date) => date.isBetween(startDate, endDate, "day", "[]"));
 
         if (validDates.length === 0) {
@@ -286,29 +295,46 @@ const AddPlanByProcess = () => {
             scheduleForm.setFieldValue("customDates", []);
             return;
         }
-        console.log("validDates", validDates);
 
         setDateError(null);
-        setCustomDates(validDates);
-        console.log("custom date", customDates);
 
-        if (frequency === "None" && validDates.length === 1) {
-            const isDateRangeAdjusted = startDate.isSame(validDates[0], "day") && endDate.isSame(validDates[0], "day");
-            if (!isDateRangeAdjusted) {
-                Modal.confirm({
-                    title: "Adjust Date Range",
-                    content: "You have selected only one custom date. Do you want to adjust the date range to match this date?",
-                    onOk: async () => {
-                        const newDateRange = [validDates[0], validDates[0]] as [Dayjs, Dayjs];
-                        await setDateRange(newDateRange);
-                        scheduleForm.setFieldsValue({ dateRange: newDateRange });
-                        scheduleForm.setFieldValue("customDates", [validDates[0]]);
-                    },
-                    onCancel: () => {
-                        setCustomDates([]);
-                        scheduleForm.setFieldValue("customDates", []);
-                    },
-                });
+        if (frequency === "None") {
+            if (dates.length === 1) {
+                const isDateRangeAdjusted = startDate.isSame(dates[0], "day") && endDate.isSame(dates[0], "day");
+                if (!isDateRangeAdjusted) {
+                    Modal.confirm({
+                        title: "Adjust Date Range",
+                        content: "You have selected only one custom date. Do you want to adjust the date range to match this date?",
+                        onOk: async () => {
+                            const newDateRange = [dates[0], dates[0]] as [Dayjs, Dayjs];
+                            await setDateRange(newDateRange);
+                            scheduleForm.setFieldValue("dateRange", newDateRange);
+                        },
+                        onCancel: () => {
+                            setCustomDates([]);
+                            scheduleForm.setFieldValue("customDates", []);
+                        },
+                    });
+                }
+            } else if (dates.length > 1) {
+                const minDate = dates.reduce((min, date) => (date.isBefore(min) ? date : min), dates[0]);
+                const maxDate = dates.reduce((max, date) => (date.isAfter(max) ? date : max), dates[0]);
+                const isDateRangeAdjusted = startDate.isSame(minDate, "day") && endDate.isSame(maxDate, "day");
+                if (!isDateRangeAdjusted) {
+                    Modal.confirm({
+                        title: "Adjust Date Range",
+                        content: `The selected dates range from ${minDate.format("YYYY-MM-DD")} to ${maxDate.format("YYYY-MM-DD")}. Do you want to adjust the date range to match these dates?`,
+                        onOk: async () => {
+                            const newDateRange = [minDate, maxDate] as [Dayjs, Dayjs];
+                            await setDateRange(newDateRange);
+                            scheduleForm.setFieldValue("dateRange", newDateRange);
+                        },
+                        onCancel: () => {
+                            setCustomDates([]);
+                            scheduleForm.setFieldValue("customDates", []);
+                        },
+                    });
+                }
             }
         }
     };
@@ -337,6 +363,92 @@ const AddPlanByProcess = () => {
         setDayOfMonth(days);
     };
 
+    // const handleSaveDays = async (days: number[], type: "weekly" | "monthly"): Promise<boolean> => {
+    //     if (!dateRange) {
+    //         setDateError("Please select the date range first!");
+    //         return false;
+    //     }
+    //     const [startDate, endDate] = dateRange;
+
+    //     const validDays = days.filter((day) => isDayInRange(day, startDate, endDate, type));
+
+    //     if (validDays.length === 0) {
+    //         setDateError(`All selected ${type === "weekly" ? "days" : "dates"} are not within the date range. Please select again.`);
+    //         if (type === "weekly") {
+    //             setDayOfWeek([]);
+    //             scheduleForm.setFieldValue("dayOfWeek", []);
+    //         } else {
+    //             setDayOfMonth([]);
+    //             scheduleForm.setFieldValue("dayOfMonth", []);
+    //         }
+    //         return false;
+    //     }
+
+    //     if (validDays.length < days.length) {
+    //         setDateError(`Some selected ${type === "weekly" ? "days" : "dates"} are not within the date range. Only valid ${type === "weekly" ? "days" : "dates"} will be saved.`);
+    //         if (type === "weekly") {
+    //             setDayOfWeek(validDays);
+    //             scheduleForm.setFieldValue("dayOfWeek", validDays);
+    //         } else if (type === "monthly") {
+    //             setDayOfMonth(validDays);
+    //             scheduleForm.setFieldValue("dayOfMonth", validDays);
+    //         }
+    //     } else {
+    //         setDateError(null);
+    //     }
+
+    //     if (validDays.length === 1) {
+    //         const selectedDay = validDays[0];
+    //         let targetDate = startDate.clone();
+    //         if (type === "weekly") {
+    //             while (targetDate.day() !== selectedDay) {
+    //                 targetDate = targetDate.add(1, "day");
+    //             }
+    //         } else if (type === "monthly") {
+    //             targetDate = startDate.date(selectedDay);
+    //         }
+    //         const isDateRangeAdjusted = startDate.isSame(targetDate, "day") && endDate.isSame(targetDate, "day");
+
+    //         if (!isDateRangeAdjusted) {
+    //             return new Promise((resolve) => {
+    //                 Modal.confirm({
+    //                     title: "Adjust Date Range",
+    //                     content: `You have selected only one ${type === "weekly" ? "day" : "date"}. Do you want to adjust the date range to match this ${type === "weekly" ? "day" : "date"}?`,
+    //                     onOk: async () => {
+    //                         const selectedDay = validDays[0];
+    //                         let targetDate = startDate.clone();
+
+    //                         if (type === "weekly") {
+    //                             while (targetDate.day() !== selectedDay) {
+    //                                 targetDate = targetDate.add(1, "day");
+    //                             }
+    //                         } else if (type === "monthly") {
+    //                             targetDate = startDate.date(selectedDay);
+    //                         }
+
+    //                         const newDateRange = [targetDate, targetDate] as [Dayjs, Dayjs];
+    //                         await setDateRange(newDateRange);
+    //                         scheduleForm.setFieldsValue({ dateRange: newDateRange });
+    //                         resolve(true);
+    //                     },
+    //                     onCancel: () => {
+    //                         if (type === "weekly") {
+    //                             setDayOfWeek([]);
+    //                             scheduleForm.setFieldValue("dayOfWeek", []);
+    //                             resolve(false);
+    //                         } else if (type === "monthly") {
+    //                             setDayOfMonth([]);
+    //                             scheduleForm.setFieldValue("dayOfMonth", []);
+    //                             resolve(false);
+    //                         }
+    //                     },
+    //                 });
+    //             });
+    //         }
+    //     }
+
+    //     return true;
+    // };
     const handleSaveDays = async (days: number[], type: "weekly" | "monthly"): Promise<boolean> => {
         if (!dateRange) {
             setDateError("Please select the date range first!");
@@ -355,6 +467,7 @@ const AddPlanByProcess = () => {
                 setDayOfMonth([]);
                 scheduleForm.setFieldValue("dayOfMonth", []);
             }
+            setIsDaySelectorSaved(false);
             return false;
         }
 
@@ -369,7 +482,16 @@ const AddPlanByProcess = () => {
             }
         } else {
             setDateError(null);
+            if (type === "weekly") {
+                setDayOfWeek(validDays);
+                scheduleForm.setFieldValue("dayOfWeek", validDays);
+            } else if (type === "monthly") {
+                setDayOfMonth(validDays);
+                scheduleForm.setFieldValue("dayOfMonth", validDays);
+            }
         }
+
+        setIsDaySelectorSaved(true); // Đặt flag khi lưu thành công
 
         if (validDays.length === 1) {
             const selectedDay = validDays[0];
@@ -403,18 +525,19 @@ const AddPlanByProcess = () => {
                             const newDateRange = [targetDate, targetDate] as [Dayjs, Dayjs];
                             await setDateRange(newDateRange);
                             scheduleForm.setFieldsValue({ dateRange: newDateRange });
+                            setIsDaySelectorSaved(true);
                             resolve(true);
                         },
                         onCancel: () => {
                             if (type === "weekly") {
                                 setDayOfWeek([]);
                                 scheduleForm.setFieldValue("dayOfWeek", []);
-                                resolve(false);
                             } else if (type === "monthly") {
                                 setDayOfMonth([]);
                                 scheduleForm.setFieldValue("dayOfMonth", []);
-                                resolve(false);
                             }
+                            setIsDaySelectorSaved(false);
+                            resolve(false);
                         },
                     });
                 });
@@ -514,13 +637,13 @@ const AddPlanByProcess = () => {
                     content: "Please select a plan before assigning employees.",
                     okText: "Got it",
                     okButtonProps: {
-                      style: {
-                        backgroundColor: "#52c41a",
-                        color: "#fff",
-                      },
+                        style: {
+                            backgroundColor: "#52c41a",
+                            color: "#fff",
+                        },
                     },
-                  });
-                  
+                });
+
                 return;
             }
 
@@ -914,43 +1037,46 @@ const AddPlanByProcess = () => {
                         <Form
                             form={scheduleForm}
                             onFinish={(values) => {
-                                // Kiểm tra tính hợp lệ của các giá trị
                                 const { dateRange, timeRange, frequency, dayOfWeek, dayOfMonth, customDates } = values;
                                 if (!dateRange || !timeRange) {
                                     Modal.error({
-                                        title: "Giá trị không hợp lệ",
-                                        content: "Vui lòng chọn khoảng ngày và khoảng thời gian hợp lệ.",
-                                        okText: "Đóng",
+                                        title: "Invalid Input",
+                                        content: "Please select a valid date range and time range.",
+                                        okText: "Close",
                                     });
                                     return;
                                 }
+
                                 if (frequency === "None" && (!customDates || customDates.length === 0)) {
                                     Modal.error({
-                                        title: "Giá trị không hợp lệ",
-                                        content: "Vui lòng chọn ít nhất một ngày cụ thể.",
-                                        okText: "Đóng",
+                                        title: "Invalid Input",
+                                        content: "Please select at least one specific date.",
+                                        okText: "Close",
                                     });
                                     return;
                                 }
-                                if (frequency === "Weekly" && (!dayOfWeek || dayOfWeek.length === 0)) {
+
+                                if (frequency === "Weekly" && (!isDaySelectorSaved || !dayOfWeek || dayOfWeek.length === 0)) {
                                     Modal.error({
-                                        title: "Giá trị không hợp lệ",
-                                        content: "Vui lòng chọn ít nhất một ngày trong tuần.",
-                                        okText: "Đóng",
+                                        title: "Invalid Input",
+                                        content: "Please click Save in the DaySelector to confirm the selected days of the week.",
+                                        okText: "Close",
                                     });
                                     return;
                                 }
-                                if (frequency === "Monthly" && (!dayOfMonth || dayOfMonth.length === 0)) {
+
+                                if (frequency === "Monthly" && (!isDaySelectorSaved || !dayOfMonth || dayOfMonth.length === 0)) {
                                     Modal.error({
-                                        title: "Giá trị không hợp lệ",
-                                        content: "Vui lòng chọn ít nhất một ngày trong tháng.",
-                                        okText: "Đóng",
+                                        title: "Invalid Input",
+                                        content: "Please click Save in the DaySelector to confirm the selected days of the month.",
+                                        okText: "Close",
                                     });
                                     return;
                                 }
-                    
+
                                 handleSaveSchedule(values, selectedPlanId ?? 1);
                                 setIsScheduleModalOpen(false);
+                                setIsDaySelectorSaved(false);
                             }}
                         >
                             <InfoField
