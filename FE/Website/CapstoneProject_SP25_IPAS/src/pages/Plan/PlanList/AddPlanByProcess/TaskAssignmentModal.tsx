@@ -1,5 +1,7 @@
 import React, { useEffect, useState } from "react";
-import { Modal, Select, Button, Form, Radio, Avatar, Tooltip, Flex } from "antd";
+import { Modal, Select, Button, Form, Radio, Avatar, Tooltip, Flex, Tag } from "antd";
+import { EmployeeWithSkills } from "@/payloads/worklog";
+import { Icons } from "@/assets";
 
 const { Option } = Select;
 
@@ -7,7 +9,7 @@ interface TaskAssignmentModalProps {
     visible: boolean;
     onCancel: () => void;
     onSave: (employees: any[], planId: number, reporterId: number | null) => void;
-    employees: any[];
+    employees: EmployeeWithSkills[];
     selectedPlanId: number | null;
     initialValues?: {
         employees: number[];
@@ -28,7 +30,7 @@ const TaskAssignmentModal: React.FC<TaskAssignmentModalProps> = ({
     const [reporterId, setReporterId] = useState<number | null>(null);
     console.log("ids", selectedIds);
     console.log("initialValues", initialValues);
-    
+
     useEffect(() => {
         if (visible && initialValues) {
             form.setFieldsValue({
@@ -42,7 +44,7 @@ const TaskAssignmentModal: React.FC<TaskAssignmentModalProps> = ({
 
     const handleSave = () => {
         console.log("handle save");
-        
+
         const selectedEmployees = employees
             .filter((emp) => selectedIds.includes(emp.userId))
             .map((emp) => ({
@@ -52,7 +54,7 @@ const TaskAssignmentModal: React.FC<TaskAssignmentModalProps> = ({
 
         if (selectedPlanId) {
             console.log("vo day");
-            
+
             onSave(selectedEmployees, selectedPlanId, reporterId);
             console.log("da goi onSave");
         }
@@ -70,7 +72,7 @@ const TaskAssignmentModal: React.FC<TaskAssignmentModalProps> = ({
                     Cancel
                 </Button>,
                 <Button key="save" type="primary" onClick={handleSave}>
-                    Savee
+                    Save
                 </Button>,
             ]}
         >
@@ -85,17 +87,107 @@ const TaskAssignmentModal: React.FC<TaskAssignmentModalProps> = ({
                         optionLabelProp="label"
                     >
                         {employees.map((emp) => (
-                            <Option key={emp.userId} value={emp.userId} label={emp.fullName}>
-                                <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                                    <img
-                                        src={emp.avatarURL}
-                                        alt={emp.fullName}
-                                        style={{ width: 24, height: 24, borderRadius: "50%" }}
-                                        crossOrigin="anonymous"
-                                    />
-                                    <span>{emp.fullName}</span>
+                            <Select.Option key={emp.userId} value={emp.userId} label={emp.fullName}>
+                                {/* <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                                          <img
+                                            src={emp.avatarURL}
+                                            alt={emp.fullName}
+                                            style={{ width: 24, height: 24, borderRadius: "50%" }}
+                                            crossOrigin="anonymous"
+                                          />
+                                          <span>
+                                            {emp.fullName} - Skills: {formatSkills(emp.skillWithScore)}
+                                          </span>
+                                        </div> */}
+                                <div style={{
+                                    display: "flex",
+                                    alignItems: "center",
+                                    gap: 12,
+                                    padding: "8px 12px",
+                                    borderRadius: 8,
+                                    transition: "all 0.2s",
+                                }}>
+                                    {/* Avatar */}
+                                    <div style={{
+                                        position: "relative",
+                                        width: 32,
+                                        height: 32,
+                                        flexShrink: 0
+                                    }}>
+                                        <img
+                                            src={emp.avatarURL}
+                                            alt={emp.fullName}
+                                            style={{
+                                                width: "100%",
+                                                height: "100%",
+                                                borderRadius: "50%",
+                                                objectFit: "cover",
+                                                border: "2px solid #e6f7ff"
+                                            }}
+                                            crossOrigin="anonymous"
+                                        />
+                                    </div>
+
+                                    <div style={{
+                                        flex: 1,
+                                        minWidth: 0
+                                    }}>
+                                        <div style={{
+                                            fontWeight: 500,
+                                            color: "rgba(0, 0, 0, 0.88)",
+                                            whiteSpace: "nowrap",
+                                            overflow: "hidden",
+                                            textOverflow: "ellipsis"
+                                        }}>
+                                            {emp.fullName}
+                                        </div>
+
+                                        <div style={{
+                                            display: "flex",
+                                            gap: 6,
+                                            marginTop: 4,
+                                            flexWrap: "wrap"
+                                        }}>
+                                            {emp.skillWithScore.slice(0, 3).map(skill => (
+                                                <div key={skill.skillName} style={{
+                                                    display: "flex",
+                                                    alignItems: "center",
+                                                    background: skill.score >= 7 ? "#f6ffed" : "#fafafa",
+                                                    border: `1px solid ${skill.score >= 7 ? "#b7eb8f" : "#d9d9d9"}`,
+                                                    borderRadius: 4,
+                                                    padding: "2px 6px",
+                                                    fontSize: 12,
+                                                    lineHeight: 1
+                                                }}>
+                                                    <Icons.grade
+                                                        width={12}
+                                                        height={12}
+                                                        style={{
+                                                            marginRight: 4,
+                                                            color: "yellow"
+                                                        }}
+                                                    />
+                                                    <span style={{
+                                                        color: "rgba(0, 0, 0, 0.65)"
+                                                    }}>
+                                                        {skill.skillName} <strong>{skill.score}</strong>
+                                                    </span>
+                                                </div>
+                                            ))}
+                                            {emp.skillWithScore.length > 3 && (
+                                                <div style={{
+                                                    background: "#f0f0f0",
+                                                    borderRadius: 4,
+                                                    padding: "2px 6px",
+                                                    fontSize: 12
+                                                }}>
+                                                    +{emp.skillWithScore.length - 3}
+                                                </div>
+                                            )}
+                                        </div>
+                                    </div>
                                 </div>
-                            </Option>
+                            </Select.Option>
                         ))}
                     </Select>
                 </Form.Item>
@@ -106,7 +198,7 @@ const TaskAssignmentModal: React.FC<TaskAssignmentModalProps> = ({
                                 .filter((emp) => selectedIds.includes(emp.userId))
                                 .map((emp) => (
                                     <Tooltip title={emp.fullName} key={emp.userId}>
-                                        <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                                        {/* <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                                             <Avatar src={emp.avatarURL} crossOrigin="anonymous" />
                                             <Radio
                                                 checked={reporterId === emp.userId}
@@ -114,7 +206,99 @@ const TaskAssignmentModal: React.FC<TaskAssignmentModalProps> = ({
                                             >
                                                 Reporter
                                             </Radio>
-                                        </div>
+                                        </div> */}
+                                        <Flex
+                                            align="center"
+                                            gap={16}
+                                            style={{
+                                                padding: 16,
+                                                borderRadius: 12,
+                                                background: "#fff",
+                                                border: "1px solid #f0f0f0",
+                                                transition: "all 0.3s ease",
+                                                cursor: "pointer",
+                                                ...(reporterId === emp.userId
+                                                    ? {
+                                                        borderColor: "#1890ff",
+                                                        background: "#f0f9ff",
+                                                    }
+                                                    : {}),
+                                            }}
+                                            data-selected={reporterId === emp.userId}
+                                        >
+                                            <Avatar
+                                                src={emp.avatarURL}
+                                                size={48}
+                                                style={{
+                                                    border: "2px solid #fff",
+                                                    boxShadow: "0 0 0 2px #e6f7ff",
+                                                    transition: "all 0.3s",
+                                                }}
+                                                crossOrigin="anonymous"
+                                            />
+
+                                            <Flex vertical style={{ flex: 1 }}>
+                                                <span
+                                                    style={{
+                                                        fontSize: 15,
+                                                        fontWeight: 500,
+                                                        color: "rgba(0, 0, 0, 0.88)",
+                                                    }}
+                                                >
+                                                    {emp.fullName}
+                                                </span>
+
+                                                <Flex
+                                                    gap={4}
+                                                    wrap="wrap"
+                                                    style={{
+                                                        marginTop: 8,
+                                                    }}
+                                                >
+                                                    {emp.skillWithScore.map((skill) => (
+                                                        <Tag
+                                                            key={skill.skillName}
+                                                            icon={<Icons.score size={12} />}
+                                                            color={skill.score > 7 ? "green" : "blue"}
+                                                        >
+                                                            {skill.skillName} ({skill.score})
+                                                        </Tag>
+                                                    ))}
+                                                </Flex>
+                                            </Flex>
+
+                                            <Radio
+                                                checked={reporterId === emp.userId}
+                                                onChange={() => setReporterId(emp.userId)}
+                                                style={{
+                                                    marginLeft: "auto",
+                                                    display: "flex",
+                                                    alignItems: "center",
+                                                    gap: 8,
+                                                    whiteSpace: "nowrap",
+                                                }}
+                                            >
+                                                <Icons.score
+                                                    style={{
+                                                        fontSize: 16,
+                                                        color: reporterId === emp.userId ? "#ffc53d" : "#d9d9d9",
+                                                        transition: "all 0.3s",
+                                                        marginRight: 3,
+                                                    }}
+                                                />
+                                                <span
+                                                    style={{
+                                                        fontSize: 14,
+                                                        color: reporterId === emp.userId ? "#1890ff" : "#8c8c8c",
+                                                        fontWeight: reporterId === emp.userId ? 500 : 400,
+                                                        transition: "all 0.3s",
+                                                    }}
+                                                >
+                                                    Reporter
+                                                </span>
+                                            </Radio>
+                                        </Flex>
+
                                     </Tooltip>
                                 ))}
                         </Flex>
