@@ -795,6 +795,14 @@ function WorklogDetail() {
               <label className={style.actualTime}>{formatDate(worklogDetail?.date || "") || "N/A"}</label>
             </Flex>
             <Flex gap={15}>
+              <label className={style.textUpdated}>Start Date Plan:</label>
+              <label className={style.actualTime}>{formatDate(worklogDetail?.startDate || "") || "N/A"}</label>
+            </Flex>
+            <Flex gap={15}>
+              <label className={style.textUpdated}>End Date Plan:</label>
+              <label className={style.actualTime}>{formatDate(worklogDetail?.endDate || "") || "N/A"}</label>
+            </Flex>
+            <Flex gap={15}>
               <label className={style.textUpdated}>Supplementary Worklog:</label>
               {worklogDetail?.redoWorkLog ? (
                 <CustomButton
