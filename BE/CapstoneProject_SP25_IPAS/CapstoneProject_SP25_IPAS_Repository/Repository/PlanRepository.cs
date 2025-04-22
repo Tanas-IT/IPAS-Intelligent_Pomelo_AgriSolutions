@@ -254,7 +254,7 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
         {
             var plan = await _context.Plans
                            .AsNoTracking()
-                           .FirstOrDefaultAsync(p => p.PlanId == planId && p.IsDeleted == false && p.FarmID == farmId);
+                           .FirstOrDefaultAsync(p => p.PlanId == planId && p.IsDeleted == false && p.IsSample == false && p.FarmID == farmId);
             return plan;
         }
 
