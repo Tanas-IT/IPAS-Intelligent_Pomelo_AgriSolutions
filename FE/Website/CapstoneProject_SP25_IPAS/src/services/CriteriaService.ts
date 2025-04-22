@@ -15,7 +15,8 @@ import {
   PlantCriteriaApplyRequest,
   ResetCriteriaPlantRequest,
 } from "@/payloads";
-import { buildParams } from "@/utils";
+import { CriteriaExportType } from "@/types";
+import { buildParams, extractFilenameFromHeader } from "@/utils";
 
 export const getCriteriaSet = async (
   currentPage?: number,
@@ -234,4 +235,37 @@ export const deleteCriteriaObject = async (
     { data: criteria },
   );
   return res.data as ApiResponse<object>;
+};
+
+export const exportCriteria = async (
+  additionalParams?: Record<string, any>,
+): Promise<{ blob: Blob; filename: string }> => {
+  const params = buildParams(
+    undefined,
+    undefined,
+    undefined,
+    undefined,
+    undefined,
+    additionalParams,
+  );
+  const res = await axiosAuth.axiosJsonRequest.get(`criterias/export-csv`, {
+    params,
+    responseType: "blob",
+  });
+
+  const filename = extractFilenameFromHeader(res.headers["content-disposition"]);
+
+  return { blob: res.data, filename };
+};
+export const exportCriteriaByObject = async (
+  type: CriteriaExportType,
+  id: number,
+): Promise<{ blob: Blob; filename: string }> => {
+  const res = await axiosAuth.axiosJsonRequest.get(`criterias/export-csv/object?${type}=${id}`, {
+    responseType: "blob",
+  });
+
+  const filename = extractFilenameFromHeader(res.headers["content-disposition"]);
+
+  return { blob: res.data, filename };
 };

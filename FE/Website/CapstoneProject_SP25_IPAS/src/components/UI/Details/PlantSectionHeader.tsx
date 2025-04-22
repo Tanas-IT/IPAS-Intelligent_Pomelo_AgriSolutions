@@ -15,6 +15,7 @@ const PlantSectionHeader = ({
   onApplyCriteria,
   onCreateGraftedBranch,
   onAddNewIssue,
+  onExport,
 }: {
   formModal?: ReturnType<typeof useModal<GetPlantDetail>>;
   deleteConfirmModal?: ReturnType<typeof useModal<{ id: number }>>;
@@ -22,6 +23,7 @@ const PlantSectionHeader = ({
   onApplyCriteria?: () => void;
   onCreateGraftedBranch?: () => void;
   onAddNewIssue?: () => void;
+  onExport?: () => void;
 }) => {
   const { plant } = usePlantStore();
   if (!plant) return;
@@ -50,15 +52,7 @@ const PlantSectionHeader = ({
               </Tag>
             ))}
         </Flex>
-        {onApplyCriteria && !plant.isDead && (
-          <Flex>
-            <CustomButton
-              label="Add New Criteria"
-              icon={<Icons.plus />}
-              handleOnClick={onApplyCriteria}
-            />
-          </Flex>
-        )}
+
         {!onApplyCriteria && formModal && (
           <Flex>
             <ActionMenuPlant
@@ -79,15 +73,25 @@ const PlantSectionHeader = ({
             />
           </Flex>
         )}
-        {onAddNewIssue && !plant.isDead && (
-          <Flex>
+        <Flex gap={20}>
+          {onExport && (
+            <CustomButton label="Export" icon={<Icons.download />} handleOnClick={onExport} />
+          )}
+          {onAddNewIssue && !plant.isDead && (
             <CustomButton
               label="Add New Issue"
               icon={<Icons.plus />}
               handleOnClick={onAddNewIssue}
             />
-          </Flex>
-        )}
+          )}
+          {onApplyCriteria && !plant.isDead && (
+            <CustomButton
+              label="Add New Criteria"
+              icon={<Icons.plus />}
+              handleOnClick={onApplyCriteria}
+            />
+          )}
+        </Flex>
       </Flex>
       <label className={style.subTitle}>Code: {plant.plantCode}</label>
     </Flex>

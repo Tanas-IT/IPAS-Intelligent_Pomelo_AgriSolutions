@@ -16,6 +16,7 @@ import { useDirtyStore, usePlantStore } from "@/stores";
 import { plantService } from "@/services";
 import { GetPlantGrowthHistory, PlantGrowthHistoryRequest } from "@/payloads";
 import {
+  useExportFile,
   useHasChanges,
   useModal,
   useSystemConfigOptions,
@@ -136,6 +137,9 @@ function PlantGrowthHistory() {
     },
   });
 
+  const useHandleExport = useExportFile(plantService.exportPlantGrowthHistory);
+  const handleExport = () => useHandleExport(plant.plantId);
+
   const handleViewDetail = (item: GetPlantGrowthHistory) => {
     setSelectedHistory(item);
     setIsGrowthDetailView(true);
@@ -150,7 +154,7 @@ function PlantGrowthHistory() {
 
   return (
     <Flex className={style.contentDetailWrapper}>
-      <PlantSectionHeader onAddNewIssue={() => issueModal.showModal()} />
+      <PlantSectionHeader onAddNewIssue={() => issueModal.showModal()} onExport={handleExport} />
       <Divider className={style.divider} />
       {isGrowthDetailView ? (
         <GrowthDetailContent

@@ -132,6 +132,8 @@ export type FilterCriteriaState = {
 export type FilterPlantState = {
   plantingDateFrom: string;
   plantingDateTo: string;
+  passedDateFrom: string;
+  passedDateTo: string;
   landPlotIds: string[];
   landRowIds: string[];
   cultivarIds: string[];
@@ -196,3 +198,5 @@ export interface AnswerData {
   note: string;
   confidence: string;
 }
+
+export type CriteriaExportType = "PlantID" | "PlantLotID" | "GraftedPlantID";
