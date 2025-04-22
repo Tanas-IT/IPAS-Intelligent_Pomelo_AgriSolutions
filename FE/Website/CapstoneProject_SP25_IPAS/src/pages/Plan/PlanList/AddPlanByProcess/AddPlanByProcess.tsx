@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useRef } from "react";
 import { Form, Select, Row, Col, Button, Table, message, Input, Modal, DatePicker, Flex, Divider, Image } from "antd";
-import { planService, plantLotService, processService } from "@/services";
+import { planService, plantLotService, processService, worklogService } from "@/services";
 import { CustomButton, FormFieldModal, InfoField, Loading, Section, Tooltip } from "@/components";
 import { fetchProcessesOfFarm, fetchUserInfoByRole, getFarmId, getUserId, isDayInRange, planTargetOptions2, RulesManager } from "@/utils";
 import { GetProcessDetail } from "@/payloads/process";
@@ -24,6 +24,7 @@ import "react-toastify/dist/ReactToastify.css";
 import { useNavigate } from "react-router-dom";
 import { PATHS } from "@/routes";
 import DaySelector from "./DaySelector";
+import { EmployeeWithSkills } from "@/payloads/worklog";
 
 type OptionType<T = string | number> = { value: T; label: string };
 type EmployeeType = { fullName: string; avatarURL: string; userId: number };
@@ -39,10 +40,10 @@ const AddPlanByProcess = () => {
     const [selectedProcess, setSelectedProcess] = useState<GetProcessDetail>();
     const [isScheduleModalOpen, setIsScheduleModalOpen] = useState(false);
     const [isTaskModalOpen, setIsTaskModalOpen] = useState(false);
-    const [employee, setEmployee] = useState<EmployeeType[]>([]);
+    const [employee, setEmployee] = useState<EmployeeWithSkills[]>([]);
     const [dateRange, setDateRange] = useState<[Dayjs, Dayjs] | null>(null);
     const [dateError, setDateError] = useState<string | null>(null);
-    const [frequency, setFrequency] = useState<string>("none");
+    const [frequency, setFrequency] = useState<string>("None");
     const [customDates, setCustomDates] = useState<Dayjs[]>([]);
     const [dayOfWeek, setDayOfWeek] = useState<number[]>([]);
     const [dayOfMonth, setDayOfMonth] = useState<number[]>([]);
@@ -60,6 +61,7 @@ const AddPlanByProcess = () => {
     const { options: graftedPlantsOptions } = useGraftedPlantOptions(Number(getFarmId()));
     const [selectedPlanId, setSelectedPlanId] = useState<number | null>(null);
     const [dataSource, setDataSource] = useState<DataSourceNode[]>([]);
+    const [filteredEmployees, setFilteredEmployees] = useState<EmployeeWithSkills[]>([]);
     const [initialValues, setInitialValues] = useState<{
         employees: number[];
         reporter: number;
@@ -72,7 +74,10 @@ const AddPlanByProcess = () => {
         const fetchProcesses = async () => {
             try {
                 setProcessOptions(await fetchProcessesOfFarm(Number(getFarmId()), false));
-                setEmployee(await fetchUserInfoByRole("User"));
+                const response = await worklogService.getEmployeesByWorkSkill(Number(getFarmId()));
+                if (response.statusCode === 200) {
+                    setEmployee(response.data);
+                }
             } catch (error) {
                 console.error("Failed to fetch processes:", error);
             }
@@ -164,6 +169,8 @@ const AddPlanByProcess = () => {
                         .filter((node): node is SubProcessNode => node !== null);
 
                     const newDataSource: DataSourceNode[] = [processNode, ...subProcessNodes];
+                    console.log("kì ta", newDataSource);
+
                     setDataSource(newDataSource);
 
                     form.setFieldsValue({
@@ -221,7 +228,7 @@ const AddPlanByProcess = () => {
             console.log("chi tiet", response);
         } catch (error) {
             console.error("Failed to fetch process details:", error);
-            message.error("Failed to fetch process details. Please try again later.");
+            toast.error("Failed to fetch process details. Please try again later.");
         } finally {
             setIsLoading(false);
         }
@@ -429,7 +436,7 @@ const AddPlanByProcess = () => {
                 ? [dayjs(schedule.startTime, "HH:mm"), dayjs(schedule.endTime, "HH:mm")]
                 : null;
 
-            setFrequency(schedule.frequency || "none");
+            setFrequency(schedule.frequency || "None");
             setCustomDates(schedule.customDates?.map((date: string) => dayjs(date)) || []);
             setDayOfWeek(schedule.dayOfWeek || []);
             setDayOfMonth(schedule.dayOfMonth || []);
@@ -437,7 +444,7 @@ const AddPlanByProcess = () => {
             const formValues = {
                 dateRange: dateRange,
                 timeRange: timeRange,
-                frequency: schedule.frequency || "none",
+                frequency: schedule.frequency || "None",
                 dayOfWeek: schedule.dayOfWeek || [],
                 dayOfMonth: schedule.dayOfMonth || [],
                 customDates: schedule.customDates?.map((date: string) => dayjs(date)) || [],
@@ -447,8 +454,7 @@ const AddPlanByProcess = () => {
         }
     };
 
-    const handleTaskAssignmentClick = (record: PlanNode) => {
-        setIsTaskModalOpen(true);
+    const handleTaskAssignmentClick = async (record: PlanNode) => {
         setSelectedPlanId(record.planId);
 
         const findPlan = (items: DataSourceNode[]): PlanNode | undefined => {
@@ -472,8 +478,40 @@ const AddPlanByProcess = () => {
                 employees,
                 reporter,
             });
+
+            if (selectedPlan.masterTypeId !== null && selectedPlan.masterTypeId !== undefined) {
+                try {
+                    const response = await worklogService.getEmployeesByWorkSkill(Number(getFarmId()), selectedPlan.masterTypeId);
+                    if (response.statusCode === 200) {
+                        setFilteredEmployees(response.data);
+                    } else {
+                        toast.error("Failed to fetch employees for this work type.");
+                        return;
+                    }
+                } catch (error) {
+                    toast.error("Failed to fetch employees. Please try again later.");
+                    return;
+                }
+            } else {
+                Modal.error({
+                    title: "No Plan Selected",
+                    content: "Please select a plan before assigning employees.",
+                    okText: "Got it",
+                    okButtonProps: {
+                      style: {
+                        backgroundColor: "#52c41a",
+                        color: "#fff",
+                      },
+                    },
+                  });
+                  
+                return;
+            }
+
+            setIsTaskModalOpen(true);
         } else {
             setInitialValues(null);
+            toast.error("Selected plan not found.");
         }
     };
 
@@ -488,7 +526,7 @@ const AddPlanByProcess = () => {
                     return {
                         ...item,
                         schedule: {
-                            frequency: frequency || "none",
+                            frequency: frequency || "None",
                             dayOfWeek: frequency === "Weekly" ? dayOfWeek : [],
                             dayOfMonth: frequency === "Monthly" ? dayOfMonth : [],
                             customDates: frequency === "None" ? customDates.map((date: Dayjs) => date.format("YYYY-MM-DD")) : [],
@@ -542,30 +580,56 @@ const AddPlanByProcess = () => {
     const handleSubmit = async () => {
         try {
             if (dataSource.length === 0) {
-                message.error("No plans to submit. Please add at least one plan.");
+                toast.error("No plans to submit. Please add at least one plan.");
                 return;
             }
 
-            const collectPlans = (items: DataSourceNode[]): PlanNode[] => {
-                const plans: PlanNode[] = [];
+            const processId = selectedProcess?.processId;
+            if (!processId) {
+                toast.error("No process selected. Please select a process.");
+                return;
+            }
+
+            // Validate Growth Stage Name for planTargetType === 1
+            if (planTargetType === 1 && growthStage.length === 0) {
+                toast.error("Please select at least one Growth Stage Name for Land Plot/Land Row/Plant target.");
+                return;
+            }
+
+            // Validate PlanTarget for planTargetType === 1 when Growth Stage is selected
+            if (planTargetType === 1 && growthStage.length > 0) {
+                const planTargetModels = form.getFieldValue("planTargetModel") || [];
+                if (!Array.isArray(planTargetModels) || planTargetModels.length === 0) {
+                    toast.error("Please add at least one target in the Plan Target section.");
+                    return;
+                }
+            }
+
+            const collectPlansWithHierarchy = (
+                items: DataSourceNode[],
+                processId: number,
+                subProcessId: number | null = null
+            ): { plan: PlanNode; processId: number; subProcessId: number | null }[] => {
+                const plans: { plan: PlanNode; processId: number; subProcessId: number | null }[] = [];
                 items.forEach((item) => {
                     if (item.type === "plan") {
-                        plans.push(item);
+                        plans.push({ plan: item, processId, subProcessId });
                     }
-                    if ("children" in item) {
-                        plans.push(...collectPlans(item.children));
+                    if (item.type === "process" || item.type === "subProcess") {
+                        const nextSubProcessId = item.type === "subProcess" ? item.subProcessId : subProcessId;
+                        plans.push(...collectPlansWithHierarchy(item.children, processId, nextSubProcessId));
                     }
                 });
                 return plans;
             };
 
-            const allPlans = collectPlans(dataSource);
+            const allPlans = collectPlansWithHierarchy(dataSource, processId);
             if (allPlans.length === 0) {
-                message.error("No valid plans found to submit.");
+                toast.error("No valid plans found to submit.");
                 return;
             }
 
-            const payload: PlanRequest[] = allPlans.map((plan) => {
+            const payload: PlanRequest[] = allPlans.map(({ plan, processId, subProcessId }) => {
                 const startDate = new Date(plan.schedule.startDate);
                 const endDate = new Date(plan.schedule.endDate);
 
@@ -625,7 +689,8 @@ const AddPlanByProcess = () => {
                     planDetail: plan.planDetail,
                     frequency: plan.schedule.frequency || null,
                     assignorId: Number(getUserId()),
-                    processId: selectedProcess?.processId || 0,
+                    processId,
+                    subProcessId,
                     cropId: undefined,
                     growthStageId: growthStage,
                     listLandPlotOfCrop: [],
@@ -657,7 +722,7 @@ const AddPlanByProcess = () => {
             }
         } catch (error) {
             console.error("Failed to create plans:", error);
-            message.error("Failed to create plans. Please try again later.");
+            toast.error("Failed to create plans. Please try again later.");
         }
     };
 
@@ -932,7 +997,7 @@ const AddPlanByProcess = () => {
                         visible={isTaskModalOpen}
                         onCancel={() => setIsTaskModalOpen(false)}
                         onSave={handleSaveEmployees}
-                        employees={employee}
+                        employees={filteredEmployees}
                         selectedPlanId={selectedPlanId}
                         initialValues={initialValues}
                     />

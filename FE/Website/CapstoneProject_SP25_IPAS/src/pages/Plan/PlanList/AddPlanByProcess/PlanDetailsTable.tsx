@@ -31,6 +31,8 @@ const PlanDetailsTable: React.FC<PlanDetailsTableProps> = ({
 }) => {
     const { styles } = useStyle();
     const [employeeMap, setEmployeeMap] = React.useState<Map<number, GetUser>>(new Map());
+    console.log("dataSource", dataSource);
+    
 
     const hasChildren = (node: DataSourceNode): node is ProcessNode | SubProcessNode => {
         return "children" in node;

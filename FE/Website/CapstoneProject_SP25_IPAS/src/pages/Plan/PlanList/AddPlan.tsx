@@ -110,6 +110,7 @@ const AddPlan = () => {
 
   const [dateRange, setDateRange] = useState<[Dayjs, Dayjs] | null>(null);
   const [dateError, setDateError] = useState<string | null>(null);
+  const [showWorkTypeWarning, setShowWorkTypeWarning] = useState(false);
 
   useEffect(() => {
     if (selectedCrop) {
@@ -315,7 +316,14 @@ const AddPlan = () => {
     setSelectedReporter(userId);
   };
 
-  const handleAssignMember = () => setIsModalOpen(true);
+  // const handleAssignMember = () => setIsModalOpen(true);
+  const handleAssignClick = () => {
+    if (!form.getFieldValue('masterTypeId')) {
+      setShowWorkTypeWarning(true);
+      return;
+    }
+    setIsModalOpen(true);
+  };
 
   const handleConfirmAssign = () => {
     setAssignorId(userId);
@@ -532,15 +540,37 @@ const AddPlan = () => {
 
   const fetchData = async () => {
     setProcessFarmOptions(await fetchProcessesOfFarm(farmId, true));
+
+    // setPlantLotOptions((await usePlantLotOptions()).options);
+    const plantLots = await plantLotService.getPlantLotSelected();
+    setPlantLotOptions(plantLots)
+  };
+
+  const fetchEmployee = async () => {
     const response = await worklogService.getEmployeesByWorkSkill(Number(farmId));
     if (response.statusCode === 200) {
 
       setEmployee(response.data);
     }
-    // setPlantLotOptions((await usePlantLotOptions()).options);
-    const plantLots = await plantLotService.getPlantLotSelected();
-    setPlantLotOptions(plantLots)
-  };
+  }
+
+  const workTypeId = Form.useWatch(addPlanFormFields.masterTypeId, form);
+
+  useEffect(() => {
+    const fetchEmployee = async () => {
+      if (workTypeId) {
+        const response = await worklogService.getEmployeesByWorkSkill(Number(farmId), workTypeId);
+        if (response.statusCode === 200) {
+          setEmployee(response.data);
+        }
+      } else {
+        setEmployee([]);
+      }
+    };
+
+    fetchEmployee();
+  }, [workTypeId]);
+
 
   useEffect(() => {
     fetchData();
@@ -613,20 +643,6 @@ const AddPlan = () => {
               <InfoField
                 label="Growth Stage"
                 name={addPlanFormFields.growthStageID}
-                // rules={[
-                //   {
-                //     // Chỉ validate khi submit form
-                //     validateTrigger: 'onSubmit',
-                //     validator: (_: any, value: any) => {
-                //       const processId = form.getFieldValue(addPlanFormFields.processId);
-                //       // k chọn process && k chọn growth stage
-                //       if (!processId && (!value || value.length === 0)) {
-                //         return Promise.reject(new Error("Growth Stage is required when no Process is selected!"));
-                //       }
-                //       return Promise.resolve();
-                //     },
-                //   },
-                // ]}
                 options={growthStageOptions}
                 isEditing={!isLockedGrowthStage}
                 onChange={(value) => {
@@ -791,10 +807,18 @@ const AddPlan = () => {
           />
           <AssignEmployee
             members={selectedEmployees}
-            onAssign={handleAssignMember}
+            onAssign={handleAssignClick}
             onReporterChange={handleReporterChange}
             selectedReporter={selectedReporter}
           />
+          <Modal
+            title="No Plan Selected"
+            open={showWorkTypeWarning}
+            onOk={() => setShowWorkTypeWarning(false)}
+            onCancel={() => setShowWorkTypeWarning(false)}
+          >
+            <p>Please select a plan before assigning employees.</p>
+          </Modal>
           {errorMessage && <div style={{ color: "red", marginTop: 8 }}>{errorMessage}</div>}
           <Modal
             title="Assign Members"
@@ -812,14 +836,93 @@ const AddPlan = () => {
             >
               {employee.map((emp) => (
                 <Select.Option key={emp.userId} value={emp.userId} label={emp.fullName}>
-                  <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                    <img
-                      src={emp.avatarURL}
-                      alt={emp.fullName}
-                      style={{ width: 24, height: 24, borderRadius: "50%" }}
-                      crossOrigin="anonymous"
-                    />
-                    <span>{emp.fullName}</span>
+                  <div style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 12,
+                    padding: "8px 12px",
+                    borderRadius: 8,
+                    transition: "all 0.2s",
+                  }}>
+                    {/* Avatar */}
+                    <div style={{
+                      position: "relative",
+                      width: 32,
+                      height: 32,
+                      flexShrink: 0
+                    }}>
+                      <img
+                        src={emp.avatarURL}
+                        alt={emp.fullName}
+                        style={{
+                          width: "100%",
+                          height: "100%",
+                          borderRadius: "50%",
+                          objectFit: "cover",
+                          border: "2px solid #e6f7ff"
+                        }}
+                        crossOrigin="anonymous"
+                      />
+                    </div>
+
+                    <div style={{
+                      flex: 1,
+                      minWidth: 0
+                    }}>
+                      <div style={{
+                        fontWeight: 500,
+                        color: "rgba(0, 0, 0, 0.88)",
+                        whiteSpace: "nowrap",
+                        overflow: "hidden",
+                        textOverflow: "ellipsis"
+                      }}>
+                        {emp.fullName}
+                      </div>
+
+                      <div style={{
+                        display: "flex",
+                        gap: 6,
+                        marginTop: 4,
+                        flexWrap: "wrap"
+                      }}>
+                        {emp.skillWithScore.slice(0, 3).map(skill => (
+                          <div key={skill.skillName} style={{
+                            display: "flex",
+                            alignItems: "center",
+                            background: skill.score >= 7 ? "#f6ffed" : "#fafafa",
+                            border: `1px solid ${skill.score >= 7 ? "#b7eb8f" : "#d9d9d9"}`,
+                            borderRadius: 4,
+                            padding: "2px 6px",
+                            fontSize: 12,
+                            lineHeight: 1
+                          }}>
+                            <Icons.grade
+                              width={12}
+                              height={12}
+                              style={{
+                                marginRight: 4,
+                                color: "yellow"
+                              }}
+                            />
+                            <span style={{
+                              color: "rgba(0, 0, 0, 0.65)"
+                            }}>
+                              {skill.skillName} <strong>{skill.score}</strong>
+                            </span>
+                          </div>
+                        ))}
+                        {emp.skillWithScore.length > 3 && (
+                          <div style={{
+                            background: "#f0f0f0",
+                            borderRadius: 4,
+                            padding: "2px 6px",
+                            fontSize: 12
+                          }}>
+                            +{emp.skillWithScore.length - 3}
+                          </div>
+                        )}
+                      </div>
+                    </div>
                   </div>
                 </Select.Option>
               ))}
@@ -929,7 +1032,7 @@ const AddPlan = () => {
 
         <Divider className={style.divider} />
 
-        
+
 
         {/* FORM ACTIONS */}
         <Flex gap={10} justify="end" className={style.btnGroup}>
