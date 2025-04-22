@@ -703,6 +703,17 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                 getEmployeeSkill.ScoreOfSkill = employeeSkill.ScoreOfSkill;
                                 _unitOfWork.EmployeeSkillRepository.Update(getEmployeeSkill);
                             }
+                            else
+                            {
+                                var newEmployeeSkill = new EmployeeSkill()
+                                {
+                                    EmployeeID = userInfarm.UserId,
+                                    ScoreOfSkill = employeeSkill.ScoreOfSkill,
+                                    WorkTypeID = employeeSkill.SkillID,
+                                    FarmID = userInfarm.FarmId
+                                };
+                               await _unitOfWork.EmployeeSkillRepository.Insert(newEmployeeSkill);
+                            }
                         }
                     }
 

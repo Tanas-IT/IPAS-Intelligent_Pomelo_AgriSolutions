@@ -168,7 +168,7 @@ CREATE TABLE ipas.dbo.[User] (
 	UpdateDate datetime NULL,
 	IsDeleted bit NULL DEFAULT 0,
 	DeleteDate datetime NULL,
-	Fcmtoken nvarhar(MAX) NULL,
+	Fcmtoken nvarchar(MAX) NULL,
 	Status nvarchar(20) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 	IsDependency int NULL,
 	RoleID int NULL,
