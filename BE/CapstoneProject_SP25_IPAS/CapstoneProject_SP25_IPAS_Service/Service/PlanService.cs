@@ -2920,7 +2920,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     StartDate = process.StartDate,
                     EndDate = process.EndDate,
                     Order = process.Order,
-                    Plans = getProcessToDisplay.Plans.Where(x => x.IsSample == false).Select(p => new PlanDto
+                    Plans = getProcessToDisplay.Plans.Where(x => x.IsSample == true).Select(p => new PlanDto
                     {
                         PlanId = p.PlanId,
                         PlanName = p.PlanName,
