@@ -4,6 +4,8 @@ using CapstoneProject_SP25_IPAS_API.ProgramConfig.AuthorizeConfig;
 using CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.PlanModel;
 using CapstoneProject_SP25_IPAS_BussinessObject.Payloads.Response;
 using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.PlanRequest;
+using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.WorkLogRequest;
+using CapstoneProject_SP25_IPAS_BussinessObject.Validation;
 using CapstoneProject_SP25_IPAS_Common.Enum;
 using CapstoneProject_SP25_IPAS_Common.Utils;
 using CapstoneProject_SP25_IPAS_Service.IService;
@@ -128,6 +130,34 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
                         Message = "Farm Id is Requried"
                     };
                 }
+                if (!string.IsNullOrEmpty(createPlanModel.StartTime))
+                {
+                    var normalizedStartTime = FlexibleTimeAttribute.NormalizeTo24HourFormat(createPlanModel.StartTime);
+                    if (normalizedStartTime != null)
+                    {
+                        createPlanModel.StartTime = normalizedStartTime; // Gán giá trị chuẩn hóa lại
+                    }
+                    else
+                    {
+                        // Handle invalid StartTime here
+                        throw new InvalidOperationException("StartTime is invalid.");
+                    }
+                }
+
+                // Validate and normalize EndTime
+                if (!string.IsNullOrEmpty(createPlanModel.EndTime))
+                {
+                    var normalizedEndTime = FlexibleTimeAttribute.NormalizeTo24HourFormat(createPlanModel.EndTime);
+                    if (normalizedEndTime != null)
+                    {
+                        createPlanModel.EndTime = normalizedEndTime; // Gán giá trị chuẩn hóa lại
+                    }
+                    else
+                    {
+                        // Handle invalid EndTime here
+                        throw new InvalidOperationException("EndTime is invalid.");
+                    }
+                }
                 var result = await _planService.CreatePlan(createPlanModel, farmId, true);
 
                 return Ok(result);
@@ -153,6 +183,34 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
         {
             try
             {
+                if (!string.IsNullOrEmpty(updatePlanModel.StartTime))
+                {
+                    var normalizedStartTime = FlexibleTimeAttribute.NormalizeTo24HourFormat(updatePlanModel.StartTime);
+                    if (normalizedStartTime != null)
+                    {
+                        updatePlanModel.StartTime = normalizedStartTime; // Gán giá trị chuẩn hóa lại
+                    }
+                    else
+                    {
+                        // Handle invalid StartTime here
+                        throw new InvalidOperationException("StartTime is invalid.");
+                    }
+                }
+
+                // Validate and normalize EndTime
+                if (!string.IsNullOrEmpty(updatePlanModel.EndTime))
+                {
+                    var normalizedEndTime = FlexibleTimeAttribute.NormalizeTo24HourFormat(updatePlanModel.EndTime);
+                    if (normalizedEndTime != null)
+                    {
+                        updatePlanModel.EndTime = normalizedEndTime; // Gán giá trị chuẩn hóa lại
+                    }
+                    else
+                    {
+                        // Handle invalid EndTime here
+                        throw new InvalidOperationException("EndTime is invalid.");
+                    }
+                }
                 var result = await _planService.UpdatePlanInfo(updatePlanModel);
                 return Ok(result);
             }
@@ -370,6 +428,37 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
                 if (!farmId.HasValue)
                 {
                     farmId = _jwtTokenService.GetFarmIdFromToken();
+                }
+                foreach(var planModel in createPlanModel)
+                {
+                    if (!string.IsNullOrEmpty(planModel.StartTime))
+                    {
+                        var normalizedStartTime = FlexibleTimeAttribute.NormalizeTo24HourFormat(planModel.StartTime);
+                        if (normalizedStartTime != null)
+                        {
+                            planModel.StartTime = normalizedStartTime; // Gán giá trị chuẩn hóa lại
+                        }
+                        else
+                        {
+                            // Handle invalid StartTime here
+                            throw new InvalidOperationException("StartTime is invalid.");
+                        }
+                    }
+
+                    // Validate and normalize EndTime
+                    if (!string.IsNullOrEmpty(planModel.EndTime))
+                    {
+                        var normalizedEndTime = FlexibleTimeAttribute.NormalizeTo24HourFormat(planModel.EndTime);
+                        if (normalizedEndTime != null)
+                        {
+                            planModel.EndTime = normalizedEndTime; // Gán giá trị chuẩn hóa lại
+                        }
+                        else
+                        {
+                            // Handle invalid EndTime here
+                            throw new InvalidOperationException("EndTime is invalid.");
+                        }
+                    }
                 }
                 var result = await _planService.CreateManyPlan(createPlanModel, farmId);
                 return Ok(result);

@@ -4,6 +4,7 @@ using CapstoneProject_SP25_IPAS_API.ProgramConfig.AuthorizeConfig;
 using CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.WorkLogModel;
 using CapstoneProject_SP25_IPAS_BussinessObject.Payloads.Response;
 using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.WorkLogRequest;
+using CapstoneProject_SP25_IPAS_BussinessObject.Validation;
 using CapstoneProject_SP25_IPAS_Common.Enum;
 using CapstoneProject_SP25_IPAS_Common.Utils;
 using CapstoneProject_SP25_IPAS_Service.IService;
@@ -119,6 +120,34 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             {
                 if (!farmId.HasValue)
                     farmId = _jwtTokenService.GetFarmIdFromToken() ?? 0;
+                if (!string.IsNullOrEmpty(addNewTaskModel.StartTime))
+                {
+                    var normalizedStartTime = FlexibleTimeAttribute.NormalizeTo24HourFormat(addNewTaskModel.StartTime);
+                    if (normalizedStartTime != null)
+                    {
+                        addNewTaskModel.StartTime = normalizedStartTime; // Gán giá trị chuẩn hóa lại
+                    }
+                    else
+                    {
+                        // Handle invalid StartTime here
+                        throw new InvalidOperationException("StartTime is invalid.");
+                    }
+                }
+
+                // Validate and normalize EndTime
+                if (!string.IsNullOrEmpty(addNewTaskModel.EndTime))
+                {
+                    var normalizedEndTime = FlexibleTimeAttribute.NormalizeTo24HourFormat(addNewTaskModel.EndTime);
+                    if (normalizedEndTime != null)
+                    {
+                        addNewTaskModel.EndTime = normalizedEndTime; // Gán giá trị chuẩn hóa lại
+                    }
+                    else
+                    {
+                        // Handle invalid EndTime here
+                        throw new InvalidOperationException("EndTime is invalid.");
+                    }
+                }
                 var result = await _workLogService.AddNewTask(addNewTaskModel, farmId);
                 return Ok(result);
             }
@@ -194,6 +223,34 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             {
                 if (!farmId.HasValue)
                     farmId = _jwtTokenService.GetFarmIdFromToken() ?? 0;
+                if (!string.IsNullOrEmpty(updateWorkLogModel.StartTime))
+                {
+                    var normalizedStartTime = FlexibleTimeAttribute.NormalizeTo24HourFormat(updateWorkLogModel.StartTime);
+                    if (normalizedStartTime != null)
+                    {
+                        updateWorkLogModel.StartTime = normalizedStartTime; // Gán giá trị chuẩn hóa lại
+                    }
+                    else
+                    {
+                        // Handle invalid StartTime here
+                        throw new InvalidOperationException("StartTime is invalid.");
+                    }
+                }
+
+                // Validate and normalize EndTime
+                if (!string.IsNullOrEmpty(updateWorkLogModel.EndTime))
+                {
+                    var normalizedEndTime = FlexibleTimeAttribute.NormalizeTo24HourFormat(updateWorkLogModel.EndTime);
+                    if (normalizedEndTime != null)
+                    {
+                        updateWorkLogModel.EndTime = normalizedEndTime; // Gán giá trị chuẩn hóa lại
+                    }
+                    else
+                    {
+                        // Handle invalid EndTime here
+                        throw new InvalidOperationException("EndTime is invalid.");
+                    }
+                }
                 var result = await _workLogService.UpdateWorkLog(updateWorkLogModel, farmId);
 
                 return Ok(result);
@@ -244,6 +301,35 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             {
                 if (!farmId.HasValue)
                     farmId = _jwtTokenService.GetFarmIdFromToken() ?? 0;
+
+                if (!string.IsNullOrEmpty(addWorkLogModel.StartTime))
+                {
+                    var normalizedStartTime = FlexibleTimeAttribute.NormalizeTo24HourFormat(addWorkLogModel.StartTime);
+                    if (normalizedStartTime != null)
+                    {
+                        addWorkLogModel.StartTime = normalizedStartTime; // Gán giá trị chuẩn hóa lại
+                    }
+                    else
+                    {
+                        // Handle invalid StartTime here
+                        throw new InvalidOperationException("StartTime is invalid.");
+                    }
+                }
+
+                // Validate and normalize EndTime
+                if (!string.IsNullOrEmpty(addWorkLogModel.EndTime))
+                {
+                    var normalizedEndTime = FlexibleTimeAttribute.NormalizeTo24HourFormat(addWorkLogModel.EndTime);
+                    if (normalizedEndTime != null)
+                    {
+                        addWorkLogModel.EndTime = normalizedEndTime; // Gán giá trị chuẩn hóa lại
+                    }
+                    else
+                    {
+                        // Handle invalid EndTime here
+                        throw new InvalidOperationException("EndTime is invalid.");
+                    }
+                }
                 var result = await _workLogService.AddNewWorkLog(addWorkLogModel, farmId);
                 return Ok(result);
             }
@@ -269,6 +355,34 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             {
                 if (!farmId.HasValue)
                     farmId = _jwtTokenService.GetFarmIdFromToken() ?? 0;
+                if (!string.IsNullOrEmpty(updateStatusWorkLogModel.StartTime))
+                {
+                    var normalizedStartTime = FlexibleTimeAttribute.NormalizeTo24HourFormat(updateStatusWorkLogModel.StartTime);
+                    if (normalizedStartTime != null)
+                    {
+                        updateStatusWorkLogModel.StartTime = normalizedStartTime; // Gán giá trị chuẩn hóa lại
+                    }
+                    else
+                    {
+                        // Handle invalid StartTime here
+                        throw new InvalidOperationException("StartTime is invalid.");
+                    }
+                }
+
+                // Validate and normalize EndTime
+                if (!string.IsNullOrEmpty(updateStatusWorkLogModel.EndTime))
+                {
+                    var normalizedEndTime = FlexibleTimeAttribute.NormalizeTo24HourFormat(updateStatusWorkLogModel.EndTime);
+                    if (normalizedEndTime != null)
+                    {
+                        updateStatusWorkLogModel.EndTime = normalizedEndTime; // Gán giá trị chuẩn hóa lại
+                    }
+                    else
+                    {
+                        // Handle invalid EndTime here
+                        throw new InvalidOperationException("EndTime is invalid.");
+                    }
+                }
                 var result = await _workLogService.UpdateStatusWorkLog(updateStatusWorkLogModel, farmId);
                 return Ok(result);
             }
@@ -317,6 +431,34 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
         {
             try
             {
+                if (!string.IsNullOrEmpty(changeEmployeeOfWorkLogs.StartTime))
+                {
+                    var normalizedStartTime = FlexibleTimeAttribute.NormalizeTo24HourFormat(changeEmployeeOfWorkLogs.StartTime);
+                    if (normalizedStartTime != null)
+                    {
+                        changeEmployeeOfWorkLogs.StartTime = normalizedStartTime; // Gán giá trị chuẩn hóa lại
+                    }
+                    else
+                    {
+                        // Handle invalid StartTime here
+                        throw new InvalidOperationException("StartTime is invalid.");
+                    }
+                }
+
+                // Validate and normalize EndTime
+                if (!string.IsNullOrEmpty(changeEmployeeOfWorkLogs.EndTime))
+                {
+                    var normalizedEndTime = FlexibleTimeAttribute.NormalizeTo24HourFormat(changeEmployeeOfWorkLogs.EndTime);
+                    if (normalizedEndTime != null)
+                    {
+                        changeEmployeeOfWorkLogs.EndTime = normalizedEndTime; // Gán giá trị chuẩn hóa lại
+                    }
+                    else
+                    {
+                        // Handle invalid EndTime here
+                        throw new InvalidOperationException("EndTime is invalid.");
+                    }
+                }
                 var result = await _workLogService.ChangeEmployeeOfWorkLog(changeEmployeeOfWorkLogs);
                 return Ok(result);
             }
