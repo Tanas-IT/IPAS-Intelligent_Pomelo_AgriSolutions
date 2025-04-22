@@ -3161,31 +3161,24 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             try
             {
                 var getEmployeeSkill = await _unitOfWork.EmployeeSkillRepository.GetListEmployeeByWorkTypeId(workTypeId ?? 0, farmId);
-                var result = getEmployeeSkill.Select(u => new EmployeeSkillModel
-                {
-                    UserId = u.User.UserId,
-                    FullName = u.User.FullName,
-                    AvatarURL = u.User.AvatarURL,
-                    SkillWithScore = (workTypeId == null)
-                                ? u.EmployeeSkills
-                                    .GroupBy(s => s.WorkType.Target ?? "Không xác định")
-                                    .Select(g => new SkillScoreModel
-                                    {
-                                        SkillName = g.Key,
-                                        Score = g.Select(s => (double?)s.ScoreOfSkill ?? 0).Average()
-                                    })
-                                    .OrderByDescending(skill => skill.Score)
-                                    .ToList()
-                                : u.EmployeeSkills
-                                    .Where(s => s.WorkTypeID == workTypeId)
-                                    .Select(s => new SkillScoreModel
-                                    {
-                                        SkillName = s.WorkType.Target ?? "Không xác định",
-                                        Score = (double?)s.ScoreOfSkill ?? 0
-                                    })
-                                    .OrderByDescending(skill => skill.Score)
-                                    .ToList()
-                }).ToList();
+                var result = getEmployeeSkill
+                         .Select(u => new EmployeeSkillModel
+                         {
+                             UserId = u.User.UserId,
+                             FullName = u.User.FullName,
+                             AvatarURL = u.User.AvatarURL,
+                             SkillWithScore = u.EmployeeSkills
+                                 .GroupBy(s => s.WorkType.Target ?? "Không xác định")
+                                 .Select(g => new SkillScoreModel
+                                 {
+                                     SkillName = g.Key,
+                                     Score = g.Select(s => (double?)s.ScoreOfSkill ?? 0).Average()
+                                 })
+                                 .OrderByDescending(skill => skill.Score)
+                                 .ToList()
+                         })
+                         .ToList();
+
                 if (getEmployeeSkill.Count() > 0)
                 {
                     return new BusinessResult(200, "Filter Employee By Work Skill", result);
