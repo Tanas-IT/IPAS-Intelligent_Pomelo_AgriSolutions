@@ -1673,10 +1673,16 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 //{
                 //    warningAddMessage = $"Warning: The schedule has conflicts on the following dates: {string.Join(", ", conflictCustomDates.Select(d => d.ToString("yyyy-MM-dd")))}. The plan has been created, but please review these conflicts.";
                 //}
-
+                await _unitOfWork.WorkLogRepository.CheckWorkLogAvailabilityWhenAddPlan(
+                                                                       TimeSpan.Parse(createPlanModel.StartTime),
+                                                                       TimeSpan.Parse(createPlanModel.EndTime),
+                                                                       currentDate,
+                                                                       createPlanModel.MasterTypeId,
+                                                                       createPlanModel.ListEmployee.Select(x => x.UserId).ToList()
+                                                                   );
                 foreach (var customeDate in createPlanModel.CustomDates)
                 {
-                    if (customeDate >= currentDate && customeDate <= plan.EndDate)
+                    if (customeDate.Date >= currentDate.Date.Date && customeDate.Date <= plan.EndDate.Value.Date)
                     {
                         var tempModel = conflictCustomDates.Contains(customeDate)
                             ? new CreatePlanModel(createPlanModel) { ListEmployee = null }
@@ -1758,15 +1764,17 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             //        throw new Exception($"WorkLog conflict detected at the same time:\n{conflictDetails}");
             //    }
             //}
-            await _unitOfWork.WorkLogRepository.CheckWorkLogAvailabilityWhenAddPlan(
+            if (plan.Frequency.ToLower() != "none" || createPlanModel.CustomDates == null)
+            {
+                await _unitOfWork.WorkLogRepository.CheckWorkLogAvailabilityWhenAddPlan(
                                                                         TimeSpan.Parse(createPlanModel.StartTime),
                                                                         TimeSpan.Parse(createPlanModel.EndTime),
                                                                         currentDate,
                                                                         createPlanModel.MasterTypeId,
                                                                         createPlanModel.ListEmployee.Select(x => x.UserId).ToList()
                                                                     );
-
-
+            }
+                
             if (schedule.ScheduleId <= 0)
             {
                 await _unitOfWork.CarePlanScheduleRepository.Insert(schedule);
@@ -2042,11 +2050,15 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             //        throw new Exception($"WorkLog conflict detected at the same time:\n{conflictDetails}");
             //    }
             //}
-            await _unitOfWork.WorkLogRepository.CheckWorkLogAvailabilityWhenAddPlan(TimeSpan.Parse(updatePlanModel.StartTime),
-                                                                        TimeSpan.Parse(updatePlanModel.EndTime),
-                                                                        currentDate,
-                                                                       updatePlanModel.MasterTypeId,
-                                                                        updatePlanModel.ListEmployee.Select(x => x.UserId).ToList());
+            if (plan.Frequency.ToLower() != "none" || updatePlanModel.CustomDates == null)
+            {
+                await _unitOfWork.WorkLogRepository.CheckWorkLogAvailabilityWhenAddPlan(TimeSpan.Parse(updatePlanModel.StartTime),
+                                                                       TimeSpan.Parse(updatePlanModel.EndTime),
+                                                                       currentDate,
+                                                                      updatePlanModel.MasterTypeId,
+                                                                       updatePlanModel.ListEmployee.Select(x => x.UserId).ToList());
+            }
+           
             if (schedule.ScheduleId <= 0)
             {
                 plan.CarePlanSchedule = schedule;
@@ -2407,6 +2419,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     {
                         WorkLogId = workLog.WorkLogId,
                         UserId = user.UserId,
+                        CreateDate = DateTime.Now,
                         IsReporter = user.isReporter,
                         IsDeleted = false,
                     });
@@ -3244,9 +3257,15 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     ? templateProcess.ProcessName
                     : subProcessDict.GetValueOrDefault(nextGroup.Key)?.SubProcessName ?? $"SubProcess {nextGroup.Key}";
 
-                if (maxCurrentEnd > minNextStart)
+                foreach (var prevPlan in currentGroup)
                 {
-                    errors.Add($"- Plans in \"{currentGroupName}\" must be finished before \"{nextGroupName}\" start.");
+                    foreach (var nextPlan in nextGroup)
+                    {
+                        if (prevPlan.EndDate != null && nextPlan.StartDate != null && prevPlan.EndDate >= nextPlan.StartDate.Date)
+                        {
+                            errors.Add($"- Plan \"{prevPlan.PlanName}\" in \"{currentGroupName}\" ends at {prevPlan.EndDate:dd/MM/yyyy}, which overlaps with Plan \"{nextPlan.PlanName}\" in \"{nextGroupName}\" starting at {nextPlan.StartDate:dd/MM/yyyy}.");
+                        }
+                    }
                 }
             }
 
