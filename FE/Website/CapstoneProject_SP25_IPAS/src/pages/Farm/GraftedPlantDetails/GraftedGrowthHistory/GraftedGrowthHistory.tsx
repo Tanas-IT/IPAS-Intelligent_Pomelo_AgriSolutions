@@ -16,6 +16,7 @@ import { useDirtyStore, useGraftedPlantStore } from "@/stores";
 import { graftedPlantService } from "@/services";
 import { GetGraftedGrowthHistory, GraftedGrowthHistoryRequest } from "@/payloads";
 import {
+  useExportFile,
   useHasChanges,
   useModal,
   useSystemConfigOptions,
@@ -143,22 +144,8 @@ function GraftedGrowthHistory() {
     },
   });
 
-  const handleExport = async () => {
-    const { blob, filename } = await graftedPlantService.exportGraftedPlantGrowthHistory(
-      graftedPlant.graftedPlantId,
-    );
-
-    const url = URL.createObjectURL(blob);
-    const link = Object.assign(document.createElement("a"), {
-      href: url,
-      download: filename,
-    });
-
-    document.body.appendChild(link);
-    link.click();
-    link.remove();
-    URL.revokeObjectURL(url);
-  };
+  const useHandleExport = useExportFile(graftedPlantService.exportGraftedPlantGrowthHistory);
+  const handleExport = () => useHandleExport(graftedPlant.graftedPlantId);
 
   const handleViewDetail = (item: GetGraftedGrowthHistory) => {
     setSelectedHistory(item);

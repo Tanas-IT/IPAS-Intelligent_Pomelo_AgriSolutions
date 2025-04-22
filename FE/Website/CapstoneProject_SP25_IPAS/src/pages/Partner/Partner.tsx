@@ -7,6 +7,7 @@ import {
   TableTitle,
 } from "@/components";
 import {
+  useExportFile,
   useFetchData,
   useFilters,
   useHasChanges,
@@ -116,6 +117,9 @@ function ThirdParty() {
     onSuccess: () => formModal.hideModal(),
   });
 
+  const useHandleExport = useExportFile(partnerService.exportPartners);
+  const handleExport = () => useHandleExport(filters);
+
   const filterContent = (
     <PartnerFilter
       filters={filters}
@@ -140,6 +144,7 @@ function ThirdParty() {
               filterContent={filterContent}
               addLabel="Add New Partner"
               onAdd={() => formModal.showModal()}
+              onExport={handleExport}
             />
           }
           handleSortClick={handleSortChange}

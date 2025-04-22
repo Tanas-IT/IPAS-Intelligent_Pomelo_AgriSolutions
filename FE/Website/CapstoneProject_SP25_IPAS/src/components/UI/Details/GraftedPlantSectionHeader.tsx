@@ -86,16 +86,6 @@ const GraftedPlantSectionHeader = ({
           </Flex>
         </Flex>
 
-        {onApplyCriteria && !graftedPlant.isDead && (
-          <Flex>
-            <CustomButton
-              label="Add New Criteria"
-              icon={<Icons.plus />}
-              handleOnClick={onApplyCriteria}
-              disabled={graftedPlant.isCompleted}
-            />
-          </Flex>
-        )}
         {!onApplyCriteria && formModal && (
           <Flex>
             <ActionMenuGraftedPlant
@@ -123,6 +113,14 @@ const GraftedPlantSectionHeader = ({
               label="Add New Issue"
               icon={<Icons.plus />}
               handleOnClick={onAddNewIssue}
+            />
+          )}
+          {onApplyCriteria && !graftedPlant.isDead && (
+            <CustomButton
+              label="Add New Criteria"
+              icon={<Icons.plus />}
+              handleOnClick={onApplyCriteria}
+              disabled={graftedPlant.isCompleted}
             />
           )}
         </Flex>

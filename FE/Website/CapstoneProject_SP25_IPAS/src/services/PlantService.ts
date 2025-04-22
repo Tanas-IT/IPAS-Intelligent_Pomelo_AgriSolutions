@@ -13,7 +13,13 @@ import {
   PlantRequest,
 } from "@/payloads";
 import { FileResource } from "@/types";
-import { buildParams, getFarmId, getFileFormat, getUserId } from "@/utils";
+import {
+  buildParams,
+  extractFilenameFromHeader,
+  getFarmId,
+  getFileFormat,
+  getUserId,
+} from "@/utils";
 
 export const getPlants = async (landRowId: number): Promise<ApiResponse<GetPlantSelect[]>> => {
   const res = await axiosAuth.axiosJsonRequest.get(`plants/get-plant-of-row/${landRowId}`);
@@ -242,4 +248,38 @@ export const deletePlantGrowthHistory = async (id: number): Promise<ApiResponse<
   const res = await axiosAuth.axiosJsonRequest.delete(`plant-growth-history/${id}`);
   const apiResponse = res.data as ApiResponse<Object>;
   return apiResponse;
+};
+
+export const exportPlantGrowthHistory = async (
+  id: number,
+): Promise<{ blob: Blob; filename: string }> => {
+  const res = await axiosAuth.axiosJsonRequest.get(
+    `plant-growth-history/export-csv?plantId=${id}`,
+    { responseType: "blob" },
+  );
+
+  const filename = extractFilenameFromHeader(res.headers["content-disposition"]);
+
+  return { blob: res.data, filename };
+};
+
+export const exportPlants = async (
+  additionalParams?: Record<string, any>,
+): Promise<{ blob: Blob; filename: string }> => {
+  const params = buildParams(
+    undefined,
+    undefined,
+    undefined,
+    undefined,
+    undefined,
+    additionalParams,
+  );
+  const res = await axiosAuth.axiosJsonRequest.get(`plants/export-csv`, {
+    params,
+    responseType: "blob",
+  });
+
+  const filename = extractFilenameFromHeader(res.headers["content-disposition"]);
+
+  return { blob: res.data, filename };
 };

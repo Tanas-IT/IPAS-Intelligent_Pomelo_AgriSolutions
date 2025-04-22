@@ -12,7 +12,7 @@ import {
   GraftedPlantRequest,
 } from "@/payloads";
 import { FileResource } from "@/types";
-import { buildParams, getFileFormat, getUserId } from "@/utils";
+import { buildParams, extractFilenameFromHeader, getFileFormat, getUserId } from "@/utils";
 
 export const getGraftedPlantSelect = async (farmId: number) => {
   const res = await axiosAuth.axiosJsonRequest.get(`grafted-plant/get-for-selected/${farmId}`);
@@ -230,9 +230,28 @@ export const exportGraftedPlantGrowthHistory = async (
     { responseType: "blob" },
   );
 
-  const disposition = res.headers["content-disposition"] || "";
-  const match = disposition.match(/filename\*?=(?:UTF-8'')?([^;]+)/i);
-  const filename = match ? decodeURIComponent(match[1]) : "export.csv";
+  const filename = extractFilenameFromHeader(res.headers["content-disposition"]);
+
+  return { blob: res.data, filename };
+};
+
+export const exportGraftedPlants = async (
+  additionalParams?: Record<string, any>,
+): Promise<{ blob: Blob; filename: string }> => {
+  const params = buildParams(
+    undefined,
+    undefined,
+    undefined,
+    undefined,
+    undefined,
+    additionalParams,
+  );
+  const res = await axiosAuth.axiosJsonRequest.get(`grafted-plant/export-csv`, {
+    params,
+    responseType: "blob",
+  });
+
+  const filename = extractFilenameFromHeader(res.headers["content-disposition"]);
 
   return { blob: res.data, filename };
 };
