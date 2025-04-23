@@ -31,8 +31,6 @@ const PlanDetailsTable: React.FC<PlanDetailsTableProps> = ({
 }) => {
     const { styles } = useStyle();
     const [employeeMap, setEmployeeMap] = React.useState<Map<number, GetUser>>(new Map());
-    console.log("dataSource", dataSource);
-    
 
     const hasChildren = (node: DataSourceNode): node is ProcessNode | SubProcessNode => {
         return "children" in node;
@@ -71,9 +69,6 @@ const PlanDetailsTable: React.FC<PlanDetailsTableProps> = ({
     }, [dataSource]);
 
     const handleValuesChange = (changedValues: any, allValues: any) => {
-        console.log("Changed Values:", changedValues);
-        console.log("All Values in Form:", allValues);
-
         const updateChildren = (items: DataSourceNode[]): DataSourceNode[] => {
             return items.map((item) => {
                 if (item.type === "plan") {
