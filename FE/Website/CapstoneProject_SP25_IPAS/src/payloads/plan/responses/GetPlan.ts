@@ -56,6 +56,10 @@ export interface User {
   userId: number;
   fullName: string;
   avatarURL: string;
+  skillWithScore: {
+    skillName: string;
+    score: number;
+  }[];
 }
 
 export interface WorkLog {

@@ -127,22 +127,6 @@ const UpdatePlan = () => {
         }
     }, [selectedCrop]);
 
-    // useEffect(() => {
-    //     form.setFieldValue("masterTypeId", undefined);
-    //     if (selectedGrowthStage && selectedGrowthStage.length > 0) {
-    //         planService.filterTypeWorkByGrowthStage(selectedGrowthStage).then((data) => {
-    //             setProcessTypeOptions(
-    //                 data.map((item) => ({
-    //                     value: item.masterTypeId,
-    //                     label: item.masterTypeName,
-    //                 }))
-    //             );
-    //         });
-    //     } else {
-    //         setProcessTypeOptions([]);
-    //     }
-    // }, [selectedGrowthStage]);
-
     useEffect(() => {
         const updateProcessFarmOptions = async () => {
             if (targetType === "graftedPlant") {
@@ -496,26 +480,8 @@ const UpdatePlan = () => {
             toast.error("Plan ID is required for updating.");
         }
     };
-    console.log("mêt qua", selectedCrop);
-    // useEffect(() => {
-    //     form.setFieldValue("masterTypeId", undefined);
-    //     if (selectedGrowthStage && selectedGrowthStage.length > 0) {
-    //         planService.filterMasterTypeByGrowthStage(selectedGrowthStage, "Work").then((data) => {
-    //             setProcessTypeOptions(
-    //                 data.map((item) => ({
-    //                     value: item.masterTypeId,
-    //                     label: item.masterTypeName,
-    //                 }))
-    //             );
-    //         });
-    //     } else {
-    //         setProcessTypeOptions([]);
-    //     }
-    // }, [selectedGrowthStage]);
 
     const determineTargetType = (planTargetModels: any[]) => {
-        console.log("lay ra planTargetModels", planTargetModels);
-
         for (const target of planTargetModels) {
             if (target.graftedPlants && target.graftedPlants.length > 0) {
                 return "graftedPlant";
@@ -526,9 +492,7 @@ const UpdatePlan = () => {
                 return "regular";
             }
         }
-        // return "regular";
     };
-
 
     useEffect(() => {
         const fetchData = async () => {
@@ -548,7 +512,6 @@ const UpdatePlan = () => {
                     if (result) {
                         setPlanData(result);
                         const target = determineTargetType(result.planTargetModels);
-                        console.log("=======================================================", target);
                         const parsedCustomDates = result.customDates
                             ? JSON.parse(result.customDates).map((date: string) => moment(date))
                             : [];

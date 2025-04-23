@@ -28,8 +28,6 @@ const TaskAssignmentModal: React.FC<TaskAssignmentModalProps> = ({
     const [form] = Form.useForm();
     const [selectedIds, setSelectedIds] = useState<number[]>([]);
     const [reporterId, setReporterId] = useState<number | null>(null);
-    console.log("ids", selectedIds);
-    console.log("initialValues", initialValues);
 
     useEffect(() => {
         if (visible && initialValues) {
@@ -43,7 +41,22 @@ const TaskAssignmentModal: React.FC<TaskAssignmentModalProps> = ({
     }, [visible, initialValues, form]);
 
     const handleSave = () => {
-        console.log("handle save");
+        if (selectedIds.length === 0) {
+            Modal.error({
+                title: "Invalid Input",
+                content: "Please select at least one employee.",
+                okText: "Close",
+            });
+            return;
+        }
+        if (reporterId === null) {
+            Modal.error({
+                title: "Invalid Input",
+                content: "Please select a reporter.",
+                okText: "Close",
+            });
+            return;
+        }
 
         const selectedEmployees = employees
             .filter((emp) => selectedIds.includes(emp.userId))
@@ -53,10 +66,7 @@ const TaskAssignmentModal: React.FC<TaskAssignmentModalProps> = ({
             }));
 
         if (selectedPlanId) {
-            console.log("vo day");
-
             onSave(selectedEmployees, selectedPlanId, reporterId);
-            console.log("da goi onSave");
         }
         onCancel();
     };
@@ -71,7 +81,12 @@ const TaskAssignmentModal: React.FC<TaskAssignmentModalProps> = ({
                 <Button key="cancel" onClick={onCancel}>
                     Cancel
                 </Button>,
-                <Button key="save" type="primary" onClick={handleSave}>
+                <Button
+                    key="save"
+                    type="primary"
+                    disabled={selectedIds.length === 0 || reporterId === null}
+                    onClick={handleSave}
+                >
                     Save
                 </Button>,
             ]}
@@ -88,17 +103,6 @@ const TaskAssignmentModal: React.FC<TaskAssignmentModalProps> = ({
                     >
                         {employees.map((emp) => (
                             <Select.Option key={emp.userId} value={emp.userId} label={emp.fullName}>
-                                {/* <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                                          <img
-                                            src={emp.avatarURL}
-                                            alt={emp.fullName}
-                                            style={{ width: 24, height: 24, borderRadius: "50%" }}
-                                            crossOrigin="anonymous"
-                                          />
-                                          <span>
-                                            {emp.fullName} - Skills: {formatSkills(emp.skillWithScore)}
-                                          </span>
-                                        </div> */}
                                 <div style={{
                                     display: "flex",
                                     alignItems: "center",
@@ -194,19 +198,15 @@ const TaskAssignmentModal: React.FC<TaskAssignmentModalProps> = ({
                 {selectedIds?.length > 0 && (
                     <Form.Item label="Select Reporter">
                         <Flex vertical gap={10}>
+                            {reporterId === null && (
+                                <p style={{ color: "red", marginBottom: 8 }}>
+                                    Please select a reporter
+                                </p>
+                            )}
                             {employees
                                 .filter((emp) => selectedIds.includes(emp.userId))
                                 .map((emp) => (
                                     <Tooltip title={emp.fullName} key={emp.userId}>
-                                        {/* <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                                            <Avatar src={emp.avatarURL} crossOrigin="anonymous" />
-                                            <Radio
-                                                checked={reporterId === emp.userId}
-                                                onChange={() => setReporterId(emp.userId)}
-                                            >
-                                                Reporter
-                                            </Radio>
-                                        </div> */}
                                         <Flex
                                             align="center"
                                             gap={16}
@@ -225,6 +225,7 @@ const TaskAssignmentModal: React.FC<TaskAssignmentModalProps> = ({
                                                     : {}),
                                             }}
                                             data-selected={reporterId === emp.userId}
+                                            onClick={() => setReporterId(emp.userId)}
                                         >
                                             <Avatar
                                                 src={emp.avatarURL}
@@ -298,7 +299,6 @@ const TaskAssignmentModal: React.FC<TaskAssignmentModalProps> = ({
                                                 </span>
                                             </Radio>
                                         </Flex>
-
                                     </Tooltip>
                                 ))}
                         </Flex>

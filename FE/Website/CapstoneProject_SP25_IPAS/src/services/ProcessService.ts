@@ -49,8 +49,6 @@ export const getProcessesOfFarmForSelect = async (farmId?: number, isSample?: bo
 
 export const getProcessDetail = async (processId: string | number) => {
   const res = await axiosAuth.axiosJsonRequest.get(`processes/get-process-by-id/${processId}`);
-  console.log("res in getProcessDetail", res);
-  
   const apiResponse = res.data as ApiResponse<GetProcessDetail>;
 
   return {
@@ -86,7 +84,6 @@ export const updateFProcess = async (payload: UpdateProcessRequest): Promise<Api
   const formData = new FormData();
   console.log("payload in updateFProcess", payload);
   
-
   formData.append("ProcessId", String(payload.ProcessId));
   formData.append("ProcessName", payload.ProcessName);
   formData.append("IsActive", String(payload.IsActive));
@@ -131,8 +128,6 @@ export const updateFProcess = async (payload: UpdateProcessRequest): Promise<Api
   
 
   const res = await axiosAuth.axiosMultipartForm.put("processes/update-process-info", formData);
-  console.log("res in updateFProcess", res);
-  
   const apiResponse = res.data as ApiResponse<Object>;
   return apiResponse;
 };
@@ -149,8 +144,6 @@ export const getProcessOfFarmByMasterType = async (processIds: number[]) => {
     `processes/for-selected-by-master-type?${queryParams}`
   );
   const apiResponse = res.data as ApiResponse<GetProcessSelect[]>;
-  console.log("res getProcessOfFarmByMasterType", apiResponse);
-  
   return apiResponse.data.map(({ id, name }) => ({
     value: id,
     label: name
