@@ -71,12 +71,13 @@ namespace CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.PlanModel
         public int? MasterTypeId { get; set; }
         public string? AssignedTo { get; set; }
         public string? AvatarOfAssignor { get; set; }
-        public List<ReporterModel>? ListReporter { get; set; }
-        public List<ReporterModel>? ListEmployee { get; set; }
+        public List<EmployeeWithSkills>? ListReporter { get; set; }
+        public List<EmployeeWithSkills>? ListEmployee { get; set; }
         public string? DayOfWeek { get; set; }
         public string? DayOfMonth { get; set; }
         public string? CustomDates { get; set; }
-        public List<EmployeeWithSkills>? EmployeeWithSkills { get; set; }
+        // public List<EmployeeWithSkills>? EmployeeWithSkills { get; set; }
+        public bool? hasNonSampleProcess { get; set; }
         public TimeSpan? StartTime { get; set; }
 
         public TimeSpan? EndTime { get; set; }
