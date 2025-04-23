@@ -29,6 +29,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
         private readonly IConfiguration _configuration;
         private readonly IResponseCacheService _responseCacheService;
         private readonly IExcelReaderService _excelReaderService;
+        private string groupKey = $"{CacheKeyConst.GROUP_FARM_LANDPLOT}=";
         public LandRowService(IUnitOfWork unitOfWork, IMapper mapper, IConfiguration configuration, IResponseCacheService responseCacheService, IExcelReaderService excelReaderService)
         {
             _unitOfWork = unitOfWork;
@@ -415,9 +416,37 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     foreach (var item in rowsExistGet)
                     {
 
+                        bool isBeingUsed =
+                            await _unitOfWork.PlantRepository.AnyAsync(x => x.LandRowId == item.LandRowId) ||
+                            await _unitOfWork.PlanTargetRepository.AnyAsync(x => x.LandRowID == item.LandRowId);
+
+                        if (isBeingUsed)
+                        {
+                            return new BusinessResult(400, $"Can not delete because Row: {item.LandRowCode} is used in some where.");
+                        }
                         item.IsDeleted = true;
-                        _unitOfWork.LandRowRepository.Update(item);
                     }
+                    // remove cache
+                    var landPlotFarmPairs = rowsExistGet
+                        .GroupBy(x => new { x.LandPlotId, x.FarmId })
+                        .Select(g => g.Key)
+                        .ToList();
+
+                    foreach (var pair in landPlotFarmPairs)
+                    {
+                        if (pair.LandPlotId != null)
+                        {
+                            await _responseCacheService.RemoveCacheByGroupAsync(CacheKeyConst.GROUP_LANDPLOT + pair.LandPlotId.ToString());
+                        }
+                        if (pair.FarmId != null)
+                        {
+                            await _responseCacheService.RemoveCacheByGroupAsync($"{groupKey}{pair.FarmId}");
+                        }
+                    }
+                    //foreach (var item in rowsExistGet)
+                    //{
+                    _unitOfWork.LandRowRepository.UpdateRange(rowsExistGet);
+                    //}
                     //}
                     var result = await _unitOfWork.SaveAsync();
                     if (result > 0)
