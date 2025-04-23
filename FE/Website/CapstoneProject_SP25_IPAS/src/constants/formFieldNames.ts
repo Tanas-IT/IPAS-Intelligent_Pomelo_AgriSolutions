@@ -193,6 +193,7 @@ export const plantGrowthHistoryFormFields: Record<
   keyof GetPlantGrowthHistory,
   keyof GetPlantGrowthHistory
 > = {
+  userId: "userId",
   plantId: "plantId",
   plantGrowthHistoryId: "plantGrowthHistoryId",
   plantGrowthHistoryCode: "plantGrowthHistoryCode",

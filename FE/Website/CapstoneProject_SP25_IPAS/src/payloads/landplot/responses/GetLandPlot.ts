@@ -18,9 +18,16 @@ export interface GetLandPlot {
   landPlotCode: string;
   landPlotName: string;
   description: string;
+
   area: number;
   length: number;
   width: number;
+  lineSpacing: number;
+  numberOfRows: number;
+  rowPerLine: number;
+  rowSpacing: number;
+  isRowHorizontal: boolean;
+
   soilType: string;
   createDate: Date;
   status: string;
@@ -49,5 +56,7 @@ export interface GetLandPlotSimulate {
   isRowHorizontal: boolean;
   lineSpacing: number;
   numberOfRows: number;
+  farmLongtitude: number;
+  farmLatitude: number;
   landRows: landRowSimulate[];
 }

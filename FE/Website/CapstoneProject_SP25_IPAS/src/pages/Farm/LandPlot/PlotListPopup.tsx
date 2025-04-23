@@ -5,6 +5,7 @@ import style from "./LandPlot.module.scss";
 import { Icons } from "@/assets";
 import { formatDate } from "@/utils";
 import { GetLandPlot } from "@/payloads";
+import { PlotDetailItem } from "@/components";
 
 interface PlotListPopupProps {
   onClose: () => void;
@@ -21,7 +22,7 @@ function PlotListPopup({ onClose, landPlots }: PlotListPopupProps) {
           <List.Item>
             <Flex className={style.plotItemWrapper}>
               {/* Trạng thái của Land Plot */}
-              <Flex className={style.col}>
+              {/* <Flex className={style.col}>
                 <Tag
                   color={
                     plot.status === "Active"
@@ -33,7 +34,7 @@ function PlotListPopup({ onClose, landPlots }: PlotListPopupProps) {
                 >
                   {plot.status}
                 </Tag>
-              </Flex>
+              </Flex> */}
 
               <Flex className={style.col}>
                 <Flex className={style.plotItemHeader}>
@@ -44,37 +45,38 @@ function PlotListPopup({ onClose, landPlots }: PlotListPopupProps) {
                 </Flex>
 
                 {/* Chi tiết đất */}
-                <Flex className={style.plotItemDetails}>
-                  <Flex className={style.plotItemDetail}>
-                    <Icons.calendar />
-                    <label>Create Date:</label>
-                  </Flex>
-                  {formatDate(plot.createDate)}
-                </Flex>
+                <PlotDetailItem
+                  icon={<Icons.calendar />}
+                  label="Create Date"
+                  value={formatDate(plot.createDate)}
+                />
+                <PlotDetailItem
+                  icon={<Icons.ruler />}
+                  label="Area & Size"
+                  value={`${plot.area} m² — ${plot.length}m × ${plot.width}m`}
+                />
+                <PlotDetailItem
+                  icon={<Icons.list />}
+                  label="Rows"
+                  value={`${plot.numberOfRows} rows, ${plot.rowPerLine} per line`}
+                />
+                <PlotDetailItem
+                  icon={<Icons.direction />}
+                  label="Direction"
+                  value={plot.isRowHorizontal ? "Horizontal" : "Vertical"}
+                />
 
-                <Flex className={style.plotItemDetails}>
-                  <Flex className={style.plotItemDetail}>
-                    <Icons.area />
-                    <label>Area:</label>
-                  </Flex>
-                  {plot.area} m²
-                </Flex>
-
-                <Flex className={style.plotItemDetails}>
-                  <Flex className={style.plotItemDetail}>
-                    <Icons.soil />
-                    <label>Soil Type:</label>
-                  </Flex>
-                  {plot.soilType}
-                </Flex>
-
-                <Flex className={style.plotItemDetails}>
-                  <Flex className={style.plotItemDetail}>
-                    <Icons.target />
-                    <label>Target Market:</label>
-                  </Flex>
-                  {plot.targetMarket}
-                </Flex>
+                <PlotDetailItem
+                  icon={<Icons.spacing />}
+                  label="Spacing"
+                  value={`Line: ${plot.lineSpacing}m, Row: ${plot.rowSpacing}m`}
+                />
+                <PlotDetailItem icon={<Icons.soil />} label="Soil Type" value={plot.soilType} />
+                <PlotDetailItem
+                  icon={<Icons.target />}
+                  label="Target Market"
+                  value={plot.targetMarket}
+                />
               </Flex>
             </Flex>
           </List.Item>

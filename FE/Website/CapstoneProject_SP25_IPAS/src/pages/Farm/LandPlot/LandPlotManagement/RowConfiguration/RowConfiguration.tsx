@@ -4,7 +4,7 @@ import React, { useEffect } from "react";
 import { CustomButton, InfoField } from "@/components";
 import { RulesManager } from "@/utils";
 import { createPlotFormFields } from "@/constants";
-import { useMapStore } from "@/stores";
+import { useMapStore, useVirtualPlotConfigStore } from "@/stores";
 
 interface RowConfigurationProps {
   form: FormInstance;
@@ -12,6 +12,7 @@ interface RowConfigurationProps {
 
 const RowConfiguration: React.FC<RowConfigurationProps> = React.memo(({ form }) => {
   const { setIsDirty } = useMapStore();
+  const { metricUnit } = useVirtualPlotConfigStore();
 
   const handleAutoFill = () => {
     form.setFieldsValue({
@@ -26,6 +27,11 @@ const RowConfiguration: React.FC<RowConfigurationProps> = React.memo(({ form }) 
       [createPlotFormFields.plantSpacing]: 10,
     });
     setIsDirty(true);
+  };
+
+  const handleClear = () => {
+    form.resetFields();
+    setIsDirty(false);
   };
 
   const handleInputChange = (value: string | number) => {
@@ -49,20 +55,21 @@ const RowConfiguration: React.FC<RowConfigurationProps> = React.memo(({ form }) 
         </span> */}
       </Flex>
       <Flex className={style.autoFillButtonContainer}>
+        <CustomButton label="Clear Data" handleOnClick={handleClear} />
         <CustomButton label="Generate Sample Data" handleOnClick={handleAutoFill} />
       </Flex>
       <Flex className={style.rowContentSection}>
         <Form form={form} className={style.formContainer}>
           <Flex className={style.formSection}>
-            <label className={style.sectionLabel}>Set Up Row</label>
-            <div className={style.unitNote}>
+            <label className={style.sectionLabel}>Row Information</label>
+            {/* <div className={style.unitNote}>
               <i>Note: Distances are in pixels (px). In this setup, 1 meter ≈ 10 px.</i>
-            </div>
+            </div> */}
             <Flex className={style.setupSection}>
               <Flex className={style.row}>
                 <InfoField
                   type="text"
-                  label="Length (px)"
+                  label={`Length (${metricUnit})`}
                   name={createPlotFormFields.rowLength}
                   rules={RulesManager.getRowLengthRules()}
                   onChange={(e) => handleInputChange(e.target.value)}
@@ -70,7 +77,7 @@ const RowConfiguration: React.FC<RowConfigurationProps> = React.memo(({ form }) 
 
                 <InfoField
                   type="text"
-                  label="Width (px)"
+                  label={`Width (${metricUnit})`}
                   name={createPlotFormFields.rowWidth}
                   rules={RulesManager.getRowWidthRules()}
                   onChange={(e) => handleInputChange(e.target.value)}
@@ -84,7 +91,7 @@ const RowConfiguration: React.FC<RowConfigurationProps> = React.memo(({ form }) 
                 />
                 <InfoField
                   type="text"
-                  label="Spacing Between Rows (px)"
+                  label={`Spacing Between Rows (${metricUnit})`}
                   name={createPlotFormFields.rowSpacing}
                   rules={RulesManager.getRowSpacingRules()}
                   onChange={(e) => handleInputChange(e.target.value)}
@@ -103,7 +110,8 @@ const RowConfiguration: React.FC<RowConfigurationProps> = React.memo(({ form }) 
                 <div className={style.inputGroup}>
                   <InfoField
                     type="text"
-                    label="Line Spacing (px)"
+                    label={`Line Spacing (${metricUnit})`}
+                    value={50}
                     name={createPlotFormFields.lineSpacing}
                     rules={RulesManager.getLineSpacingRules()}
                     onChange={(e) => handleInputChange(e.target.value)}
@@ -132,10 +140,10 @@ const RowConfiguration: React.FC<RowConfigurationProps> = React.memo(({ form }) 
 
           {/* Tree Setup Section */}
           <Flex className={style.formSection}>
-            <label className={style.sectionLabel}>Set Up Plants in Rows</label>
-            <div className={style.unitNote}>
+            <label className={style.sectionLabel}>Plant Information in Rows</label>
+            {/* <div className={style.unitNote}>
               <i>Note: Distances are in pixels (px). In this setup, 1 meter ≈ 10 px.</i>
-            </div>
+            </div> */}
             <Flex className={style.setupSection}>
               <Flex className={style.row}>
                 <InfoField
@@ -148,7 +156,7 @@ const RowConfiguration: React.FC<RowConfigurationProps> = React.memo(({ form }) 
 
                 <InfoField
                   type="text"
-                  label="Spacing Between Plants (px)"
+                  label={`Spacing Between Plants (${metricUnit})`}
                   name={createPlotFormFields.plantSpacing}
                   rules={RulesManager.getPlantSpacingRules()}
                   onChange={(e) => handleInputChange(e.target.value)}

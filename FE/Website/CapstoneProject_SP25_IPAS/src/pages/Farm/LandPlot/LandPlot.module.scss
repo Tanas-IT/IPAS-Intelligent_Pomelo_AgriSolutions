@@ -82,20 +82,6 @@
           color: vars.$color_role_name;
         }
       }
-      .plotItemDetails {
-        justify-content: flex-start;
-        align-items: center;
-        gap: 12px;
-        .plotItemDetail {
-          color: vars.$color_text_detail;
-          justify-content: center;
-          align-items: center;
-          gap: 6px;
-          svg {
-            margin-bottom: 4px;
-          }
-        }
-      }
     }
   }
 }

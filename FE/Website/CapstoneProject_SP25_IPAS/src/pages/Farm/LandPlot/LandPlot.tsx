@@ -13,6 +13,7 @@ import { AddNewPlotDrawer } from "@/pages";
 import { PATHS } from "@/routes";
 import { toast } from "react-toastify";
 import { useModal } from "@/hooks";
+import { isManager } from "@/utils";
 
 function LandPlot() {
   const navigate = useNavigate();
@@ -30,6 +31,7 @@ function LandPlot() {
   const [selectedPlot, setSelectedPlot] = useState<GetLandPlot | null>(null);
   const debouncedSearchTerm = useDebounce(searchTerm, 500)[0];
   const deleteConfirmModal = useModal<{ id: number }>();
+  const notManagerIn = !isManager();
 
   // const showDrawer = () => setIsDrawerVisible(true);
   const closeDrawer = () => setIsDrawerVisible(false);
@@ -38,12 +40,9 @@ function LandPlot() {
     try {
       setIsLoading(true);
       const result = await landPlotService.getLandPlots();
-
-      if (result.statusCode === 200) {
-        setLandPlots(result.data);
-      }
-    } catch (error) {
-      console.error("Fetch data error:", error);
+      console.log(result);
+      
+      if (result.statusCode === 200) setLandPlots(result.data);
     } finally {
       setIsLoading(false);
     }
@@ -143,11 +142,14 @@ function LandPlot() {
                 <LandPlotActions icon={<Icons.seedling />} label="Color Guide" />
               </>
             </Popover>
-            <LandPlotActions
-              icon={<Icons.plus />}
-              label="Add New Plot"
-              onClick={() => showDrawer()}
-            />
+            {notManagerIn && (
+              <LandPlotActions
+                icon={<Icons.plus />}
+                label="Add New Plot"
+                onClick={() => showDrawer()}
+              />
+            )}
+
             <Popover
               content={
                 <PlotListPopup
