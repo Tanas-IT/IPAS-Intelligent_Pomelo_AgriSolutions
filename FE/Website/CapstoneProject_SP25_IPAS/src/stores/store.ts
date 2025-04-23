@@ -159,6 +159,28 @@ export const useMapStore = create<MapState>((set, get) => ({
   },
 }));
 
+interface VirtualPlotConfigState {
+  metricUnit: string;
+  sizePlant: number;
+  rowWidth: number;
+  plantSize: number;
+  distance: number;
+  lineSpacing: number;
+  rowSpacing: number;
+  setConfigs: (configs: Partial<VirtualPlotConfigState>) => void;
+}
+
+export const useVirtualPlotConfigStore = create<VirtualPlotConfigState>((set) => ({
+  metricUnit: "m",
+  sizePlant: 0,
+  plantSize: 0,
+  rowWidth: 0,
+  distance: 0,
+  lineSpacing: 0,
+  rowSpacing: 0,
+  setConfigs: (configs) => set((state) => ({ ...state, ...configs })),
+}));
+
 interface GrowthStageStore {
   maxAgeStart: number | null;
   setMaxAgeStart: (value: number) => void;

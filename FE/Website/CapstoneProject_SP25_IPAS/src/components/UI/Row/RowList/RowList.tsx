@@ -2,13 +2,12 @@ import React from "react";
 import { Flex } from "antd";
 import { landRowSimulate } from "@/payloads";
 import { RowItemEdit, RowItemView } from "@/components";
+import { useVirtualPlotConfigStore } from "@/stores";
 
 interface RowListProps {
   plotId?: number;
   rowsData: landRowSimulate[];
   rowsPerLine: number;
-  rowSpacing: number;
-  lineSpacing: number;
   isHorizontal: boolean;
   isEditing?: boolean;
   moveRow?: (dragIndex: number, hoverIndex: number) => void;
@@ -20,8 +19,6 @@ const RowList: React.FC<RowListProps> = ({
   plotId,
   rowsData,
   rowsPerLine,
-  rowSpacing,
-  lineSpacing,
   isHorizontal,
   isEditing = true,
   moveRow,
@@ -29,6 +26,7 @@ const RowList: React.FC<RowListProps> = ({
   onRowClick,
 }) => {
   const renderRows = () => {
+    const { lineSpacing } = useVirtualPlotConfigStore();
     const groupedRows = [];
     for (let i = 0; i < rowsData.length; i += rowsPerLine) {
       groupedRows.push(
@@ -39,7 +37,6 @@ const RowList: React.FC<RowListProps> = ({
               isEditing ? (
                 <RowItemEdit
                   key={row.landRowId}
-                  rowSpacing={rowSpacing}
                   row={row}
                   index={i + index}
                   isHorizontal={isHorizontal}
@@ -51,7 +48,6 @@ const RowList: React.FC<RowListProps> = ({
                 <RowItemView
                   plotId={plotId ?? 0}
                   key={row.landRowId}
-                  rowSpacing={rowSpacing}
                   row={row}
                   isHorizontal={isHorizontal}
                 />

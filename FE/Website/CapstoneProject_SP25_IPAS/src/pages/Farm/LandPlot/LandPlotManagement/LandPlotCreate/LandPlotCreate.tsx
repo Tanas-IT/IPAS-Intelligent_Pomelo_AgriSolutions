@@ -5,7 +5,7 @@ import React, { useEffect, useState } from "react";
 import { RulesManager } from "@/utils";
 import { GetLandPlot } from "@/payloads";
 import { PolygonInit } from "@/types";
-import { useMapStore } from "@/stores";
+import { useMapStore, useVirtualPlotConfigStore } from "@/stores";
 import { Icons } from "@/assets";
 import { createPlotFormFields, SYSTEM_CONFIG_GROUP } from "@/constants";
 import { useSystemConfigOptions } from "@/hooks";
@@ -28,12 +28,13 @@ const LandPlotCreate: React.FC<LandPlotCreateProps> = React.memo(
       area,
       width,
       length,
+      setPolygonDimensions,
       currentPolygon,
       setCurrentPolygon,
-      setPolygonDimensions,
       isPolygonReady,
       setPolygonReady,
     } = useMapStore();
+
     const { options: soilOptions, loading: soilLoading } = useSystemConfigOptions(
       SYSTEM_CONFIG_GROUP.SOIL_TYPE,
     );
@@ -86,15 +87,15 @@ const LandPlotCreate: React.FC<LandPlotCreateProps> = React.memo(
       }
     }, [isOpen, selectedPlot]);
 
-    useEffect(() => {
-      if (area !== 0 && width !== 0 && length !== 0) {
-        form.setFieldsValue({
-          [createPlotFormFields.area]: area,
-          [createPlotFormFields.width]: width,
-          [createPlotFormFields.length]: length,
-        });
-      }
-    }, [area, width, length]);
+    // useEffect(() => {
+    //   if (area !== 0 && width !== 0 && length !== 0) {
+    //     form.setFieldsValue({
+    //       [createPlotFormFields.area]: area,
+    //       [createPlotFormFields.width]: width,
+    //       [createPlotFormFields.length]: length,
+    //     });
+    //   }
+    // }, [area, width, length]);
 
     const handleInputChange = (value: string | number) => {
       if (value !== null && value !== undefined && value !== "") {
@@ -108,13 +109,31 @@ const LandPlotCreate: React.FC<LandPlotCreateProps> = React.memo(
 
     const deletePlot = () => {
       setCurrentPolygon(null);
-      setPolygonDimensions(0, 0, 0);
-      form.resetFields([
-        createPlotFormFields.area,
-        createPlotFormFields.width,
-        createPlotFormFields.length,
-      ]);
+      // setPolygonDimensions(0, 0, 0);
+      // form.resetFields([
+      //   createPlotFormFields.area,
+      //   createPlotFormFields.width,
+      //   createPlotFormFields.length,
+      // ]);
       clearPolygons();
+    };
+
+    const AutoCalculateArea: React.FC<{ form: FormInstance }> = ({ form }) => {
+      const length = Form.useWatch(createPlotFormFields.length, form);
+      const width = Form.useWatch(createPlotFormFields.width, form);
+
+      useEffect(() => {
+        const l = Number(length);
+        const w = Number(width);
+        if (!isNaN(l) && !isNaN(w) && l > 0 && w > 0) {
+          const area = l * w;
+          form.setFieldValue(createPlotFormFields.area, parseFloat(area.toFixed(2)));
+        } else {
+          form.setFieldValue(createPlotFormFields.area, undefined);
+        }
+      }, [length, width]);
+
+      return null;
     };
 
     return (
@@ -144,7 +163,7 @@ const LandPlotCreate: React.FC<LandPlotCreateProps> = React.memo(
                   name={createPlotFormFields.soilType}
                   rules={RulesManager.getSoilTypeRules()}
                   placeholder="Enter soil type"
-                  onChange={(e) => handleInputChange(e.target.value)}
+                  onChange={handleInputChange}
                   isLoading={soilLoading}
                   options={soilOptions}
                 />
@@ -164,29 +183,28 @@ const LandPlotCreate: React.FC<LandPlotCreateProps> = React.memo(
                   onChange={(e) => handleInputChange(e.target.value)}
                 />
               )} */}
-              <FormFieldModal
-                label="Area (m²)"
-                description="The calculated area is approximate and may vary slightly from the actual size."
-                name={createPlotFormFields.area}
-                placeholder="Auto-calculated from drawn plot"
-                readonly={true}
-              />
               <Flex gap={20}>
                 <FormFieldModal
                   label="Length (m)"
-                  description="Approximate Length"
                   name={createPlotFormFields.length}
-                  placeholder="Auto-calculated from drawn plot"
-                  readonly={true}
+                  placeholder="Length (m)"
+                  rules={RulesManager.getNumberRules("Length")}
                 />
                 <FormFieldModal
                   label="Width (m)"
-                  description="Approximate width"
                   name={createPlotFormFields.width}
-                  placeholder="Auto-calculated from drawn plot"
-                  readonly={true}
+                  placeholder="Width (m)"
+                  rules={RulesManager.getNumberRules("Width")}
                 />
               </Flex>
+              <FormFieldModal
+                label="Area (m²)"
+                description="Automatically calculated from length × width. Actual size may vary slightly."
+                name={createPlotFormFields.area}
+                placeholder="Calculated from length and width"
+                readonly={true}
+              />
+              <AutoCalculateArea form={form} />
             </Form>
           </Flex>
           <Flex className={style.mapSection}>

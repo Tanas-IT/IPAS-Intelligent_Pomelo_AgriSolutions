@@ -21,6 +21,7 @@ export { default as SearchHeader } from "@/components/UI/Search/SearchHeader/Sea
 export { default as CustomButton } from "@/components/UI/Button/CustomButton";
 export { default as LandPlotActions } from "@/components/UI/Button/LandPlotActions/LandPlotActions";
 export { default as MapControls } from "@/components/UI/Button/MapControls/MapControls";
+export { default as PlotDetailItem } from "@/components/UI/Maps/PlotDetailItem/PlotDetailItem";
 export { default as ActionBar } from "@/components/UI/ActionBar/ActionBar";
 export { default as ActionMenu } from "@/components/UI/ActionMenu/ActionMenu/ActionMenu";
 export { default as ActionMenuPlant } from "@/components/UI/ActionMenu/ActionMenuPlant";

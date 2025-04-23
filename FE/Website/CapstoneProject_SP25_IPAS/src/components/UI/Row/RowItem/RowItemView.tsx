@@ -5,11 +5,12 @@ import { Tooltip } from "@/components";
 import style from "./RowItem.module.scss";
 import { useNavigate } from "react-router-dom";
 import { DEAD_STATUS, HEALTH_STATUS, healthStatusColors, ROUTES } from "@/constants";
+import { calculateRowLength } from "@/utils";
+import { useVirtualPlotConfigStore } from "@/stores";
 
 interface RowItemViewProps {
   plotId: number;
   row: landRowSimulate;
-  rowSpacing: number;
   isHorizontal: boolean;
   onClick?: () => void;
 }
@@ -17,16 +18,18 @@ interface RowItemViewProps {
 const RowItemView: React.FC<RowItemViewProps> = ({
   plotId,
   row,
-  rowSpacing,
   isHorizontal,
   onClick,
 }) => {
   const navigate = useNavigate();
+  const { sizePlant, rowWidth, distance, rowSpacing } = useVirtualPlotConfigStore();
+
+  const rowLength = calculateRowLength(row.treeAmount, distance, sizePlant);
 
   const getPlantStyle = (i: number, isRealPlant: boolean): React.CSSProperties => {
     const spacingStyle = isHorizontal
-      ? { marginRight: i !== row.treeAmount - 1 ? `${row.distance}px` : "0" }
-      : { marginBottom: i !== row.treeAmount - 1 ? `${row.distance}px` : "0" };
+      ? { marginRight: i !== row.treeAmount - 1 ? `${distance}px` : "0" }
+      : { marginBottom: i !== row.treeAmount - 1 ? `${distance}px` : "0" };
 
     // return {
     //   // backgroundColor: isRealPlant ? "transparent" : "gray",
@@ -60,8 +63,8 @@ const RowItemView: React.FC<RowItemViewProps> = ({
         className={style.row}
         vertical={!isHorizontal}
         style={{
-          width: isHorizontal ? `${row.length}px` : `${row.width}px`,
-          height: isHorizontal ? `${row.width}px` : `${row.length}px`,
+          width: isHorizontal ? `${rowLength}px` : `${rowWidth}px`,
+          height: isHorizontal ? `${rowWidth}px` : `${rowLength}px`,
           marginRight: `${rowSpacing}px`,
           cursor: "default",
         }}
@@ -83,6 +86,8 @@ const RowItemView: React.FC<RowItemViewProps> = ({
               <div
                 className={`${style.plantImage} ${displayedPlant ? style.view : ""}`}
                 style={{
+                  width: `${sizePlant}px`,
+                  height: `${sizePlant}px`,
                   ...getPlantStyle(i, !!displayedPlant),
                   backgroundColor:
                     displayedPlant && healthStatusColors[displayedPlant.healthStatus],

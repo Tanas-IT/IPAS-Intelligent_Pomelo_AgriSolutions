@@ -1,34 +1,31 @@
 import React, { useCallback } from "react";
 import { DndProvider } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
-import { Divider, Flex } from "antd";
+import { Divider, Flex, Modal } from "antd";
 import style from "./DraggableRow.module.scss";
 import { Icons } from "@/assets";
 import { ConfirmModal, CustomButton, MapControls, RowList } from "@/components";
 import RowItemModal from "./RowItemModal";
 import { useHasChanges, useModal, usePanZoom } from "@/hooks";
-import { MESSAGES } from "@/constants";
-import { toast } from "react-toastify";
 import { isPlantOverflowing } from "@/utils";
 import { landRowSimulate } from "@/payloads";
+import { useVirtualPlotConfigStore } from "@/stores";
 
 interface DraggableRowProps {
   rowsData: landRowSimulate[];
   setRowsData: React.Dispatch<React.SetStateAction<landRowSimulate[]>>;
   isHorizontal: boolean;
-  rowSpacing: number;
   rowsPerLine: number;
-  lineSpacing: number;
 }
 
 const DraggableRow: React.FC<DraggableRowProps> = ({
   rowsData,
   setRowsData,
   isHorizontal,
-  rowSpacing,
   rowsPerLine,
-  lineSpacing,
 }) => {
+  const { rowSpacing, lineSpacing } = useVirtualPlotConfigStore();
+
   const moveRow = useCallback(
     (dragIndex: number, hoverIndex: number) => {
       setRowsData((prevRows) => {
@@ -82,10 +79,10 @@ const DraggableRow: React.FC<DraggableRowProps> = ({
   };
 
   const handleAdd = (newRow: Omit<landRowSimulate, "landRowId" | "rowIndex">) => {
-    if (isPlantOverflowing(newRow.distance, newRow.treeAmount, newRow.length)) {
-      toast.error(MESSAGES.OUT_PLANT);
-      return;
-    }
+    // if (isPlantOverflowing(newRow.distance, newRow.treeAmount, newRow.length)) {
+    //   toast.error(MESSAGES.OUT_PLANT);
+    //   return;
+    // }
 
     setRowsData((prevRows) => {
       const lastRow = prevRows[prevRows.length - 1];
@@ -118,11 +115,11 @@ const DraggableRow: React.FC<DraggableRowProps> = ({
 
   const handleUpdate = (updatedRow?: landRowSimulate) => {
     if (!updatedRow) return;
-    if (isPlantOverflowing(updatedRow.distance, updatedRow.treeAmount, updatedRow.length)) {
-      updateConfirmModal.hideModal();
-      toast.error(MESSAGES.OUT_PLANT);
-      return;
-    }
+    // if (isPlantOverflowing(updatedRow.distance, updatedRow.treeAmount, updatedRow.length)) {
+    //   updateConfirmModal.hideModal();
+    //   toast.error(MESSAGES.OUT_PLANT);
+    //   return;
+    // }
 
     setRowsData((prevRows) =>
       prevRows.map((row) =>
@@ -140,6 +137,17 @@ const DraggableRow: React.FC<DraggableRowProps> = ({
 
     updateConfirmModal.hideModal();
     formModal.hideModal();
+  };
+
+  const handleDeleteRow = (landRowId: number) => {
+    setRowsData((prev) => {
+      const updatedRows = prev.filter((r) => r.landRowId !== landRowId); // Lọc ra hàng đã xóa
+      // Cập nhật lại index của các hàng còn lại
+      return updatedRows.map((r, index) => ({
+        ...r,
+        rowIndex: index + 1, // Cập nhật lại rowIndex, bắt đầu từ 1
+      }));
+    });
   };
 
   return (
@@ -196,12 +204,12 @@ const DraggableRow: React.FC<DraggableRowProps> = ({
             <RowList
               rowsData={rowsData}
               rowsPerLine={rowsPerLine}
-              rowSpacing={rowSpacing}
-              lineSpacing={lineSpacing}
               isHorizontal={isHorizontal}
               moveRow={moveRow}
               setIsPanning={setIsPanning}
               onRowClick={(row) => formModal.showModal(row)}
+              // onRowClick={handleRowClick}
+              // onRowClick={handleRowAction}
             />
           </div>
         </Flex>
@@ -210,6 +218,7 @@ const DraggableRow: React.FC<DraggableRowProps> = ({
           onClose={handleCancelConfirm}
           onSave={formModal.modalState.data ? handleUpdateConfirm : handleAdd}
           // onSave={handleAdd}
+          onDelete={handleDeleteRow}
           rowData={formModal.modalState.data}
         />
         {/* Confirm Cancel Modal */}

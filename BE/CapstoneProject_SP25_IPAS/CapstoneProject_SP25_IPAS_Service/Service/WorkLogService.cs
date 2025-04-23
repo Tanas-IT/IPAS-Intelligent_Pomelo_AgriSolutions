@@ -3470,11 +3470,16 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             var dependentPlans = await _unitOfWork.PlanRepository.GetPlansBySubProcessIds(allDependentSubProcessIds);
             var dependentPlanIds = dependentPlans.Select(p => p.PlanId).ToList();
             var allWorkLogs = await _unitOfWork.WorkLogRepository.GetWorkLogsByPlanIdsWithNoScheduleAsync(dependentPlanIds);
-
+            var getStatusCancelled = await _unitOfWork.SystemConfigRepository
+                                      .GetConfigValue(SystemConfigConst.CANCELLED.Trim(), "Cancelled");
 
             // Dời các WorkLog
             foreach (var workLog in allWorkLogs)
             {
+                if(workLog.Status != null && workLog.Status.Equals(getStatusCancelled))
+                {
+                    continue;
+                }
                 if (workLog.Date.HasValue)
                     workLog.Date = workLog.Date.Value.AddDays(shiftDays);
 

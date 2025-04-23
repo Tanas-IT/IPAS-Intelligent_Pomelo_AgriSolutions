@@ -1,6 +1,7 @@
-import { Modal, Divider } from "antd";
+import { Modal, Divider, Button, Flex } from "antd";
 import style from "./ModalForm.module.scss";
 import { CustomButton } from "@/components";
+import { Icons } from "@/assets";
 
 type ModalFormProps = {
   isOpen: boolean;
@@ -16,6 +17,7 @@ type ModalFormProps = {
   size?: "normal" | "normalXL" | "normalXXL" | "large" | "largeXL";
   noCancel?: boolean;
   noDivider?: boolean;
+  onDelete?: () => void;
 };
 
 const ModalForm = ({
@@ -32,6 +34,7 @@ const ModalForm = ({
   size = "normal",
   noCancel = false,
   noDivider = false,
+  onDelete,
 }: ModalFormProps) => {
   return (
     <Modal
@@ -59,7 +62,15 @@ const ModalForm = ({
       ]}
     >
       <div>
-        {typeof title === "string" ? <h2 className={style.titleModal}>{title}</h2> : title}
+        <Flex justify="start" gap={20}>
+          {typeof title === "string" ? <h2 className={style.titleModal}>{title}</h2> : title}
+          {onDelete && (
+            <Button danger type="primary" onClick={onDelete}>
+              <Icons.delete />
+            </Button>
+          )}
+        </Flex>
+
         {!noDivider && <Divider className={style.dividerModal} />}
       </div>
       {children}

@@ -10,7 +10,7 @@ export const MESSAGES = {
   IMAGE_OR_VIDEO_INVALID:
     "Only image (PNG, JPG, GIF, WEBP) and video (MP4, WEBM, OGG) files are allowed!",
   OUT_PLANT:
-    "The total number of plants exceeds the row's capacity. Please reduce the number of plants or adjust the spacing.",
+    "The number of plants exceeds the row capacity. Please reduce the number of plants or increase the row length.",
   DRAW_PLOT: "Please draw a plot before proceeding to the next step!",
   DRAW_PLOT_UPDATE: "Please draw a plot before updating!",
   OVERLAPPING_PLOT: "The new plot overlaps with an existing plot!",
@@ -37,5 +37,4 @@ export const MESSAGES = {
   EMPLOYEE_DUPLICATE: "Duplicate employees detected. Please remove duplicates.",
   PRODUCT_DUPLICATE: "Duplicate products detected. Please remove duplicates.",
   REQUIRE_PACKAGE_DETAIL: "At least one detail is required.",
-
 } as const;

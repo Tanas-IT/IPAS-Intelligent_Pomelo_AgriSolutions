@@ -7,6 +7,7 @@ import { AddNewPlotDrawer } from "@/pages";
 import { Icons } from "@/assets";
 import { usePanZoom } from "@/hooks";
 import { landPlotService } from "@/services";
+import { isManager } from "@/utils";
 
 interface SimulationViewProps {
   plotId?: number;
@@ -27,6 +28,7 @@ const SimulationView: FC<SimulationViewProps> = ({ plotId }) => {
     handleMouseMove,
     handleMouseUp,
   } = usePanZoom();
+  const notManagerIn = !isManager();
 
   const closeDrawer = () => setIsDrawerVisible(false);
   const showDrawer = () => setIsDrawerVisible(true);
@@ -37,9 +39,9 @@ const SimulationView: FC<SimulationViewProps> = ({ plotId }) => {
         try {
           setIsLoading(true);
           const res = await landPlotService.getLandPlotSimulate(plotId);
-          if (res.statusCode === 200) {
-            setPlotData(res.data);
-          }
+          console.log(res);
+          
+          if (res.statusCode === 200) setPlotData(res.data);
         } finally {
           setIsLoading(false);
         }
@@ -69,11 +71,14 @@ const SimulationView: FC<SimulationViewProps> = ({ plotId }) => {
 
           {/* Nút Zoom In/Out */}
           <Flex className={style.zoomControls}>
-            <MapControls
-              icon={<Icons.edit />}
-              label="Modify Plot Layout"
-              onClick={() => showDrawer()}
-            />
+            {notManagerIn && (
+              <MapControls
+                icon={<Icons.edit />}
+                label="Modify Plot Layout"
+                onClick={() => showDrawer()}
+              />
+            )}
+
             <MapControls
               icon={<Icons.zoomIn />}
               label="Zoom In"
@@ -108,15 +113,19 @@ const SimulationView: FC<SimulationViewProps> = ({ plotId }) => {
           <RowList
             plotId={plotData.landPlotId}
             rowsData={plotData.landRows}
-            rowSpacing={plotData.rowSpacing}
             rowsPerLine={plotData.rowPerLine}
-            lineSpacing={plotData.lineSpacing}
             isHorizontal={plotData.isRowHorizontal}
             isEditing={false}
           />
         </div>
       </Flex>
-      <AddNewPlotDrawer plotSimulate={plotData} isOpen={isDrawerVisible} onClose={closeDrawer} />
+      <AddNewPlotDrawer
+        longitude={plotData.farmLongtitude}
+        latitude={plotData.farmLatitude}
+        plotSimulate={plotData}
+        isOpen={isDrawerVisible}
+        onClose={closeDrawer}
+      />
     </div>
   );
 };

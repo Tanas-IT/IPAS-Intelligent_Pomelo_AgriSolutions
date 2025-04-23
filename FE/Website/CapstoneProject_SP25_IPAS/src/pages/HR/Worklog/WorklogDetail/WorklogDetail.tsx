@@ -1056,7 +1056,7 @@ function WorklogDetail() {
       <RedoWorklogModal
         isOpen={isRedoModalOpen}
         onClose={() => setIsRedoModalOpen(false)}
-        onSuccess={() => setIsRedoModalOpen(false)}
+        onSuccess={fetchPlanDetail}
         failedOrRedoWorkLogId={worklogDetail?.workLogId || 0}
       />
       <DependencyModal

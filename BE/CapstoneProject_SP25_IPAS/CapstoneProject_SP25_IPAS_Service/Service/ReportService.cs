@@ -135,10 +135,11 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     TaskStatus = listTaskStatusDistribution
                 };
 
+                var getAllWorkLog = await _unitOfWork.WorkLogRepository.GetListWorkLogByFarmId(farmId.Value);
                 var getStatusDone = await _unitOfWork.SystemConfigRepository
                                         .GetConfigValue(SystemConfigConst.DONE.Trim(), "Done");
-                var totalCount = filteredTask.Count();
-                var doneCount = filteredTask.Count(x => x.Status == getStatusDone);
+                var totalCount = getAllWorkLog.Count();
+                var doneCount = getAllWorkLog.Count(x => x.Status == getStatusDone);
                 var percentComplete = totalCount == 0 ? 0 : Math.Round((double)doneCount / totalCount * 100, 2);
                 var getFarm = await _unitOfWork.FarmRepository.GetFarmById(farmId.Value);
                 string url = $"https://api.openweathermap.org/data/2.5/weather?lat={getFarm.Latitude}&lon={getFarm.Longitude}&appid={_configuration["SystemDefault:API_KEY_WEATHER"]}&units=metric";
@@ -1045,6 +1046,37 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             {
 
                 return new BusinessResult(Const.ERROR_EXCEPTION, Const.ERROR_MESSAGE);
+            }
+        }
+
+        public async Task<BusinessResult> StatisticPlantDeadAndAlive(int farmId)
+        {
+            try
+            {
+                var getAllPlantInFarm = await _unitOfWork.PlantRepository.GetAllPlantByFarmId(farmId);
+                if(getAllPlantInFarm == null)
+                {
+                    return new BusinessResult(400, "Do not have any plant in farm", new List<Plan>());
+                }
+                var total = getAllPlantInFarm.Count;
+                var deadCount = getAllPlantInFarm.Count(p => p.IsDead == true);
+                var normalCount = total - deadCount;
+
+                var deadPercentage = Math.Round((double)deadCount / total * 100, 2);
+                var normalPercentage = 100 - deadPercentage;
+                var result = new
+                {
+                    total = total,
+                    normalPercentage = normalPercentage,
+                    deadPercentage = deadPercentage
+                };
+                return new BusinessResult(200, "Statistic Plant Dead And Alive Success", result);
+
+            }
+            catch (Exception ex)
+            {
+
+                throw;
             }
         }
     }
