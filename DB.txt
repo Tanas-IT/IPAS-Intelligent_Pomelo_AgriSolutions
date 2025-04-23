@@ -1856,7 +1856,7 @@ VALUES
            ,1),
 ('SPC002', N'Land preparation steps', NULL, 1, 1, N'Prepare the ground before planting', '2025-04-13 08:00:00', '2025-04-13 08:00:00', '2025-04-13 08:00:00', '2025-04-15 18:00:00', 0, 1, 10, NULL, 1),
 ('SPC003', N'Sow seeds', NULL, 0, 1, N'Proceed to sow treated seeds', '2025-04-13 09:30:00', '2025-04-13 09:30:00', '2025-04-16 07:00:00', '2025-04-16 12:00:00', 0, 2, 10, NULL, 1),
-('SPC004', N'Watering', NULL, 0, 1, N'Watering after sowing', '2025-04-13 11:00:00', '2025-04-13 11:00:00', '2025-05-02 06:00:00', '2025-05-15 07:00:00', 0, 1, 2, NULL, 1),
+('SPC004', N'Watering', NULL, 0, 1, N'Watering after sowing', '2025-04-13 11:00:00', '2025-04-13 11:00:00', '2025-05-02 06:00:00', '2025-05-10 07:00:00', 0, 1, 2, NULL, 1),
 ('SPC005', N'Fertilizing', NULL, 0, 1, N'Organic fertilizer for seedlings', '2025-04-13 13:00:00', '2025-04-13 13:00:00', '2025-05-16 08:00:00', '2025-05-18 09:30:00', 0, 2, 2, NULL, 1),
 ('SPC006', N'Pest Control', NULL, 0, 1, N'Pest monitoring and detection', '2025-04-14 07:30:00', '2025-04-14 07:30:00', '2025-05-19 09:00:00', '2025-05-20 10:00:00', 0, 3, 2, NULL, 1),
 ('SPC007', N'Treatment - biological medicine', NULL, 0, 1, N'Spray biological pesticides on infected plants', '2025-04-14 08:00:00', '2025-04-14 08:00:00', '2025-05-21 08:00:00', '2025-05-25 09:30:00', 0, 4, 2, NULL, 1),
@@ -1870,7 +1870,7 @@ INSERT INTO [dbo].[Plan]
      [ResponsibleBy], [Frequency], [PlanName], [AssignorID], [PesticideName], [MaxVolume], [MinVolume], [ProcessID], 
      [CropID], [IsDeleted], [MasterTypeID], [SubProcessID], [FarmID], [IsSample])
 VALUES
-    ('Active', 'PLN001', GETDATE(), '2025-05-02', '2025-05-14', GETDATE(), 1, 'Plan for watering spraying', 'Watering for all tree in farm', 
+    ('Active', 'PLN001', GETDATE(), '2025-05-02', '2025-05-10', GETDATE(), 1, 'Plan for watering spraying', 'Watering for all tree in farm', 
      'JohnDoe', NULL, 'Watering Plan', 3, NULL, 5.0, 2.0, NULL, NULL, 0, 10, 4, 1, 0),
     ('Pending', 'PLN002', GETDATE(), '2025-05-01', '2025-05-01', GETDATE(), 1, 'Soil preparation', 'Detail 2', 
      'JaneSmith', NULL, 'Soil Prep Plan', 3, NULL, NULL, NULL, NULL, NULL, 0, 11, 2, 1, 0),
@@ -2234,38 +2234,36 @@ INSERT INTO [dbo].[WorkLog]
            ,[ActualEndTime]
            ,[ScheduleID]
            ,[WarningID]
-           ,[ReasonDelay])
+           ,[ReasonDelay]
+	   ,[RedoWorkLogID])
      VALUES
-           ('WL31162235' ,'Watering_on_Plot A','Not Started','2025-05-02 07:30:00',0,0,'07:30:00','09:10:00',1,NULL,NULL),
-		   ('WL31163456' ,'Watering_on_Plot A','Not Started','2025-05-03 07:30:00',0,0,'07:30:00','09:10:00',1,NULL,NULL),
-('WL31162237' ,'Watering_on_Plot A','Not Started','2025-05-04 07:30:00',0,0,'07:30:00','09:10:00',1,NULL,NULL),
-('WL31162238' ,'Watering_on_Plot A','Not Started','2025-05-05 07:30:00',0,0,'07:30:00','09:10:00',1,NULL,NULL),
-('WL31162239' ,'Watering_on_Plot A','Not Started','2025-05-06 07:30:00',0,0,'07:30:00','09:10:00',1,NULL,NULL),
-('WL31162240' ,'Watering_on_Plot A','Not Started','2025-05-07 07:30:00',0,0,'07:30:00','09:10:00',1,NULL,NULL),
-('WL31162242' ,'Watering_on_Plot A','Not Started','2025-05-08 07:30:00',0,0,'07:30:00','09:10:00',1,NULL,NULL),
-('WL31162243' ,'Watering_on_Plot A','Not Started','2025-05-09 07:30:00',0,0,'07:30:00','09:10:00',1,NULL,NULL),
-('WL31162244' ,'Watering_on_Plot A','Not Started','2025-05-10 07:30:00',0,0,'07:30:00','09:10:00',1,NULL,NULL),
-('WL31162245' ,'Watering_on_Plot A','Not Started','2025-05-11 07:30:00',0,0,'07:30:00','09:10:00',1,NULL,NULL),
-('WL31162246' ,'Watering_on_Plot A','Not Started','2025-05-12 07:30:00',0,0,'07:30:00','09:10:00',1,NULL,NULL),
-('WL31162247' ,'Watering_on_Plot A','Not Started','2025-05-13 07:30:00',0,0,'07:30:00','09:10:00',1,NULL,NULL),
-('WL31162248' ,'Watering_on_Plot A','Not Started','2025-05-14 07:30:00',0,0,'07:30:00','09:10:00',1,NULL,NULL),
+           ('WL31162235' ,'Watering_on_Plot A','Not Started','2025-05-02 07:30:00',0,0,'07:30:00','09:10:00',1,NULL,NULL,NULL),
+		   ('WL31163456' ,'Watering_on_Plot A','Not Started','2025-05-03 07:30:00',0,0,'07:30:00','09:10:00',1,NULL,NULL,NULL),
+('WL31162237' ,'Watering_on_Plot A','Not Started','2025-05-04 07:30:00',0,0,'07:30:00','09:10:00',1,NULL,NULL,NULL),
+('WL31162238' ,'Watering_on_Plot A','Not Started','2025-05-05 07:30:00',0,0,'07:30:00','09:10:00',1,NULL,NULL,NULL),
+('WL31162239' ,'Watering_on_Plot A','Not Started','2025-05-06 07:30:00',0,0,'07:30:00','09:10:00',1,NULL,NULL,NULL),
+('WL31162240' ,'Watering_on_Plot A','Not Started','2025-05-07 07:30:00',0,0,'07:30:00','09:10:00',1,NULL,NULL,NULL),
+('WL31162242' ,'Watering_on_Plot A','Not Started','2025-05-08 07:30:00',0,0,'07:30:00','09:10:00',1,NULL,NULL,NULL),
+('WL31162243' ,'Watering_on_Plot A','Not Started','2025-05-09 07:30:00',0,0,'07:30:00','09:10:00',1,NULL,NULL,NULL),
+('WL31162244' ,'Watering_on_Plot A','Not Started','2025-05-10 07:30:00',0,0,'07:30:00','09:10:00',1,NULL,NULL,NULL),
 
-		   ('WL31163456' ,'Fertilizing_on_Plot A','Not Started','2025-05-16 05:00:00',0,0,'05:00:00','07:00:00',5,NULL,NULL),
-('WL31162237' ,'Fertilizing_on_Plot A','Not Started','2025-05-17 05:00:00',0,0,'05:00:00','07:00:00',5,NULL,NULL),
-('WL31162238' ,'Fertilizing_on_Plot A','Not Started','2025-05-18 05:00:00',0,0,'05:00:00','07:00:00',5,NULL,NULL),
 
-('WL31162239' ,'Pest_Control_on_Plot A','Not Started','2025-05-19 14:00:00',0,0,'03:00:00','04:00:00',7,NULL,NULL),
-('WL31162240' ,'Pest_Control_on_Plot A','Not Started','2025-05-20 14:00:00',0,0,'03:00:00','04:00:00',7,NULL,NULL),
+		   ('WL31163456' ,'Fertilizing_on_Plot A','Not Started','2025-05-16 05:00:00',0,0,'05:00:00','07:00:00',5,NULL,NULL,NULL),
+('WL31162237' ,'Fertilizing_on_Plot A','Not Started','2025-05-17 05:00:00',0,0,'05:00:00','07:00:00',5,NULL,NULL,NULL),
+('WL31162238' ,'Fertilizing_on_Plot A','Not Started','2025-05-18 05:00:00',0,0,'05:00:00','07:00:00',5,NULL,NULL,NULL),
 
-('WL31162242' ,'Spaying_on_Plot A','Not Started','2025-05-21 05:00:00',0,0,'20:00:00','21:00:00',8,NULL,NULL),
-('WL31162243' ,'Spaying_on_Plot A','Not Started','2025-05-22 05:00:00',0,0,'20:00:00','21:00:00',8,NULL,NULL),
-('WL31162244' ,'Spaying_on_Plot A','Not Started','2025-05-23 05:00:00',0,0,'20:00:00','21:00:00',8,NULL,NULL),
-('WL31162245' ,'Spaying_on_Plot A','Not Started','2025-05-24 05:00:00',0,0,'20:00:00','21:00:00',8,NULL,NULL),
-('WL31162246' ,'Spaying_on_Plot A','Not Started','2025-05-25 05:00:00',0,0,'20:00:00','21:00:00',8,NULL,NULL),
+('WL31162239' ,'Pest_Control_on_Plot A','Not Started','2025-05-19 14:00:00',0,0,'03:00:00','04:00:00',7,NULL,NULL,NULL),
+('WL31162240' ,'Pest_Control_on_Plot A','Not Started','2025-05-20 14:00:00',0,0,'03:00:00','04:00:00',7,NULL,NULL,NULL),
 
-('WL31162247' ,'Pruning_on__Plot A','Done','2025-04-19 09:30:00',0,0,'19:30:00','20:30:00',2,NULL,NULL),
-('WL31162248' ,'Grafting_on__Plot A','Redo','2025-04-17 09:30:00',0,0,'19:30:00','20:30:00',2,NULL,NULL),
-('WL31162248' ,'Redo Grafting_on__Plot A','Done','2025-04-20 09:30:00',0,0,'10:30:00','11:30:00',2,NULL,NULL);
+('WL31162242' ,'Spaying_on_Plot A','Not Started','2025-05-21 05:00:00',0,0,'20:00:00','21:00:00',8,NULL,NULL,NULL),
+('WL31162243' ,'Spaying_on_Plot A','Not Started','2025-05-22 05:00:00',0,0,'20:00:00','21:00:00',8,NULL,NULL,NULL),
+('WL31162244' ,'Spaying_on_Plot A','Not Started','2025-05-23 05:00:00',0,0,'20:00:00','21:00:00',8,NULL,NULL,NULL),
+('WL31162245' ,'Spaying_on_Plot A','Not Started','2025-05-24 05:00:00',0,0,'20:00:00','21:00:00',8,NULL,NULL,NULL),
+('WL31162246' ,'Spaying_on_Plot A','Not Started','2025-05-25 05:00:00',0,0,'20:00:00','21:00:00',8,NULL,NULL,NULL),
+
+('WL31162247' ,'Pruning_on__Plot A','Done','2025-04-19 09:30:00',0,0,'19:30:00','20:30:00',2,NULL,NULL,NULL),
+('WL31162248' ,'Grafting_on__Plot A','Redo','2025-04-17 09:30:00',0,0,'19:30:00','20:30:00',2,NULL,NULL,22),
+('WL31162248' ,'Redo Grafting_on__Plot A','Done','2025-04-20 09:30:00',0,0,'10:30:00','11:30:00',2,NULL,NULL,NULL);
 -- Insert UserWorkLog
 INSERT INTO [dbo].[UserWorkLog]
            ([WorkLogID]
@@ -2316,22 +2314,14 @@ INSERT INTO [dbo].[UserWorkLog]
 (18,20,0,0,'2025-04-02 09:30:00',NULL,NULL,NULL,NULL),
 (19,6,1,0,'2025-04-02 09:30:00',NULL,NULL,NULL,NULL),
 (19,20,0,0,'2025-04-02 09:30:00',NULL,NULL,NULL,NULL),
-(20,6,1,0,'2025-04-02 09:30:00',NULL,NULL,NULL,NULL),
-(20,20,0,0,'2025-04-02 09:30:00',NULL,NULL,NULL,NULL),
-(21,6,1,0,'2025-04-02 09:30:00',NULL,NULL,NULL,NULL),
-(21,20,0,0,'2025-04-02 09:30:00',NULL,NULL,NULL,NULL),
-(22,6,1,0,'2025-04-02 09:30:00',NULL,NULL,NULL,NULL),
-(22,20,0,0,'2025-04-02 09:30:00',NULL,NULL,NULL,NULL),
-(23,6,1,0,'2025-04-02 09:30:00',NULL,NULL,NULL,NULL),
-(23,20,0,0,'2025-04-02 09:30:00',NULL,NULL,NULL,NULL),
-(24,6,1,0,'2025-04-02 09:30:00',NULL,'Recevied',NULL,NULL),
-(24,20,0,0,'2025-04-02 09:30:00',NULL,'BeReplaced',19,NULL),
-(24,19,0,0,'2025-04-02 09:30:00',NULL,'Replaced',NULL,NULL),
-(25,6,1,0,'2025-04-02 09:30:00',NULL,'Received',NULL,NULL),
-(25,20,0,0,'2025-04-02 09:30:00',NULL,'Rejected',19,NULL),
-(25,19,0,0,'2025-04-02 09:30:00',NULL,'Replaced',NULL,NULL),
-(26,20,0,0,'2025-04-02 09:30:00',NULL,'Received',NULL,NULL),
-(26,19,0,0,'2025-04-02 09:30:00',NULL,'Received',NULL,NULL);
+(20,6,1,0,'2025-04-02 09:30:00',NULL,'Recevied',NULL,NULL),
+(20,20,0,0,'2025-04-02 09:30:00',NULL,'BeReplaced',19,NULL),
+(20,19,0,0,'2025-04-02 09:30:00',NULL,'Replaced',NULL,NULL),
+(21,6,1,0,'2025-04-02 09:30:00',NULL,'Received',NULL,NULL),
+(21,20,0,0,'2025-04-02 09:30:00',NULL,'Rejected',19,NULL),
+(21,19,0,0,'2025-04-02 09:30:00',NULL,'Replaced',NULL,NULL),
+(22,20,0,0,'2025-04-02 09:30:00',NULL,'Received',NULL,NULL),
+(22,19,0,0,'2025-04-02 09:30:00',NULL,'Received',NULL,NULL);
 
 
 INSERT INTO [dbo].[TaskFeedback]
@@ -2344,17 +2334,17 @@ INSERT INTO [dbo].[TaskFeedback]
            ('TF2025042301202'
            ,'Good'
            ,'2024-01-10 08:30:00'
-           ,24
+           ,20
            ,3),
 ('TF2025042401202'
            ,'Must be redo'
            ,'2024-02-10 08:30:00'
-           ,25
+           ,21
            ,3),
 ('TF20250422001202'
            ,'This worklog is finished good'
            ,'2024-02-15 08:30:00'
-           ,26
+           ,22
            ,3);
 GO
 DECLARE @i INT = 0;
@@ -2432,7 +2422,7 @@ VALUES
     ('REP001', N'Report description 1', '2025-04-01 10:00:00', N'What is the disease with white spots on the plant?', N'It is powdery mildew.', 'https://res.cloudinary.com/dgshx4n2c/image/upload/v1744012238/hemiriqcnbaa1ult00r7.jpg', 1, 2, 10),
     ('REP002', N'Report description 2', '2025-04-01 11:30:00', N'Leaves turn yellow and fall off, why?', N'The plant lacks potassium.', 'https://res.cloudinary.com/dm1xkvrjf/image/upload/v1745401510/aagnvvljdwdg9ahhbpul.jpg', 0, 3, 11),
     ('REP003', N'Report description 3', '2025-04-02 09:00:00', N'The plant is stunted and grows slowly?', N'Lack of light and nutrients.', 'https://res.cloudinary.com/dm1xkvrjf/image/upload/v1745401511/zzjgrfdz02hezroai7dp.jpg', 1, 1, 12),
-    ('REP004', N'Report description 4', '2025-04-02 14:15:00', N'Leaves curl up, is it due to pests?', N'Could be aphids or thrips.', 'https://res.cloudinary.com/dgshx4n2c/image/upload/v1744012238/hemiriqcnbaa1ult00r7.jpg', 0, 4, 13),
+    ('REP004', N'Report description 4', '2025-04-02 14:15:00', N'Leaves curl up, is it due to pests?', N'Could be aphids or thrips.', 'https://res.cloudinary.com/dm1xkvrjf/image/upload/v1745414859/occrn00xqosqryt9iqkf.jpg', 0, 4, 13),
     ('REP005', N'Report description 5', '2025-04-03 08:45:00', N'Pomelo blooms early, should I remove the flowers?', N'Yes, to help the tree focus on growing.', 'https://res.cloudinary.com/dm1xkvrjf/image/upload/v1745401511/dbzpcmb4shiiniz1dsrt.jpg', 1, 2, 14),
     ('REP006', N'Report description 6', '2025-04-03 10:20:00', N'Tree base turns black and roots rot?', N'Need to treat for phytophthora fungus.', 'https://res.cloudinary.com/dm1xkvrjf/image/upload/v1745401511/hf1vxs1sximhwufn4ceu.jpg', 1, 3, 15),
     ('REP007', N'Report description 7', '2025-04-04 07:30:00', N'Plant grows slowly after repotting?', N'It needs recovery time and root stimulator.', 'https://res.cloudinary.com/dm1xkvrjf/image/upload/v1745401511/tjlwukerrynmyuk6wxu7.jpg', 0, 1, 10),
