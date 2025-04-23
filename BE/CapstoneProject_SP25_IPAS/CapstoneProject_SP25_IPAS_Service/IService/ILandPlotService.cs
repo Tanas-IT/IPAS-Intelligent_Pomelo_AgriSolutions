@@ -21,6 +21,7 @@ namespace CapstoneProject_SP25_IPAS_Service.IService
         public Task<BusinessResult> CreateLandPlot(LandPlotCreateRequest createRequest);
 
         public Task<BusinessResult> GetForMapped(int landPlotId);
+        public Task<BusinessResult> UpdateLandPlotVisualMap(UpdatePlotVisualMapRequest request);
         public Task<BusinessResult> SofteDelete(int landPlotId);
 
     }
