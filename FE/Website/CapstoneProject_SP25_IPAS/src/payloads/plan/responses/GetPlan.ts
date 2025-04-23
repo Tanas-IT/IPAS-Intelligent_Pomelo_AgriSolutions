@@ -38,7 +38,8 @@ export interface GetPlan {
   maxVolume: number;
   minVolume: number;
   pesticideName: string;
-  listLandPlotOfCrop: ListLandPlotOfCrop[]
+  listLandPlotOfCrop: ListLandPlotOfCrop[];
+  hasNonSampleProcess: boolean;
 }
 
 interface ListLandPlotOfCrop {

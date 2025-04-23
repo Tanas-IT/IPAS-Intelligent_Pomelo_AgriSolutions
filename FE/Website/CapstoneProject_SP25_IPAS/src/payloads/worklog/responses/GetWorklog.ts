@@ -176,6 +176,24 @@ export interface DependencyWorklog {
   date: string;
 }
 
+export interface Worklog {
+  workLogId: number;
+  workLogName: string;
+  startTime: string;
+  endTime: string;
+  status: string;
+  date: string;
+}
+
+// Interface cho Plan (chứa danh sách Worklogs)
+export interface DependencyWorklog {
+  planId: number;
+  planName: string;
+  startDate: string;
+  endDate: string;
+  workLogs: Worklog[];
+}
+
 export interface SkillWithScore {
   skillName: string;
   score: number;

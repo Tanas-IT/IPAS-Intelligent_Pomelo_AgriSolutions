@@ -8,6 +8,7 @@ import {
     Divider,
     Modal,
     Flex,
+    Input,
 } from "antd";
 import moment, { Moment } from "moment";
 import { CustomButton, InfoField, Loading, Section, Tooltip } from "@/components";
@@ -427,14 +428,14 @@ const UpdatePlan = () => {
         console.log("dayOfWeek", typeof (dayOfWeek));
 
 
-        const planData: UpdatePlanRequest = {
+        const planDataPayload: UpdatePlanRequest = {
             planId: Number(id) ?? 0,
             status: "Not Started",
             planName: values.planName,
             planDetail: values.planDetail,
             notes: values.notes || "",
             cropId: values.cropId,
-            processId: values.processId,
+            processId: values.processId || planData?.processId,
             growthStageId: values.growthStageId,
             frequency: values.frequency,
             isActive: values.isActive,
@@ -462,14 +463,15 @@ const UpdatePlan = () => {
                 plantID: target.plantID ?? [],
                 graftedPlantID: target.graftedPlantID ?? [],
                 plantLotID: target.plantLotID ?? [],
+                unit: target.unit
             })),
             listLandPlotOfCrop: values.listLandPlotOfCrop
         };
-        console.log("plandata for updating", planData);
+        console.log("plandata for updating", planDataPayload);
 
 
         if (id) {
-            const result = await planService.updatePlan(planData);
+            const result = await planService.updatePlan(planDataPayload);
             if (result.statusCode === 200) {
                 toast.success(result.message);
                 navigate(PATHS.PLAN.PLAN_LIST);
@@ -500,10 +502,10 @@ const UpdatePlan = () => {
             try {
                 setProcessFarmOptions(await fetchProcessesOfFarm(farmId, true));
                 const response = await worklogService.getEmployeesByWorkSkill(Number(farmId));
-                    if (response.statusCode === 200) {
-                
-                      setEmployee(response.data);
-                    }
+                if (response.statusCode === 200) {
+
+                    setEmployee(response.data);
+                }
 
                 if (id) {
                     const result = await planService.getPlanDetail(id);
@@ -642,24 +644,39 @@ const UpdatePlan = () => {
                     <Row gutter={16}>
                         <Col span={12}>
                             <Flex vertical>
-                                <InfoField
-                                    label="Process Name"
-                                    name={addPlanFormFields.processId}
-                                    options={processFarmOptions}
-                                    isEditing={true}
-                                    type="select"
-                                    hasFeedback={false}
-                                    onChange={(value) => handleChangeProcess(value)}
-                                />
-                                <div
-                                    style={{ marginTop: "-20px", textAlign: "right" }}
-                                    onClick={() => {
-                                        form.setFieldsValue({ [addPlanFormFields.processId]: undefined });
-                                        form.setFieldValue("masterTypeId", undefined);
-                                        handleChangeProcess(undefined);
-                                    }}>
-                                    <a style={{ fontSize: "14px", color: "blueviolet", textDecoration: "underline" }}>Clear</a>
-                                </div>
+                                {planData?.hasNonSampleProcess ? (
+                                    <Form.Item
+                                        label="Process Name"
+                                        // name={addPlanFormFields.processId}
+                                    >
+                                        <Input
+                                            disabled
+                                            value={planData.processName}
+                                        />
+                                    </Form.Item>
+                                ) : (
+                                    <>
+                                        <InfoField
+                                            label="Process Name"
+                                            name={addPlanFormFields.processId}
+                                            options={processFarmOptions}
+                                            isEditing={true}
+                                            type="select"
+                                            hasFeedback={false}
+                                            onChange={(value) => handleChangeProcess(value)}
+                                        />
+                                        <div
+                                            style={{ marginTop: "-20px", textAlign: "right" }}
+                                            onClick={() => {
+                                                form.setFieldsValue({ [addPlanFormFields.processId]: undefined });
+                                                form.setFieldValue("masterTypeId", undefined);
+                                                handleChangeProcess(undefined);
+                                            }}
+                                        >
+                                            <a style={{ fontSize: "14px", color: "blueviolet", textDecoration: "underline" }}>Clear</a>
+                                        </div>
+                                    </>
+                                )}
                             </Flex>
                         </Col>
                         <Col span={12}>
