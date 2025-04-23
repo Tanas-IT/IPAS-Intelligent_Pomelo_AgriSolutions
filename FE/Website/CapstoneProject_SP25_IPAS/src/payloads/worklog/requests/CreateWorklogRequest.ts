@@ -49,6 +49,15 @@ export interface UpdateWorklogReq {
   endTime?: string,
 }
 
+export interface UpdateStatusWorklogRequest {
+  workLogId: number;
+  status?: string;
+  startTime?: string;
+  endTime?: string;
+  dateWork?: string;
+  userId?: number;
+}
+
 export interface CancelReplacementRequest {
   worklogId: number;
   userId: number;

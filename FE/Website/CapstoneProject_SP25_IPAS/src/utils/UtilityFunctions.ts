@@ -453,24 +453,21 @@ const getDaySuffix = (day: number): string => {
   }
 };
 
-export const isDayInRange = (
-  day: number,
-  startDate: Dayjs,
-  endDate: Dayjs,
-  type: "weekly" | "monthly",
-) => {
+export const isDayInRange = (day: number, startDate: Dayjs, endDate: Dayjs, type: "weekly" | "monthly") => {
   if (type === "weekly") {
-    let currentDate = startDate.clone();
-    while (currentDate.isBefore(endDate) || currentDate.isSame(endDate, "day")) {
-      if (currentDate.day() === day) {
-        return true;
+      let current = startDate.clone();
+      while (current.isBefore(endDate, "day") || current.isSame(endDate, "day")) {
+          if (current.day() === day) return true;
+          current = current.add(1, "day");
       }
-      currentDate = currentDate.add(1, "day");
-    }
-    return false;
+      return false;
   } else if (type === "monthly") {
-    const targetDate = startDate.date(day);
-    return targetDate.isBetween(startDate, endDate, "day", "[]");
+      let current = startDate.clone();
+      while (current.isBefore(endDate, "day") || current.isSame(endDate, "day")) {
+          if (current.date() === day) return true;
+          current = current.add(1, "day");
+      }
+      return false;
   }
   return false;
 };

@@ -186,17 +186,6 @@ const RedoWorklogModal = ({ isOpen, onClose, onSuccess, failedOrRedoWorkLogId }:
           >
             {employee.map((emp) => (
               <Select.Option key={emp.userId} value={emp.userId} label={emp.fullName}>
-                {/* <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
-                  <img
-                    src={emp.avatarURL}
-                    alt={emp.fullName}
-                    style={{ width: 24, height: 24, borderRadius: "50%" }}
-                    crossOrigin="anonymous"
-                  />
-                  <span>
-                    {emp.fullName} - Skills: {formatSkills(emp.skillWithScore)}
-                  </span>
-                </div> */}
                 <div style={{
                   display: "flex",
                   alignItems: "center",
@@ -205,7 +194,6 @@ const RedoWorklogModal = ({ isOpen, onClose, onSuccess, failedOrRedoWorkLogId }:
                   borderRadius: 8,
                   transition: "all 0.2s",
                 }}>
-                  {/* Avatar */}
                   <div style={{
                     position: "relative",
                     width: 32,

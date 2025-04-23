@@ -37,6 +37,7 @@ namespace CapstoneProject_SP25_IPAS_Service.IService
         public Task<BusinessResult> getHarvestPlantCanRecord(GetHarvestForPlantRecordRequest plantId);
 
         public Task<BusinessResult> ImportPlantRecordAsync(ImportHarvestExcelRequest request);
+        public Task<BusinessResult> ExportHarvestRecord(int harvestId);
 
     }
 }

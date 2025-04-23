@@ -165,7 +165,7 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
                 .Include(x => x.Plant)
                 .ThenInclude(x => x.LandRow)
                 .ThenInclude(x => x.LandPlot)
-                .Where(x => x.HarvestHistoryId == harvestId && x.MasterTypeId == masterTypeId /*&& x.PlantId != null*/)
+                .Where(x => x.HarvestHistoryId == harvestId && x.MasterTypeId == masterTypeId && x.PlantId != null)
                 .ToListAsync();
             return historys;
         }

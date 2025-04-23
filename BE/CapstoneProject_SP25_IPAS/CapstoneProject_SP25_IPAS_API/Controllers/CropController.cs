@@ -311,7 +311,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
         //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)},{nameof(RoleEnum.EMPLOYEE)}")]
         //[CheckUserFarmAccess]
         //[FarmExpired]
-        public async Task<IActionResult> ExportCriteriaObject([FromQuery] int? farmId)
+        public async Task<IActionResult> ExportCrop([FromQuery] int? farmId)
         {
             if (!farmId.HasValue)
                 farmId = _jwtTokenService.GetFarmIdFromToken();

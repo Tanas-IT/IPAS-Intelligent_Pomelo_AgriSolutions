@@ -53,7 +53,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             _responseCacheService = responseCacheService;
         }
 
-        public async Task<BusinessResult> CreatePlan(CreatePlanModel createPlanModel, int? farmId, bool useTransaction = true)
+        public async Task<BusinessResult> CreatePlan(CreatePlanModel createPlanModel, int? farmId, bool useTransaction = true, string? keyGroup = null)
         {
             using (var transaction = useTransaction ? await _unitOfWork.BeginTransactionAsync() : null)
             {
@@ -159,6 +159,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         MaxVolume = createPlanModel?.MaxVolume,
                         MinVolume = createPlanModel?.MinVolume,
                         Notes = createPlanModel?.Notes,
+                        KeyGroup = keyGroup,
                         PesticideName = createPlanModel?.PesticideName,
                         ResponsibleBy = createPlanModel?.ResponsibleBy,
                         ProcessId = createPlanModel?.ProcessId,
@@ -172,7 +173,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         newPlan.StartDate = createPlanModel.StartDate.Add(TimeSpan.Parse(createPlanModel.StartTime));
                         newPlan.EndDate = createPlanModel.EndDate.Add(TimeSpan.Parse(createPlanModel.EndTime));
                     }
-                    if (createPlanModel.Frequency != null && createPlanModel.Frequency.ToLower().Equals("none") && createPlanModel.CustomDates != null && createPlanModel.CustomDates.Any())
+                    if (createPlanModel.Frequency != null && createPlanModel.Frequency.ToLower().Equals("none") && createPlanModel.CustomDates != null && createPlanModel.CustomDates.Count() == 1)
                     {
                         newPlan.StartDate = createPlanModel.CustomDates.First().Add(TimeSpan.Parse(createPlanModel.StartTime));
                         newPlan.EndDate = createPlanModel.CustomDates.First().Add(TimeSpan.Parse(createPlanModel.EndTime));
@@ -875,29 +876,47 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
                     if (plan != null)
                     {
-                        var users = plan?.CarePlanSchedule?
-                                        .WorkLogs?
-                                        .SelectMany(wl => wl.UserWorkLogs ?? new List<UserWorkLog>())
-                                        .Select(uwl => uwl.User)
-                                        .Where(u => u != null)
-                                        .DistinctBy(u => u.UserId)
-                                        .ToList() ?? new List<User>();
+                        var userWorkLogs = plan?.CarePlanSchedule?
+                                             .WorkLogs?
+                                             .SelectMany(wl => wl.UserWorkLogs ?? new List<UserWorkLog>())
+                                             .ToList() ?? new List<UserWorkLog>();
 
-                        var employeeWithSkills = users.Select(u => new EmployeeWithSkills
+                        // Lấy Employee
+                        var employeeUsers = userWorkLogs
+                            .Where(uwl => uwl.IsReporter == false && uwl.User != null)
+                            .Select(uwl => uwl.User)
+                            .DistinctBy(u => u.UserId)
+                            .ToList();
+
+                        // Lấy Reporter
+                        var reporterUsers = userWorkLogs
+                            .Where(uwl => uwl.IsReporter == true && uwl.User != null)
+                            .Select(uwl => uwl.User)
+                            .DistinctBy(u => u.UserId)
+                            .ToList();
+
+                        // Hàm tạo EmployeeWithSkills
+                        List<EmployeeWithSkills> MapToEmployeeWithSkills(List<User> users)
                         {
-                            UserId = u.UserId,
-                            FullName = u.FullName,
-                            AvatarURL = u.AvatarURL,
-                            SkillWithScore = u.UserFarms?
-                                .SelectMany(uf => uf.EmployeeSkills ?? new List<EmployeeSkill>())
-                                .Where(es => es.WorkTypeID != null)
-                                .Select(es => new SkillWithScore
-                                {
-                                    SkillName = es.WorkType?.MasterTypeName,
-                                    Score = es.ScoreOfSkill
-                                }).ToList()
-                        }).ToList();
-                        result.EmployeeWithSkills = employeeWithSkills;
+                            return users.Select(u => new EmployeeWithSkills
+                            {
+                                UserId = u.UserId,
+                                FullName = u.FullName,
+                                AvatarURL = u.AvatarURL,
+                                SkillWithScore = u.UserFarms?
+                                    .SelectMany(uf => uf.EmployeeSkills ?? new List<EmployeeSkill>())
+                                    .Where(es => es.WorkTypeID != null)
+                                    .Select(es => new SkillWithScore
+                                    {
+                                        SkillName = es.WorkType?.MasterTypeName,
+                                        Score = es.ScoreOfSkill
+                                    }).ToList()
+                            }).ToList();
+                        }
+
+                        // Gán kết quả
+                        result.ListEmployee = MapToEmployeeWithSkills(employeeUsers);
+                        result.ListReporter = MapToEmployeeWithSkills(reporterUsers);
                     }
 
                     result.Progress = Math.Round(calculateProgress, 2).ToString();
@@ -1125,7 +1144,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     {
                         var parseStartTime = TimeSpan.Parse(updatePlanModel.StartTime);
                         var parseEndTime = TimeSpan.Parse(updatePlanModel.EndTime);
-                        var checkTime = (int)(parseEndTime - parseStartTime).TotalHours; // Chuyển TimeSpan sang số phút
+                        var checkTime = (int)(parseEndTime - parseStartTime).TotalMinutes; // Chuyển TimeSpan sang số phút
 
                         var masterType = await _unitOfWork.MasterTypeRepository
                             .GetByCondition(x => x.MasterTypeId == updatePlanModel.MasterTypeId);
@@ -1137,7 +1156,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
                             if (checkTime < minTime || checkTime > maxTime)
                             {
-                                throw new Exception($"Time of work ({checkTime} hours) does not valid! It must be in range {minTime} - {maxTime} hours.");
+                                throw new Exception($"Time of work ({checkTime} minutes) does not valid! It must be in range {minTime} - {maxTime} minutes.");
                             }
                         }
                     }
@@ -1673,10 +1692,16 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 //{
                 //    warningAddMessage = $"Warning: The schedule has conflicts on the following dates: {string.Join(", ", conflictCustomDates.Select(d => d.ToString("yyyy-MM-dd")))}. The plan has been created, but please review these conflicts.";
                 //}
-
+                await _unitOfWork.WorkLogRepository.CheckWorkLogAvailabilityWhenAddPlan(
+                                                                       TimeSpan.Parse(createPlanModel.StartTime),
+                                                                       TimeSpan.Parse(createPlanModel.EndTime),
+                                                                       currentDate,
+                                                                       createPlanModel.MasterTypeId,
+                                                                       createPlanModel.ListEmployee.Select(x => x.UserId).ToList()
+                                                                   );
                 foreach (var customeDate in createPlanModel.CustomDates)
                 {
-                    if (customeDate >= currentDate && customeDate <= plan.EndDate)
+                    if (customeDate.Date >= currentDate.Date.Date && customeDate.Date <= plan.EndDate.Value.Date)
                     {
                         var tempModel = conflictCustomDates.Contains(customeDate)
                             ? new CreatePlanModel(createPlanModel) { ListEmployee = null }
@@ -1758,15 +1783,17 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             //        throw new Exception($"WorkLog conflict detected at the same time:\n{conflictDetails}");
             //    }
             //}
-            await _unitOfWork.WorkLogRepository.CheckWorkLogAvailabilityWhenAddPlan(
+            if (plan.Frequency.ToLower() != "none" || createPlanModel.CustomDates == null)
+            {
+                await _unitOfWork.WorkLogRepository.CheckWorkLogAvailabilityWhenAddPlan(
                                                                         TimeSpan.Parse(createPlanModel.StartTime),
                                                                         TimeSpan.Parse(createPlanModel.EndTime),
                                                                         currentDate,
                                                                         createPlanModel.MasterTypeId,
                                                                         createPlanModel.ListEmployee.Select(x => x.UserId).ToList()
                                                                     );
-
-
+            }
+                
             if (schedule.ScheduleId <= 0)
             {
                 await _unitOfWork.CarePlanScheduleRepository.Insert(schedule);
@@ -2042,11 +2069,15 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             //        throw new Exception($"WorkLog conflict detected at the same time:\n{conflictDetails}");
             //    }
             //}
-            await _unitOfWork.WorkLogRepository.CheckWorkLogAvailabilityWhenAddPlan(TimeSpan.Parse(updatePlanModel.StartTime),
-                                                                        TimeSpan.Parse(updatePlanModel.EndTime),
-                                                                        currentDate,
-                                                                       updatePlanModel.MasterTypeId,
-                                                                        updatePlanModel.ListEmployee.Select(x => x.UserId).ToList());
+            if (plan.Frequency.ToLower() != "none" || updatePlanModel.CustomDates == null)
+            {
+                await _unitOfWork.WorkLogRepository.CheckWorkLogAvailabilityWhenAddPlan(TimeSpan.Parse(updatePlanModel.StartTime),
+                                                                       TimeSpan.Parse(updatePlanModel.EndTime),
+                                                                       currentDate,
+                                                                      updatePlanModel.MasterTypeId,
+                                                                       updatePlanModel.ListEmployee.Select(x => x.UserId).ToList());
+            }
+           
             if (schedule.ScheduleId <= 0)
             {
                 plan.CarePlanSchedule = schedule;
@@ -2407,6 +2438,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     {
                         WorkLogId = workLog.WorkLogId,
                         UserId = user.UserId,
+                        CreateDate = DateTime.Now,
                         IsReporter = user.isReporter,
                         IsDeleted = false,
                     });
@@ -2810,11 +2842,12 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     var errors = await ValidatePlansAgainstTemplate(processId, createPlanModel);
                     if(errors.Any())
                     {
-                        return new BusinessResult(400, string.Join(",", errors));
+                        return new BusinessResult(400, string.Join("\n", errors));
                     }
+                    var genereateKeyGroup = Guid.NewGuid().ToString();
                     foreach (var createPlan in createPlanModel)
                     {
-                        var result = await CreatePlan(createPlan, farmId, false);
+                        var result = await CreatePlan(createPlan, farmId, false, genereateKeyGroup);
                         if (result.StatusCode == 200)
                         {
                             count++;
@@ -2907,7 +2940,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     StartDate = process.StartDate,
                     EndDate = process.EndDate,
                     Order = process.Order,
-                    Plans = getProcessToDisplay.Plans.Select(p => new PlanDto
+                    Plans = getProcessToDisplay.Plans.Where(x => x.IsSample == true).Select(p => new PlanDto
                     {
                         PlanId = p.PlanId,
                         PlanName = p.PlanName,
@@ -3244,9 +3277,15 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     ? templateProcess.ProcessName
                     : subProcessDict.GetValueOrDefault(nextGroup.Key)?.SubProcessName ?? $"SubProcess {nextGroup.Key}";
 
-                if (maxCurrentEnd > minNextStart)
+                foreach (var prevPlan in currentGroup)
                 {
-                    errors.Add($"- Plans in \"{currentGroupName}\" must be finished before \"{nextGroupName}\" start.");
+                    foreach (var nextPlan in nextGroup)
+                    {
+                        if (prevPlan.EndDate != null && nextPlan.StartDate != null && prevPlan.EndDate >= nextPlan.StartDate.Date)
+                        {
+                            errors.Add($"- Plan \"{prevPlan.PlanName}\" in \"{currentGroupName}\" ends at {prevPlan.EndDate:dd/MM/yyyy}, which overlaps with Plan \"{nextPlan.PlanName}\" in \"{nextGroupName}\" starting at {nextPlan.StartDate:dd/MM/yyyy}.\n");
+                        }
+                    }
                 }
             }
 
@@ -3262,6 +3301,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 {
                     return new BusinessResult(400, $"Not found Plan with ID = {planId}");
                 }
+                var keyGroup = plan.KeyGroup;
 
                 var process = await _unitOfWork.PlanRepository.GetProcessByPlan(plan);
                 if (process == null)
@@ -3277,14 +3317,16 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     StartDate = process.StartDate,
                     EndDate = process.EndDate,
                     Order = process.Order,
-                    Plans = process.Plans.Select(p => new PlanDto
-                    {
-                        PlanId = p.PlanId,
-                        PlanName = p.PlanName,
-                        StartDate = p.StartDate,
-                        EndDate = p.EndDate,
-                        IsSelected = p.PlanId == planId
-                    }).ToList()
+                    Plans = process.Plans
+                                    .Where(p => p.KeyGroup == keyGroup)
+                                    .Select(p => new PlanDto
+                                    {
+                                        PlanId = p.PlanId,
+                                        PlanName = p.PlanName,
+                                        StartDate = p.StartDate,
+                                        EndDate = p.EndDate,
+                                        IsSelected = p.PlanId == planId
+                                    }).ToList()
                 };
 
                 // Map SubProcessId -> SubProcessDto
@@ -3296,14 +3338,16 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         Order = sp.Order,
                         StartDate = sp.StartDate,
                         EndDate = sp.EndDate,
-                        Plans = sp.Plans.Select(p => new PlanDto
-                        {
-                            PlanId = p.PlanId,
-                            PlanName = p.PlanName,
-                            StartDate = p.StartDate,
-                            EndDate = p.EndDate,
-                            IsSelected = p.PlanId == planId
-                        }).ToList(),
+                        Plans = sp.Plans
+                                    .Where(p => p.KeyGroup == keyGroup)
+                                    .Select(p => new PlanDto
+                                    {
+                                        PlanId = p.PlanId,
+                                        PlanName = p.PlanName,
+                                        StartDate = p.StartDate,
+                                        EndDate = p.EndDate,
+                                        IsSelected = p.PlanId == planId
+                                    }).ToList(),
                         Children = new List<SubProcessDto>()
                     })
                     .ToDictionary(dto => dto.SubProcessID);

@@ -49,7 +49,7 @@ const PlanNode = ({ data }: { data: PlanNodeData }) => (
     <div className={style.nodeContent}>
       <h4>{data.planData.planName}</h4>
       {data.planData.startDate && (
-        <Tag color={data.isCurrent ? 'green' : 'default'}>
+        <Tag color={data.isCurrent ? 'green' : 'purple'}>
           {new Date(data.planData.startDate).toLocaleDateString()}
         </Tag>
       )}
@@ -64,7 +64,7 @@ const SubProcessNode = ({ data }: { data: SubProcessNodeData }) => (
     <Icons.process className={style.nodeIcon} />
     <div className={style.nodeContent}>
       <h4>{data.subProcessData.subProcessName}</h4>
-      <Tag color="purple">Order: {data.subProcessData.order}</Tag>
+      <Tag color="#1890ff">Order: {data.subProcessData.order}</Tag>
     </div>
     <Handle type="source" position={Position.Bottom} style={{ background: '#555' }} />
   </div>

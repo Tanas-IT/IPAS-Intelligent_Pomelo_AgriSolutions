@@ -69,9 +69,6 @@ const PlanDetailsTable: React.FC<PlanDetailsTableProps> = ({
     }, [dataSource]);
 
     const handleValuesChange = (changedValues: any, allValues: any) => {
-        console.log("Changed Values:", changedValues);
-        console.log("All Values in Form:", allValues);
-
         const updateChildren = (items: DataSourceNode[]): DataSourceNode[] => {
             return items.map((item) => {
                 if (item.type === "plan") {
@@ -168,11 +165,11 @@ const PlanDetailsTable: React.FC<PlanDetailsTableProps> = ({
                 if (record.type === "plan") {
                     return <span style={{ paddingLeft: 20 }}>{text}</span>;
                 }
-                return (
-                    <span>
-                        {text}
-                    </span>
-                );
+                if (record.type === "subProcess") {
+                    const order = record.subProcessOrder !== null ? record.subProcessOrder : "N/A";
+                    return <span>{`${text} (Sub: ${order})`}</span>;
+                }
+                return <span>{text}</span>;
             },
         },
         {

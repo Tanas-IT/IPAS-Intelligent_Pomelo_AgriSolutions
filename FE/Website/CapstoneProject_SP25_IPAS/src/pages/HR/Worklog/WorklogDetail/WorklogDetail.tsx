@@ -1,4 +1,4 @@
-import { Avatar, Badge, Button, DatePicker, Divider, Flex, Image, Tag } from "antd";
+import { Avatar, Badge, Button, DatePicker, Divider, Flex, Image, Modal, Tag } from "antd";
 import style from "./WorklogDetail.module.scss";
 import { Icons, Images } from "@/assets";
 import { useNavigate, useParams } from "react-router-dom";
@@ -10,7 +10,7 @@ import { CreateFeedbackRequest, GetFeedback } from "@/payloads/feedback";
 import { useEffect, useState } from "react";
 import FeedbackModal from "./FeedbackModal/FeedbackModal";
 import { feedbackService, worklogService } from "@/services";
-import { CancelReplacementRequest, GetAttendanceList, GetWorklogDetail, ListEmployeeUpdate, TaskFeedback, UpdateWorklogReq } from "@/payloads/worklog";
+import { CancelReplacementRequest, GetAttendanceList, GetWorklogDetail, ListEmployeeUpdate, TaskFeedback, UpdateStatusWorklogRequest, UpdateWorklogReq } from "@/payloads/worklog";
 import { formatDate, formatDateW, getUserId } from "@/utils";
 import { GetUser, PlanTarget, PlanTargetModel } from "@/payloads";
 import { ConfirmModal, CustomButton, Loading, Tooltip } from "@/components";
@@ -87,6 +87,7 @@ function WorklogDetail() {
   const [selectedTimeRange, setSelectedTimeRange] = useState<[string, string]>(["", ""]);
   const [initialReporterId, setInitialReporterId] = useState<number | undefined>(undefined);
   const [selectedDate, setSelectedDate] = useState<string>("");
+  const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
 
   const rawStatus = worklogDetail?.status || 'Not Started';
   const normalizedStatus = rawStatus.toLowerCase();
@@ -526,7 +527,7 @@ function WorklogDetail() {
         initialReporterId = res.reporter.find((emp) => emp.isReporter)?.userId;
       }
       console.log("reporter hiện tại", initialReporterId);
-      
+
       setInitialReporterId(initialReporterId);
 
       setInfoFieldsLeft([
@@ -628,6 +629,23 @@ function WorklogDetail() {
     fetchPlanDetail();
   };
 
+  const handleConfirm = async () => {
+    // Logic khi xác nhận
+    console.log('Plan marked as complete!');
+    const payload: UpdateStatusWorklogRequest = {
+      workLogId: Number(id),
+      status: "Reviewing",
+    };
+    const res = await worklogService.updateStatusWorklog(payload);
+    if (res.statusCode === 200) {
+      toast.success("Worklog marked as completed successfully");
+      fetchPlanDetail();
+    } else {
+      toast.error("Failed to mark worklog as completed");
+    }
+    setIsConfirmModalOpen(false);
+  };
+
   if (isLoading)
     return (
       <Flex justify="center" align="center" style={{ width: "100%" }}>
@@ -653,7 +671,17 @@ function WorklogDetail() {
           {rawStatus}
         </Tag>
         <Flex gap={15}>
-          <Button onClick={handleTakeAttendance}>Take Attendance</Button>
+          <Button
+            ghost
+            style={{
+              fontWeight: 500,
+              borderWidth: 2,
+              color: '#20461e',
+              backgroundColor: '#bcd379'
+            }}
+            onClick={handleTakeAttendance}>
+            Take Attendance
+          </Button>
         </Flex>
       </Flex>
       <label className={style.subTitle}>Code: {worklogDetail?.workLogCode || "laggg"}</label>
@@ -672,9 +700,27 @@ function WorklogDetail() {
             <label className={style.createdDate}>{formatDateW(worklogDetail?.date ?? "2")}</label>
             <Button
               type="primary"
+              ghost
               onClick={() => setIsModalOpen(true)}
+              style={{
+                fontWeight: 500,
+                borderWidth: 2,
+                borderColor: '#20461e',
+                color: '#20461e'
+              }}
             >
               View Dependency Worklogs
+            </Button>
+
+            <Button
+              type="primary"
+              danger
+              onClick={() => setIsConfirmModalOpen(true)}
+              style={{
+                fontWeight: 500,
+              }}
+            >
+              Mark as complete
             </Button>
           </Flex>
           <Flex vertical gap={10} className={style.info}>
@@ -793,6 +839,14 @@ function WorklogDetail() {
             <Flex gap={15}>
               <label className={style.textUpdated}>Date:</label>
               <label className={style.actualTime}>{formatDate(worklogDetail?.date || "") || "N/A"}</label>
+            </Flex>
+            <Flex gap={15}>
+              <label className={style.textUpdated}>Start Date Plan:</label>
+              <label className={style.actualTime}>{formatDate(worklogDetail?.startDate || "") || "N/A"}</label>
+            </Flex>
+            <Flex gap={15}>
+              <label className={style.textUpdated}>End Date Plan:</label>
+              <label className={style.actualTime}>{formatDate(worklogDetail?.endDate || "") || "N/A"}</label>
             </Flex>
             <Flex gap={15}>
               <label className={style.textUpdated}>Supplementary Worklog:</label>
@@ -1002,7 +1056,7 @@ function WorklogDetail() {
       <RedoWorklogModal
         isOpen={isRedoModalOpen}
         onClose={() => setIsRedoModalOpen(false)}
-        onSuccess={() => setIsRedoModalOpen(false)}
+        onSuccess={fetchPlanDetail}
         failedOrRedoWorkLogId={worklogDetail?.workLogId || 0}
       />
       <DependencyModal
@@ -1010,6 +1064,17 @@ function WorklogDetail() {
         onClose={() => setIsModalOpen(false)}
         worklogId={worklogDetail?.workLogId || 0}
       />
+
+      <Modal
+        title="Confirm Completion"
+        open={isConfirmModalOpen}
+        onOk={handleConfirm}
+        onCancel={() => setIsConfirmModalOpen(false)}
+        okText="Yes"
+        cancelText="No"
+      >
+        <p>Are you sure you want to mark this worklog as completed?</p>
+      </Modal>
       <ToastContainer />
     </div>
   );

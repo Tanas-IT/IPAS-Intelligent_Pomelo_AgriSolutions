@@ -73,6 +73,7 @@ export interface UpdatePlanRequest {
     graftedPlantID: number;
     plantLotID: number;
     plantID: number;
+    unit: string;
   }[];
   listLandPlotOfCrop: number[];
 }
