@@ -1256,11 +1256,11 @@ VALUES
     (33,'MT033', 'Leaves', 'Product', 'Pomelo tree leaves harvested for use', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1, NULL, NULL, NULL, NULL),
     (34,'MT034', 'Branches', 'Product', 'Pomelo tree branches harvested for use', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1, NULL, NULL, NULL, NULL),
     
-    (35,'MT035', 'Weather', 'Notification', 'Notification related to weather conditions affecting pomelo tree growth', NULL, NULL, NULL, 0, 1, GETDATE(),1, NULL, NULL, NULL, NULL,NULL),
-    (36,'MT036', 'Task Assignment', 'Notification', 'Notification related to work activities in pomelo tree care', NULL, NULL, NULL, 0, 1, GETDATE(),1, NULL, NULL, NULL, NULL,NULL),
-    (37,'MT037', 'Task Change', 'Notification', 'Notification related to work activities in pomelo tree care', NULL, NULL, NULL, 0, 1, GETDATE(),1, NULL, NULL, NULL, NULL,NULL),
-    (38,'MT038', 'Task Confirmation', 'Notification', 'Notification related to work activities in pomelo tree care', NULL, NULL, NULL, 0, 1, GETDATE(),1, NULL, NULL, NULL, NULL,NULL),
-    (39,'MT039', 'Task Reminder', 'Notification', 'Notification related to work activities in pomelo tree care', NULL, NULL, NULL, 0, 1, GETDATE(),1, NULL, NULL, NULL, NULL,NULL),
+    (35,'MT035', 'Weather', 'Notification', 'Notification related to weather conditions affecting pomelo tree growth', '#E1BEE7', NULL, NULL, 0, 1, GETDATE(),1, NULL, NULL, NULL, NULL,NULL),
+    (36,'MT036', 'Task Assignment', 'Notification', 'Notification related to work activities in pomelo tree care', '#E3F2FD', NULL, NULL, 0, 1, GETDATE(),1, NULL, NULL, NULL, NULL,NULL),
+    (37,'MT037', 'Task Change', 'Notification', 'Notification related to work activities in pomelo tree care', '#FFF9C4', NULL, NULL, 0, 1, GETDATE(),1, NULL, NULL, NULL, NULL,NULL),
+    (38,'MT038', 'Task Confirmation', 'Notification', 'Notification related to work activities in pomelo tree care', '#E8F5E9', NULL, NULL, 0, 1, GETDATE(),1, NULL, NULL, NULL, NULL,NULL),
+    (39,'MT039', 'Task Reminder', 'Notification', 'Notification related to work activities in pomelo tree care', '#FFE0B2', NULL, NULL, 0, 1, GETDATE(),1, NULL, NULL, NULL, NULL,NULL),
 	(40,'MT040', 'Grafted Branch Readiness', 'Criteria', 'Evaluation of grafted branches to determine if they are mature enough for cutting and transplantation', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1, NULL, 'GraftedEvaluation', NULL, NULL),
 	(41,'MT041', 'Green Skin Pomelo Grade 1', 'Criteria', 'Evaluation criteria for Green Skin Pomelo Grade 1', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1, NULL, 'Product', NULL, NULL),
     (42,'MT042', 'Green Skin Pomelo Grade 2', 'Criteria', 'Evaluation criteria for Green Skin Pomelo Grade 2', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1, NULL, 'Product', NULL, NULL),
@@ -1750,8 +1750,8 @@ GO
 INSERT INTO ipas.dbo.Package (PackageCode, PackageName, PackagePrice, Duration, isActive, CreateDate, UpdateDate, Status)
 VALUES
 ('PKG101', 'Starter Farm Package', 500000, 30, 1, GETDATE(), NULL, 'Active'),
-('PKG102', 'Standard Farm Package', 2000000, 180, 1, GETDATE(), NULL, 'Active'),
-('PKG103', 'Premium Farm Package', 4000000, 365, 1, GETDATE(), NULL, 'Active');
+('PKG102', 'Standard Farm Package', 100000, 180, 1, GETDATE(), NULL, 'Active'),
+('PKG103', 'Premium Farm Package', 200000, 365, 1, GETDATE(), NULL, 'Active');
 GO
 
 INSERT INTO ipas.dbo.PackageDetail (PackageDetailCode, FeatureName, FeatureDescription, PackageID)
