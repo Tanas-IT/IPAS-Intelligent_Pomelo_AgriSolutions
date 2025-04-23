@@ -2842,7 +2842,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     var errors = await ValidatePlansAgainstTemplate(processId, createPlanModel);
                     if(errors.Any())
                     {
-                        return new BusinessResult(400, string.Join(",", errors));
+                        return new BusinessResult(400, string.Join("\n", errors));
                     }
                     var genereateKeyGroup = Guid.NewGuid().ToString();
                     foreach (var createPlan in createPlanModel)
