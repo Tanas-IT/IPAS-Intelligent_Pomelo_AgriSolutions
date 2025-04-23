@@ -170,7 +170,6 @@ const AddPlanByProcess = () => {
                         .filter((node): node is SubProcessNode => node !== null);
 
                     const newDataSource: DataSourceNode[] = [processNode, ...subProcessNodes];
-                    console.log("kì ta", newDataSource);
 
                     setDataSource(newDataSource);
 
@@ -212,7 +211,6 @@ const AddPlanByProcess = () => {
                 });
             };
             collectPlans(dataSource);
-            console.log("Initial Plan Details Form Values:", initialValues);
             planDetailsForm.setFieldsValue(initialValues);
         }
     }, [dataSource, planDetailsForm]);
@@ -226,7 +224,6 @@ const AddPlanByProcess = () => {
                 setSelectedProcess(response);
                 setIsProcessSelected(true);
             }
-            console.log("chi tiet", response);
         } catch (error) {
             console.error("Failed to fetch process details:", error);
             toast.error("Failed to fetch process details. Please try again later.");
@@ -282,11 +279,10 @@ const AddPlanByProcess = () => {
         }
 
         const [startDate, endDate] = dateRange;
-        // Lưu tất cả ngày được chọn, kể cả ngày ngoài dateRange
+
         setCustomDates(dates);
         scheduleForm.setFieldValue("customDates", dates);
 
-        // Kiểm tra các ngày hợp lệ trong dateRange hiện tại
         const validDates = dates.filter((date) => date.isBetween(startDate, endDate, "day", "[]"));
 
         if (validDates.length === 0) {
@@ -363,92 +359,6 @@ const AddPlanByProcess = () => {
         setDayOfMonth(days);
     };
 
-    // const handleSaveDays = async (days: number[], type: "weekly" | "monthly"): Promise<boolean> => {
-    //     if (!dateRange) {
-    //         setDateError("Please select the date range first!");
-    //         return false;
-    //     }
-    //     const [startDate, endDate] = dateRange;
-
-    //     const validDays = days.filter((day) => isDayInRange(day, startDate, endDate, type));
-
-    //     if (validDays.length === 0) {
-    //         setDateError(`All selected ${type === "weekly" ? "days" : "dates"} are not within the date range. Please select again.`);
-    //         if (type === "weekly") {
-    //             setDayOfWeek([]);
-    //             scheduleForm.setFieldValue("dayOfWeek", []);
-    //         } else {
-    //             setDayOfMonth([]);
-    //             scheduleForm.setFieldValue("dayOfMonth", []);
-    //         }
-    //         return false;
-    //     }
-
-    //     if (validDays.length < days.length) {
-    //         setDateError(`Some selected ${type === "weekly" ? "days" : "dates"} are not within the date range. Only valid ${type === "weekly" ? "days" : "dates"} will be saved.`);
-    //         if (type === "weekly") {
-    //             setDayOfWeek(validDays);
-    //             scheduleForm.setFieldValue("dayOfWeek", validDays);
-    //         } else if (type === "monthly") {
-    //             setDayOfMonth(validDays);
-    //             scheduleForm.setFieldValue("dayOfMonth", validDays);
-    //         }
-    //     } else {
-    //         setDateError(null);
-    //     }
-
-    //     if (validDays.length === 1) {
-    //         const selectedDay = validDays[0];
-    //         let targetDate = startDate.clone();
-    //         if (type === "weekly") {
-    //             while (targetDate.day() !== selectedDay) {
-    //                 targetDate = targetDate.add(1, "day");
-    //             }
-    //         } else if (type === "monthly") {
-    //             targetDate = startDate.date(selectedDay);
-    //         }
-    //         const isDateRangeAdjusted = startDate.isSame(targetDate, "day") && endDate.isSame(targetDate, "day");
-
-    //         if (!isDateRangeAdjusted) {
-    //             return new Promise((resolve) => {
-    //                 Modal.confirm({
-    //                     title: "Adjust Date Range",
-    //                     content: `You have selected only one ${type === "weekly" ? "day" : "date"}. Do you want to adjust the date range to match this ${type === "weekly" ? "day" : "date"}?`,
-    //                     onOk: async () => {
-    //                         const selectedDay = validDays[0];
-    //                         let targetDate = startDate.clone();
-
-    //                         if (type === "weekly") {
-    //                             while (targetDate.day() !== selectedDay) {
-    //                                 targetDate = targetDate.add(1, "day");
-    //                             }
-    //                         } else if (type === "monthly") {
-    //                             targetDate = startDate.date(selectedDay);
-    //                         }
-
-    //                         const newDateRange = [targetDate, targetDate] as [Dayjs, Dayjs];
-    //                         await setDateRange(newDateRange);
-    //                         scheduleForm.setFieldsValue({ dateRange: newDateRange });
-    //                         resolve(true);
-    //                     },
-    //                     onCancel: () => {
-    //                         if (type === "weekly") {
-    //                             setDayOfWeek([]);
-    //                             scheduleForm.setFieldValue("dayOfWeek", []);
-    //                             resolve(false);
-    //                         } else if (type === "monthly") {
-    //                             setDayOfMonth([]);
-    //                             scheduleForm.setFieldValue("dayOfMonth", []);
-    //                             resolve(false);
-    //                         }
-    //                     },
-    //                 });
-    //             });
-    //         }
-    //     }
-
-    //     return true;
-    // };
     const handleSaveDays = async (days: number[], type: "weekly" | "monthly"): Promise<boolean> => {
         if (!dateRange) {
             setDateError("Please select the date range first!");
@@ -491,7 +401,7 @@ const AddPlanByProcess = () => {
             }
         }
 
-        setIsDaySelectorSaved(true); // Đặt flag khi lưu thành công
+        setIsDaySelectorSaved(true);
 
         if (validDays.length === 1) {
             const selectedDay = validDays[0];
@@ -548,8 +458,10 @@ const AddPlanByProcess = () => {
     };
 
     const handleScheduleClick = (record: PlanNode) => {
+        setDateError(null);
         setIsScheduleModalOpen(true);
         setSelectedPlanId(record.planId);
+        setIsDaySelectorSaved(false);
 
         const findPlan = (items: DataSourceNode[]): PlanNode | undefined => {
             for (const item of items) {
@@ -574,7 +486,7 @@ const AddPlanByProcess = () => {
             const timeRange = schedule.startTime && schedule.endTime
                 ? [dayjs(schedule.startTime, "HH:mm"), dayjs(schedule.endTime, "HH:mm")]
                 : null;
-
+            setDateRange(dateRange as [Dayjs, Dayjs] | null);
             setFrequency(schedule.frequency || "None");
             setCustomDates(schedule.customDates?.map((date: string) => dayjs(date)) || []);
             setDayOfWeek(schedule.dayOfWeek || []);
@@ -688,7 +600,6 @@ const AddPlanByProcess = () => {
 
         const updatedDataSource = updateChildren(dataSource);
         setDataSource(updatedDataSource);
-        console.log("Updated dataSource after selecting schedule:", updatedDataSource);
     };
 
     const handleDataSourceChange = (updatedDataSource: DataSourceNode[]) => {
@@ -713,7 +624,6 @@ const AddPlanByProcess = () => {
 
         const updatedDataSource = updateChildren(dataSource);
         setDataSource(updatedDataSource);
-        console.log("Updated dataSource after assigning employees:", updatedDataSource);
     };
 
     const handleSubmit = async () => {
@@ -729,13 +639,11 @@ const AddPlanByProcess = () => {
                 return;
             }
 
-            // Validate Growth Stage Name for planTargetType === 1
             if (planTargetType === 1 && growthStage.length === 0) {
                 toast.error("Please select at least one Growth Stage Name for Land Plot/Land Row/Plant target.");
                 return;
             }
 
-            // Validate PlanTarget for planTargetType === 1 when Growth Stage is selected
             if (planTargetType === 1 && growthStage.length > 0) {
                 const planTargetModels = form.getFieldValue("planTargetModel") || [];
                 if (!Array.isArray(planTargetModels) || planTargetModels.length === 0) {
@@ -765,6 +673,14 @@ const AddPlanByProcess = () => {
             const allPlans = collectPlansWithHierarchy(dataSource, processId);
             if (allPlans.length === 0) {
                 toast.error("No valid plans found to submit.");
+                return;
+            }
+
+            const plansWithoutEmployees = allPlans.filter(
+                ({ plan }) => !plan.listEmployee || plan.listEmployee.length === 0
+            );
+            if (plansWithoutEmployees.length > 0) {
+                toast.error("Please assign at least one employee to each plan.");
                 return;
             }
 
@@ -1030,7 +946,11 @@ const AddPlanByProcess = () => {
                         title="Set Schedule"
                         open={isScheduleModalOpen}
                         onOk={() => setIsScheduleModalOpen(false)}
-                        onCancel={() => setIsScheduleModalOpen(false)}
+                        onCancel={() => {
+                            setIsScheduleModalOpen(false);
+                            setDateError(null);
+                            scheduleForm.resetFields();
+                        }}
                         footer={null}
                         width={800}
                     >
@@ -1078,6 +998,9 @@ const AddPlanByProcess = () => {
                                 setIsScheduleModalOpen(false);
                                 setIsDaySelectorSaved(false);
                             }}
+                            onFinishFailed={(errorInfo) => {
+                                console.log("Form validation failed:", errorInfo);
+                            }}
                         >
                             <InfoField
                                 label="Date Range"
@@ -1110,8 +1033,9 @@ const AddPlanByProcess = () => {
                             {frequency === "Weekly" && (
                                 <Form.Item
                                     label="Select Days of Week"
-                                    rules={[{ required: true, message: "Please select the days of week!" }]}
                                     name={addPlanFormFields.dayOfWeek}
+                                    // Tạm thời bỏ rules để debug
+                                    // rules={[{ required: true, message: "Please select the days of week!" }]}
                                     validateStatus={dateError ? "error" : ""}
                                     help={dateError}
                                 >
@@ -1131,7 +1055,8 @@ const AddPlanByProcess = () => {
                                 <Form.Item
                                     label="Select Dates"
                                     name={addPlanFormFields.dayOfMonth}
-                                    rules={[{ required: true, message: "Please select the dates!" }]}
+                                    // Tạm thời bỏ rules để debug
+                                    // rules={[{ required: true, message: "Please select the dates!" }]}
                                     validateStatus={dateError ? "error" : ""}
                                     help={dateError}
                                 >
@@ -1148,7 +1073,8 @@ const AddPlanByProcess = () => {
                                 <Form.Item
                                     label="Select Specific Dates"
                                     name={addPlanFormFields.customDates}
-                                    rules={[{ required: true, message: "Please select the dates!" }]}
+                                    // Tạm thời bỏ rules để debug
+                                    // rules={[{ required: true, message: "Please select the dates!" }]}
                                     validateStatus={dateError ? "error" : ""}
                                     help={dateError}
                                 >
@@ -1162,7 +1088,13 @@ const AddPlanByProcess = () => {
                                 </Form.Item>
                             )}
                             <Form.Item>
-                                <Button type="primary" htmlType="submit">
+                                <Button
+                                    type="primary"
+                                    disabled={(frequency === "Weekly" || frequency === "Monthly") && !isDaySelectorSaved}
+                                    onClick={() => {
+                                        scheduleForm.validateFields().then(() => scheduleForm.submit());
+                                    }}
+                                >
                                     Save
                                 </Button>
                             </Form.Item>

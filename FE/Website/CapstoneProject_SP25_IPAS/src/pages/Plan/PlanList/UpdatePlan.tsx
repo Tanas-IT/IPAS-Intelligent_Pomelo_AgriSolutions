@@ -8,6 +8,7 @@ import {
     Divider,
     Modal,
     Flex,
+    Input,
 } from "antd";
 import moment, { Moment } from "moment";
 import { CustomButton, InfoField, Loading, Section, Tooltip } from "@/components";
@@ -126,22 +127,6 @@ const UpdatePlan = () => {
             setLandPlotOfCropOptions([]);
         }
     }, [selectedCrop]);
-
-    // useEffect(() => {
-    //     form.setFieldValue("masterTypeId", undefined);
-    //     if (selectedGrowthStage && selectedGrowthStage.length > 0) {
-    //         planService.filterTypeWorkByGrowthStage(selectedGrowthStage).then((data) => {
-    //             setProcessTypeOptions(
-    //                 data.map((item) => ({
-    //                     value: item.masterTypeId,
-    //                     label: item.masterTypeName,
-    //                 }))
-    //             );
-    //         });
-    //     } else {
-    //         setProcessTypeOptions([]);
-    //     }
-    // }, [selectedGrowthStage]);
 
     useEffect(() => {
         const updateProcessFarmOptions = async () => {
@@ -443,14 +428,14 @@ const UpdatePlan = () => {
         console.log("dayOfWeek", typeof (dayOfWeek));
 
 
-        const planData: UpdatePlanRequest = {
+        const planDataPayload: UpdatePlanRequest = {
             planId: Number(id) ?? 0,
             status: "Not Started",
             planName: values.planName,
             planDetail: values.planDetail,
             notes: values.notes || "",
             cropId: values.cropId,
-            processId: values.processId,
+            processId: values.processId || planData?.processId,
             growthStageId: values.growthStageId,
             frequency: values.frequency,
             isActive: values.isActive,
@@ -478,14 +463,15 @@ const UpdatePlan = () => {
                 plantID: target.plantID ?? [],
                 graftedPlantID: target.graftedPlantID ?? [],
                 plantLotID: target.plantLotID ?? [],
+                unit: target.unit
             })),
             listLandPlotOfCrop: values.listLandPlotOfCrop
         };
-        console.log("plandata for updating", planData);
+        console.log("plandata for updating", planDataPayload);
 
 
         if (id) {
-            const result = await planService.updatePlan(planData);
+            const result = await planService.updatePlan(planDataPayload);
             if (result.statusCode === 200) {
                 toast.success(result.message);
                 navigate(PATHS.PLAN.PLAN_LIST);
@@ -496,26 +482,8 @@ const UpdatePlan = () => {
             toast.error("Plan ID is required for updating.");
         }
     };
-    console.log("mêt qua", selectedCrop);
-    // useEffect(() => {
-    //     form.setFieldValue("masterTypeId", undefined);
-    //     if (selectedGrowthStage && selectedGrowthStage.length > 0) {
-    //         planService.filterMasterTypeByGrowthStage(selectedGrowthStage, "Work").then((data) => {
-    //             setProcessTypeOptions(
-    //                 data.map((item) => ({
-    //                     value: item.masterTypeId,
-    //                     label: item.masterTypeName,
-    //                 }))
-    //             );
-    //         });
-    //     } else {
-    //         setProcessTypeOptions([]);
-    //     }
-    // }, [selectedGrowthStage]);
 
     const determineTargetType = (planTargetModels: any[]) => {
-        console.log("lay ra planTargetModels", planTargetModels);
-
         for (const target of planTargetModels) {
             if (target.graftedPlants && target.graftedPlants.length > 0) {
                 return "graftedPlant";
@@ -526,9 +494,7 @@ const UpdatePlan = () => {
                 return "regular";
             }
         }
-        // return "regular";
     };
-
 
     useEffect(() => {
         const fetchData = async () => {
@@ -536,10 +502,10 @@ const UpdatePlan = () => {
             try {
                 setProcessFarmOptions(await fetchProcessesOfFarm(farmId, true));
                 const response = await worklogService.getEmployeesByWorkSkill(Number(farmId));
-                    if (response.statusCode === 200) {
-                
-                      setEmployee(response.data);
-                    }
+                if (response.statusCode === 200) {
+
+                    setEmployee(response.data);
+                }
 
                 if (id) {
                     const result = await planService.getPlanDetail(id);
@@ -548,7 +514,6 @@ const UpdatePlan = () => {
                     if (result) {
                         setPlanData(result);
                         const target = determineTargetType(result.planTargetModels);
-                        console.log("=======================================================", target);
                         const parsedCustomDates = result.customDates
                             ? JSON.parse(result.customDates).map((date: string) => moment(date))
                             : [];
@@ -558,12 +523,6 @@ const UpdatePlan = () => {
                         const endTime = result.endTime ? dayjs(result.endTime, timeFormat) : null;
                         const mergedEmployees = [...result.listReporter, ...result.listEmployee];
                         setSelectedEmployees(mergedEmployees);
-                        // await planService.filterTypeWorkByGrowthStage(result.growthStages.map((g) => g.id)).then((data) => {
-                        //     setProcessTypeOptions(data.map((item) => ({
-                        //         value: item.masterTypeId,
-                        //         label: item.masterTypeName
-                        //     })))
-                        // });
                         setSelectedReporter(result.listReporter?.[0]?.userId || null);
                         form.setFieldValue("planTarget", target);
                         form.setFieldsValue({
@@ -591,38 +550,28 @@ const UpdatePlan = () => {
                             setIsCropDisabled(true);
                         }
                         setTargetType(target);
-
-                        // const mergedEmployees = [...result.listReporter, ...result.listEmployee];
                         form.setFieldValue("listLandPlotOfCrop", result.listLandPlotOfCrop.map((l) => l.id))
                         if (result.processId) {
                             setIsLockedGrowthStage(true);
                         }
                         if (result.cropId) {
                             setSelectedCrop(result.cropId);
-                            setIsTargetDisabled(true); // Enable nếu có cropId
+                            setIsTargetDisabled(true);
                         }
                         setDateRange([startDate, endDate] as [Dayjs, Dayjs]);
                         setSelectedGrowthStage(result.growthStages.map((g) => g.id));
-                        // setSelectedEmployees(mergedEmployees);
-                        // await planService.filterTypeWorkByGrowthStage(result.growthStages.map((g) => g.id)).then((data) => {
-                        //     setProcessTypeOptions(data.map((item) => ({
-                        //         value: item.masterTypeId,
-                        //         label: item.masterTypeName
-                        //     })))
-                        // });
-                        // setSelectedReporter(result.listReporter?.[0]?.userId || null);
                         setFrequency(result.frequency || "None");
-
-
                         const parsedDayOfMonth = result.dayOfMonth ? JSON.parse(result.dayOfMonth) : [];
                         setDayOfMonth(parsedDayOfMonth);
-
                         setDayOfWeek(result.dayOfWeek || []);
-
                         setSelectedIds(mergedEmployees?.map((emp) => emp.userId) || []);
-
-
+                    } else {
+                        navigate("/404");
+                        return;
                     }
+                } else {
+                    navigate("/404");
+                    return;
                 }
             } catch (error) {
                 console.error("Lỗi khi fetch dữ liệu:", error);
@@ -679,24 +628,39 @@ const UpdatePlan = () => {
                     <Row gutter={16}>
                         <Col span={12}>
                             <Flex vertical>
-                                <InfoField
-                                    label="Process Name"
-                                    name={addPlanFormFields.processId}
-                                    options={processFarmOptions}
-                                    isEditing={true}
-                                    type="select"
-                                    hasFeedback={false}
-                                    onChange={(value) => handleChangeProcess(value)}
-                                />
-                                <div
-                                    style={{ marginTop: "-20px", textAlign: "right" }}
-                                    onClick={() => {
-                                        form.setFieldsValue({ [addPlanFormFields.processId]: undefined });
-                                        form.setFieldValue("masterTypeId", undefined);
-                                        handleChangeProcess(undefined);
-                                    }}>
-                                    <a style={{ fontSize: "14px", color: "blueviolet", textDecoration: "underline" }}>Clear</a>
-                                </div>
+                                {planData?.hasNonSampleProcess ? (
+                                    <Form.Item
+                                        label="Process Name"
+                                    // name={addPlanFormFields.processId}
+                                    >
+                                        <Input
+                                            disabled
+                                            value={planData.processName}
+                                        />
+                                    </Form.Item>
+                                ) : (
+                                    <>
+                                        <InfoField
+                                            label="Process Name"
+                                            name={addPlanFormFields.processId}
+                                            options={processFarmOptions}
+                                            isEditing={true}
+                                            type="select"
+                                            hasFeedback={false}
+                                            onChange={(value) => handleChangeProcess(value)}
+                                        />
+                                        <div
+                                            style={{ marginTop: "-20px", textAlign: "right" }}
+                                            onClick={() => {
+                                                form.setFieldsValue({ [addPlanFormFields.processId]: undefined });
+                                                form.setFieldValue("masterTypeId", undefined);
+                                                handleChangeProcess(undefined);
+                                            }}
+                                        >
+                                            <a style={{ fontSize: "14px", color: "blueviolet", textDecoration: "underline" }}>Clear</a>
+                                        </div>
+                                    </>
+                                )}
                             </Flex>
                         </Col>
                         <Col span={12}>

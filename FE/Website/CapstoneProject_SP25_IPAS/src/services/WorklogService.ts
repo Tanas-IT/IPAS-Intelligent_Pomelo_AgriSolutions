@@ -1,6 +1,6 @@
 import { axiosAuth } from "@/api";
 import { ApiResponse } from "@/payloads";
-import { CancelReplacementRequest, CreateRedoWorklogRequest, CreateWorklogRequest, DependencyWorklog, EmployeeWithSkills, GetAttendanceList, GetEmpListForUpdate, GetWorklog, GetWorklogDetail, GetWorklogNote, ListEmployeeAttendance, UpdateWorklogReq, WorklogStatusResponse } from "@/payloads/worklog";
+import { CancelReplacementRequest, CreateRedoWorklogRequest, CreateWorklogRequest, DependencyWorklog, EmployeeWithSkills, GetAttendanceList, GetEmpListForUpdate, GetWorklog, GetWorklogDetail, GetWorklogNote, ListEmployeeAttendance, UpdateStatusWorklogRequest, UpdateWorklogReq, WorklogStatusResponse } from "@/payloads/worklog";
 
 // export const getWorklog = async () => {
 //     const res = await axiosAuth.axiosJsonRequest.get("work-log/get-all-schedule");
@@ -144,3 +144,13 @@ export const addWorklogNote = async (
     return res.data as ApiResponse<EmployeeWithSkills[]>;
   };
   
+  export const updateStatusWorklog = async (
+    payload: UpdateStatusWorklogRequest
+  ): Promise<ApiResponse<Object>> => {
+    const res = await axiosAuth.axiosJsonRequest.put(
+      `work-log/update-status-of-workLog`,
+      payload
+    );
+    const apiResponse = res.data as ApiResponse<Object>;
+    return apiResponse;
+  };

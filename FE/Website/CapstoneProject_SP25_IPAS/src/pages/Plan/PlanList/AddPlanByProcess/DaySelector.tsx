@@ -13,8 +13,6 @@ const DaySelector: React.FC<DaySelectorProps> = ({ onSelectDays, onSave, selecte
   const [selected, setSelected] = useState<number[]>(selectedDays);
   const [isEditing, setIsEditing] = useState(false);
   const [initialSelectedDays, setInitialSelectedDays] = useState<number[]>(selectedDays);
-  console.log("selectedDaysdfgrg", selectedDays);
-  
 
   useEffect(() => {
     setSelected(selectedDays);
