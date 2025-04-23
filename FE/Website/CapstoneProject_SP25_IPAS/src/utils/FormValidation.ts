@@ -74,13 +74,16 @@ export const validatePolygonBeforeSave = (
   const { minWidth, maxWidth, minLength, maxLength } = POLYGON_DIMENSION_LIMITS;
 
   if (width < minWidth || width > maxWidth) {
-    toast.error(`Width must be between ${minWidth}m and ${maxWidth}m!`);
+    // toast.error(`Width must be between ${minWidth}m and ${maxWidth}m!`);
+    toast.error(`Plot dimensions must be within the allowed range!`);
+
     return false;
   }
 
   // Kiểm tra length
   if (length < minLength || length > maxLength) {
-    toast.error(`Length must be between ${minLength}m and ${maxLength}m!`);
+    // toast.error(`Length must be between ${minLength}m and ${maxLength}m!`);
+    toast.error(`Plot dimensions must be within the allowed range!`);
     return false;
   }
 

@@ -8,7 +8,7 @@ interface ColorGuideItem {
 
 const colorGuideItems: ColorGuideItem[] = [
   { label: "Normal land plot", colorClass: style.green },
-  { label: "Dangerous land plot", colorClass: style.red },
+  // { label: "Dangerous land plot", colorClass: style.red },
   { label: "Selected land plot", colorClass: style.blue },
   { label: "Searched land plot", colorClass: style.orange },
 ];

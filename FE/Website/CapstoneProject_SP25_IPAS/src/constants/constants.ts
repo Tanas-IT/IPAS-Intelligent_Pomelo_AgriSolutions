@@ -2,6 +2,12 @@ import { UserRole } from "./Enum";
 
 export const DEFAULT_ROWS_PER_PAGE = 5;
 export const DEFAULT_RECORDS_IN_DETAIL = 3;
+// export const METRIC_UNIT = "m";
+// export const DEFAULT_PLANT_SIZE = 24;
+// export const PLANT_WIDTH = 50;
+// export const PLANT_DISTANCE = 10;
+// export const ROW_SPACING = 50;
+// export const LINE_SPACING = 50;
 
 export const UserRolesStr = {
   Admin: UserRole.Admin.toString(),
@@ -26,6 +32,7 @@ export const SYSTEM_CONFIG_GROUP = {
   HARVEST_SEASON: "HarvestSeason",
   YIELD_THRESHOLD: "YieldThreshold",
   VALIDATION_VARIABLE: "ValidationVariable",
+  VIRTUAL_PLOT: "VirtualPlot",
 };
 
 export const criteriaGroupsHasReference = [
@@ -42,6 +49,12 @@ export const SYSTEM_CONFIG_KEY = {
   PRODUCT_CRITERIA: "ProductCriteria",
   EDIT_IN_DAY: "EditInDay",
   RECORD_AFTER_DATE: "RecordAfterDate",
+  METRIC_UNIT: "MetricUnit",
+  DEFAULT_PLANT_SIZE: "DefaultPlantSize",
+  ROW_WIDTH: "RowWidth",
+  PLANT_DISTANCE: "PlantDistance",
+  ROW_SPACING: "RowSpacing",
+  LINE_SPACING: "LineSpacing",
 };
 
 export const GENDER_OPTIONS = [

@@ -238,6 +238,10 @@ export const isEmployee = () => {
   return getRoleId() === UserRolesStr.Employee;
 };
 
+export const isManager = () => {
+  return getRoleId() === UserRolesStr.Manager;
+};
+
 export const getRoleName = (): string => {
   const roleId = Number(getRoleId());
   if (roleId === UserRole.Admin) {
@@ -810,4 +814,14 @@ export const getAnswerParts = (parsed: AnswerData) => {
       value: parsed.confidence ? `Độ tin cậy: ${parsed.confidence}` : "",
     },
   ].filter((p) => !!p.value);
+};
+
+export const calculateRowLength = (treeAmount: number, distance: number, sizePlant: number) => {
+  // Chiều dài tối thiểu của hàng sẽ là một giá trị cố định
+  const totalSpacing = (treeAmount - 1) * distance; // Khoảng cách tổng cộng giữa các cây
+  const totalWidthPlant = treeAmount * sizePlant;
+  const calculatedLength = totalSpacing + totalWidthPlant + 40; // Cộng thêm một khoảng chiều dài cho cây đầu tiên (100px cho mỗi cây)
+
+  // return Math.max(calculatedLength, minRowLength); // Đảm bảo chiều dài không nhỏ hơn minRowLength
+  return calculatedLength;
 };

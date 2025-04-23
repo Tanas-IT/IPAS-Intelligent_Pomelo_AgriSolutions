@@ -2164,6 +2164,15 @@ VALUES
 ('YieldThreshold', 'Acceptable', '200', 'int', 'Maximum yield (kg) considered acceptable'),
 ('YieldThreshold', 'Outstanding', '1000', 'int', 'Maximum yield (kg) considered outstanding');
 
+INSERT INTO SystemConfiguration (ConfigGroup, ConfigKey, ConfigValue, ValueType, Description)
+VALUES 
+('VirtualPlot', 'MetricUnit', 'm', 'string', 'Unit of measurement'),
+('VirtualPlot', 'DefaultPlantSize', '24', 'int', 'Default size of a plant (in px)'),
+('VirtualPlot', 'PlantDistance', '10', 'int', 'Distance between plants (in meters)'),
+('VirtualPlot', 'RowWidth', '50', 'int', 'Width of a plant (in meters)'),
+('VirtualPlot', 'RowSpacing', '50', 'int', 'Spacing between rows (in meters)'),
+('VirtualPlot', 'LineSpacing', '50', 'int', 'Spacing between lines (in meters)');
+
 -- Danh sách TypeNames
 INSERT INTO SystemConfiguration (ConfigGroup, ConfigKey, ConfigValue, ValueType, Description)
 VALUES 
