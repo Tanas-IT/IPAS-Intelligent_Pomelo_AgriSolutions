@@ -17,7 +17,7 @@ namespace CapstoneProject_SP25_IPAS_Service.IService
 
         public Task<BusinessResult> GetAllPlanPagination(PaginationParameter paginationParameter, PlanFilter planFilter, int farmId);
 
-        public Task<BusinessResult> CreatePlan(CreatePlanModel createPlanModel, int? farmId, bool useTransaction);
+        public Task<BusinessResult> CreatePlan(CreatePlanModel createPlanModel, int? farmId, bool useTransaction, string? keyGroup);
 
         public Task<BusinessResult> UpdatePlanInfo(UpdatePlanModel updatePlanModel);
 

@@ -158,7 +158,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
                         throw new InvalidOperationException("EndTime is invalid.");
                     }
                 }
-                var result = await _planService.CreatePlan(createPlanModel, farmId, true);
+                var result = await _planService.CreatePlan(createPlanModel, farmId, true, null);
 
                 return Ok(result);
             }

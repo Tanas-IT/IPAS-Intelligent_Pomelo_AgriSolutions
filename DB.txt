@@ -801,6 +801,7 @@ CREATE TABLE ipas.dbo.[Plan] (
 	PesticideName nvarchar(255) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 	MaxVolume float NULL,
 	MinVolume float NULL,
+	KeyGroup nvarchar(MAX) NULL,
 	ProcessID int NULL,
 	CropID int NULL,
 	IsDeleted bit DEFAULT 0 NULL,
@@ -1161,8 +1162,8 @@ VALUES
 ('manager2@example.com', '$2a$11$1V.AriJm/OGpjG0vWRH8tuD9/Fi2ezrgyDJItAZ5bzGH1DTukcH9e', 'Daniel Brown', '0922334455', 'Male', '1985-10-18', 'M002', GETDATE(), GETDATE(), 0, 'Active', NULL, 'https://res.cloudinary.com/dgshx4n2c/image/upload/v1741755628/hikdhs0nnj9l6zkqbjje.jpg', NULL, NULL, 2),
 -- User not in farm
 ('user1@example.com', '$2a$11$1V.AriJm/OGpjG0vWRH8tuD9/Fi2ezrgyDJItAZ5bzGH1DTukcH9e', 'Liam Anderson', '0933111222', 'Male', '1992-02-14', 'U006', GETDATE(), GETDATE(), 0, 'Active', NULL, 'https://res.cloudinary.com/dgshx4n2c/image/upload/v1744259852/hbbtcb6k2kxh5zi1yhu0.jpg', NULL, NULL, 2),
-('user2@example.com', '$2a$11$1V.AriJm/OGpjG0vWRH8tuD9/Fi2ezrgyDJItAZ5bzGH1DTukcH9e', 'Sophia Hernandez', '0944222333', 'Female', '1995-07-25', 'U0011', GETDATE(), GETDATE(), 0, 'Active', NULL, 'https://res.cloudinary.com/dgshx4n2c/image/upload/v1744259852/hbbtcb6k2kxh5zi1yhu0.jpg', NULL, NULL, 2),
-('user3@example.com', '$2a$11$1V.AriJm/OGpjG0vWRH8tuD9/Fi2ezrgyDJItAZ5bzGH1DTukcH9e', 'Mason Wilson', '0955333444', 'Male', '1989-11-10', 'U008', GETDATE(), GETDATE(), 0, 'Active', NULL, 'https://res.cloudinary.com/dgshx4n2c/image/upload/v1744259852/hbbtcb6k2kxh5zi1yhu0.jpg', NULL, NULL, 2),
+('user2@example.com', '$2a$11$qi491eunYFCQeO..SFS.Iethgoa5BFyMgH5ugmS8Drv54uqZ5QpnC', 'Sophia Hernandez', '0944222333', 'Female', '1995-07-25', 'U0011', GETDATE(), GETDATE(), 0, 'Active', NULL, 'https://res.cloudinary.com/dgshx4n2c/image/upload/v1744259852/hbbtcb6k2kxh5zi1yhu0.jpg', NULL, NULL, 2),
+('user3@example.com', '$2a$11$qi491eunYFCQeO..SFS.Iethgoa5BFyMgH5ugmS8Drv54uqZ5QpnC', 'Mason Wilson', '0955333444', 'Male', '1989-11-10', 'U008', GETDATE(), GETDATE(), 0, 'Active', NULL, 'https://res.cloudinary.com/dgshx4n2c/image/upload/v1744259852/hbbtcb6k2kxh5zi1yhu0.jpg', NULL, NULL, 2),
 ('user4@example.com', '$2a$11$1V.AriJm/OGpjG0vWRH8tuD9/Fi2ezrgyDJItAZ5bzGH1DTukcH9e', 'Isla Thomas', '0966444555', 'Female', '1993-09-30', 'U009', GETDATE(), GETDATE(), 0, 'Active', NULL, 'https://res.cloudinary.com/dgshx4n2c/image/upload/v1744259852/hbbtcb6k2kxh5zi1yhu0.jpg', NULL, NULL, 2),
 ('user5@example.com', '$2a$11$1V.AriJm/OGpjG0vWRH8tuD9/Fi2ezrgyDJItAZ5bzGH1DTukcH9e', 'Noah Martinez', '0977555666', 'Male', '1990-06-05', 'U010', GETDATE(), GETDATE(), 0, 'Active', NULL, 'https://res.cloudinary.com/dgshx4n2c/image/upload/v1744259852/hbbtcb6k2kxh5zi1yhu0.jpg', NULL, NULL, 2),
 ('lequangdung232@gmail.com', '$2a$11$qi491eunYFCQeO..SFS.Iethgoa5BFyMgH5ugmS8Drv54uqZ5QpnC', 'Quang Dung', '0912345678', 'Male', '2003-08-02', 'U007', GETDATE(), GETDATE(), 0, 'Active', NULL, 'https://res.cloudinary.com/dgshx4n2c/image/upload/v1741237242/user/avatar/igg0uhkj5yomwkzfskph.png', NULL, NULL, 2),
@@ -1186,6 +1187,8 @@ VALUES
 (1, 13, 5), 
 (1, 14, 5), 
 (1, 15, 5), 
+(1, 19, 5),
+(1, 20, 5),
 (1, 16, 4), -- Olivia Martinez (Manager)
 (1, 17, 4), -- Daniel Brown (Manager)
 (1, 23, 5);
@@ -1733,7 +1736,7 @@ INSERT INTO [ipas].dbo.Process
 (ProcessCode, ProcessName, isDefault, isActive, CreateDate, UpdateDate, IsDeleted, GrowthStageID, MasterTypeID, IsSample, FarmID)  
 VALUES
 (N'P006', N'Làm đất', 1, 1, '2024-02-06', NULL, 0, 1, 1, 0, 1), -- có plan mẫu
-(N'P007', N'Phun thuốc trừ sâu', 0, 1, '2024-02-07', '2024-02-15', 0, 2, 1, 0, 2), -- có plan mẫu
+(N'P007', N'Kế hoạch chăm sóc cây mùa khô', 0, 1, '2024-02-07', '2024-02-15', 0, 2, 1, 0, 2), -- có plan mẫu
 (N'P008', N'Cắt tỉa', 1, 1, '2024-02-08', NULL, 0, 3, 2, 0, 1), -- có plan mẫu
 (N'P009', N'Đo độ ẩm đất', 0, 1, '2024-02-09', '2024-02-16', 0, 2, NULL, 1, 3), -- tham khảo
 (N'P010', N'Bảo quản sau thu hoạch', 0, 1, '2024-02-10', NULL, 0, NULL, 3, 1, 2), -- tham khảo
@@ -1851,42 +1854,44 @@ VALUES
            ,10
            ,NULL
            ,1),
-('SPC002', N'Bước chuẩn bị đất', NULL, 1, 1, N'Chuẩn bị mặt bằng trước khi trồng', '2025-04-13 08:00:00', '2025-04-13 08:00:00', '2025-04-13 08:00:00', '2025-04-15 18:00:00', 0, 1, 10, NULL, 1),
-('SPC003', N'Gieo hạt', NULL, 0, 1, N'Tiến hành gieo hạt giống đã xử lý', '2025-04-13 09:30:00', '2025-04-13 09:30:00', '2025-04-16 07:00:00', '2025-04-16 12:00:00', 0, 2, 10, NULL, 1),
-('SPC004', N'Tưới nước lần 1', NULL, 0, 1, N'Tưới nước sau khi gieo', '2025-04-13 11:00:00', '2025-04-13 11:00:00', '2025-04-17 06:00:00', '2025-04-17 07:00:00', 0, 3, 10, NULL, 1),
-('SPC005', N'Bón phân đợt 1', NULL, 0, 1, N'Bón phân hữu cơ cho cây con', '2025-04-13 13:00:00', '2025-04-13 13:00:00', '2025-04-18 08:00:00', '2025-04-18 09:30:00', 0, 4, 10, NULL, 1),
-('SPC006', N'Kiểm tra sâu bệnh', NULL, 0, 1, N'Theo dõi và phát hiện sâu bệnh', '2025-04-14 07:30:00', '2025-04-14 07:30:00', '2025-04-19 09:00:00', '2025-04-19 10:00:00', 0, 5, 10, NULL, 1),
-('SPC007', N'Trị bệnh - thuốc sinh học', NULL, 0, 1, N'Phun thuốc sinh học cho cây bị nhiễm', '2025-04-14 08:00:00', '2025-04-14 08:00:00', '2025-04-20 08:00:00', '2025-04-20 09:30:00', 0, 6, 10, NULL, 1),
-('SPC008', N'Cắt tỉa cành', NULL, 0, 1, N'Cắt bỏ những cành không cần thiết', '2025-04-14 09:00:00', '2025-04-14 09:00:00', '2025-04-21 07:00:00', '2025-04-21 09:00:00', 0, 7, 10, NULL, 2),
-('SPC009', N'Thu hoạch đợt 1', NULL, 0, 1, N'Tiến hành thu hoạch thử nghiệm', '2025-04-14 10:00:00', '2025-04-14 10:00:00', '2025-04-22 08:00:00', '2025-04-22 12:00:00', 0, 8, 10, NULL, 2),
-('SPC010', N'Vận chuyển nội bộ', NULL, 0, 1, N'Chuyển trái cây từ vườn về kho', '2025-04-14 11:30:00', '2025-04-14 11:30:00', '2025-04-22 13:00:00', '2025-04-22 14:00:00', 0, 9, 10, NULL, 2),
-('SPC011', N'Làm sạch và phân loại', NULL, 0, 1, N'Làm sạch trái, phân loại trước đóng gói', '2025-04-14 12:00:00', '2025-04-14 12:00:00', '2025-04-22 15:00:00', '2025-04-22 18:00:00', 0, 10, 10, NULL, 2);
+('SPC002', N'Land preparation steps', NULL, 1, 1, N'Prepare the ground before planting', '2025-04-13 08:00:00', '2025-04-13 08:00:00', '2025-04-13 08:00:00', '2025-04-15 18:00:00', 0, 1, 10, NULL, 1),
+('SPC003', N'Sow seeds', NULL, 0, 1, N'Proceed to sow treated seeds', '2025-04-13 09:30:00', '2025-04-13 09:30:00', '2025-04-16 07:00:00', '2025-04-16 12:00:00', 0, 2, 10, NULL, 1),
+('SPC004', N'Watering', NULL, 0, 1, N'Watering after sowing', '2025-04-13 11:00:00', '2025-04-13 11:00:00', '2025-05-02 06:00:00', '2025-05-15 07:00:00', 0, 1, 2, NULL, 1),
+('SPC005', N'Fertilizing', NULL, 0, 1, N'Organic fertilizer for seedlings', '2025-04-13 13:00:00', '2025-04-13 13:00:00', '2025-05-16 08:00:00', '2025-05-18 09:30:00', 0, 2, 2, NULL, 1),
+('SPC006', N'Pest Control', NULL, 0, 1, N'Pest monitoring and detection', '2025-04-14 07:30:00', '2025-04-14 07:30:00', '2025-05-19 09:00:00', '2025-05-20 10:00:00', 0, 3, 2, NULL, 1),
+('SPC007', N'Treatment - biological medicine', NULL, 0, 1, N'Spray biological pesticides on infected plants', '2025-04-14 08:00:00', '2025-04-14 08:00:00', '2025-05-21 08:00:00', '2025-05-25 09:30:00', 0, 4, 2, NULL, 1),
+('SPC008', N'Pruning', NULL, 0, 1, N'Cut off unnecessary branches', '2025-04-14 09:00:00', '2025-04-14 09:00:00', '2025-04-21 07:00:00', '2025-04-21 09:00:00', 0, 3, 10, NULL, 2),
+('SPC009', N'Harvesting phase 1', NULL, 0, 1, N'Conduct trial harvest', '2025-04-14 10:00:00', '2025-04-14 10:00:00', '2025-04-22 08:00:00', '2025-04-22 12:00:00', 0, 4, 10, NULL, 2),
+('SPC010', N'Internal transportation', NULL, 0, 1, N'Transfer fruit from garden to warehouse', '2025-04-14 11:30:00', '2025-04-14 11:30:00', '2025-04-22 13:00:00', '2025-04-22 14:00:00', 0, 5, 10, NULL, 2),
+('SPC011', N'Cleaning and sorting', NULL, 0, 1, N'Clean fruit, classify before packing', '2025-04-14 12:00:00', '2025-04-14 12:00:00', '2025-04-22 15:00:00', '2025-04-22 18:00:00', 0, 6, 10, NULL, 2);
 GO
 INSERT INTO [dbo].[Plan] 
     ([Status], [PlanCode], [CreateDate], [StartDate], [EndDate], [UpdateDate], [isActive], [Notes], [PlanDetail], 
      [ResponsibleBy], [Frequency], [PlanName], [AssignorID], [PesticideName], [MaxVolume], [MinVolume], [ProcessID], 
      [CropID], [IsDeleted], [MasterTypeID], [SubProcessID], [FarmID], [IsSample])
 VALUES
-    ('Active', 'PLN001', GETDATE(), '2025-04-01', '2025-04-01', GETDATE(), 1, 'Plan for pesticide spraying', 'Detail 1', 
-     'JohnDoe', NULL, 'Spraying Plan', 101, 'Pesticide A', 5.0, 2.0, 1, NULL, 0, 10, 1, 1, 0),
+    ('Active', 'PLN001', GETDATE(), '2025-05-02', '2025-05-14', GETDATE(), 1, 'Plan for watering spraying', 'Watering for all tree in farm', 
+     'JohnDoe', NULL, 'Watering Plan', 3, NULL, 5.0, 2.0, 1, NULL, 0, 10, 3, 1, 0),
     ('Pending', 'PLN002', GETDATE(), '2025-05-01', '2025-05-01', GETDATE(), 1, 'Soil preparation', 'Detail 2', 
-     'JaneSmith', NULL, 'Soil Prep Plan', 102, NULL, NULL, NULL, 2, NULL, 0, 11, 2, 1, 0),
+     'JaneSmith', NULL, 'Soil Prep Plan', 3, NULL, NULL, NULL, 2, NULL, 0, 11, 2, 1, 0),
     ('Completed', 'PLN003', GETDATE(), '2025-06-01', '2025-06-20', GETDATE(), 0, 'Harvesting completed', 'Detail 3', 
-     'AlexBrown', NULL, 'Harvest Plan', 103, NULL, NULL, NULL, 3, NULL, 1, 12, 3, 1, 0),
+     'AlexBrown', NULL, 'Harvest Plan', 3, NULL, NULL, NULL, 3, NULL, 1, 12, 3, 1, 0),
     ('Active', 'PLN004', GETDATE(), '2025-07-01', '2025-07-12', GETDATE(), 1, 'Irrigation management', 'Detail 4', 
-     'ChrisWhite', NULL, 'Irrigation Plan', 104, NULL, NULL, NULL, 4, NULL, 0, 13, 4, 1, 0),
-    ('Pending', 'PLN005', GETDATE(), '2025-08-01', '2025-08-25', GETDATE(), 1, 'Fertilizer application', 'Detail 5', 
-     'EmilyGreen', NULL, 'Fertilization Plan', 105, 'Fertilizer X', 3.5, 1.5, 5, NULL, 0, 14, 5, 1, 0),
+     'ChrisWhite', NULL, 'Irrigation Plan', 3, NULL, NULL, NULL, 4, NULL, 0, 13, 8, 1, 0),
+    ('Active', 'PLN005', GETDATE(), '2025-05-16', '2025-05-18', GETDATE(), 1, 'Fertilizer application', 'Detail 5', 
+     'EmilyGreen', NULL, 'Fertilization Plan', 3, 'Fertilizer X', 3.5, 1.5, 5, NULL, 0, 14, 4, 1, 0),
     ('Completed', 'PLN006', GETDATE(), '2025-09-01', '2025-09-15', GETDATE(), 0, 'Weed control applied', 'Detail 6', 
-     'MichaelBlack', NULL, 'Weed Control Plan', 106, 'Herbicide Y', 4.0, 1.0, 6, NULL, 1, 15, 6, 1, 0),
-    ('Active', 'PLN007', GETDATE(), '2025-10-01', '2025-10-20', GETDATE(), 1, 'Pest management', 'Detail 7', 
-     'SarahBlue', NULL, 'Pest Control Plan', 107, 'Pesticide B', 6.0, 2.5, 7, NULL, 0, 16, 7, 1, 0),
-    ('Pending', 'PLN008', GETDATE(), '2025-11-01', '2025-11-30', GETDATE(), 1, 'New planting season', 'Detail 8', 
-     'DavidYellow', NULL, 'Planting Plan', 108, NULL, NULL, NULL, 8, NULL, 0, 17, 8, 1, 0),
-    ('Completed', 'PLN009', GETDATE(), '2025-12-01', '2025-12-10', GETDATE(), 0, 'Post-harvest processing', 'Detail 9', 
-     'EmmaPurple', NULL, 'Processing Plan', 109, NULL, NULL, NULL, 9, NULL, 1, 18, 9, 1, 0),
-    ('Active', 'PLN010', GETDATE(), '2026-01-01', '2026-01-15', GETDATE(), 1, 'Greenhouse maintenance', 'Detail 10', 
-     'DanielOrange', NULL, 'Maintenance Plan', 110, NULL, NULL, NULL, 10, NULL, 0, 19, 10, 1, 0);
+     'MichaelBlack', NULL, 'Weed Control Plan', 3, 'Herbicide Y', 4.0, 1.0, 6, NULL, 1, 15, 7, 1, 0),
+	 ('Active', 'PLN007', GETDATE(), '2025-05-19', '2025-05-20', GETDATE(), 1, 'Spraying', 'Detail 7', 
+     'SarahBlue', NULL, 'Pest Control Plan', 3, 'Pesticide B', 6.0, 2.5, 7, NULL, 0, 6, 5, 1, 0),
+	 ('Active', 'PLN008', GETDATE(), '2025-05-21', '2025-05-25', GETDATE(), 1, 'Pest management', 'Detail 7', 
+     'SarahBlue', NULL, 'Spraying Plan', 3, 'Pesticide B', 6.0, 2.5, 7, NULL, 0, 16, 6, 1, 0),
+    ('Pending', 'PLN009', GETDATE(), '2025-11-01', '2025-11-30', GETDATE(), 1, 'New planting season', 'Detail 8', 
+     'DavidYellow', NULL, 'Planting Plan', 3, NULL, NULL, NULL, 8, NULL, 0, 17, 8, 1, 0),
+    ('Completed', 'PLN010', GETDATE(), '2025-12-01', '2025-12-10', GETDATE(), 0, 'Post-harvest processing', 'Detail 9', 
+     'EmmaPurple', NULL, 'Processing Plan', 3, NULL, NULL, NULL, 9, NULL, 1, 18, 9, 1, 0),
+    ('Active', 'PLN011', GETDATE(), '2026-01-01', '2026-01-15', GETDATE(), 1, 'Greenhouse maintenance', 'Detail 10', 
+     'DanielOrange', NULL, 'Maintenance Plan', 3, NULL, NULL, NULL, 10, NULL, 0, 19, 10, 1, 0);
 GO
 INSERT INTO [dbo].[CarePlanSchedule]
            ([DayOfWeek]
@@ -1899,14 +1904,14 @@ INSERT INTO [dbo].[CarePlanSchedule]
            ,[FarmID]
            ,[HarvestHistoryID])
      VALUES
-           (NULL, 'Active', '08:00:00', '10:00:00', 1, NULL, '["2025/04/01"]', 1, NULL),
+           (NULL, 'Active', '07:30:00', '09:10:00', 1, NULL, NULL, 1, NULL),
            (NULL, 'Pending', '09:30:00', '11:30:00', 2, NULL, '["2025/04/02"]', 1, NULL),
            (NULL, 'Completed', '07:00:00', '09:00:00', 3, NULL, '["2025/06/01"]', 1, NULL),
-           (NULL, 'Active', '10:00:00', '12:00:00', 4, NULL, '["2025/07/01"]', 1, NULL),
-           (NULL, 'Cancelled', '06:30:00', '08:30:00', 5, NULL, '["2025/08/01"]', 1, NULL),
+           (NULL, 'Cancelled', '10:00:00', '12:00:00', 4, NULL, '["2025/08/01"]', 1, NULL),
+           (NULL, 'Active', '06:30:00', '08:30:00', 5, NULL,NULL, 1, NULL),
            (NULL, 'Pending', '11:00:00', '13:00:00', 6, NULL, '["2025/09/01"]', 1, NULL),
-           (NULL, 'Completed', '14:00:00', '16:00:00', 7, NULL, '["2025/10/01"]', 1, NULL),
-           (NULL, 'Active', '05:00:00', '07:00:00', 8, NULL, '["2025/11/01"]', 1, NULL),
+           (NULL, 'Active', '14:00:00', '16:00:00', 7, NULL, NULL, 1, NULL),
+           (NULL, 'Active', '05:00:00', '07:00:00', 8, NULL, NULL, 1, NULL),
            (NULL, 'Pending', '13:00:00', '15:00:00', 9, NULL, '["2025/12/01"]', 1, NULL),
            (NULL, 'Completed', '15:30:00', '17:30:00', 10, NULL, '["2025/06/12"]', 1, NULL);
 GO
@@ -1919,16 +1924,49 @@ INSERT INTO [dbo].[PlanTarget]
            ,[PlantID]
            ,[Unit])
      VALUES
-           (1, 2, 1, 4, 1, 6, 'Plant'),
-           (2, 3, 2, 5, 1, 7, 'Land Plot'),
-           (3, 4, 1, 6, 2, 8, 'Row'),
-           (4, 5, 1, 7, 1, 9, 'Land Plot'),
-           (5, 6, 2, 8, 2, 10, 'Land Plot'),
-           (6, 7, 2, 9, 1, 1, 'Land Plot'),
-           (7, 8, 2, 10, 1, 2, 'Land Plot'),
-           (8, 9, 1, 1, 2, 3, 'Row'),
-           (9, 10, 1, 2, 1, 4, 'Plant'),
-           (10, 1, 2, 3, 2, 5, 'Row');
+           (1, 2, 1, NULL, NULL, 6, 'Land Plot'),
+           (1, 2, 1, NULL, NULL, 7, 'Land Plot'),
+           (1, 2, 1, NULL, NULL, 8, 'Land Plot'),
+           (1, 2, 1, NULL, NULL, 9, 'Land Plot'),
+           (1, 2, 1, NULL, NULL, 10, 'Land Plot'),
+           (1, 1, 1, NULL, NULL, 1, 'Land Plot'),
+           (1, 1, 1, NULL, NULL, 2, 'Land Plot'),
+           (1, 1, 1, NULL, NULL, 3, 'Land Plot'),
+           (1, 1, 1, NULL, NULL, 4, 'Land Plot'),
+           (1, 1, 1, NULL, NULL, 5, 'Land Plot'),
+
+		   (5, 2, 1, NULL, NULL, 6, 'Land Plot'),
+           (5, 2, 1, NULL, NULL, 7, 'Land Plot'),
+           (5, 2, 1, NULL, NULL, 8, 'Land Plot'),
+           (5, 2, 1, NULL, NULL, 9, 'Land Plot'),
+           (5, 2, 1, NULL, NULL, 10, 'Land Plot'),
+           (5, 1, 1, NULL, NULL, 1, 'Land Plot'),
+           (5, 1, 1, NULL, NULL, 2, 'Land Plot'),
+           (5, 1, 1, NULL, NULL, 3, 'Land Plot'),
+           (5, 1, 1, NULL, NULL, 4, 'Land Plot'),
+           (5, 1, 1, NULL, NULL, 5, 'Land Plot'),
+
+		   (7, 2, 1, NULL, NULL, 6, 'Land Plot'),
+           (7, 2, 1, NULL, NULL, 7, 'Land Plot'),
+           (7, 2, 1, NULL, NULL, 8, 'Land Plot'),
+           (7, 2, 1, NULL, NULL, 9, 'Land Plot'),
+           (7, 2, 1, NULL, NULL, 10, 'Land Plot'),
+           (7, 1, 1, NULL, NULL, 1, 'Land Plot'),
+           (7, 1, 1, NULL, NULL, 2, 'Land Plot'),
+           (7, 1, 1, NULL, NULL, 3, 'Land Plot'),
+           (7, 1, 1, NULL, NULL, 4, 'Land Plot'),
+           (7, 1, 1, NULL, NULL, 5, 'Land Plot'),
+
+		   (8, 2, 1, NULL, NULL, 6, 'Land Plot'),
+           (8, 2, 1, NULL, NULL, 7, 'Land Plot'),
+           (8, 2, 1, NULL, NULL, 8, 'Land Plot'),
+           (8, 2, 1, NULL, NULL, 9, 'Land Plot'),
+           (8, 2, 1, NULL, NULL, 10, 'Land Plot'),
+           (8, 1, 1, NULL, NULL, 1, 'Land Plot'),
+           (8, 1, 1, NULL, NULL, 2, 'Land Plot'),
+           (8, 1, 1, NULL, NULL, 3, 'Land Plot'),
+           (8, 1, 1, NULL, NULL, 4, 'Land Plot'),
+           (8, 1, 1, NULL, NULL, 5, 'Land Plot');
 GO
 
 INSERT INTO ipas.dbo.PlantGrowthHistory 
@@ -2198,29 +2236,33 @@ INSERT INTO [dbo].[WorkLog]
            ,[WarningID]
            ,[ReasonDelay])
      VALUES
-           ('WL31162235' ,'Watering_on__Plot A','In Progress','2025-04-02 09:30:00',0,0,'09:30:00','11:30:00',2,NULL,NULL),
-		   ('WL31163456' ,'Fertilizing_on__Plot A','In Progress','2025-04-02 09:30:00',0,0,'09:30:00','11:30:00',2,NULL,NULL),
-('WL31162237' ,'Watering_on__Plot A','In Progress','2025-04-16 09:30:00',0,0,'19:30:00','20:30:00',2,NULL,NULL),
-('WL31162238' ,'Fertilizing_on__Plot A','Not Started','2025-04-19 09:30:00',0,0,'19:30:00','20:30:00',2,NULL,NULL),
-('WL31162239' ,'Fertilizing_on__Plot A','Not Started','2025-04-19 09:30:00',0,0,'19:30:00','20:30:00',2,NULL,NULL),
-('WL31162240' ,'Fertilizing_on__Plot A','Cancelled','2025-04-19 09:30:00',0,0,'19:30:00','20:30:00',2,NULL,NULL),
-('WL31162242' ,'Fertilizing_on__Plot A','Overdue','2025-04-16 09:30:00',0,0,'19:30:00','20:30:00',2,NULL,NULL),
-('WL31162243' ,'Fertilizing_on__Plot A','Reviewing','2025-04-19 09:30:00',0,0,'19:30:00','20:30:00',2,NULL,NULL),
-('WL31162244' ,'Fertilizing_on__Plot A','Reviewing','2025-04-19 09:30:00',0,0,'19:30:00','20:30:00',2,NULL,NULL),
-('WL31162245' ,'Fertilizing_on__Plot A','Redo','2025-04-19 09:30:00',0,0,'19:30:00','20:30:00',2,NULL,NULL),
-('WL31162246' ,'Fertilizing_on__Plot A','OnRedo','2025-04-19 09:30:00',0,0,'19:30:00','20:30:00',2,NULL,NULL),
-('WL31162247' ,'Pruning_on__Plot A','Reviewing','2025-04-19 09:30:00',0,0,'19:30:00','20:30:00',2,NULL,NULL),
-('WL31162248' ,'Grafting_on__Plot A','Done','2025-04-17 09:30:00',0,0,'19:30:00','20:30:00',2,NULL,NULL),
-		   ('WL31163456' ,'Fertilizing_on__Plot A','In Progress','2025-04-02 09:30:00',0,0,'09:30:00','11:30:00',2,NULL,NULL),
-('WL31162237' ,'Watering_on__Plot A','In Progress','2025-04-16 09:30:00',0,0,'19:30:00','20:30:00',2,NULL,NULL),
-('WL31162238' ,'Fertilizing_on__Plot A','Not Started','2025-04-19 09:30:00',0,0,'19:30:00','20:30:00',2,NULL,NULL),
-('WL31162239' ,'Fertilizing_on__Plot A','Not Started','2025-04-19 09:30:00',0,0,'19:30:00','20:30:00',2,NULL,NULL),
-('WL31162240' ,'Fertilizing_on__Plot A','Cancelled','2025-04-19 09:30:00',0,0,'19:30:00','20:30:00',2,NULL,NULL),
-('WL31162242' ,'Fertilizing_on__Plot A','Overdue','2025-04-16 09:30:00',0,0,'19:30:00','20:30:00',2,NULL,NULL),
-('WL31162243' ,'Fertilizing_on__Plot A','Reviewing','2025-04-19 09:30:00',0,0,'19:30:00','20:30:00',2,NULL,NULL),
-('WL31162244' ,'Fertilizing_on__Plot A','Reviewing','2025-04-19 09:30:00',0,0,'19:30:00','20:30:00',2,NULL,NULL),
-('WL31162245' ,'Fertilizing_on__Plot A','Redo','2025-04-19 09:30:00',0,0,'19:30:00','20:30:00',2,NULL,NULL),
-('WL31162246' ,'Fertilizing_on__Plot A','OnRedo','2025-04-19 09:30:00',0,0,'19:30:00','20:30:00',2,NULL,NULL),
+           ('WL31162235' ,'Watering_on_Plot A','Not Started','2025-05-02 07:30:00',0,0,'07:30:00','09:10:00',1,NULL,NULL),
+		   ('WL31163456' ,'Watering_on_Plot A','Not Started','2025-05-03 07:30:00',0,0,'07:30:00','09:10:00',1,NULL,NULL),
+('WL31162237' ,'Watering_on_Plot A','Not Started','2025-05-04 07:30:00',0,0,'07:30:00','09:10:00',1,NULL,NULL),
+('WL31162238' ,'Watering_on_Plot A','Not Started','2025-05-05 07:30:00',0,0,'07:30:00','09:10:00',1,NULL,NULL),
+('WL31162239' ,'Watering_on_Plot A','Not Started','2025-05-06 07:30:00',0,0,'07:30:00','09:10:00',1,NULL,NULL),
+('WL31162240' ,'Watering_on_Plot A','Not Started','2025-05-07 07:30:00',0,0,'07:30:00','09:10:00',1,NULL,NULL),
+('WL31162242' ,'Watering_on_Plot A','Not Started','2025-05-08 07:30:00',0,0,'07:30:00','09:10:00',1,NULL,NULL),
+('WL31162243' ,'Watering_on_Plot A','Not Started','2025-05-09 07:30:00',0,0,'07:30:00','09:10:00',1,NULL,NULL),
+('WL31162244' ,'Watering_on_Plot A','Not Started','2025-05-10 07:30:00',0,0,'07:30:00','09:10:00',1,NULL,NULL),
+('WL31162245' ,'Watering_on_Plot A','Not Started','2025-05-11 07:30:00',0,0,'07:30:00','09:10:00',1,NULL,NULL),
+('WL31162246' ,'Watering_on_Plot A','Not Started','2025-05-12 07:30:00',0,0,'07:30:00','09:10:00',1,NULL,NULL),
+('WL31162247' ,'Watering_on_Plot A','Not Started','2025-05-13 07:30:00',0,0,'07:30:00','09:10:00',1,NULL,NULL),
+('WL31162248' ,'Watering_on_Plot A','Not Started','2025-05-14 07:30:00',0,0,'07:30:00','09:10:00',1,NULL,NULL),
+
+		   ('WL31163456' ,'Fertilizing_on_Plot A','Not Started','2025-05-16 05:00:00',0,0,'05:00:00','07:00:00',5,NULL,NULL),
+('WL31162237' ,'Fertilizing_on_Plot A','Not Started','2025-05-17 05:00:00',0,0,'05:00:00','07:00:00',5,NULL,NULL),
+('WL31162238' ,'Fertilizing_on_Plot A','Not Started','2025-05-18 05:00:00',0,0,'05:00:00','07:00:00',5,NULL,NULL),
+
+('WL31162239' ,'Pest_Control_on_Plot A','Not Started','2025-05-19 14:00:00',0,0,'14:00:00','16:00:00',7,NULL,NULL),
+('WL31162240' ,'Pest_Control_on_Plot A','Not Started','2025-05-20 14:00:00',0,0,'14:00:00','16:00:00',7,NULL,NULL),
+
+('WL31162242' ,'Spaying_on_Plot A','Not Started','2025-05-21 05:00:00',0,0,'05:00:00','07:00:00',8,NULL,NULL),
+('WL31162243' ,'Spaying_on_Plot A','Not Started','2025-05-22 05:00:00',0,0,'05:00:00','07:00:00',8,NULL,NULL),
+('WL31162244' ,'Spaying_on_Plot A','Not Started','2025-05-23 05:00:00',0,0,'05:00:00','07:00:00',8,NULL,NULL),
+('WL31162245' ,'Spaying_on_Plot A','Not Started','2025-05-24 05:00:00',0,0,'05:00:00','07:00:00',8,NULL,NULL),
+('WL31162246' ,'Spaying_on_Plot A','Not Started','2025-05-25 05:00:00',0,0,'05:00:00','07:00:00',8,NULL,NULL),
+
 ('WL31162247' ,'Pruning_on__Plot A','Reviewing','2025-04-19 09:30:00',0,0,'19:30:00','20:30:00',2,NULL,NULL),
 ('WL31162248' ,'Grafting_on__Plot A','Done','2025-04-17 09:30:00',0,0,'19:30:00','20:30:00',2,NULL,NULL)
 -- Insert UserWorkLog
@@ -2235,34 +2277,56 @@ INSERT INTO [dbo].[UserWorkLog]
            ,[ReplaceUserId]
            ,[Issue])
      VALUES
-           (1,1,1,0,'2025-04-02 09:30:00',NULL,NULL,NULL,NULL),
-		   (1,2,0,0,'2025-04-02 09:30:00',NULL,NULL,NULL,NULL),
-		   (2,7,1,0,'2025-04-02 09:30:00',NULL,NULL,NULL,NULL),
-		   (2,8,0,0,'2025-04-02 09:30:00',NULL,NULL,NULL,NULL),
-(3,4,0,0,'2025-04-02 09:30:00',NULL,NULL,NULL,NULL),
-(3,5,0,0,'2025-04-02 09:30:00',NULL,NULL,NULL,NULL),
-(4,5,0,0,'2025-04-02 09:30:00',NULL,NULL,NULL,NULL),
-(4,6,0,0,'2025-04-02 09:30:00',NULL,NULL,NULL,NULL),
-(5,4,0,0,'2025-04-02 09:30:00',NULL,NULL,NULL,NULL),
-(6,23,0,0,'2025-04-02 09:30:00',NULL,NULL,NULL,NULL),
-(7,4,0,0,'2025-04-02 09:30:00',NULL,NULL,NULL,NULL),
-(6,4,0,0,'2025-04-02 09:30:00',NULL,NULL,NULL,NULL),
-(5,23,0,0,'2025-04-02 09:30:00',NULL,NULL,NULL,NULL),
-(11,6,0,0,'2025-04-02 09:30:00',NULL,NULL,NULL,NULL),
-(12,5,0,0,'2025-04-02 09:30:00',NULL,NULL,NULL,NULL),
-(10,4,0,0,'2025-04-02 09:30:00',NULL,NULL,NULL,NULL),
-(9,6,0,0,'2025-04-02 09:30:00',NULL,NULL,NULL,NULL),
-(8,4,0,0,'2025-04-02 09:30:00',NULL,NULL,NULL,NULL),
-(7,6,0,0,'2025-04-02 09:30:00',NULL,NULL,NULL,NULL),
-(6,13,0,0,'2025-04-02 09:30:00',NULL,NULL,NULL,NULL),
-(11,6,0,0,'2025-04-02 09:30:00',NULL,NULL,NULL,NULL),
-(12,23,0,0,'2025-04-02 09:30:00',NULL,NULL,NULL,NULL),
-(10,5,0,0,'2025-04-02 09:30:00',NULL,NULL,NULL,NULL),
-(9,5,0,0,'2025-04-02 09:30:00',NULL,NULL,NULL,NULL),
-(13,5,0,0,'2025-04-02 09:30:00',NULL,NULL,NULL,NULL),
-(13,4,0,0,'2025-04-02 09:30:00',NULL,NULL,NULL,NULL),
-(13,6,0,0,'2025-04-02 09:30:00',NULL,NULL,NULL,NULL),
-(13,23,0,0,'2025-04-02 09:30:00',NULL,NULL,NULL,NULL);
+           (1,6,1,0,'2025-04-02 09:30:00',NULL,NULL,NULL,NULL),
+		   (1,20,0,0,'2025-04-02 09:30:00',NULL,NULL,NULL,NULL),
+		   (2,6,1,0,'2025-04-02 09:30:00',NULL,NULL,NULL,NULL),
+		   (2,20,0,0,'2025-04-02 09:30:00',NULL,NULL,NULL,NULL),
+(3,6,1,0,'2025-04-02 09:30:00',NULL,NULL,NULL,NULL),
+(3,20,0,0,'2025-04-02 09:30:00',NULL,NULL,NULL,NULL),
+(4,6,1,0,'2025-04-02 09:30:00',NULL,NULL,NULL,NULL),
+(4,20,0,0,'2025-04-02 09:30:00',NULL,NULL,NULL,NULL),
+(5,6,1,0,'2025-04-02 09:30:00',NULL,NULL,NULL,NULL),
+(5,20,0,0,'2025-04-02 09:30:00',NULL,NULL,NULL,NULL),
+(6,6,1,0,'2025-04-02 09:30:00',NULL,NULL,NULL,NULL),
+(6,20,0,0,'2025-04-02 09:30:00',NULL,NULL,NULL,NULL),
+(7,6,1,0,'2025-04-02 09:30:00',NULL,NULL,NULL,NULL),
+(7,20,1,0,'2025-04-02 09:30:00',NULL,NULL,NULL,NULL),
+(8,6,1,0,'2025-04-02 09:30:00',NULL,NULL,NULL,NULL),
+(8,20,0,0,'2025-04-02 09:30:00',NULL,NULL,NULL,NULL),
+(9,6,1,0,'2025-04-02 09:30:00',NULL,NULL,NULL,NULL),
+(9,20,0,0,'2025-04-02 09:30:00',NULL,NULL,NULL,NULL),
+(10,6,1,0,'2025-04-02 09:30:00',NULL,NULL,NULL,NULL),
+(10,20,0,0,'2025-04-02 09:30:00',NULL,NULL,NULL,NULL),
+(11,6,1,0,'2025-04-02 09:30:00',NULL,NULL,NULL,NULL),
+(11,20,0,0,'2025-04-02 09:30:00',NULL,NULL,NULL,NULL),
+(12,6,1,0,'2025-04-02 09:30:00',NULL,NULL,NULL,NULL),
+(12,20,0,0,'2025-04-02 09:30:00',NULL,NULL,NULL,NULL),
+(13,6,1,0,'2025-04-02 09:30:00',NULL,NULL,NULL,NULL),
+(13,20,0,0,'2025-04-02 09:30:00',NULL,NULL,NULL,NULL),
+(14,6,1,0,'2025-04-02 09:30:00',NULL,NULL,NULL,NULL),
+(14,20,0,0,'2025-04-02 09:30:00',NULL,NULL,NULL,NULL),
+(15,6,1,0,'2025-04-02 09:30:00',NULL,NULL,NULL,NULL),
+(15,20,0,0,'2025-04-02 09:30:00',NULL,NULL,NULL,NULL),
+(16,6,1,0,'2025-04-02 09:30:00',NULL,NULL,NULL,NULL),
+(16,20,0,0,'2025-04-02 09:30:00',NULL,NULL,NULL,NULL),
+(17,6,1,0,'2025-04-02 09:30:00',NULL,NULL,NULL,NULL),
+(17,20,0,0,'2025-04-02 09:30:00',NULL,NULL,NULL,NULL),
+(18,6,1,0,'2025-04-02 09:30:00',NULL,NULL,NULL,NULL),
+(18,20,0,0,'2025-04-02 09:30:00',NULL,NULL,NULL,NULL),
+(19,6,1,0,'2025-04-02 09:30:00',NULL,NULL,NULL,NULL),
+(19,20,0,0,'2025-04-02 09:30:00',NULL,NULL,NULL,NULL),
+(20,6,1,0,'2025-04-02 09:30:00',NULL,NULL,NULL,NULL),
+(20,20,0,0,'2025-04-02 09:30:00',NULL,NULL,NULL,NULL),
+(21,6,1,0,'2025-04-02 09:30:00',NULL,NULL,NULL,NULL),
+(21,20,0,0,'2025-04-02 09:30:00',NULL,NULL,NULL,NULL),
+(22,6,1,0,'2025-04-02 09:30:00',NULL,NULL,NULL,NULL),
+(22,20,0,0,'2025-04-02 09:30:00',NULL,NULL,NULL,NULL),
+(23,6,1,0,'2025-04-02 09:30:00',NULL,NULL,NULL,NULL),
+(23,20,0,0,'2025-04-02 09:30:00',NULL,NULL,NULL,NULL),
+(24,6,1,0,'2025-04-02 09:30:00',NULL,NULL,NULL,NULL),
+(24,20,0,0,'2025-04-02 09:30:00',NULL,NULL,NULL,NULL),
+(25,6,1,0,'2025-04-02 09:30:00',NULL,NULL,NULL,NULL),
+(25,20,0,0,'2025-04-02 09:30:00',NULL,NULL,NULL,NULL);
 
 DECLARE @i INT = 0;
 WHILE @i < 10
@@ -2361,7 +2425,7 @@ VALUES
 -- 1. Insert Process: Quy trình mẫu chăm sóc cây bưởi bị sâu vẽ bùa
 -- =============================================
 INSERT INTO Process (ProcessCode, ProcessName, isDefault, isActive, isSample, CreateDate, IsDeleted, FarmID, MasterTypeID, PlanTargetInProcess)
-VALUES (N'PR001', N'Quy trình mẫu - Chăm sóc cây bưởi bị sâu vẽ bùa', 1, 1, 1, GETDATE(), 0, 1,15, 1);
+VALUES (N'PR001', N'Quy trình mẫu - Chăm sóc cây bưởi bị sâu vẽ bùa', 1, 1, 0, GETDATE(), 0, 1,15, 1);
 
 DECLARE @ProcessId INT = SCOPE_IDENTITY();
 
@@ -2372,8 +2436,8 @@ INSERT INTO SubProcess (SubProcessCode, SubProcessName, ProcessID, [Order], isDe
 VALUES 
 (N'SP001', N'Khảo sát và chẩn đoán sâu bệnh', @ProcessId, 1, 1, 1, GETDATE(), 0, 1),
 (N'SP002', N'Tỉa cành và vệ sinh vườn', @ProcessId, 2, 1, 1, GETDATE(), 0, 1),
-(N'SP003', N'Phun thuốc trị sâu vẽ bùa', @ProcessId, 3, 1, 1, GETDATE(), 0, 1),
-(N'SP004', N'Theo dõi và đánh giá hiệu quả', @ProcessId, 4, 1, 1, GETDATE(), 0, 1),
+--(N'SP003', N'Phun thuốc trị sâu vẽ bùa', @ProcessId, 3, 1, 1, GETDATE(), 0, 1),
+--(N'SP004', N'Theo dõi và đánh giá hiệu quả', @ProcessId, 4, 1, 1, GETDATE(), 0, 1),
 (N'SP005', N'Bón phân hồi phục', @ProcessId, 5, 1, 1, GETDATE(), 0, 1);
 
 -- =============================================
@@ -2381,17 +2445,17 @@ VALUES
 -- =============================================
 DECLARE @SubProcess1 INT = (SELECT TOP 1 SubProcessID FROM SubProcess WHERE SubProcessCode = 'SP001' ORDER BY SubProcessID ASC);
 DECLARE @SubProcess2 INT = (SELECT TOP 1 SubProcessID FROM SubProcess WHERE SubProcessCode = 'SP002' ORDER BY SubProcessID ASC);
-DECLARE @SubProcess3 INT = (SELECT TOP 1 SubProcessID FROM SubProcess WHERE SubProcessCode = 'SP003' ORDER BY SubProcessID ASC);
-DECLARE @SubProcess4 INT = (SELECT TOP 1 SubProcessID FROM SubProcess WHERE SubProcessCode = 'SP004' ORDER BY SubProcessID ASC);
+--DECLARE @SubProcess3 INT = (SELECT TOP 1 SubProcessID FROM SubProcess WHERE SubProcessCode = 'SP003' ORDER BY SubProcessID ASC);
+--DECLARE @SubProcess4 INT = (SELECT TOP 1 SubProcessID FROM SubProcess WHERE SubProcessCode = 'SP004' ORDER BY SubProcessID ASC);
 DECLARE @SubProcess5 INT = (SELECT TOP 1 SubProcessID FROM SubProcess WHERE SubProcessCode = 'SP005' ORDER BY SubProcessID ASC);
 
 INSERT INTO [Plan] (PlanCode, PlanName, Status, CreateDate, StartDate, EndDate, IsActive, SubProcessID, FarmID, IsSample)
 VALUES
-(N'PL002', N'Khảo sát ban đầu', N'Active', GETDATE(), NULL, NULL, 1, @SubProcess1, 1, 1),
-(N'PL003', N'Tỉa và vệ sinh', N'Active', GETDATE(), NULL, NULL, 1, @SubProcess2, 1,1 ),
-(N'PL004', N'Phun thuốc trị sâu vẽ bùa lần 1', N'Active', GETDATE(), NULL, NULL, 1, @SubProcess3, 1, 1 ),
-(N'PL005', N'Theo dõi sau phun', N'Active', GETDATE(), NULL, NULL, 1, @SubProcess4, 1, 1),
-(N'PL006', N'Bón phân khôi phục', N'Active', GETDATE(), NULL, NULL, 1, @SubProcess5, 1, 1);
+(N'PL002', N'Initial survey', N'Active', GETDATE(), NULL, NULL, 1, @SubProcess1, 1, 1),
+(N'PL003', N'Trim and clean', N'Active', GETDATE(), NULL, NULL, 1, @SubProcess2, 1,1 ),
+--(N'PL004', N'Phun thuốc trị sâu vẽ bùa lần 1', N'Active', GETDATE(), NULL, NULL, 1, @SubProcess3, 1, 1 ),
+--(N'PL005', N'Theo dõi sau phun', N'Active', GETDATE(), NULL, NULL, 1, @SubProcess4, 1, 1),
+(N'PL006', N'Fertilizer restoration', N'Active', GETDATE(), NULL, NULL, 1, @SubProcess5, 1, 1);
 GO
 
 -- Declare variables
@@ -2470,3 +2534,143 @@ VALUES
 (6, 1, 17, 9),
 (6, 1, 18, 5),
 (6, 1, 19, 3);
+
+GO
+-- ==========================================
+-- 1. Setup Thông Số Cần Thiết
+-- ==========================================
+DECLARE @TodayDate DATE = CAST(GETDATE() AS DATE);
+DECLARE @BaseStartDate DATE = DATEADD(DAY, -1, @TodayDate);
+DECLARE @DaysPerPlan INT = 2;
+DECLARE @FarmID INT = 1;
+DECLARE @TemplateProcessId INT;
+
+-- Lấy ID Process mẫu
+SELECT TOP 1 @TemplateProcessId = ProcessID 
+FROM Process
+WHERE ProcessCode = 'PR001'; -- Quy trình mẫu Chăm sóc bưởi
+
+-- ==========================================
+-- 2. Khai báo cursor duyệt SubProcess
+-- ==========================================
+DECLARE @SubProcessID INT;
+DECLARE SubProcessCursor CURSOR FOR
+SELECT SubProcessID
+FROM SubProcess
+WHERE ProcessID = @TemplateProcessId
+ORDER BY [Order] ASC;
+
+OPEN SubProcessCursor;
+FETCH NEXT FROM SubProcessCursor INTO @SubProcessID;
+
+WHILE @@FETCH_STATUS = 0
+BEGIN
+    -- ==========================================
+    -- 3. Insert Plan thực tế
+    -- ==========================================
+    INSERT INTO [Plan] (
+        Status, PlanCode, PlanName, CreateDate, StartDate, EndDate, 
+        isActive, SubProcessID, FarmID, IsSample
+    )
+    VALUES (
+        'Active', 
+        CONCAT('PLAN_', FORMAT(GETDATE(), 'yyyyMMdd_HHmmss')), 
+        (SELECT TOP 1 SubProcessName FROM SubProcess WHERE SubProcessID = @SubProcessID),
+        GETDATE(), 
+        @BaseStartDate, 
+        DATEADD(DAY, @DaysPerPlan - 1, @BaseStartDate),
+        1, 
+        @SubProcessID, 
+        @FarmID, 
+        0
+    );
+
+    DECLARE @NewPlanID INT = SCOPE_IDENTITY();
+
+    -- ==========================================
+    -- 4. Insert CarePlanSchedule cho Plan
+    -- ==========================================
+    DECLARE @StartTime TIME = '19:30:00';
+    DECLARE @EndTime TIME = '20:30:00';
+
+    INSERT INTO CarePlanSchedule (
+        Status, CarePlanID, StartTime, EndTime, CustomDates, FarmID
+    )
+    VALUES (
+        'Active', @NewPlanID, @StartTime, @EndTime, 
+        CONCAT('["', FORMAT(@BaseStartDate, 'yyyy/MM/dd'), '","', FORMAT(DATEADD(DAY,1,@BaseStartDate), 'yyyy/MM/dd'), '"]'),
+        @FarmID
+    );
+
+    DECLARE @ScheduleID INT = SCOPE_IDENTITY();
+
+    -- ==========================================
+    -- 5. Insert WorkLog cho từng ngày trong khoảng 2 ngày
+    -- ==========================================
+    DECLARE @LoopDate DATE = @BaseStartDate;
+    WHILE @LoopDate <= DATEADD(DAY, @DaysPerPlan - 1, @BaseStartDate)
+    BEGIN
+        DECLARE @WorkLogStatus NVARCHAR(50);
+        IF @LoopDate < @TodayDate
+            SET @WorkLogStatus = 'Done';
+        ELSE IF @LoopDate = @TodayDate
+            SET @WorkLogStatus = 'In Progress';
+        ELSE
+            SET @WorkLogStatus = 'Not Started';
+
+        INSERT INTO WorkLog (
+            WorkLogCode, WorkLogName, Status, [Date], IsConfirm, 
+            ScheduleID, ActualStartTime, ActualEndTime
+        )
+        VALUES (
+            CONCAT('WL_', FORMAT(GETDATE(), 'yyyyMMdd_HHmmss')), 
+            CONCAT(N'The workLog on ', FORMAT(@LoopDate, 'yyyy/MM/dd')),
+            @WorkLogStatus, 
+            @LoopDate, 
+            0, 
+            @ScheduleID, 
+            @StartTime, 
+            @EndTime
+        );
+
+        DECLARE @WorkLogID INT = SCOPE_IDENTITY();
+
+        -- ==========================================
+        -- 6. Insert UserWorkLog: 2 nhân sự farm làm chung
+        -- ==========================================
+        DECLARE @UserID1 INT, @UserID2 INT;
+
+        SELECT TOP 1 @UserID1 = uf.UserId
+        FROM UserFarm uf
+        WHERE uf.RoleId = 5 AND uf.FarmId = @FarmID;
+
+        SELECT TOP 1 @UserID2 = uf.UserId
+        FROM UserFarm uf
+        WHERE uf.RoleId = 5 AND uf.FarmId = @FarmID AND uf.UserId <> @UserID1;
+
+        INSERT INTO UserWorkLog (WorkLogID, UserID, IsReporter, CreateDate)
+        VALUES 
+        (@WorkLogID, @UserID1, 1, GETDATE()),
+        (@WorkLogID, @UserID2, 0, GETDATE());
+
+        SET @LoopDate = DATEADD(DAY, 1, @LoopDate);
+    END
+
+    -- ==========================================
+    -- 7. Insert PlanTarget (giả sử PlantID = 1 và 2)
+    -- ==========================================
+    INSERT INTO PlanTarget (PlanID, PlantID)
+    VALUES
+    (@NewPlanID, 1),
+    (@NewPlanID, 2);
+
+    -- ==========================================
+    -- 8. Move BaseStartDate cho Plan kế tiếp
+    -- ==========================================
+    SET @BaseStartDate = DATEADD(DAY, @DaysPerPlan, @BaseStartDate);
+
+    FETCH NEXT FROM SubProcessCursor INTO @SubProcessID;
+END
+
+CLOSE SubProcessCursor;
+DEALLOCATE SubProcessCursor;

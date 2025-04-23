@@ -344,7 +344,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
         {
             try
             {
-                var getProcess = await _unitOfWork.ProcessRepository.GetProcessByIdInclude(processId);
+                var getProcess = await _unitOfWork.ProcessRepository.GetProcessByIdForDetail(processId);
                 if (getProcess != null)
                 {
                     var result = _mapper.Map<ProcessModel>(getProcess);

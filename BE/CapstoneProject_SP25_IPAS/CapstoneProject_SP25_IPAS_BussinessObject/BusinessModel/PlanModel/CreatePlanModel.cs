@@ -21,7 +21,6 @@ namespace CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.PlanModel
         public string? Frequency { get; set; }
 
         public int? AssignorId { get; set; }
-        public bool? IsSample { get; set; } = false;
 
         public string? PesticideName { get; set; }
 
