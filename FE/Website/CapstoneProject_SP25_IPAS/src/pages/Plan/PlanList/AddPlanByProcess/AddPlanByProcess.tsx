@@ -365,8 +365,15 @@ const AddPlanByProcess = () => {
             return false;
         }
         const [startDate, endDate] = dateRange;
+        console.log("daterange", dateRange);
 
-        const validDays = days.filter((day) => isDayInRange(day, startDate, endDate, type));
+
+        const validDays = days.filter((day) => {
+            const isValid = isDayInRange(day, startDate, endDate, type);
+            return isValid;
+        });
+
+        const invalidDays = days.filter(day => !validDays.includes(day));
 
         if (validDays.length === 0) {
             setDateError(`All selected ${type === "weekly" ? "days" : "dates"} are not within the date range. Please select again.`);
@@ -381,7 +388,7 @@ const AddPlanByProcess = () => {
             return false;
         }
 
-        if (validDays.length < days.length) {
+        if (invalidDays.length > 0) {
             setDateError(`Some selected ${type === "weekly" ? "days" : "dates"} are not within the date range. Only valid ${type === "weekly" ? "days" : "dates"} will be saved.`);
             if (type === "weekly") {
                 setDayOfWeek(validDays);
@@ -1034,8 +1041,7 @@ const AddPlanByProcess = () => {
                                 <Form.Item
                                     label="Select Days of Week"
                                     name={addPlanFormFields.dayOfWeek}
-                                    // Tạm thời bỏ rules để debug
-                                    // rules={[{ required: true, message: "Please select the days of week!" }]}
+                                    rules={[{ required: true, message: "Please select the days of week!" }]}
                                     validateStatus={dateError ? "error" : ""}
                                     help={dateError}
                                 >
@@ -1055,8 +1061,7 @@ const AddPlanByProcess = () => {
                                 <Form.Item
                                     label="Select Dates"
                                     name={addPlanFormFields.dayOfMonth}
-                                    // Tạm thời bỏ rules để debug
-                                    // rules={[{ required: true, message: "Please select the dates!" }]}
+                                    rules={[{ required: true, message: "Please select the dates!" }]}
                                     validateStatus={dateError ? "error" : ""}
                                     help={dateError}
                                 >
@@ -1073,8 +1078,7 @@ const AddPlanByProcess = () => {
                                 <Form.Item
                                     label="Select Specific Dates"
                                     name={addPlanFormFields.customDates}
-                                    // Tạm thời bỏ rules để debug
-                                    // rules={[{ required: true, message: "Please select the dates!" }]}
+                                    rules={[{ required: true, message: "Please select the dates!" }]}
                                     validateStatus={dateError ? "error" : ""}
                                     help={dateError}
                                 >
