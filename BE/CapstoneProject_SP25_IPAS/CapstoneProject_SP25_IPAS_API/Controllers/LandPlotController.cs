@@ -162,8 +162,8 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
         }
 
         [HttpGet(APIRoutes.LandPlot.getForMap + "/{landplot-id}", Name = "getForMapAsync")]
-        [HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)},{nameof(RoleEnum.EMPLOYEE)}")]
-        [CheckUserFarmAccess]
+        //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)},{nameof(RoleEnum.EMPLOYEE)}")]
+        //[CheckUserFarmAccess]
         //[FarmExpired]
         public async Task<IActionResult> GetForMapped([FromRoute(Name = "landplot-id")] int landplotId)
         {
@@ -173,14 +173,40 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
         }
 
         [HttpPatch(APIRoutes.LandPlot.deleteSoftedLandPlotOfFarm, Name = "deleteSoftedLandPlotOfFarm")]
-        [HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)}")]
-        [CheckUserFarmAccess]
+        //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)}")]
+        //[CheckUserFarmAccess]
         //[FarmExpired]
         public async Task<IActionResult> deleteSoftedLandPlotOfFarm([FromBody] int plantIds)
         {
             try
             {
                 var result = await _landPlotService.SofteDelete(plantIds);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                var response = new BaseResponse()
+                {
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    Message = ex.Message
+                };
+                return BadRequest(response);
+            }
+        }
+
+        [HttpPut(APIRoutes.LandPlot.updateVisualMap, Name = "updateVisualMap")]
+        //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)}")]
+        //[CheckUserFarmAccess]
+        //[FarmExpired]
+        public async Task<IActionResult> updateVisualMap([FromBody] UpdatePlotVisualMapRequest updateRequest)
+        {
+            try
+            {
+                if (!ModelState.IsValid)
+                {
+                    return BadRequest(ModelState);
+                }
+                var result = await _landPlotService.UpdateLandPlotVisualMap(updateRequest);
                 return Ok(result);
             }
             catch (Exception ex)

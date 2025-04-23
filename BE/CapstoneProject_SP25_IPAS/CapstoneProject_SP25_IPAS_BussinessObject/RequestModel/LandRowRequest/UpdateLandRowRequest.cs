@@ -9,8 +9,8 @@ namespace CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.LandRowRequest
 {
     public class UpdateLandRowRequest
     {
-        [Required]
-        public int LandRowId { get; set; }
+        //[Required]
+        public int? LandRowId { get; set; }
         public int? RowIndex { get; set; }
         public int? TreeAmount { get; set; }
         public double? Distance { get; set; }

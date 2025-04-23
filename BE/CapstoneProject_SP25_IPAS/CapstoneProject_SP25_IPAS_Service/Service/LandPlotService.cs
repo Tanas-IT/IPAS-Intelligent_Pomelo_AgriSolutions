@@ -22,6 +22,7 @@ using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.LandPlotRequest;
 using CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel;
 using CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.FarmBsModels;
 using CapstoneProject_SP25_IPAS_Common.Enum;
+using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.LandRowRequest;
 
 namespace CapstoneProject_SP25_IPAS_Service.Service
 {
@@ -518,7 +519,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     }
                     bool isBeingUsed =
                         //await _unitOfWork.LandPlotCoordinationRepository.AnyAsync(x => x.LandPlotId == landPlotId) ||
-                        await _unitOfWork.LandRowRepository.AnyAsync(x => x.LandPlotId == landPlotId) ||
+                        //await _unitOfWork.LandRowRepository.AnyAsync(x => x.LandPlotId == landPlotId) ||
                         await _unitOfWork.LandPlotCropRepository.AnyAsync(x => x.LandPlotId == landPlotId) ||
                         await _unitOfWork.PlanTargetRepository.AnyAsync(x => x.LandPlotID == landPlotId);
 
@@ -526,7 +527,30 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     {
                         return new BusinessResult(400, "Can not delete because LandPlot is used in other function.");
                     }
-                    // Lấy danh sách thuộc tính từ model
+                    // Lấy tất cả LandRow chưa bị xóa
+                    var landRows = await _unitOfWork.LandRowRepository.GetAllNoPaging(x => x.LandPlotId == landPlotId && x.IsDeleted == false);
+
+                    if (landRows != null && landRows.Any())
+                    {
+                        var landRowIds = landRows.Select(r => r.LandRowId).ToList();
+
+                        // Kiểm tra xem có cây sống nào trong các hàng không
+                        var existPlants = await _unitOfWork.PlantRepository.AnyAsync(
+                            p => landRowIds.Contains(p.LandRowId.Value) && !p.IsDeleted.Value && !p.IsDead.Value);
+
+                        if (existPlants)
+                        {
+                            return new BusinessResult(400, "Can not delete because LandPlot contains LandRow with living plants.");
+                        } else
+                        {
+                            foreach (var row in landRows)
+                            {
+                                row.IsDeleted = true;
+                            }
+                            _unitOfWork.LandRowRepository.UpdateRange(landRows);
+                        }
+                    }
+                    // Delete
                     landplotEntityUpdate.IsDeleted = true;
                     _unitOfWork.LandPlotRepository.Update(landplotEntityUpdate);
                     int result = await _unitOfWork.SaveAsync();
@@ -702,6 +726,222 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             {
                 return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
             }
+        }
+
+        public async Task<BusinessResult> UpdateLandPlotVisualMap(UpdatePlotVisualMapRequest request)
+        {
+            using var transaction = await _unitOfWork.BeginTransactionAsync();
+            try
+            {
+                // 0. Kiểm tra RowIndex liên tục và không bị trùng
+                var allRowIndices = request.LandRows
+                    .Where(r => r.RowIndex.HasValue)
+                    .Select(r => r.RowIndex.Value)
+                    .ToList();
+
+                if (allRowIndices.Count != allRowIndices.Distinct().Count())
+                {
+                    return new BusinessResult(400, "RowIndex must be unique. There are duplicated values.");
+                }
+
+                allRowIndices.Sort();
+                for (int i = 0; i < allRowIndices.Count; i++)
+                {
+                    if (allRowIndices[i] != i + 1)
+                    {
+                        return new BusinessResult(400, $"RowIndex must be continuous starting from 1. Missing or invalid index at position {i + 1}.");
+                    }
+                }
+
+                // 1. Lấy LandPlot
+                var landPlot = await _unitOfWork.LandPlotRepository.GetByCondition(
+                    x => x.LandPlotId == request.LandPlotId && x.IsDeleted != true,
+                    includeProperties: "LandRows,Farm");
+
+                if (landPlot == null)
+                    return new BusinessResult(Const.WARNING_GET_LANDPLOT_NOT_EXIST_CODE, Const.WARNING_GET_LANDPLOT_NOT_EXIST_MSG);
+
+                // 2. Cập nhật các field Visual Map
+                landPlot.IsRowHorizontal = request.IsRowHorizontal ?? landPlot.IsRowHorizontal;
+                landPlot.LineSpacing = request.LineSpacing ?? landPlot.LineSpacing;
+                landPlot.RowSpacing = request.RowSpacing ?? landPlot.RowSpacing;
+                landPlot.RowPerLine = request.RowPerLine ?? landPlot.RowPerLine;
+
+                if (request.NumberOfRows.HasValue)
+                {
+                    if (request.LandRows?.Count() > request.NumberOfRows)
+                        return new BusinessResult(400, "Number of rows request cannot be less than existing rows.");
+
+                    landPlot.NumberOfRows = request.NumberOfRows;
+                }
+
+                var currentLandRows = landPlot.LandRows.Where(r => !r.IsDeleted.Value).ToList();
+                var requestRowIds = request.LandRows.Where(r => r.LandRowId.HasValue).Select(r => r.LandRowId.Value).ToHashSet();
+
+                var rowsToUpdate = new List<LandRow>();
+                var rowsToInsert = new List<LandRow>();
+                var rowsToDelete = currentLandRows.Where(r => !requestRowIds.Contains(r.LandRowId)).ToList();
+                var landPlotCode = Util.SplitByDash(landPlot.LandPlotCode!).First();
+                // 3.1 Update hoặc Insert LandRow
+                foreach (var rowReq in request.LandRows)
+                {
+                    if (rowReq.LandRowId.HasValue)
+                    {
+                        // Update
+                        var existingRow = currentLandRows.FirstOrDefault(r => r.LandRowId == rowReq.LandRowId.Value);
+                        if (existingRow == null)
+                            continue;
+
+                        // Validate
+                        var validateResult = await ValidateLandRowUpdateAsync(existingRow, rowReq);
+                        if (validateResult.StatusCode != 200)
+                            return validateResult;
+
+                        existingRow.RowIndex = rowReq.RowIndex ?? existingRow.RowIndex;
+                        existingRow.TreeAmount = rowReq.TreeAmount ?? existingRow.TreeAmount;
+                        existingRow.Distance = rowReq.Distance ?? existingRow.Distance;
+                        existingRow.Length = rowReq.Length ?? existingRow.Length;
+                        existingRow.Width = rowReq.Width ?? existingRow.Width;
+                        existingRow.Direction = rowReq.Direction ?? existingRow.Direction;
+                        existingRow.Status = rowReq.Status ?? existingRow.Status;
+                        existingRow.Description = rowReq.Description ?? existingRow.Description;
+
+                        rowsToUpdate.Add(existingRow);
+                    }
+                    else
+                    {
+                        // Insert mới
+                        var newRow = new LandRow
+                        {
+
+                            LandRowCode = $"{CodeAliasEntityConst.LANDROW}{CodeHelper.GenerateCode()}-{DateTime.Now.ToString("ddmmyy")}-{landPlotCode}-R{(rowReq.RowIndex)}",
+                            LandPlotId = landPlot.LandPlotId,
+                            RowIndex = rowReq.RowIndex!.Value,
+                            TreeAmount = rowReq.TreeAmount!.Value,
+                            Distance = rowReq.Distance!.Value,
+                            Length = rowReq.Length!.Value,
+                            Width = rowReq.Width!.Value,
+                            Direction = rowReq.Direction,
+                            Status = nameof(LandRowStatus.Active),
+                            Description = rowReq.Description,
+                            IsDeleted = false
+                        };
+
+                        rowsToInsert.Add(newRow);
+                    }
+                }
+
+                // 4. Validate tổng diện tích các row (gồm khoảng cách giữa hàng nếu có)
+                var totalRowArea = rowsToUpdate
+                    .Concat(rowsToInsert)
+                    .Where(r => r.Length > 0 && r.Width > 0)
+                    .Sum(r => r.Length * r.Width);
+
+                // Cộng thêm khoảng cách giữa các rows (RowSpacing * (n-1) * PlotWidth)
+                if ((landPlot.NumberOfRows ?? 0) > 1 && (landPlot.RowSpacing ?? 0) > 0)
+                {
+                    totalRowArea += (landPlot.RowSpacing.Value * (landPlot.NumberOfRows.Value - 1) * (landPlot.Width ?? 0));
+                }
+
+                var allowDeviationPercent = await _unitOfWork.SystemConfigRepository.GetConfigValue(SystemConfigConst.ALLOW_AREA_DEVIATION_PERCENT.Trim(), 15.0);
+                var allowDeviation = (landPlot.Area ?? 0) * (allowDeviationPercent / 100.0);
+                var minAcceptableArea = (landPlot.Area ?? 0) - allowDeviation;
+                var maxAcceptableArea = (landPlot.Area ?? 0) + allowDeviation;
+
+                if (totalRowArea < minAcceptableArea || totalRowArea > maxAcceptableArea)
+                {
+                    return new BusinessResult(400, $"Total area of rows ({totalRowArea:F2} m²) must be between {minAcceptableArea:F2} m² and {maxAcceptableArea:F2} m² (allowing {allowDeviationPercent}% deviation).");
+                }
+
+                // 5. Xử lý Update/Insert/Delete
+                if (rowsToUpdate.Any())
+                    _unitOfWork.LandRowRepository.UpdateRange(rowsToUpdate);
+
+                if (rowsToInsert.Any())
+                    _unitOfWork.LandRowRepository.InsertRangeAsync(rowsToInsert);
+
+                foreach (var row in rowsToDelete)
+                {
+                    var validation = await ValidateRowBeforeDeleteAsync(row);
+                    if (validation.StatusCode != 200)
+                    {
+                        await transaction.RollbackAsync();
+                        return validation;
+                    }
+
+                    row.IsDeleted = true;
+                }
+                if (rowsToDelete.Any())
+                    _unitOfWork.LandRowRepository.UpdateRange(rowsToDelete);
+
+                _unitOfWork.LandPlotRepository.Update(landPlot);
+
+                // 6. Save
+                int result = await _unitOfWork.SaveAsync();
+                if (result > 0)
+                {
+                    await transaction.CommitAsync();
+                    return new BusinessResult(200, "Update LandPlot VisualMap successfully");
+                }
+                else
+                {
+                    await transaction.RollbackAsync();
+                    return new BusinessResult(400, "Fail to save to database");
+                }
+            }
+            catch (Exception ex)
+            {
+                await transaction.RollbackAsync();
+                return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
+            }
+        }
+
+        private async Task<BusinessResult> ValidateRowBeforeDeleteAsync(LandRow row)
+        {
+            var hasPlants = await _unitOfWork.PlantRepository
+                .AnyAsync(p => p.LandRowId == row.LandRowId && !p.IsDeleted.Value && !p.IsDead.Value);
+
+            if (hasPlants)
+            {
+                return new BusinessResult(400, $"Row '{row.LandRowCode}' cannot be deleted because it contains living plants.");
+            }
+
+            return new BusinessResult(200, "Row is safe to delete");
+        }
+
+
+        private async Task<BusinessResult> ValidateLandRowUpdateAsync(LandRow landRow, UpdateLandRowRequest rowRequest)
+        {
+            if (rowRequest.TreeAmount.HasValue)
+            {
+                var curPlantInRow = await _unitOfWork.PlantRepository.GetAllNoPaging(
+                    x => x.LandRowId == landRow.LandRowId && x.IsDead == false && x.IsDeleted == false);
+                if (rowRequest.TreeAmount < curPlantInRow.Count())
+                    return new BusinessResult(400, $"Tree amount in row index {landRow.RowIndex} cannot be smaller than current plant count.");
+
+                var minPlant = await _unitOfWork.SystemConfigRepository.GetConfigValue(SystemConfigConst.MIN_PLANT_OF_LAND_ROW.Trim(), (int)1);
+                if (rowRequest.TreeAmount < minPlant)
+                    return new BusinessResult(400, $"Plant of Row must >= {minPlant}.");
+            }
+            if (rowRequest.Distance.HasValue)
+            {
+                var minDistance = await _unitOfWork.SystemConfigRepository.GetConfigValue(SystemConfigConst.MIN_DISTANCE_OF_PLANT.Trim(), (double)2.0);
+                if (rowRequest.Distance < minDistance)
+                    return new BusinessResult(400, $"Distance between plants must >= {minDistance}.");
+            }
+            if (rowRequest.Length.HasValue)
+            {
+                var minLength = await _unitOfWork.SystemConfigRepository.GetConfigValue(SystemConfigConst.MIN_LENGTH.Trim(), (double)1);
+                if (rowRequest.Length < minLength)
+                    return new BusinessResult(400, $"Row length must >= {minLength}.");
+            }
+            if (rowRequest.Width.HasValue)
+            {
+                var minWidth = await _unitOfWork.SystemConfigRepository.GetConfigValue(SystemConfigConst.MIN_WIDTH.Trim(), (double)1);
+                if (rowRequest.Width < minWidth)
+                    return new BusinessResult(400, $"Row width must >= {minWidth}.");
+            }
+            return new BusinessResult(200, "OK");
         }
     }
 }

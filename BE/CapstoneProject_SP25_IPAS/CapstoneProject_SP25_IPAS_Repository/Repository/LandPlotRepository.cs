@@ -69,7 +69,7 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
                 LineSpacing = lp.LineSpacing,
                 NumberOfRows = lp.NumberOfRows,
                 Farm = lp.Farm, // Lấy toàn bộ Farm
-                LandRows = lp.LandRows.Select(lr => new LandRow
+                LandRows = lp.LandRows.Where(x => x.IsDeleted == false).Select(lr => new LandRow
                 {
                     LandRowId = lr.LandRowId,
                     LandRowCode = lr.LandRowCode,

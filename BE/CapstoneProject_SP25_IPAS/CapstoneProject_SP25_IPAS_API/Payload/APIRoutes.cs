@@ -47,6 +47,8 @@ namespace CapstoneProject_SP25_IPAS_API.Payload
 
             public const string updateLandPlotCoordination = prefix + "/update-coordination";
             public const string updateLandPlotInfo = prefix + "/update-info";
+            public const string updateVisualMap = prefix + "/update-visual-map";
+
             public const string deleteLandPlotOfFarm = prefix + "";
             public const string deleteSoftedLandPlotOfFarm = prefix + "/softed-delete";
 
