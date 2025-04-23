@@ -207,6 +207,9 @@ const AddNewPlotDrawer: React.FC<AddNewPlotDrawerProps> = ({
 
   const handleSaveUpdate = async () => {
     await form.validateFields();
+    console.log(width);
+    console.log(length);
+    
     const isValid = validatePolygonBeforeSave(
       currentPolygon,
       isOverlapping,
@@ -323,6 +326,7 @@ const AddNewPlotDrawer: React.FC<AddNewPlotDrawerProps> = ({
         rowSpacing: plotSimulate.rowSpacing,
         rowsPerLine: plotSimulate.rowPerLine,
         lineSpacing: plotSimulate.lineSpacing,
+       
       });
       setRowsData(plotSimulate.landRows);
       setCurrentStep(2);

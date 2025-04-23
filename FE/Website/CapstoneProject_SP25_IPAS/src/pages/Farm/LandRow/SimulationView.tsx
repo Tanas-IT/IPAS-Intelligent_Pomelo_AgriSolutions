@@ -39,6 +39,8 @@ const SimulationView: FC<SimulationViewProps> = ({ plotId }) => {
         try {
           setIsLoading(true);
           const res = await landPlotService.getLandPlotSimulate(plotId);
+          console.log(res);
+          
           if (res.statusCode === 200) setPlotData(res.data);
         } finally {
           setIsLoading(false);
