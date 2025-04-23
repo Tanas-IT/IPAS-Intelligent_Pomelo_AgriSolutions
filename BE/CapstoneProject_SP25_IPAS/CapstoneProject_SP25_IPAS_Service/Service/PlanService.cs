@@ -147,7 +147,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         PlanName = createPlanModel.PlanName,
                         CreateDate = DateTime.Now,
                         UpdateDate = DateTime.Now,
-                        IsSample = false,
+                        IsSample = createPlanModel.IsSample,
                         AssignorId = createPlanModel.AssignorId,
                         CropId = createPlanModel.CropId,
                         EndDate = createPlanModel?.EndDate,
@@ -2827,6 +2827,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     }
                     foreach (var createPlan in createPlanModel)
                     {
+                        createPlan.IsSample = true;
                         var result = await CreatePlan(createPlan, farmId, false);
                         if (result.StatusCode == 200)
                         {
