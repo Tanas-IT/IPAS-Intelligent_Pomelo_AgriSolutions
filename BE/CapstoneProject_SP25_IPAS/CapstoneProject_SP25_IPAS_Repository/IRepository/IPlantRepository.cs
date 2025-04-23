@@ -21,6 +21,7 @@ namespace CapstoneProject_SP25_IPAS_Repository.IRepository
 
         public Task<List<int>> getPlantByRowId(int rowId);
         public Task<bool> CheckIfPlantCanBeInTargetAsync(int plantId, string targetType);
+        public Task<List<Plant>> GetAllPlantByFarmId(int farmId);
 
     }
 }

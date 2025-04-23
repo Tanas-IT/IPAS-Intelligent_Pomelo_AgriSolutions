@@ -367,6 +367,32 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
                 return BadRequest(response);
             }
         }
+
+        [HttpGet(APIRoutes.Report.StatisticPlantDeadAndAlive, Name = "StatisticPlantDeadAndAlive")]
+        //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)}")]
+        //[CheckUserFarmAccess]
+        //[FarmExpired]
+        public async Task<IActionResult> StatisticPlantDeadAndAlive([FromQuery] int? farmId)
+        {
+            try
+            {
+                if (!farmId.HasValue)
+                    farmId = _jwtTokenService.GetFarmIdFromToken() ?? 0;
+                var result = await _reportService.StatisticPlantDeadAndAlive(farmId.Value);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                var response = new BaseResponse()
+                {
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    Message = ex.Message
+                };
+                return BadRequest(response);
+            }
+        }
+
+
     }
 
 }
