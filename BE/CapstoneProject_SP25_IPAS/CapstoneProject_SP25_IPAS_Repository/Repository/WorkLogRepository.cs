@@ -244,6 +244,7 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
                         .Include(x => x.Schedule.CarePlan.Crop)
                         .Include(x => x.Schedule.CarePlan.MasterType)
                         .Include(x => x.Schedule.CarePlan.Process)
+                        .Include(x => x.Schedule.CarePlan.SubProcess)
                         .Include(x => x.TaskFeedbacks)
                         .ThenInclude(x => x.Manager)
                         .Include(x => x.Schedule.CarePlan.GrowthStagePlans)
