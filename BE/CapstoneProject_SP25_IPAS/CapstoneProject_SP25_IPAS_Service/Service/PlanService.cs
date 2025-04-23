@@ -53,7 +53,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             _responseCacheService = responseCacheService;
         }
 
-        public async Task<BusinessResult> CreatePlan(CreatePlanModel createPlanModel, int? farmId, bool useTransaction = true)
+        public async Task<BusinessResult> CreatePlan(CreatePlanModel createPlanModel, int? farmId, bool useTransaction = true, string? keyGroup = null)
         {
             using (var transaction = useTransaction ? await _unitOfWork.BeginTransactionAsync() : null)
             {
@@ -147,7 +147,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         PlanName = createPlanModel.PlanName,
                         CreateDate = DateTime.Now,
                         UpdateDate = DateTime.Now,
-                        IsSample = createPlanModel.IsSample,
+                        IsSample = false,
                         AssignorId = createPlanModel.AssignorId,
                         CropId = createPlanModel.CropId,
                         EndDate = createPlanModel?.EndDate,
@@ -159,6 +159,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         MaxVolume = createPlanModel?.MaxVolume,
                         MinVolume = createPlanModel?.MinVolume,
                         Notes = createPlanModel?.Notes,
+                        KeyGroup = keyGroup,
                         PesticideName = createPlanModel?.PesticideName,
                         ResponsibleBy = createPlanModel?.ResponsibleBy,
                         ProcessId = createPlanModel?.ProcessId,
@@ -2843,10 +2844,10 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     {
                         return new BusinessResult(400, string.Join(",", errors));
                     }
+                    var genereateKeyGroup = Guid.NewGuid().ToString();
                     foreach (var createPlan in createPlanModel)
                     {
-                        createPlan.IsSample = true;
-                        var result = await CreatePlan(createPlan, farmId, false);
+                        var result = await CreatePlan(createPlan, farmId, false, genereateKeyGroup);
                         if (result.StatusCode == 200)
                         {
                             count++;
@@ -3300,6 +3301,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 {
                     return new BusinessResult(400, $"Not found Plan with ID = {planId}");
                 }
+                var keyGroup = plan.KeyGroup;
 
                 var process = await _unitOfWork.PlanRepository.GetProcessByPlan(plan);
                 if (process == null)
@@ -3315,14 +3317,16 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     StartDate = process.StartDate,
                     EndDate = process.EndDate,
                     Order = process.Order,
-                    Plans = process.Plans.Select(p => new PlanDto
-                    {
-                        PlanId = p.PlanId,
-                        PlanName = p.PlanName,
-                        StartDate = p.StartDate,
-                        EndDate = p.EndDate,
-                        IsSelected = p.PlanId == planId
-                    }).ToList()
+                    Plans = process.Plans
+                                    .Where(p => p.KeyGroup == keyGroup)
+                                    .Select(p => new PlanDto
+                                    {
+                                        PlanId = p.PlanId,
+                                        PlanName = p.PlanName,
+                                        StartDate = p.StartDate,
+                                        EndDate = p.EndDate,
+                                        IsSelected = p.PlanId == planId
+                                    }).ToList()
                 };
 
                 // Map SubProcessId -> SubProcessDto
@@ -3334,14 +3338,16 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         Order = sp.Order,
                         StartDate = sp.StartDate,
                         EndDate = sp.EndDate,
-                        Plans = sp.Plans.Select(p => new PlanDto
-                        {
-                            PlanId = p.PlanId,
-                            PlanName = p.PlanName,
-                            StartDate = p.StartDate,
-                            EndDate = p.EndDate,
-                            IsSelected = p.PlanId == planId
-                        }).ToList(),
+                        Plans = sp.Plans
+                                    .Where(p => p.KeyGroup == keyGroup)
+                                    .Select(p => new PlanDto
+                                    {
+                                        PlanId = p.PlanId,
+                                        PlanName = p.PlanName,
+                                        StartDate = p.StartDate,
+                                        EndDate = p.EndDate,
+                                        IsSelected = p.PlanId == planId
+                                    }).ToList(),
                         Children = new List<SubProcessDto>()
                     })
                     .ToDictionary(dto => dto.SubProcessID);

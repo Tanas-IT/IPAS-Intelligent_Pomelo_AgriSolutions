@@ -50,6 +50,7 @@ public partial class Plan
 
     public int? MasterTypeId { get; set; }
     public int? FarmID { get; set; }
+    public string? KeyGroup { get; set; }
 
     public virtual CarePlanSchedule? CarePlanSchedule { get; set; }
 
