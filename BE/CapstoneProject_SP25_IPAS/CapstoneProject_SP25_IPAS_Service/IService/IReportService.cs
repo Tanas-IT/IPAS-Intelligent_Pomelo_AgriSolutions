@@ -25,6 +25,7 @@ namespace CapstoneProject_SP25_IPAS_Service.IService
         public Task<BusinessResult> AdminDashBoard(GetAdminDashBoardRequest request);
         public Task<BusinessResult> EmployeeTodayTask(int userId);
         public Task<BusinessResult> EmployeeProductivity(int userId, string? timeRange);
+        public Task<BusinessResult> StatisticPlantDeadAndAlive(int farmId);
 
     }
 }

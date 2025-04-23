@@ -70,7 +70,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         var distance = _imageHashCompareService.CalculateDistance(newImageHash, existingHash);
                         if(distance >= 90)
                         {
-                            return new BusinessResult(400, "This image appears to be a duplicate of an existing image in the system.");
+                            return new BusinessResult(400, "This image appears to be a duplicate \n of an existing image in the system.");
                         }
                     }
 
