@@ -525,7 +525,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
         {
             try
             {
-                string key = $"{CacheKeyConst.PLAN}:{CacheKeyConst.FARM}:{farmId}";
+                //string key = $"{CacheKeyConst.PLAN}:{CacheKeyConst.FARM}:{farmId}";
 
                 //await _responseCacheService.RemoveCacheAsync(key);
                 //var cachedData = await _responseCacheService.GetCacheObjectAsync<BusinessResult<PageEntity<PlanModel>>>(key);
@@ -535,15 +535,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 //}
                 Expression<Func<Plan, bool>> filter = x =>
                            x.IsDeleted == false && x.IsSample == false && // Chỉ lấy các bản ghi chưa bị xóa
-                           (
-                               (x.PlanTargets != null && x.PlanTargets.Any(pt =>
-                                   (pt.GraftedPlant != null && pt.GraftedPlant.Plant != null && pt.GraftedPlant.Plant.FarmId == farmId)
-                                   || (pt.Plant != null && pt.Plant.FarmId == farmId)
-                                   || (pt.LandPlot != null && pt.LandPlot.FarmId == farmId)
-                                   || (pt.LandRow != null && pt.LandRow.FarmId == farmId)
-                               ))
-                               || x.FarmID == farmId
-                                 );
+                          x.FarmID == farmId;
+                                 
                 Func<IQueryable<Plan>, IOrderedQueryable<Plan>> orderBy = null!;
                 if (!string.IsNullOrEmpty(paginationParameter.Search))
                 {
@@ -553,10 +546,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     bool validBool = false;
                     if (checkInt)
                     {
-                        filter = filter.And(x => x.PlanId == validInt || x.ProcessId == validInt
-                                            || x.MasterTypeId == validInt
-                                            || x.MinVolume == validInt || x.MaxVolume == validInt
-                                            || x.AssignorId == validInt || x.CropId == validInt);
+                        filter = filter.And(x => x.PlanId == validInt);
                     }
                     else if (DateTime.TryParse(paginationParameter.Search, out validDate))
                     {
@@ -574,7 +564,6 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                       || x.PlanName.ToLower().Contains(paginationParameter.Search.ToLower())
                                       || x.Status.ToLower().Contains(paginationParameter.Search.ToLower())
                                       || x.MasterType.MasterTypeName.ToLower().Contains(paginationParameter.Search.ToLower())
-                                      || x.PesticideName.ToLower().Contains(paginationParameter.Search.ToLower())
                                       || x.Notes.ToLower().Contains(paginationParameter.Search.ToLower())
                                       || x.ResponsibleBy.ToLower().Contains(paginationParameter.Search.ToLower())
                                       || x.Frequency.ToLower().Contains(paginationParameter.Search.ToLower()));
@@ -737,12 +726,6 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                    ? x => x.OrderByDescending(x => x.IsDeleted)
                                    : x => x.OrderBy(x => x.IsDeleted)) : x => x.OrderBy(x => x.IsDeleted);
                         break;
-                    case "pesticidename":
-                        orderBy = !string.IsNullOrEmpty(paginationParameter.Direction)
-                                    ? (paginationParameter.Direction.ToLower().Equals("desc")
-                                   ? x => x.OrderByDescending(x => x.PesticideName)
-                                   : x => x.OrderBy(x => x.PesticideName)) : x => x.OrderBy(x => x.PesticideName);
-                        break;
                     case "isactive":
                         orderBy = !string.IsNullOrEmpty(paginationParameter.Direction)
                                     ? (paginationParameter.Direction.ToLower().Equals("desc")
@@ -780,18 +763,6 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                    ? x => x.OrderByDescending(x => x.Notes)
                                    : x => x.OrderBy(x => x.Notes)) : x => x.OrderBy(x => x.Notes);
                         break;
-                    case "minVolume":
-                        orderBy = !string.IsNullOrEmpty(paginationParameter.Direction)
-                                    ? (paginationParameter.Direction.ToLower().Equals("desc")
-                                   ? x => x.OrderByDescending(x => x.MinVolume)
-                                   : x => x.OrderBy(x => x.MinVolume)) : x => x.OrderBy(x => x.MinVolume);
-                        break;
-                    case "maxVolume":
-                        orderBy = !string.IsNullOrEmpty(paginationParameter.Direction)
-                                    ? (paginationParameter.Direction.ToLower().Equals("desc")
-                                   ? x => x.OrderByDescending(x => x.MaxVolume)
-                                   : x => x.OrderBy(x => x.MaxVolume)) : x => x.OrderBy(x => x.MaxVolume);
-                        break;
                     case "status":
                         orderBy = !string.IsNullOrEmpty(paginationParameter.Direction)
                                     ? (paginationParameter.Direction.ToLower().Equals("desc")
@@ -827,24 +798,24 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         break;
                 }
                 var entities = await _unitOfWork.PlanRepository.GetPlanWithPagination(filter, orderBy, paginationParameter.PageIndex, paginationParameter.PageSize);
-                var pagin = new PageEntity<PlanModel>();
+                var pagin = new PageEntity<PlanGetAllModel>();
 
-                var listTemp = _mapper.Map<IEnumerable<PlanModel>>(entities).ToList();
+                var listTemp = _mapper.Map<IEnumerable<PlanGetAllModel>>(entities).ToList();
 
-                foreach (var planTemp in listTemp)
-                {
-                    double calculateProgress = await _unitOfWork.WorkLogRepository.CalculatePlanProgress(planTemp.PlanId);
-                    planTemp.Progress = Math.Round(calculateProgress, 2).ToString();
-                }
+                //foreach (var planTemp in listTemp)
+                //{
+                //    double calculateProgress = await _unitOfWork.WorkLogRepository.CalculatePlanProgress(planTemp.PlanId);
+                //    planTemp.Progress = Math.Round(calculateProgress, 2).ToString();
+                //}
                 pagin.List = listTemp;
                 pagin.TotalRecord = await _unitOfWork.PlanRepository.Count(filter);
                 pagin.TotalPage = PaginHelper.PageCount(pagin.TotalRecord, paginationParameter.PageSize);
                 if (pagin.List.Any())
                 {
-                    string groupKey = $"{CacheKeyConst.GROUP_FARM_PLAN}:{farmId}";
-                    var result = new BusinessResult(Const.SUCCESS_GET_ALL_PLAN_CODE, Const.SUCCESS_GET_ALL_PLAN_MSG, pagin);
-                    await _responseCacheService.AddCacheWithGroupAsync(groupKey.Trim(), key.Trim(), result, TimeSpan.FromMinutes(5));
-                    return result;
+                    //string groupKey = $"{CacheKeyConst.GROUP_FARM_PLAN}:{farmId}";
+                    //var result = ;
+                    //await _responseCacheService.AddCacheWithGroupAsync(groupKey.Trim(), key.Trim(), result, TimeSpan.FromMinutes(5));
+                    return new BusinessResult(Const.SUCCESS_GET_ALL_PLAN_CODE, Const.SUCCESS_GET_ALL_PLAN_MSG, pagin);
                 }
                 else
                 {
@@ -922,9 +893,9 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     result.Progress = Math.Round(calculateProgress, 2).ToString();
                     if (result != null)
                     {
-                        string groupKey = CacheKeyConst.GROUP_PLAN + $"{getPlan.PlanId}";
+                        //string groupKey = CacheKeyConst.GROUP_PLAN + $"{getPlan.PlanId}";
                         var finalResult = new BusinessResult(Const.SUCCESS_GET_PLAN_BY_ID_CODE, Const.SUCCESS_GET_PLAN_BY_ID_MSG, result);
-                        await _responseCacheService.AddCacheWithGroupAsync(groupKey.Trim(), key.Trim(), finalResult, TimeSpan.FromMinutes(5));
+                        //await _responseCacheService.AddCacheWithGroupAsync(groupKey.Trim(), key.Trim(), finalResult, TimeSpan.FromMinutes(5));
                         return finalResult;
                     }
                 }

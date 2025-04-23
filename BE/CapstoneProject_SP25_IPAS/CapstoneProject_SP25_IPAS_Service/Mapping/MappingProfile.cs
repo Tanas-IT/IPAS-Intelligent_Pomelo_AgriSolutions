@@ -267,6 +267,19 @@ namespace CapstoneProject_SP25_IPAS_Service.Mapping
                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.CropName))
                 .ReverseMap();
 
+            CreateMap<Plan, PlanGetAllModel>()
+              .ForMember(dest => dest.PlanId, opt => opt.MapFrom(src => src.PlanId))
+              .ForMember(dest => dest.PlanCode, opt => opt.MapFrom(src => src.PlanCode))
+              .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status))
+              .ForMember(dest => dest.PlanName, opt => opt.MapFrom(src => src.PlanName))
+              .ForMember(dest => dest.PlanDetail, opt => opt.MapFrom(src => src.PlanDetail))
+              .ForMember(dest => dest.Frequency, opt => opt.MapFrom(src => src.Frequency))
+              .ForMember(dest => dest.CreateDate, opt => opt.MapFrom(src => src.CreateDate))
+              .ForMember(dest => dest.StartDate, opt => opt.MapFrom(src => src.StartDate))
+              .ForMember(dest => dest.EndDate, opt => opt.MapFrom(src => src.EndDate))
+              .ForMember(dest => dest.GrowthStages, opt => opt.MapFrom(src => src.GrowthStagePlans.Where(pt => pt.GrowthStage != null).Select(pt => new ForSelectedModels() { Id = pt.GrowthStage.GrowthStageID, Name = pt.GrowthStage.GrowthStageName }).Distinct().ToList()))
+               .ReverseMap();
+
             CreateMap<Plan, PlanModel>()
                .ForMember(dest => dest.AssignorName, opt => opt.MapFrom(src => src.User != null ? src.User.FullName : (string?)null))
              .ForMember(dest => dest.Frequency,
