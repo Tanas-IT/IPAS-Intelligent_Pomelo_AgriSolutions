@@ -38,7 +38,8 @@ export interface GetPlan {
   maxVolume: number;
   minVolume: number;
   pesticideName: string;
-  listLandPlotOfCrop: ListLandPlotOfCrop[]
+  listLandPlotOfCrop: ListLandPlotOfCrop[];
+  hasNonSampleProcess: boolean;
 }
 
 interface ListLandPlotOfCrop {
@@ -56,6 +57,10 @@ export interface User {
   userId: number;
   fullName: string;
   avatarURL: string;
+  skillWithScore: {
+    skillName: string;
+    score: number;
+  }[];
 }
 
 export interface WorkLog {

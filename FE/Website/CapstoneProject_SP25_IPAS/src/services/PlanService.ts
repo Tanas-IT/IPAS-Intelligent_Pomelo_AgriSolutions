@@ -66,6 +66,7 @@ export const addPlan = async (plan: PlanRequest): Promise<ApiResponse<Object>> =
       plantID: Array.isArray(target.plantID) ? target.plantID : [],
       graftedPlantID: Array.isArray(target.graftedPlantID) ? target.graftedPlantID : [],
       plantLotID: Array.isArray(target.plantLotID) ? target.plantLotID : [],
+      unit: target.unit,
     })) || []
   };
 

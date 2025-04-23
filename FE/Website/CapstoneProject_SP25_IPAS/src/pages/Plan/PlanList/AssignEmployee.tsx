@@ -1,58 +1,3 @@
-// import React from "react";
-// import { Avatar, Button, Tooltip, Radio, Flex } from "antd";
-// import { Icons } from "@/assets";
-// import style from "./AssignMembers.module.scss";
-
-// interface Employee {
-//   fullName: string;
-//   avatarURL: string;
-//   userId: number;
-// }
-
-// interface AssignMembersProps {
-//   members: Employee[];
-//   onAssign: () => void;
-//   onReporterChange: (userId: number) => void;
-//   selectedReporter: number | null;
-// }
-
-// const AssignEmployee: React.FC<AssignMembersProps> = ({ 
-//   members, 
-//   onAssign, 
-//   onReporterChange, 
-//   selectedReporter 
-// }) => {
-//   return (
-//     <div className={style.assignMembers}>
-//       <Flex vertical gap={20}>
-//         <Flex vertical={false} gap={30}>
-//       <span className={style.label}>Assigned to project</span>
-//       <Button className={style.btnAssign} icon={<Icons.addUser />} onClick={onAssign}>
-//         Assign Member
-//       </Button>
-//       </Flex>
-//       <div className={style.avatars}>
-//         {members.map((member) => (
-//           <Tooltip title={member.fullName} key={member.userId}>
-//             <div className={style.memberItem}>
-//               <Avatar src={member.avatarURL} className={style.avatar} crossOrigin="anonymous" />
-//               <Radio 
-//                 checked={selectedReporter === member.userId} 
-//                 onChange={() => onReporterChange(member.userId)}
-//               >
-//                 Reporter
-//               </Radio>
-//             </div>
-//           </Tooltip>
-//         ))}
-//       </div>
-//       </Flex>
-
-//     </div>
-//   );
-// };
-
-// export default AssignEmployee;
 import React from "react";
 import { Avatar, Button, Tooltip, Radio, Flex, Tag } from "antd";
 import { Icons } from "@/assets";
@@ -71,7 +16,7 @@ interface Employee {
 }
 
 interface AssignMembersProps {
-  members: Employee[];
+  members: Employee[] | undefined;
   onAssign: () => void;
   onReporterChange: (userId: number) => void;
   selectedReporter: number | null;
@@ -112,52 +57,56 @@ const AssignEmployee: React.FC<AssignMembersProps> = ({
         </Flex>
 
         <div className={style.membersContainer}>
-          {members.map((member) => (
-            <div
-              key={member.userId}
-              className={style.memberCard}
-              data-selected={selectedReporter === member.userId}
-              onClick={() => onReporterChange(member.userId)}
-            >
-              <Flex align="center" gap={16}>
-                <Avatar
-                  src={member.avatarURL}
-                  size={48}
-                  className={style.avatar}
-                  crossOrigin="anonymous"
-                />
-
-                <Flex vertical style={{ flex: 1 }}>
-                  <span className={style.memberName}>{member.fullName}</span>
-                  <Flex gap={4} wrap="wrap" className={style.skillsContainer}>
-                    {member.skillWithScore.map(skill => (
-                      <Tag
-                        key={skill.skillName}
-                        icon={<Icons.score size={12} />}
-                        color={skill.score > 7 ? "green" : "blue"}
-                      >
-                        {skill.skillName} ({skill.score})
-                      </Tag>
-                    ))}
-                  </Flex>
-                </Flex>
-
-                <Radio
-                  checked={selectedReporter === member.userId}
-                  className={style.reporterRadio}
-                >
-                  <Icons.score
-                    style={{
-                      color: selectedReporter === member.userId ? "#ffc53d" : "#d9d9d9",
-                      transition: 'all 0.3s',
-                      marginRight: '3px'
-                    }}
+          {Array.isArray(members) && members.length > 0 ? (
+            members.map((member) => (
+              <div
+                key={member.userId}
+                className={style.memberCard}
+                data-selected={selectedReporter === member.userId}
+                onClick={() => onReporterChange(member.userId)}
+              >
+                <Flex align="center" gap={16}>
+                  <Avatar
+                    src={member.avatarURL}
+                    size={48}
+                    className={style.avatar}
+                    crossOrigin="anonymous"
                   />
-                  <span>Reporter</span>
-                </Radio>
-              </Flex>
-            </div>
-          ))}
+
+                  <Flex vertical style={{ flex: 1 }}>
+                    <span className={style.memberName}>{member.fullName}</span>
+                    <Flex gap={4} wrap="wrap" className={style.skillsContainer}>
+                      {member?.skillWithScore?.map(skill => (
+                        <Tag
+                          key={skill.skillName}
+                          icon={<Icons.score size={12} />}
+                          color={skill.score > 7 ? "green" : "blue"}
+                        >
+                          {skill.skillName} ({skill.score})
+                        </Tag>
+                      ))}
+                    </Flex>
+                  </Flex>
+
+                  <Radio
+                    checked={selectedReporter === member.userId}
+                    className={style.reporterRadio}
+                  >
+                    <Icons.score
+                      style={{
+                        color: selectedReporter === member.userId ? "#ffc53d" : "#d9d9d9",
+                        transition: 'all 0.3s',
+                        marginRight: '3px'
+                      }}
+                    />
+                    <span>Reporter</span>
+                  </Radio>
+                </Flex>
+              </div>
+            ))
+          ) : (
+            <p className={style.noMembers}>No members assigned yet</p>
+          )}
         </div>
       </Flex>
     </div>

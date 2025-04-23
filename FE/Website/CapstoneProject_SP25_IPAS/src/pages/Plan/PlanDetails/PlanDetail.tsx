@@ -1,7 +1,7 @@
 import { PATHS } from "@/routes";
 import style from "./PlanDetail.module.scss";
 import { Link, useNavigate, useParams } from "react-router-dom";
-import { Divider, Flex, Image, Tag, Tooltip, Progress, Card } from "antd";
+import { Divider, Flex, Image, Tag, Tooltip, Progress, Card, Empty, Spin } from "antd";
 import { Icons, Images } from "@/assets";
 import { CustomButton, Loading } from "@/components";
 import { ToastContainer } from "react-toastify";
@@ -10,7 +10,7 @@ import { useCallback, useEffect, useState } from "react";
 import { planService } from "@/services";
 import { GetPlan, PlanNodes, PlanTargetModel, ProcessByPlanResponse, SubProcessNodes } from "@/payloads/plan";
 import PlanTargetTable from "./PlanTargetTable";
-import { formatDate, formatDateW } from "@/utils";
+import { formatDate, formatDateW, getFarmId } from "@/utils";
 import ProcessFlow from "./ProcessFlow";
 
 interface GeneralCalendarProps {
@@ -71,26 +71,11 @@ function PlanDetail() {
     const [isLoading, setIsLoading] = useState<boolean>(false);
     const [processTree, setProcessTree] = useState<ProcessByPlanResponse | null>(null);
     const { id } = useParams<{ id: string }>();
-
-    const selectedDaysOfMonth = [10, 31];
-    const selectedDaysOfWeek = [1, 3, 5];
-    const selectedDaysOfNoneType = ["06/02/2025", "16/02/2025"];
     const [planDetail, setPlanDetail] = useState<GetPlan>();
+    const [processError, setProcessError] = useState<string | null>(null);
     const numOfCompleted = planDetail?.listWorkLog.filter((p) => p.status === "Done").length ?? 0;
     const total = planDetail?.listWorkLog.length;
 
-    const progress = 60;
-
-    const getTaskColors = (taskType: string) => {
-        const colors: Record<string, { main: string; light: string }> = {
-            Watering: { main: "#1890ff", light: "rgba(24, 144, 255, 0.2)" },
-            Fertilizing: { main: "#52c41a", light: "rgba(82, 196, 26, 0.2)" },
-            Pruning: { main: "#faad14", light: "rgba(250, 173, 20, 0.2)" },
-            "Pest Control": { main: "#f5222d", light: "rgba(245, 34, 45, 0.2)" },
-            Default: { main: "#d9d9d9", light: "rgba(217, 217, 217, 0.2)" },
-        };
-        return colors[taskType] || colors.Default;
-    };
     const [infoFieldsLeft, setInfoFieldsLeft] = useState([
         { label: "Crop", value: planDetail?.cropName || "No data", icon: Icons.growth },
         { label: "Growth Stage", value: "Cây non", icon: Icons.plant },
@@ -130,15 +115,20 @@ function PlanDetail() {
 
     const fetchProcessTree = async () => {
         try {
-            const numericPlanId = Number(id);
-            if (isNaN(numericPlanId)) throw new Error('Invalid plan ID');
-
-            const response = await planService.getProcessByPlanId(numericPlanId, 1); // farmId = 1
+            const response = await planService.getProcessByPlanId(Number(id), Number(getFarmId()));
             console.log("tree", response);
-            
-            setProcessTree(response.data);
+
+            if (response.statusCode === 200) {
+                setProcessTree(response.data);
+                setProcessError(null);
+            } else if (response.statusCode === 400) {
+                setProcessTree(null);
+                setProcessError("This is a non process plan");
+            }
         } catch (error) {
             console.error('Failed to fetch process tree', error);
+            setProcessTree(null);
+            setProcessError("Failed to load process flow");
         }
     };
 
@@ -146,15 +136,6 @@ function PlanDetail() {
         fetchPlanDetail();
         fetchProcessTree();
     }, [id]);
-
-
-
-    const workLogs = [
-        { id: 1, task: "Watering in plot 123", type: "Watering", status: "completed", date: "2nd Dec 2024" },
-        { id: 2, task: "Fertilizing in plot 123", type: "Fertilizing", status: "pending", date: "5th Dec 2024" },
-        { id: 3, task: "Pest Control in plot 123", type: "Pest Control", status: "progress", date: "8th Dec 2024" },
-    ];
-    console.log(typeof planDetail?.startDate);
 
     const determineUnit = (planTargetModels: PlanTargetModel) => {
         const { rows, plants, landPlotName, graftedPlants, plantLots } = planTargetModels;
@@ -246,11 +227,11 @@ function PlanDetail() {
 
     const handleNodeClick = useCallback((node: PlanNodes | SubProcessNodes) => {
         if ('subProcessID' in node) {
-          console.log('SubProcess clicked:', node);
+            console.log('SubProcess clicked:', node);
         } else {
-          console.log('Plan clicked:', node);
+            console.log('Plan clicked:', node);
         }
-      }, []);
+    }, []);
 
     if (isLoading)
         return (
@@ -375,11 +356,22 @@ function PlanDetail() {
             <Divider className={style.divider} />
             <section className="process-flow-section">
                 <h2>Process Flow</h2>
-                <ProcessFlow
-                    data={processTree}
-                    currentPlanId={Number(id)}
-                    onNodeClick={handleNodeClick}
-                />
+                {processError ? (
+                    <div className="empty-process-flow">
+                        <Empty
+                            image={Empty.PRESENTED_IMAGE_SIMPLE}
+                            description={processError}
+                        />
+                    </div>
+                ) : processTree ? (
+                    <ProcessFlow
+                        data={processTree}
+                        currentPlanId={Number(id)}
+                        onNodeClick={handleNodeClick}
+                    />
+                ) : (
+                    <Spin tip="Loading process flow..." />
+                )}
             </section>
             <Divider className={style.divider} />
             <PlanTargetTable
