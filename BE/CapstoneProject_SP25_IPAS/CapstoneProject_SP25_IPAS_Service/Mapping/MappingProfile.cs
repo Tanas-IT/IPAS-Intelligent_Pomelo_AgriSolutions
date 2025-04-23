@@ -526,7 +526,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Mapping
             CreateMap<WorkLog, WorkLogDetailModel>()
             .ForMember(dest => dest.WarningName, opt => opt.MapFrom(src => src.Warning.WarningName))
             .ForMember(dest => dest.CropName, opt => opt.MapFrom(src => src.Schedule.CarePlan.Crop.CropName))
-            .ForMember(dest => dest.ProcessName, opt => opt.MapFrom(src => src.Schedule.CarePlan.Process.ProcessName))
+            .ForMember(dest => dest.ProcessName, opt => opt.MapFrom(src => src.Schedule.CarePlan.Process != null ? src.Schedule.CarePlan.Process.ProcessName : src.Schedule.CarePlan.SubProcess.SubProcessName))
             .ForMember(dest => dest.MasterTypeName, opt => opt.MapFrom(src => src.Schedule.CarePlan.MasterType.MasterTypeName))
             .ForMember(dest => dest.PlanName, opt => opt.MapFrom(src => src.Schedule.CarePlan.PlanName))
             .ForMember(dest => dest.MasterTypeId, opt => opt.MapFrom(src => src.Schedule.CarePlan.MasterTypeId))
