@@ -875,29 +875,47 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
                     if (plan != null)
                     {
-                        var users = plan?.CarePlanSchedule?
-                                        .WorkLogs?
-                                        .SelectMany(wl => wl.UserWorkLogs ?? new List<UserWorkLog>())
-                                        .Select(uwl => uwl.User)
-                                        .Where(u => u != null)
-                                        .DistinctBy(u => u.UserId)
-                                        .ToList() ?? new List<User>();
+                        var userWorkLogs = plan?.CarePlanSchedule?
+                                             .WorkLogs?
+                                             .SelectMany(wl => wl.UserWorkLogs ?? new List<UserWorkLog>())
+                                             .ToList() ?? new List<UserWorkLog>();
 
-                        var employeeWithSkills = users.Select(u => new EmployeeWithSkills
+                        // Lấy Employee
+                        var employeeUsers = userWorkLogs
+                            .Where(uwl => uwl.IsReporter == false && uwl.User != null)
+                            .Select(uwl => uwl.User)
+                            .DistinctBy(u => u.UserId)
+                            .ToList();
+
+                        // Lấy Reporter
+                        var reporterUsers = userWorkLogs
+                            .Where(uwl => uwl.IsReporter == true && uwl.User != null)
+                            .Select(uwl => uwl.User)
+                            .DistinctBy(u => u.UserId)
+                            .ToList();
+
+                        // Hàm tạo EmployeeWithSkills
+                        List<EmployeeWithSkills> MapToEmployeeWithSkills(List<User> users)
                         {
-                            UserId = u.UserId,
-                            FullName = u.FullName,
-                            AvatarURL = u.AvatarURL,
-                            SkillWithScore = u.UserFarms?
-                                .SelectMany(uf => uf.EmployeeSkills ?? new List<EmployeeSkill>())
-                                .Where(es => es.WorkTypeID != null)
-                                .Select(es => new SkillWithScore
-                                {
-                                    SkillName = es.WorkType?.MasterTypeName,
-                                    Score = es.ScoreOfSkill
-                                }).ToList()
-                        }).ToList();
-                        result.EmployeeWithSkills = employeeWithSkills;
+                            return users.Select(u => new EmployeeWithSkills
+                            {
+                                UserId = u.UserId,
+                                FullName = u.FullName,
+                                AvatarURL = u.AvatarURL,
+                                SkillWithScore = u.UserFarms?
+                                    .SelectMany(uf => uf.EmployeeSkills ?? new List<EmployeeSkill>())
+                                    .Where(es => es.WorkTypeID != null)
+                                    .Select(es => new SkillWithScore
+                                    {
+                                        SkillName = es.WorkType?.MasterTypeName,
+                                        Score = es.ScoreOfSkill
+                                    }).ToList()
+                            }).ToList();
+                        }
+
+                        // Gán kết quả
+                        result.ListEmployee = MapToEmployeeWithSkills(employeeUsers);
+                        result.ListReporter = MapToEmployeeWithSkills(reporterUsers);
                     }
 
                     result.Progress = Math.Round(calculateProgress, 2).ToString();

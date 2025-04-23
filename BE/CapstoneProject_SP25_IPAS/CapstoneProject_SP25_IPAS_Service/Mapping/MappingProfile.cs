@@ -292,24 +292,28 @@ namespace CapstoneProject_SP25_IPAS_Service.Mapping
                .ForMember(dest => dest.MaxTime, opt => opt.MapFrom(src => src.MasterType != null ? src.MasterType.MaxTime : (int?)null))
                .ForMember(dest => dest.RowIndexs, opt => opt.MapFrom(src => src.PlanTargets.Where(pt => pt.LandRow != null).Select(pt => pt.LandRow.RowIndex).Distinct().ToList()))
                .ForMember(dest => dest.AvatarOfAssignor, opt => opt.MapFrom(src => src.User != null ? src.User.AvatarURL : (string?)null))
-               .ForMember(dest => dest.ListReporter, opt => opt.MapFrom(src =>
-                                                                 src.CarePlanSchedule != null && src.CarePlanSchedule.WorkLogs != null
-                                                                ? src.CarePlanSchedule.WorkLogs
-                                                                    .SelectMany(wl => wl.UserWorkLogs)
-                                                                    .Where(uwl => uwl.IsReporter == true)
-                                                                    .Select(uwl => uwl.User)
-                                                                    .GroupBy(user => user.UserId)
-                                                                    .Select(group => group.First())
-                                                                    .ToList() : new List<User>()))
-               .ForMember(dest => dest.ListEmployee, opt => opt.MapFrom(src =>
-                                                                src.CarePlanSchedule != null && src.CarePlanSchedule.WorkLogs != null
-                                                                ? src.CarePlanSchedule.WorkLogs
-                                                                    .SelectMany(wl => wl.UserWorkLogs)
-                                                                    .Where(uwl => uwl.IsReporter == false)
-                                                                    .Select(uwl => uwl.User)
-                                                                    .GroupBy(user => user.UserId)
-                                                                    .Select(group => group.First())
-                                                                    .ToList() : new List<User>()))
+              .ForMember(dest => dest.hasNonSampleProcess, opt => opt.MapFrom(src =>
+                                                                (src.Process != null && src.Process.IsSample == false) ||
+                                                                (src.SubProcess.Process != null && src.SubProcess.Process.IsSample == false)
+                                                            ))
+               //.ForMember(dest => dest.ListReporter, opt => opt.MapFrom(src =>
+               //                                                  src.CarePlanSchedule != null && src.CarePlanSchedule.WorkLogs != null
+               //                                                 ? src.CarePlanSchedule.WorkLogs
+               //                                                     .SelectMany(wl => wl.UserWorkLogs)
+               //                                                     .Where(uwl => uwl.IsReporter == true)
+               //                                                     .Select(uwl => uwl.User)
+               //                                                     .GroupBy(user => user.UserId)
+               //                                                     .Select(group => group.First())
+               //                                                     .ToList() : new List<User>()))
+               //.ForMember(dest => dest.ListEmployee, opt => opt.MapFrom(src =>
+               //                                                 src.CarePlanSchedule != null && src.CarePlanSchedule.WorkLogs != null
+               //                                                 ? src.CarePlanSchedule.WorkLogs
+               //                                                     .SelectMany(wl => wl.UserWorkLogs)
+               //                                                     .Where(uwl => uwl.IsReporter == false)
+               //                                                     .Select(uwl => uwl.User)
+               //                                                     .GroupBy(user => user.UserId)
+               //                                                     .Select(group => group.First())
+               //                                                     .ToList() : new List<User>()))
                .ForMember(dest => dest.StartTime, opt => opt.MapFrom(src => src.CarePlanSchedule != null ? src.CarePlanSchedule.StartTime : null))
                .ForMember(dest => dest.EndTime, opt => opt.MapFrom(src => src.CarePlanSchedule != null ? src.CarePlanSchedule.EndTime : null))
                .ForMember(dest => dest.DayOfWeek, opt => opt.MapFrom(src => src.CarePlanSchedule != null ? src.CarePlanSchedule.DayOfWeek : null))
