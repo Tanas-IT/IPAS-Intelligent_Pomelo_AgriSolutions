@@ -460,5 +460,21 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             }
         }
 
+
+        [HttpGet(APIRoutes.Harvest.exportCSV)]
+        //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)},{nameof(RoleEnum.EMPLOYEE)}")]
+        //[CheckUserFarmAccess]
+        //[FarmExpired]
+        public async Task<IActionResult> ExportHarvestRecord([FromQuery] int harvestId)
+        {
+            var result = await _harvestHistoryService.ExportHarvestRecord(harvestId);
+
+            if (result.Data is ExportFileResult file && file.FileBytes?.Length > 0)
+            {
+                return File(file.FileBytes, file.ContentType, file.FileName);
+            }
+
+            return NotFound(result.Message);
+        }
     }
 }

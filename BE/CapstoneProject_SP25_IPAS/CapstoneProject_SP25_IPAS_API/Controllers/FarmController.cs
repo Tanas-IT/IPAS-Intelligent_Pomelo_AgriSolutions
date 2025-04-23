@@ -103,7 +103,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             }
         }
         [HttpPost(APIRoutes.Farm.createFarm, Name = "createFarmAsync")]
-        //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.USER)}")]
+        [HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.USER)}")]
         public async Task<IActionResult> CreateFarmAsync([FromForm] FarmCreateRequest farmCreateModel)
         {
             try
@@ -312,7 +312,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
         [HttpGet(APIRoutes.Farm.getUsersOfFarm, Name = "getUserOfFarmAsync")]
         [HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)}")]
         [CheckUserFarmAccess]
-        //[FarmExpired]
+        [FarmExpired]
         public async Task<IActionResult> getUserOfFarmAsync([FromQuery] GetUserFarmRequest userFarmRequest, [FromQuery] PaginationParameter paginationParameter)
         {
             try

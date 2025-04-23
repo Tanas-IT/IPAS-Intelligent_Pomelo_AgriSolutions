@@ -810,7 +810,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                 ScoreOfSkill = skill.ScoreOfSkill,
                                 FarmID = createRequest.FarmId!.Value,
                             };
-                            await _unitOfWork.EmployeeSkillRepository.Insert(newEmployeeSkill);
+                            //await _unitOfWork.EmployeeSkillRepository.Insert(newEmployeeSkill);
+                            newUserFarm.EmployeeSkills.Add(newEmployeeSkill);
                         }
                     }
                     await _unitOfWork.UserFarmRepository.Insert(newUserFarm);

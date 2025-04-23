@@ -104,5 +104,18 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
             return result;
 
         }
+
+        public async Task<List<ProductHarvestHistory>> GetRecordToExport(int harvestId)
+        {
+            var result = await _context.ProductHarvestHistories
+                                    .Include(x => x.Plant)
+                                    .ThenInclude(x => x.LandRow)
+                                    .ThenInclude(x => x.LandPlot)
+                                    .Include(x => x.Product)
+                                    .Include(x => x.HarvestHistory)
+                                    .Include(x => x.User)
+                                    .Where(x => x.HarvestHistoryId == harvestId && x.PlantId != null).ToListAsync();
+            return result;
+        }
     }
 }

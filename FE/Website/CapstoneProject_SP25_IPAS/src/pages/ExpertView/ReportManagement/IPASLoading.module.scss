@@ -1,0 +1,36 @@
+.ipasLoading {
+    animation: fadeIn 0.5s ease-in-out;
+  
+    @keyframes fadeIn {
+      from {
+        opacity: 0;
+      }
+      to {
+        opacity: 1;
+      }
+    }
+  }
+  
+  .textAnimation {
+    display: flex;
+    gap: 10px;
+    margin-bottom: 16px;
+  }
+  
+  .letter {
+    font-family: "Comic Sans MS", "Bubblegum Sans", sans-serif;
+    font-size: 68px;
+    color: #bcd379;
+    text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.3);
+    animation: bounce 1s infinite;
+    animation-timing-function: ease-in-out;
+  }
+  
+  @keyframes bounce {
+    0%, 100% {
+      transform: translateY(0) scale(1);
+    }
+    50% {
+      transform: translateY(-20px) scale(1.2);
+    }
+  }

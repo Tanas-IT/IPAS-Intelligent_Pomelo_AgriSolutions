@@ -679,6 +679,36 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             {
                 if (!farmId.HasValue)
                     farmId = _jwtTokenService.GetFarmIdFromToken() ?? 0;
+
+                if (!string.IsNullOrEmpty(redoWorkLogModel.NewStartTime))
+                {
+                    var normalizedStartTime = FlexibleTimeAttribute.NormalizeTo24HourFormat(redoWorkLogModel.NewStartTime);
+                    if (normalizedStartTime != null)
+                    {
+                        redoWorkLogModel.NewStartTime = normalizedStartTime; // Gán giá trị chuẩn hóa lại
+                    }
+                    else
+                    {
+                        // Handle invalid StartTime here
+                        throw new InvalidOperationException("StartTime is invalid.");
+                    }
+                }
+
+                // Validate and normalize EndTime
+                if (!string.IsNullOrEmpty(redoWorkLogModel.NewEndTime))
+                {
+                    var normalizedEndTime = FlexibleTimeAttribute.NormalizeTo24HourFormat(redoWorkLogModel.NewEndTime);
+                    if (normalizedEndTime != null)
+                    {
+                        redoWorkLogModel.NewEndTime = normalizedEndTime; // Gán giá trị chuẩn hóa lại
+                    }
+                    else
+                    {
+                        // Handle invalid EndTime here
+                        throw new InvalidOperationException("EndTime is invalid.");
+                    }
+                }
+
                 var result = await _workLogService.RedoAssignWorkLog(redoWorkLogModel, farmId);
                 return Ok(result);
             }

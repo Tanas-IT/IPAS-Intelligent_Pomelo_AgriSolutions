@@ -13,54 +13,54 @@ namespace CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.FarmBsModels
     public class CropModel
     {
         public int CropId { get; set; }
-        [CsvExport("MasterTypeCode")]
+        [CsvExport("CropCode")]
         public string? CropCode { get; set; }
-        [CsvExport("MasterTypeCode")]
+        [CsvExport("CropName")]
 
         public string? CropName { get; set; }
 
         //public int? Year { get; set; }
 
-        [CsvExport("MasterTypeCode")]
+        [CsvExport("StartDate")]
         public DateTime? StartDate { get; set; }
 
-        [CsvExport("MasterTypeCode")]
+        [CsvExport("EndDate")]
         public DateTime? EndDate { get; set; }
 
-        [CsvExport("MasterTypeCode")]
+        [CsvExport("CreateDate")]
         public DateTime? CreateDate { get; set; }
 
         public DateTime? UpdateDate { get; set; }
 
-        [CsvExport("MasterTypeCode")]
+        [CsvExport("CropExpectedTime")]
         public DateTime? CropExpectedTime { get; set; }
 
-        [CsvExport("MasterTypeCode")]
+        [CsvExport("CropActualTime")]
         public DateTime? CropActualTime { get; set; }
 
-        [CsvExport("MasterTypeCode")]
+        [CsvExport("HarvestSeason")]
         public string? HarvestSeason { get; set; }
 
-        [CsvExport("MasterTypeCode")]
+        [CsvExport("EstimateYield")]
         public double? EstimateYield { get; set; }
 
-        [CsvExport("MasterTypeCode")]
+        [CsvExport("ActualYield")]
         public double? ActualYield { get; set; }
 
-        [CsvExport("MasterTypeCode")]
+        [CsvExport("YieldHasRecord")]
         public double YieldHasRecord { get; set; }
 
-        [CsvExport("MasterTypeCode")]
+        [CsvExport("Status")]
         public string? Status { get; set; }
 
-        [CsvExport("MasterTypeCode")]
+        [CsvExport("Notes")]
         public string? Notes { get; set; }
 
-        [CsvExport("MasterTypeCode")]
+        [CsvExport("AvaragePrice")]
         public double? MarketPrice { get; set; }
-        [CsvExport("MasterTypeCode")]
+        [CsvExport("NumberHarvest")]
         public int? NumberHarvest { get; set; }
-        [CsvExport("MasterTypeCode")]
+        [CsvExport("NumberPlot")]
         public int? NumberPlot { get; set; }
 
         //[JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
