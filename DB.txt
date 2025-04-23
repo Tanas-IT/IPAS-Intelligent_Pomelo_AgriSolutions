@@ -1787,7 +1787,7 @@ VALUES
 ('ORD007', 'Order for Starter Package', 500000, 'Gold order', '2024-11-10', '2024-11-10', '2024-12-10', 1, 2, 'Paid'),
 ('ORD008', 'Order for Standard Package', 2000000, 'Silver order', '2024-12-01', '2024-12-01', '2025-05-30', 2, 3, 'Paid'),
 ('ORD009', 'Order for Premium Package', 4000000, 'Bronze order', '2025-02-01', '2025-02-01', '2026-01-31', 3, 3, 'Paid'),
-('ORD010', 'Order for Starter Package', 500000, 'Custom order', '2025-03-25', '2025-03-25', '2025-04-24', 1, 3, 'Paid');
+('ORD010', 'Order for Starter Package', 500000, 'Custom order', '2025-03-25', '2025-03-25', '2025-05-24', 1, 3, 'Paid');
 
 GO
 INSERT INTO ipas.dbo.Partner (PartnerCode, PartnerName, Province, PhoneNumber, Email, CreateDate, UpdateDate, [National],  District, Ward, Description, Major, Status, ContactName, Note, BusinessField, FarmID)
@@ -2467,7 +2467,7 @@ VALUES
 (N'SP002', N'Tỉa cành và vệ sinh vườn', @ProcessId, 2, 1, 1, GETDATE(), 0, 1),
 --(N'SP003', N'Phun thuốc trị sâu vẽ bùa', @ProcessId, 3, 1, 1, GETDATE(), 0, 1),
 --(N'SP004', N'Theo dõi và đánh giá hiệu quả', @ProcessId, 4, 1, 1, GETDATE(), 0, 1),
-(N'SP005', N'Bón phân hồi phục', @ProcessId, 5, 1, 1, GETDATE(), 0, 1);
+(N'SP005', N'Bón phân hồi phục', @ProcessId, 3, 1, 1, GETDATE(), 0, 1);
 
 -- =============================================
 -- 3. Insert Plan mẫu cho từng SubProcess
