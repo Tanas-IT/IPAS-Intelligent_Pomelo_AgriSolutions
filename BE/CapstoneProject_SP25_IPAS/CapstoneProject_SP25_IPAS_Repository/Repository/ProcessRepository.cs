@@ -30,6 +30,33 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
                                 .Include(x => x.Plans)
                                 .Include(x => x.SubProcesses)
                                 .ThenInclude(x => x.Plans).FirstOrDefaultAsync(x => x.ProcessId == processId);
+
+            return result;
+        }
+
+        public async Task<Process> GetProcessByIdForDetail(int processId)
+        {
+            var result = await _context.Processes
+                             .Include(x => x.GrowthStage)
+                             .Include(x => x.MasterType)
+                             .Include(x => x.Farm)
+                             .Include(x => x.Plans)
+                             .Include(x => x.SubProcesses)
+                                 .ThenInclude(x => x.Plans)
+                             .FirstOrDefaultAsync(x => x.ProcessId == processId);
+
+            // Kiểm tra null
+            if (result == null)
+                return null;
+
+            // Lọc lại các Plans của Process
+            result.Plans = result.Plans?.Where(p => p.IsSample == true).ToList();
+
+            // Lọc lại các Plans trong từng SubProcess
+            foreach (var sp in result.SubProcesses ?? new List<SubProcess>())
+            {
+                sp.Plans = sp.Plans?.Where(p => p.IsSample == true).ToList();
+            }
             return result;
         }
 
