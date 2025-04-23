@@ -53,7 +53,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             _responseCacheService = responseCacheService;
         }
 
-        public async Task<BusinessResult> CreatePlan(CreatePlanModel createPlanModel, int? farmId, bool useTransaction = true)
+        public async Task<BusinessResult> CreatePlan(CreatePlanModel createPlanModel, int? farmId, bool useTransaction = true, string? keyGroup = null)
         {
             using (var transaction = useTransaction ? await _unitOfWork.BeginTransactionAsync() : null)
             {
@@ -159,6 +159,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         MaxVolume = createPlanModel?.MaxVolume,
                         MinVolume = createPlanModel?.MinVolume,
                         Notes = createPlanModel?.Notes,
+                        KeyGroup = keyGroup,
                         PesticideName = createPlanModel?.PesticideName,
                         ResponsibleBy = createPlanModel?.ResponsibleBy,
                         ProcessId = createPlanModel?.ProcessId,
@@ -875,29 +876,47 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
                     if (plan != null)
                     {
-                        var users = plan?.CarePlanSchedule?
-                                        .WorkLogs?
-                                        .SelectMany(wl => wl.UserWorkLogs ?? new List<UserWorkLog>())
-                                        .Select(uwl => uwl.User)
-                                        .Where(u => u != null)
-                                        .DistinctBy(u => u.UserId)
-                                        .ToList() ?? new List<User>();
+                        var userWorkLogs = plan?.CarePlanSchedule?
+                                             .WorkLogs?
+                                             .SelectMany(wl => wl.UserWorkLogs ?? new List<UserWorkLog>())
+                                             .ToList() ?? new List<UserWorkLog>();
 
-                        var employeeWithSkills = users.Select(u => new EmployeeWithSkills
+                        // Lấy Employee
+                        var employeeUsers = userWorkLogs
+                            .Where(uwl => uwl.IsReporter == false && uwl.User != null)
+                            .Select(uwl => uwl.User)
+                            .DistinctBy(u => u.UserId)
+                            .ToList();
+
+                        // Lấy Reporter
+                        var reporterUsers = userWorkLogs
+                            .Where(uwl => uwl.IsReporter == true && uwl.User != null)
+                            .Select(uwl => uwl.User)
+                            .DistinctBy(u => u.UserId)
+                            .ToList();
+
+                        // Hàm tạo EmployeeWithSkills
+                        List<EmployeeWithSkills> MapToEmployeeWithSkills(List<User> users)
                         {
-                            UserId = u.UserId,
-                            FullName = u.FullName,
-                            AvatarURL = u.AvatarURL,
-                            SkillWithScore = u.UserFarms?
-                                .SelectMany(uf => uf.EmployeeSkills ?? new List<EmployeeSkill>())
-                                .Where(es => es.WorkTypeID != null)
-                                .Select(es => new SkillWithScore
-                                {
-                                    SkillName = es.WorkType?.MasterTypeName,
-                                    Score = es.ScoreOfSkill
-                                }).ToList()
-                        }).ToList();
-                        result.EmployeeWithSkills = employeeWithSkills;
+                            return users.Select(u => new EmployeeWithSkills
+                            {
+                                UserId = u.UserId,
+                                FullName = u.FullName,
+                                AvatarURL = u.AvatarURL,
+                                SkillWithScore = u.UserFarms?
+                                    .SelectMany(uf => uf.EmployeeSkills ?? new List<EmployeeSkill>())
+                                    .Where(es => es.WorkTypeID != null)
+                                    .Select(es => new SkillWithScore
+                                    {
+                                        SkillName = es.WorkType?.MasterTypeName,
+                                        Score = es.ScoreOfSkill
+                                    }).ToList()
+                            }).ToList();
+                        }
+
+                        // Gán kết quả
+                        result.ListEmployee = MapToEmployeeWithSkills(employeeUsers);
+                        result.ListReporter = MapToEmployeeWithSkills(reporterUsers);
                     }
 
                     result.Progress = Math.Round(calculateProgress, 2).ToString();
@@ -2825,9 +2844,10 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     {
                         return new BusinessResult(400, string.Join(",", errors));
                     }
+                    var genereateKeyGroup = Guid.NewGuid().ToString();
                     foreach (var createPlan in createPlanModel)
                     {
-                        var result = await CreatePlan(createPlan, farmId, false);
+                        var result = await CreatePlan(createPlan, farmId, false, genereateKeyGroup);
                         if (result.StatusCode == 200)
                         {
                             count++;
@@ -3281,6 +3301,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 {
                     return new BusinessResult(400, $"Not found Plan with ID = {planId}");
                 }
+                var keyGroup = plan.KeyGroup;
 
                 var process = await _unitOfWork.PlanRepository.GetProcessByPlan(plan);
                 if (process == null)
@@ -3296,14 +3317,16 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     StartDate = process.StartDate,
                     EndDate = process.EndDate,
                     Order = process.Order,
-                    Plans = process.Plans.Select(p => new PlanDto
-                    {
-                        PlanId = p.PlanId,
-                        PlanName = p.PlanName,
-                        StartDate = p.StartDate,
-                        EndDate = p.EndDate,
-                        IsSelected = p.PlanId == planId
-                    }).ToList()
+                    Plans = process.Plans
+                                    .Where(p => p.KeyGroup == keyGroup)
+                                    .Select(p => new PlanDto
+                                    {
+                                        PlanId = p.PlanId,
+                                        PlanName = p.PlanName,
+                                        StartDate = p.StartDate,
+                                        EndDate = p.EndDate,
+                                        IsSelected = p.PlanId == planId
+                                    }).ToList()
                 };
 
                 // Map SubProcessId -> SubProcessDto
@@ -3315,14 +3338,16 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         Order = sp.Order,
                         StartDate = sp.StartDate,
                         EndDate = sp.EndDate,
-                        Plans = sp.Plans.Select(p => new PlanDto
-                        {
-                            PlanId = p.PlanId,
-                            PlanName = p.PlanName,
-                            StartDate = p.StartDate,
-                            EndDate = p.EndDate,
-                            IsSelected = p.PlanId == planId
-                        }).ToList(),
+                        Plans = sp.Plans
+                                    .Where(p => p.KeyGroup == keyGroup)
+                                    .Select(p => new PlanDto
+                                    {
+                                        PlanId = p.PlanId,
+                                        PlanName = p.PlanName,
+                                        StartDate = p.StartDate,
+                                        EndDate = p.EndDate,
+                                        IsSelected = p.PlanId == planId
+                                    }).ToList(),
                         Children = new List<SubProcessDto>()
                     })
                     .ToDictionary(dto => dto.SubProcessID);
