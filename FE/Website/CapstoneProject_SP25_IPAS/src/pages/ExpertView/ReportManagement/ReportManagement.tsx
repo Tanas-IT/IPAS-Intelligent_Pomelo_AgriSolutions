@@ -14,6 +14,7 @@ import {
   Spin,
   Tag,
   Empty,
+  Button,
 } from "antd";
 import {
   SortAscendingOutlined,
@@ -37,6 +38,7 @@ import { Tooltip } from "@/components";
 import { getReportColumns } from "../components/ReportColumns";
 import AssignTagModal from "../components/AssignTagModal/AssignTagModal";
 import { useStyle } from "@/hooks";
+import { toast } from "react-toastify";
 
 const { Search } = Input;
 const { Option } = Select;
@@ -51,6 +53,7 @@ const ReportManagementScreen = () => {
   const [viewMode, setViewMode] = useState<"card" | "table">("card");
   const [showAssignTagModal, setShowAssignTagModal] = useState(false);
   const [selectedReportId, setSelectedReportId] = useState<number | null>(null);
+  const [reTrainingLoading, setReTrainingLoading] = useState(false);
 
   const [searchKey, setSearchKey] = useState<string>("");
   const [sortBy, setSortBy] = useState<string>("reportID");
@@ -124,6 +127,22 @@ const ReportManagementScreen = () => {
     setShowAssignTagModal(true);
   };
 
+  const handleClickReTraining = async () => {
+    setReTrainingLoading(true);
+    try {
+      const res = await expertService.reTraining();
+      if (res.statusCode === 200) {
+        toast.success('AI re-training has been successfully completed.');
+      } else {
+        toast.error('An error occurred during re-training.');
+      }
+    } catch (error) {
+      toast.error('An unexpected error occurred.');
+    } finally {
+      setReTrainingLoading(false);
+    }
+  };
+
   const columns = getReportColumns(handleReply, handleViewDetails, handleAddToTraining);
 
   const filterSelects = [
@@ -166,7 +185,18 @@ const ReportManagementScreen = () => {
 
   return (
     <Flex className={style.reportManagementScreen} vertical gap={16}>
-      <h2>Overview</h2>
+      <Flex justify="space-between">
+        <h2>Overview</h2>
+        <Button
+          type="primary"
+          danger
+          style={{
+            fontWeight: 500,
+          }}
+          onClick={handleClickReTraining}
+        >Re-training AI
+        </Button>
+      </Flex>
       <Row gutter={[16, 16]} className={style.overview}>
         <Col xs={24} sm={12} md={8}>
           <OverviewCard
