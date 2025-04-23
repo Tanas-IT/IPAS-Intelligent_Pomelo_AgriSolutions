@@ -94,3 +94,8 @@ export const deleteTag = async (tagId: string): Promise<ApiResponse<Object>> => 
     const res = await axiosAuth.axiosJsonRequest.delete(`ai/delete-tag/${tagId}`);
     return res.data as ApiResponse<Object>;
 };
+
+export const reTraining = async (): Promise<ApiResponse<Object>> => {
+    const res = await axiosAuth.axiosJsonRequest.post('ai/trained-project');
+    return res.data as ApiResponse<Object>;
+};
