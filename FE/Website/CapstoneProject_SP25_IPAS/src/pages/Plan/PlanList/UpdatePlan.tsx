@@ -523,12 +523,6 @@ const UpdatePlan = () => {
                         const endTime = result.endTime ? dayjs(result.endTime, timeFormat) : null;
                         const mergedEmployees = [...result.listReporter, ...result.listEmployee];
                         setSelectedEmployees(mergedEmployees);
-                        // await planService.filterTypeWorkByGrowthStage(result.growthStages.map((g) => g.id)).then((data) => {
-                        //     setProcessTypeOptions(data.map((item) => ({
-                        //         value: item.masterTypeId,
-                        //         label: item.masterTypeName
-                        //     })))
-                        // });
                         setSelectedReporter(result.listReporter?.[0]?.userId || null);
                         form.setFieldValue("planTarget", target);
                         form.setFieldsValue({
@@ -556,38 +550,28 @@ const UpdatePlan = () => {
                             setIsCropDisabled(true);
                         }
                         setTargetType(target);
-
-                        // const mergedEmployees = [...result.listReporter, ...result.listEmployee];
                         form.setFieldValue("listLandPlotOfCrop", result.listLandPlotOfCrop.map((l) => l.id))
                         if (result.processId) {
                             setIsLockedGrowthStage(true);
                         }
                         if (result.cropId) {
                             setSelectedCrop(result.cropId);
-                            setIsTargetDisabled(true); // Enable nếu có cropId
+                            setIsTargetDisabled(true);
                         }
                         setDateRange([startDate, endDate] as [Dayjs, Dayjs]);
                         setSelectedGrowthStage(result.growthStages.map((g) => g.id));
-                        // setSelectedEmployees(mergedEmployees);
-                        // await planService.filterTypeWorkByGrowthStage(result.growthStages.map((g) => g.id)).then((data) => {
-                        //     setProcessTypeOptions(data.map((item) => ({
-                        //         value: item.masterTypeId,
-                        //         label: item.masterTypeName
-                        //     })))
-                        // });
-                        // setSelectedReporter(result.listReporter?.[0]?.userId || null);
                         setFrequency(result.frequency || "None");
-
-
                         const parsedDayOfMonth = result.dayOfMonth ? JSON.parse(result.dayOfMonth) : [];
                         setDayOfMonth(parsedDayOfMonth);
-
                         setDayOfWeek(result.dayOfWeek || []);
-
                         setSelectedIds(mergedEmployees?.map((emp) => emp.userId) || []);
-
-
+                    } else {
+                        navigate("/404");
+                        return;
                     }
+                } else {
+                    navigate("/404");
+                    return;
                 }
             } catch (error) {
                 console.error("Lỗi khi fetch dữ liệu:", error);
@@ -647,7 +631,7 @@ const UpdatePlan = () => {
                                 {planData?.hasNonSampleProcess ? (
                                     <Form.Item
                                         label="Process Name"
-                                        // name={addPlanFormFields.processId}
+                                    // name={addPlanFormFields.processId}
                                     >
                                         <Input
                                             disabled
