@@ -10,11 +10,16 @@ import {
 import { ConfirmModal, EditActions } from "@/components";
 import { DraggableRow, LandPlotCreate, RowConfiguration } from "@/pages";
 import style from "./AddNewPlotDrawer.module.scss";
-import { useModal, useStyle } from "@/hooks";
-import { useLoadingStore, useMapStore } from "@/stores";
+import { useModal, useStyle, useSystemConfigOptions } from "@/hooks";
+import { useLoadingStore, useMapStore, useVirtualPlotConfigStore } from "@/stores";
 import { toast } from "react-toastify";
 import { fakeRowsData } from "../DraggableRow/fakeRowsData";
-import { createPlotFormFields, MESSAGES } from "@/constants";
+import {
+  createPlotFormFields,
+  MESSAGES,
+  SYSTEM_CONFIG_GROUP,
+  SYSTEM_CONFIG_KEY,
+} from "@/constants";
 import { LandPlotRequest } from "@/payloads/landplot/requests";
 import { DEFAULT_LAND_PLOT, isPlantOverflowing, validatePolygonBeforeSave } from "@/utils";
 import { landPlotService } from "@/services";
@@ -57,8 +62,8 @@ const AddNewPlotDrawer: React.FC<AddNewPlotDrawerProps> = ({
     isOverlapping,
     currentPolygon,
     setCurrentPolygon,
-    setPolygonDimensions,
     setPolygonReady,
+    // setPolygonDimensions,
     width,
     length,
   } = useMapStore();
@@ -67,6 +72,27 @@ const AddNewPlotDrawer: React.FC<AddNewPlotDrawerProps> = ({
   const { isLoading, setIsLoading } = useLoadingStore();
   const isUpdate = !!selectedPlot;
   const isSimulateUpdate = !!plotSimulate;
+  const { setConfigs } = useVirtualPlotConfigStore();
+  const { options: virtualOptions, loading } = useSystemConfigOptions(
+    SYSTEM_CONFIG_GROUP.VIRTUAL_PLOT,
+    undefined,
+    true,
+  );
+  const getValueFromConfig = (code: string) =>
+    virtualOptions.find((opt) => opt.value === code)?.label;
+  useEffect(() => {
+    if (!loading && virtualOptions.length > 0) {
+      const config = {
+        metricUnit: String(getValueFromConfig(SYSTEM_CONFIG_KEY.METRIC_UNIT) || "m"),
+        sizePlant: Number(getValueFromConfig(SYSTEM_CONFIG_KEY.DEFAULT_PLANT_SIZE)) || 0,
+        rowWidth: Number(getValueFromConfig(SYSTEM_CONFIG_KEY.ROW_WIDTH)) || 0,
+        distance: Number(getValueFromConfig(SYSTEM_CONFIG_KEY.PLANT_DISTANCE)) || 0,
+        lineSpacing: Number(getValueFromConfig(SYSTEM_CONFIG_KEY.LINE_SPACING)) || 0,
+        rowSpacing: Number(getValueFromConfig(SYSTEM_CONFIG_KEY.ROW_SPACING)) || 0,
+      };
+      setConfigs(config);
+    }
+  }, [virtualOptions]);
 
   const handleSave = async () => {
     setIsLoading(true);
@@ -145,10 +171,10 @@ const AddNewPlotDrawer: React.FC<AddNewPlotDrawerProps> = ({
         [createPlotFormFields.rowSpacing]: rowSpacing,
       } = values;
 
-      if (isPlantOverflowing(distance, treeAmount, rowLength)) {
-        toast.error(MESSAGES.OUT_PLANT);
-        return;
-      }
+      // if (isPlantOverflowing(distance, treeAmount, rowLength)) {
+      //   toast.error(MESSAGES.OUT_PLANT);
+      //   return;
+      // }
 
       const generatedRows: landRowSimulate[] = Array.from({ length: numberOfRows }, (_, index) => ({
         landRowId: index + 1,
@@ -275,7 +301,7 @@ const AddNewPlotDrawer: React.FC<AddNewPlotDrawerProps> = ({
     setCurrentStep(0);
     setCurrentPolygon(null);
     setPolygonReady(false);
-    setPolygonDimensions(0, 0, 0);
+    // setPolygonDimensions(0, 0, 0);
     setIsDirty(false);
     setIsPolygonDirty(false);
   };
@@ -370,8 +396,8 @@ const AddNewPlotDrawer: React.FC<AddNewPlotDrawerProps> = ({
             setRowsData={setRowsData}
             isHorizontal={isHorizontal}
             rowsPerLine={Number(form.getFieldValue(createPlotFormFields.rowsPerLine))}
-            rowSpacing={Number(form.getFieldValue(createPlotFormFields.rowSpacing))}
-            lineSpacing={Number(form.getFieldValue(createPlotFormFields.lineSpacing))}
+            // rowSpacing={Number(form.getFieldValue(createPlotFormFields.rowSpacing))}
+            // lineSpacing={Number(form.getFieldValue(createPlotFormFields.lineSpacing))}
             // isHorizontal={true}
             // rowsPerLine={5}
             // rowSpacing={50}

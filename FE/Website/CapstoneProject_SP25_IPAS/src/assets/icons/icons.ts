@@ -2,16 +2,23 @@ export {
   AiOutlineCheckCircle as checkSuccuss,
   AiOutlineCloseCircle as closeFail,
   AiOutlineAreaChart as area,
-  AiOutlineFileAdd as fileAdd
+  AiOutlineFileAdd as fileAdd,
 } from "react-icons/ai";
 export { CgAddR as plus, CgTag as tag } from "react-icons/cg";
-export { CiTimer as timer, CiBoxes as box, CiMail as mail, CiTimer as pending, CiViewTable as table2, CiCircleCheck as checkCircle } from "react-icons/ci";
+export {
+  CiTimer as timer,
+  CiBoxes as box,
+  CiMail as mail,
+  CiTimer as pending,
+  CiViewTable as table2,
+  CiCircleCheck as checkCircle,
+} from "react-icons/ci";
 export {
   RiDeleteBin6Line as delete,
   RiArrowDropDownLine as arrowDropDownLine,
   RiSeedlingLine as seedling,
   RiUserAddLine as addUser,
-  RiListSettingsLine as systemSetting
+  RiListSettingsLine as systemSetting,
 } from "react-icons/ri";
 export {
   IoIosArrowBack as arrowBack,
@@ -32,7 +39,8 @@ export {
   MdBarChart as chart,
   MdOutlineReport as unanswered,
   MdReportProblem as trainned,
-  MdGrade as grade
+  MdGrade as grade,
+  MdFormatLineSpacing as spacing,
 } from "react-icons/md";
 export {
   LuUsers as users,
@@ -49,6 +57,7 @@ export {
   LuLandPlot as plot,
   LuBan as ban,
   LuTable as table3,
+  LuRuler as ruler,
 } from "react-icons/lu";
 
 export { VscRobot as robot, VscTools as tool } from "react-icons/vsc";
@@ -69,7 +78,8 @@ export {
   FaMoneyBillAlt as money,
   FaClock as clock,
   FaCrown as score,
-  FaCaretDown as caretDown
+  FaCaretDown as caretDown,
+  FaDirections as direction
 } from "react-icons/fa";
 export {
   PiFarm as farms,
@@ -88,7 +98,7 @@ export {
   IoCheckmarkDoneSharp as markAsRead,
 } from "react-icons/io5";
 export { TfiHelpAlt as help } from "react-icons/tfi";
-export { TbReportSearch  as report } from "react-icons/tb";
+export { TbReportSearch as report } from "react-icons/tb";
 export {
   GrOverview as overview,
   GrMapLocation as location,
@@ -96,7 +106,11 @@ export {
   GrPowerReset as reset,
 } from "react-icons/gr";
 export { GiTreeGrowth as growth } from "react-icons/gi";
-export { TiWeatherPartlySunny as weather, TiTick as tick, TiUserDelete as delUser } from "react-icons/ti";
+export {
+  TiWeatherPartlySunny as weather,
+  TiTick as tick,
+  TiUserDelete as delUser,
+} from "react-icons/ti";
 export {
   FaWind as wind,
   FaTableList as table,
@@ -106,7 +120,7 @@ export {
   FaScaleBalanced as scale,
 } from "react-icons/fa6";
 export { LiaTemperatureHighSolid as temperature } from "react-icons/lia";
-export { BsCloudRainFill as cloudRain, BsTable as card } from "react-icons/bs";
+export { BsCloudRainFill as cloudRain, BsTable as card, BsList as list } from "react-icons/bs";
 export {
   IoIosSunny as sunny,
   IoMdCloseCircleOutline as close,

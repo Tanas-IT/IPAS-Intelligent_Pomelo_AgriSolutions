@@ -4,7 +4,8 @@ import { Button, Flex, Tag, Typography } from "antd";
 const { Text } = Typography;
 import { GetLandPlot } from "@/payloads";
 import { Icons } from "@/assets";
-import { formatDate } from "@/utils";
+import { formatDate, isManager } from "@/utils";
+import PlotDetailItem from "../PlotDetailItem/PlotDetailItem";
 
 interface PopupContentProps {
   plot: GetLandPlot;
@@ -21,6 +22,7 @@ const PopupContent: React.FC<PopupContentProps> = ({
   onUpdatePlot = () => {},
   onDeletePlot = () => {},
 }) => {
+  const notManagerIn = !isManager();
   return (
     <div className={style.popupContainer}>
       <Flex className={style.popupHeader}>
@@ -36,65 +38,68 @@ const PopupContent: React.FC<PopupContentProps> = ({
               <Text className={style.plotItemTitle}>
                 {plot.landPlotName} - {plot.landPlotCode}
               </Text>
-              <Tag
+              {/* <Tag
                 color={
                   plot.status === "Active" ? "green" : plot.status === "Warning" ? "orange" : "red"
                 }
               >
                 {plot.status}
-              </Tag>
+              </Tag> */}
             </Flex>
             <label className={style.plotItemDescription}>{plot.description}</label>
           </Flex>
 
           {/* Chi tiết đất */}
-          <Flex className={style.plotItemDetails}>
-            <Flex className={style.plotItemDetail}>
-              <Icons.calendar />
-              <label>Create Date:</label>
-            </Flex>
-            {formatDate(plot.createDate)}
-          </Flex>
+          <PlotDetailItem
+            icon={<Icons.calendar />}
+            label="Create Date"
+            value={formatDate(plot.createDate)}
+          />
+          <PlotDetailItem
+            icon={<Icons.ruler />}
+            label="Area & Size"
+            value={`${plot.area} m² — ${plot.length}m × ${plot.width}m`}
+          />
 
-          <Flex className={style.plotItemDetails}>
-            <Flex className={style.plotItemDetail}>
-              <Icons.area />
-              <label>Area:</label>
-            </Flex>
-            {plot.area} m²
-          </Flex>
+          <PlotDetailItem
+            icon={<Icons.list />}
+            label="Rows"
+            value={`${plot.numberOfRows} rows, ${plot.rowPerLine} per line`}
+          />
+          <PlotDetailItem
+            icon={<Icons.direction />}
+            label="Direction"
+            value={plot.isRowHorizontal ? "Horizontal" : "Vertical"}
+          />
 
-          <Flex className={style.plotItemDetails}>
-            <Flex className={style.plotItemDetail}>
-              <Icons.soil />
-              <label>Soil Type:</label>
-            </Flex>
-            {plot.soilType}
-          </Flex>
-
-          <Flex className={style.plotItemDetails}>
-            <Flex className={style.plotItemDetail}>
-              <Icons.target />
-              <label>Target Market:</label>
-            </Flex>
-            {plot.targetMarket}
-          </Flex>
+          <PlotDetailItem
+            icon={<Icons.spacing />}
+            label="Spacing"
+            value={`Line: ${plot.lineSpacing}m, Row: ${plot.rowSpacing}m`}
+          />
+          <PlotDetailItem icon={<Icons.soil />} label="Soil Type" value={plot.soilType} />
+          <PlotDetailItem icon={<Icons.target />} label="Target Market" value={plot.targetMarket} />
         </Flex>
       </Flex>
       <Flex className={style.popupFooter}>
-        <Flex gap={20}>
-          <Button
-            type="primary"
-            danger
-            onClick={() => onDeletePlot(Number(plot.landPlotId))}
-            className={style.btn}
-          >
-            Delete
-          </Button>
-          <Button onClick={() => onUpdatePlot(plot)} className={`${style.btn} ${style.updateBtn}`}>
-            Update
-          </Button>
-        </Flex>
+        {notManagerIn && (
+          <Flex gap={20}>
+            <Button
+              type="primary"
+              danger
+              onClick={() => onDeletePlot(Number(plot.landPlotId))}
+              className={style.btn}
+            >
+              Delete
+            </Button>
+            <Button
+              onClick={() => onUpdatePlot(plot)}
+              className={`${style.btn} ${style.updateBtn}`}
+            >
+              Update
+            </Button>
+          </Flex>
+        )}
 
         <Button
           onClick={() => onViewRows(Number(plot.landPlotId))}

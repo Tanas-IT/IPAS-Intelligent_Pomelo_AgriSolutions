@@ -92,10 +92,10 @@ const UpdateQuantityModal = ({
         return;
       }
 
-      if (lot.inputQuantity && inputQuantity > lot.inputQuantity) {
-        toast.error(MESSAGES.LOT_CRITERIA_CONDITION_MAX);
-        return;
-      }
+      // if (lot.inputQuantity && inputQuantity > lot.inputQuantity) {
+      //   toast.error(MESSAGES.LOT_CRITERIA_CONDITION_MAX);
+      //   return;
+      // }
 
       onSave(Number(inputQuantity), Number(supplementQuantity));
     }
@@ -106,10 +106,10 @@ const UpdateQuantityModal = ({
         return;
       }
 
-      if (lot.lastQuantity && lastQuantity > lot.lastQuantity) {
-        toast.error(MESSAGES.LOT_CRITERIA_EVALUATION_MAX);
-        return;
-      }
+      // if (lot.lastQuantity && lastQuantity > lot.lastQuantity) {
+      //   toast.error(MESSAGES.LOT_CRITERIA_EVALUATION_MAX);
+      //   return;
+      // }
 
       onSave(Number(lastQuantity));
     }

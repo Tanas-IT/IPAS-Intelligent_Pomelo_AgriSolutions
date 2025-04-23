@@ -4,6 +4,8 @@ import { useDrag, useDrop, XYCoord } from "react-dnd";
 import style from "./RowItem.module.scss";
 import { Images } from "@/assets";
 import { landRowSimulate } from "@/payloads";
+import { calculateRowLength } from "@/utils";
+import { useVirtualPlotConfigStore } from "@/stores";
 
 const ItemTypes = {
   ROW: "ROW",
@@ -17,7 +19,6 @@ interface DragItem {
 
 interface RowItemEditProps {
   row: landRowSimulate;
-  rowSpacing: number;
   index: number;
   isHorizontal: boolean;
   moveRow?: (dragIndex: number, hoverIndex: number) => void;
@@ -27,7 +28,6 @@ interface RowItemEditProps {
 
 const RowItemEdit: React.FC<RowItemEditProps> = ({
   row,
-  rowSpacing,
   index,
   isHorizontal,
   moveRow,
@@ -81,6 +81,9 @@ const RowItemEdit: React.FC<RowItemEditProps> = ({
 
   const opacity = isDragging ? 0 : 1;
   drag(drop(ref));
+  const { sizePlant, rowWidth, distance, rowSpacing } = useVirtualPlotConfigStore();
+
+  const rowLength = calculateRowLength(row.treeAmount, distance, sizePlant);
 
   return (
     <Flex
@@ -94,8 +97,8 @@ const RowItemEdit: React.FC<RowItemEditProps> = ({
         className={style.row}
         vertical={!isHorizontal}
         style={{
-          width: isHorizontal ? `${row.length}px` : `${row.width}px`,
-          height: isHorizontal ? `${row.width}px` : `${row.length}px`,
+          width: isHorizontal ? `${rowLength}px` : `${rowWidth}px`,
+          height: isHorizontal ? `${rowWidth}px` : `${rowLength}px`,
           marginRight: `${rowSpacing}px`,
           cursor: "grab",
         }}
@@ -109,12 +112,14 @@ const RowItemEdit: React.FC<RowItemEditProps> = ({
             alt="Plant"
             className={style.plantImage}
             style={{
+              width: `${sizePlant}px`,
+              height: `${sizePlant}px`,
               ...(isHorizontal
                 ? i !== row.treeAmount - 1
-                  ? { marginRight: `${row.distance}px` }
+                  ? { marginRight: `${distance}px` }
                   : {}
                 : i !== row.treeAmount - 1
-                ? { marginBottom: `${row.distance}px` }
+                ? { marginBottom: `${distance}px` }
                 : {}),
             }}
           />
