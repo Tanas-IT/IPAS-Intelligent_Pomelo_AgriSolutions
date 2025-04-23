@@ -1144,7 +1144,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     {
                         var parseStartTime = TimeSpan.Parse(updatePlanModel.StartTime);
                         var parseEndTime = TimeSpan.Parse(updatePlanModel.EndTime);
-                        var checkTime = (int)(parseEndTime - parseStartTime).TotalHours; // Chuyển TimeSpan sang số phút
+                        var checkTime = (int)(parseEndTime - parseStartTime).TotalMinutes; // Chuyển TimeSpan sang số phút
 
                         var masterType = await _unitOfWork.MasterTypeRepository
                             .GetByCondition(x => x.MasterTypeId == updatePlanModel.MasterTypeId);
@@ -1156,7 +1156,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
                             if (checkTime < minTime || checkTime > maxTime)
                             {
-                                throw new Exception($"Time of work ({checkTime} hours) does not valid! It must be in range {minTime} - {maxTime} hours.");
+                                throw new Exception($"Time of work ({checkTime} minutes) does not valid! It must be in range {minTime} - {maxTime} minutes.");
                             }
                         }
                     }
