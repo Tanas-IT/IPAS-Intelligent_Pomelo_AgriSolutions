@@ -157,7 +157,9 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
                                          .ThenInclude(pt => pt.LandRow)
                                              .ThenInclude(lr => lr.Plants)
                                      .Include(x => x.MasterType)
+                                     .Include(x => x.SubProcess)
                                      .Include(x => x.Process)
+                                     .ThenInclude(x => x.SubProcesses)
                                      .Include(x => x.User)
                                      .Include(x => x.Crop)
                                      .ThenInclude(x => x.LandPlotCrops)
@@ -254,7 +256,7 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
         {
             var plan = await _context.Plans
                            .AsNoTracking()
-                           .FirstOrDefaultAsync(p => p.PlanId == planId && p.IsDeleted == false && p.FarmID == farmId);
+                           .FirstOrDefaultAsync(p => p.PlanId == planId && p.IsDeleted == false && p.IsSample == false && p.FarmID == farmId);
             return plan;
         }
 

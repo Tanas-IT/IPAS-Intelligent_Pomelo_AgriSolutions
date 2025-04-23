@@ -147,7 +147,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         PlanName = createPlanModel.PlanName,
                         CreateDate = DateTime.Now,
                         UpdateDate = DateTime.Now,
-                        IsSample = false,
+                        IsSample = createPlanModel.IsSample,
                         AssignorId = createPlanModel.AssignorId,
                         CropId = createPlanModel.CropId,
                         EndDate = createPlanModel?.EndDate,
@@ -172,7 +172,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         newPlan.StartDate = createPlanModel.StartDate.Add(TimeSpan.Parse(createPlanModel.StartTime));
                         newPlan.EndDate = createPlanModel.EndDate.Add(TimeSpan.Parse(createPlanModel.EndTime));
                     }
-                    if (createPlanModel.Frequency != null && createPlanModel.Frequency.ToLower().Equals("none") && createPlanModel.CustomDates != null && createPlanModel.CustomDates.Any())
+                    if (createPlanModel.Frequency != null && createPlanModel.Frequency.ToLower().Equals("none") && createPlanModel.CustomDates != null && createPlanModel.CustomDates.Count() == 1)
                     {
                         newPlan.StartDate = createPlanModel.CustomDates.First().Add(TimeSpan.Parse(createPlanModel.StartTime));
                         newPlan.EndDate = createPlanModel.CustomDates.First().Add(TimeSpan.Parse(createPlanModel.EndTime));
@@ -875,29 +875,47 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
                     if (plan != null)
                     {
-                        var users = plan?.CarePlanSchedule?
-                                        .WorkLogs?
-                                        .SelectMany(wl => wl.UserWorkLogs ?? new List<UserWorkLog>())
-                                        .Select(uwl => uwl.User)
-                                        .Where(u => u != null)
-                                        .DistinctBy(u => u.UserId)
-                                        .ToList() ?? new List<User>();
+                        var userWorkLogs = plan?.CarePlanSchedule?
+                                             .WorkLogs?
+                                             .SelectMany(wl => wl.UserWorkLogs ?? new List<UserWorkLog>())
+                                             .ToList() ?? new List<UserWorkLog>();
 
-                        var employeeWithSkills = users.Select(u => new EmployeeWithSkills
+                        // Lấy Employee
+                        var employeeUsers = userWorkLogs
+                            .Where(uwl => uwl.IsReporter == false && uwl.User != null)
+                            .Select(uwl => uwl.User)
+                            .DistinctBy(u => u.UserId)
+                            .ToList();
+
+                        // Lấy Reporter
+                        var reporterUsers = userWorkLogs
+                            .Where(uwl => uwl.IsReporter == true && uwl.User != null)
+                            .Select(uwl => uwl.User)
+                            .DistinctBy(u => u.UserId)
+                            .ToList();
+
+                        // Hàm tạo EmployeeWithSkills
+                        List<EmployeeWithSkills> MapToEmployeeWithSkills(List<User> users)
                         {
-                            UserId = u.UserId,
-                            FullName = u.FullName,
-                            AvatarURL = u.AvatarURL,
-                            SkillWithScore = u.UserFarms?
-                                .SelectMany(uf => uf.EmployeeSkills ?? new List<EmployeeSkill>())
-                                .Where(es => es.WorkTypeID != null)
-                                .Select(es => new SkillWithScore
-                                {
-                                    SkillName = es.WorkType?.MasterTypeName,
-                                    Score = es.ScoreOfSkill
-                                }).ToList()
-                        }).ToList();
-                        result.EmployeeWithSkills = employeeWithSkills;
+                            return users.Select(u => new EmployeeWithSkills
+                            {
+                                UserId = u.UserId,
+                                FullName = u.FullName,
+                                AvatarURL = u.AvatarURL,
+                                SkillWithScore = u.UserFarms?
+                                    .SelectMany(uf => uf.EmployeeSkills ?? new List<EmployeeSkill>())
+                                    .Where(es => es.WorkTypeID != null)
+                                    .Select(es => new SkillWithScore
+                                    {
+                                        SkillName = es.WorkType?.MasterTypeName,
+                                        Score = es.ScoreOfSkill
+                                    }).ToList()
+                            }).ToList();
+                        }
+
+                        // Gán kết quả
+                        result.ListEmployee = MapToEmployeeWithSkills(employeeUsers);
+                        result.ListReporter = MapToEmployeeWithSkills(reporterUsers);
                     }
 
                     result.Progress = Math.Round(calculateProgress, 2).ToString();
@@ -2827,6 +2845,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     }
                     foreach (var createPlan in createPlanModel)
                     {
+                        createPlan.IsSample = true;
                         var result = await CreatePlan(createPlan, farmId, false);
                         if (result.StatusCode == 200)
                         {
@@ -3263,7 +3282,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     {
                         if (prevPlan.EndDate != null && nextPlan.StartDate != null && prevPlan.EndDate >= nextPlan.StartDate.Date)
                         {
-                            errors.Add($"- Plan \"{prevPlan.PlanName}\" in \"{currentGroupName}\" ends at {prevPlan.EndDate:dd/MM/yyyy}, which overlaps with Plan \"{nextPlan.PlanName}\" in \"{nextGroupName}\" starting at {nextPlan.StartDate:dd/MM/yyyy}.");
+                            errors.Add($"- Plan \"{prevPlan.PlanName}\" in \"{currentGroupName}\" ends at {prevPlan.EndDate:dd/MM/yyyy}, which overlaps with Plan \"{nextPlan.PlanName}\" in \"{nextGroupName}\" starting at {nextPlan.StartDate:dd/MM/yyyy}.\n");
                         }
                     }
                 }

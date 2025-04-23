@@ -1,4 +1,5 @@
-﻿using System;
+﻿using CapstoneProject_SP25_IPAS_BussinessObject.Validation;
+using System;
 using System.Collections.Generic;
 using System.ComponentModel.DataAnnotations;
 using System.Linq;
@@ -12,11 +13,9 @@ namespace CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.ScheduleRequest
         public int ScheduleId { get; set; }
         public List<DateTime>? CustomeDates { get; set; }
 
-        [RegularExpression(@"^(0[0-9]|1[0-9]|2[0-3]):([0-5][0-9]):([0-5][0-9])$",
-         ErrorMessage = "Time must be in HH:mm:ss format (e.g., 08:05:09)")]
+        [FlexibleTime]
         public string? StartTime { get; set; }
-        [RegularExpression(@"^(0[0-9]|1[0-9]|2[0-3]):([0-5][0-9]):([0-5][0-9])$",
-           ErrorMessage = "Time must be in HH:mm:ss format (e.g., 08:05:09)")]
+        [FlexibleTime]
         public string? EndTime { get; set; }
     }
 }

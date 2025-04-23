@@ -51,7 +51,7 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
                                    .AsNoTracking()
                                    .Include(p => p.Plans.Where(p => p.IsDeleted == false && p.IsSample == true))
                                    .Include(p => p.SubProcesses.Where(sp => sp.IsDeleted == false))
-                                       .ThenInclude(sp => sp.Plans.Where(p => p.IsDeleted == false && p.IsSample == false))
+                                       .ThenInclude(sp => sp.Plans.Where(p => p.IsDeleted == false && p.IsSample == true))
                                    .FirstOrDefaultAsync(p => p.ProcessId == processId);
             return process;
         }
