@@ -3,7 +3,7 @@ import { GetLandRow } from "@/payloads";
 import { TableCell } from "@/components";
 import { formatDate } from "@/utils";
 
-export const LandRowColumns: TableColumn<GetLandRow>[] = [
+export const LandRowColumns = (metricUnit: string): TableColumn<GetLandRow>[] => [
   {
     header: "Code",
     field: "landRowCode",
@@ -15,6 +15,12 @@ export const LandRowColumns: TableColumn<GetLandRow>[] = [
     field: "landRowCode",
     accessor: (item) => <TableCell value={`${item.landPlotname} (Row ${item.rowIndex})`} />,
     width: 220,
+  },
+  {
+    header: `Dimensions (L × W)`,
+    field: "length",
+    accessor: (item) => <TableCell value={`${item.length} x ${item.width} ${metricUnit}`} />,
+    width: 200,
   },
   {
     header: "Plants Per Row",
@@ -33,7 +39,7 @@ export const LandRowColumns: TableColumn<GetLandRow>[] = [
   {
     header: "Plant Spacing",
     field: "distance",
-    accessor: (item) => <TableCell value={item.distance} />,
+    accessor: (item) => <TableCell value={`${item.distance} ${metricUnit}`} />,
     width: 180,
   },
   {

@@ -29,10 +29,12 @@ import AddPlantsModal from "./AddPlantsModal";
 import ViewPlantsModal from "./ViewPlantsModal";
 import LandRowFilter from "./LandRowFilter";
 import SimulationView from "./SimulationView";
+import { useVirtualPlotConfigStore } from "@/stores";
 
 function LandRow() {
   const location = useLocation();
   const { options: plotOptions } = useLandPlotOptions();
+  const { metricUnit } = useVirtualPlotConfigStore();
   const addPlantsModal = useModal<{ row: GetLandRow }>();
   const viewPlantsModal = useModal<{ id: number }>();
   const deleteConfirmModal = useModal<{ ids: number[] }>();
@@ -153,7 +155,7 @@ function LandRow() {
       <Flex className={style.content}>
         {viewMode === VIEW_MODE.TABLE ? (
           <Table
-            columns={LandRowColumns}
+            columns={LandRowColumns(metricUnit)}
             rows={data}
             rowKey="landRowCode"
             idName="landRowId"

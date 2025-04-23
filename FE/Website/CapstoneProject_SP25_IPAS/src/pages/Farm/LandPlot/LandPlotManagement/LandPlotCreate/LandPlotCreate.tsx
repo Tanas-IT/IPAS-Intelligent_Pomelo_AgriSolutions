@@ -25,10 +25,10 @@ const LandPlotCreate: React.FC<LandPlotCreateProps> = React.memo(
       setIsDirty,
       startDrawingPolygon,
       clearPolygons,
-      // area,
-      // width,
-      // length,
-      // setPolygonDimensions,
+      area,
+      width,
+      length,
+      setPolygonDimensions,
       currentPolygon,
       setCurrentPolygon,
       isPolygonReady,
@@ -54,7 +54,7 @@ const LandPlotCreate: React.FC<LandPlotCreateProps> = React.memo(
           // [createPlotFormFields.status]: selectedPlot.status,
         });
 
-        // setPolygonDimensions(selectedPlot.area, selectedPlot.width, selectedPlot.length);
+        setPolygonDimensions(selectedPlot.area, selectedPlot.width, selectedPlot.length);
         const landPlotCoordinationsData =
           typeof selectedPlot.landPlotCoordinations === "string"
             ? JSON.parse(selectedPlot.landPlotCoordinations)
