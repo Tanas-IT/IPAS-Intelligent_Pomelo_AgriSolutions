@@ -40,7 +40,7 @@ const ActionMenuPlant: FC<ActionMenuProps> = ({
           onClick: () => onApplyCriteria?.(),
         }
       : null,
-    isEmployeeIn && !isPlantDead
+    (isEmployeeIn && !isPlantDead) || !isEmployeeIn
       ? {
           icon: <Icons.edit />,
           label: "Update Plant",
