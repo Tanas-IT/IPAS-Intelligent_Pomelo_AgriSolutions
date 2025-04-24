@@ -807,7 +807,6 @@ function textFromHTML(html: string) {
 }
 
 export const getAnswerParts = (parsed: AnswerData) => {
-  console.log(parsed);
   const combinedText = `${parsed.summary} ${textFromHTML(parsed.details)} ${parsed.note}`;
   const lang = franc(combinedText);
   const isEnglish = lang === "eng" || lang === "und";
