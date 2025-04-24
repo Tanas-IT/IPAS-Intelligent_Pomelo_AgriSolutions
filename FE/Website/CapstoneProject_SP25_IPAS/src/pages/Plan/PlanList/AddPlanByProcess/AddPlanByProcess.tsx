@@ -337,6 +337,22 @@ const AddPlanByProcess = () => {
 
     const handleFrequencyChange = (value: string) => {
         setFrequency(value);
+        setDateError(null);
+
+        // Reset các trường không liên quan khi đổi frequency
+        if (value !== "None") {
+            setCustomDates([]);
+            scheduleForm.setFieldValue("customDates", []);
+        }
+        if (value !== "Weekly") {
+            setDayOfWeek([]);
+            scheduleForm.setFieldValue("dayOfWeek", []);
+        }
+        if (value !== "Monthly") {
+            setDayOfMonth([]);
+            scheduleForm.setFieldValue("dayOfMonth", []);
+        }
+        setIsDaySelectorSaved(false);
 
         if (dateRange && dateRange[0].isSame(dateRange[1], "day")) {
             Modal.confirm({
@@ -751,8 +767,8 @@ const AddPlanByProcess = () => {
                     planDetail: plan.planDetail,
                     frequency: plan.schedule.frequency || null,
                     assignorId: Number(getUserId()),
-                    processId,
-                    subProcessId,
+                    processId: subProcessId ? null : processId, // Nếu có subProcessId thì bỏ processId
+                    subProcessId: subProcessId || null,
                     cropId: undefined,
                     growthStageId: growthStage,
                     listLandPlotOfCrop: [],
@@ -965,6 +981,7 @@ const AddPlanByProcess = () => {
                             form={scheduleForm}
                             onFinish={(values) => {
                                 const { dateRange, timeRange, frequency, dayOfWeek, dayOfMonth, customDates } = values;
+
                                 if (!dateRange || !timeRange) {
                                     Modal.error({
                                         title: "Invalid Input",
@@ -1001,12 +1018,26 @@ const AddPlanByProcess = () => {
                                     return;
                                 }
 
+                                if (frequency === "Daily" && (!dateRange[0] || !dateRange[1])) {
+                                    Modal.error({
+                                        title: "Invalid Input",
+                                        content: "Please select a valid date range for Daily frequency.",
+                                        okText: "Close",
+                                    });
+                                    return;
+                                }
+
                                 handleSaveSchedule(values, selectedPlanId ?? 1);
                                 setIsScheduleModalOpen(false);
                                 setIsDaySelectorSaved(false);
                             }}
                             onFinishFailed={(errorInfo) => {
                                 console.log("Form validation failed:", errorInfo);
+                                Modal.error({
+                                    title: "Validation Failed",
+                                    content: "Please fill in all required fields correctly.",
+                                    okText: "Close",
+                                });
                             }}
                         >
                             <InfoField
@@ -1078,7 +1109,7 @@ const AddPlanByProcess = () => {
                                 <Form.Item
                                     label="Select Specific Dates"
                                     name={addPlanFormFields.customDates}
-                                    rules={[{ required: true, message: "Please select the dates!" }]}
+                                    rules={frequency === "None" ? [{ required: true, message: "Please select the dates!" }] : []}
                                     validateStatus={dateError ? "error" : ""}
                                     help={dateError}
                                 >

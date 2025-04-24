@@ -184,8 +184,8 @@ const PestDetectionScreen = () => {
       } catch (error) {
         Toast.show({
           type: "error",
-          text1: "Lỗi",
-          text2: "Không thể tải ảnh lên Cloudinary",
+          text1: "Error",
+          text2: "The file size must be less than 4MB",
         });
       } finally {
         setIsLoading(false);
@@ -261,7 +261,7 @@ const PestDetectionScreen = () => {
       } else {
         Toast.show({
           type: "error",
-          text1: "Some errors occur",
+          text1: "Duplicate Error",
           text2: res.message || "Unknown error",
         });
       }

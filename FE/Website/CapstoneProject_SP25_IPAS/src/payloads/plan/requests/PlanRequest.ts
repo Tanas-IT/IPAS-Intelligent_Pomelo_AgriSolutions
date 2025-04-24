@@ -15,7 +15,7 @@ export interface PlanRequest {
   pesticideName?: string;
   maxVolume?: number;
   minVolume?: number;
-  processId: number;
+  processId: number | null;
   cropId?: number;
   growthStageId: number[];
   isDelete?: boolean;
