@@ -90,6 +90,7 @@ const TaskAssignmentModal: React.FC<TaskAssignmentModalProps> = ({
                     Save
                 </Button>,
             ]}
+            width={600}
         >
             <Form>
                 <Form.Item label="Select Employees">

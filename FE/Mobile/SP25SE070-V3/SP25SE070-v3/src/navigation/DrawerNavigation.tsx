@@ -17,11 +17,16 @@ import {
   ROUTE_NAMES,
   UserRole,
 } from "@/constants";
+import { useNotifications } from "@/hooks";
 
 const Drawer = createDrawerNavigator<DrawerParamList>();
 
 export default function DrawerNavigation() {
   const navigation = useNavigation<RootStackNavigationProp>();
+  const {
+      notifications,
+      unreadCount
+    } = useNotifications();
   const { roleId } = useAuthStore();
   const isUser = roleId === UserRole.User.toString();
   return (
@@ -41,7 +46,7 @@ export default function DrawerNavigation() {
         headerRight: !isUser
           ? () => (
               <Notification
-                unreadCount={5}
+                unreadCount={unreadCount}
                 onPress={() => navigation.navigate(ROUTE_NAMES.NOTIFICATION)}
               />
             )

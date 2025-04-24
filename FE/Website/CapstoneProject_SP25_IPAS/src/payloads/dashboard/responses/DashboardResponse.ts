@@ -68,6 +68,7 @@ export interface DashboardResponses {
   productivityByPlots: ProductivityByPlotResponse[];
   seasonalYields: SeasonalYield[];
   workProgressOverviews: WorkProgressOverview[];
+  taskComplete: number;
 }
 
 export interface RevenueMonth {
