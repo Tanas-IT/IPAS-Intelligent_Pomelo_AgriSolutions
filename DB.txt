@@ -2048,7 +2048,7 @@ VALUES
 ('ValidationVariable','MinArea', '1', 'double', N'Diện tích tối thiểu'),
 ('ValidationVariable','MinRowOfLandPlot', '1', 'int', N'Số hàng tôi thiểu của 1 LandPlot'),
 ('ValidationVariable','CoordiantionPointRequired', '3', 'int', N'Số điểm tối đa của thửa plantLot'),
-('ValidationVariable','MinDistancePlant', '2.5', 'double', N'Khoảng cách tối thiểu giữa các cây'),
+('ValidationVariable','MinDistancePlant', '0.1', 'double', N'Khoảng cách tối thiểu giữa các cây'),
 ('ValidationVariable','MinPlantOfLandRow', '1', 'int', N'Số cây tối thiểu 1 Hàng'),
 ('ValidationVariable','EditInDay', '3', 'int', N'Số ngày có thể chỉnh sửa sau khi đã được ghi nhận'),
 ('ValidationVariable','RecordAfterDate', '3', 'int', N'Sau bao nhiêu ngày có thể ghi nhận thu hoạch'),

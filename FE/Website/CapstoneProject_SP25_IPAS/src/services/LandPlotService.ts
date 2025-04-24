@@ -7,6 +7,7 @@ import {
   GetLandPlotSelected,
   GetLandPlotSimulate,
   LandPlotRequest,
+  LandPlotSimulateRequest,
   LandPlotUpdateCoordinationRequest,
   LandPlotUpdateRequest,
 } from "@/payloads";
@@ -47,6 +48,14 @@ export const getLandPlotSimulate = async (
 
 export const createLandPlot = async (plot: LandPlotRequest): Promise<ApiResponse<Object>> => {
   const res = await axiosAuth.axiosJsonRequest.post("landplots", plot);
+  const apiResponse = res.data as ApiResponse<Object>;
+  return apiResponse;
+};
+
+export const updateLandRowOfPlot = async (
+  plot: LandPlotSimulateRequest,
+): Promise<ApiResponse<Object>> => {
+  const res = await axiosAuth.axiosJsonRequest.put("landplots/update-visual-map", plot);
   const apiResponse = res.data as ApiResponse<Object>;
   return apiResponse;
 };

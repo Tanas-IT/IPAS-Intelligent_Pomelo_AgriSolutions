@@ -1,8 +1,11 @@
+import { landRowSimulate } from "@/payloads/landRow";
+
 interface landPlotCoordinations {
   longitude: number;
   latitude: number;
 }
 interface landRows {
+  landRowId?: number;
   rowIndex: number;
   treeAmount: number; // cần có
   distance: number; // cần có
@@ -27,10 +30,10 @@ export interface LandPlotRequest {
   rowPerLine: number; // cần có
   rowSpacing: number; // cần có
   numberOfRows: number; // cần có
-  minLength: number,
-  maxLength: number,
-  minWidth: number,
-  maxWidth: number,
+  minLength: number;
+  maxLength: number;
+  minWidth: number;
+  maxWidth: number;
   landPlotCoordinations: landPlotCoordinations[];
   landRows: landRows[];
 }
@@ -50,4 +53,10 @@ export interface LandPlotUpdateRequest {
 export interface LandPlotUpdateCoordinationRequest {
   landPlotId: string;
   coordinationsUpdateModel: landPlotCoordinations[];
+}
+
+export interface LandPlotSimulateRequest {
+  landPlotId: number;
+  numberOfRows: number; // cần có
+  landRows: landRowSimulate[];
 }
