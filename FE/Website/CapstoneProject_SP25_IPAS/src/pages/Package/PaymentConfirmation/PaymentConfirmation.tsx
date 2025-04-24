@@ -7,7 +7,7 @@ import { packageService, paymentService } from '@/services';
 import { GetPackage } from '@/payloads/package';
 import { PATHS } from '@/routes';
 import { ApiResponse, CreateOrderResponse, PayOSPaymentRequest, PayOSPaymentResponse } from '@/payloads';
-import { getFarmId } from '@/utils';
+import { formatCurrencyVND, getFarmId } from '@/utils';
 import { toast } from 'react-toastify';
 
 const { Title, Text } = Typography;
@@ -133,7 +133,7 @@ function PaymentConfirmation()  {
                     </Title>
                     <div className={style.details}>
                         <Text className={style.label}>Price:</Text>
-                        <Text className={style.valuePrice}>${packageDetails.packagePrice.toFixed(2)}</Text>
+                        <Text className={style.valuePrice}>{formatCurrencyVND(packageDetails.packagePrice)}</Text>
                     </div>
                     <div className={style.details}>
                         <Text className={style.label}>Duration:</Text>
