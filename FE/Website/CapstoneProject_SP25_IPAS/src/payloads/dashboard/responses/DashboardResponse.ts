@@ -36,7 +36,7 @@ interface MaterialInStoreModel {
   }[];
 }
 
-interface PomeloQualityBreakDown {}
+interface PomeloQualityBreakDown { }
 
 export interface ProductivityByPlotResponse {
   harvestSeason: string;
@@ -52,7 +52,7 @@ export interface LandPlot {
   status: string;
 }
 
-interface WorkProgressOverview {}
+interface WorkProgressOverview { }
 
 export interface DashboardResponses {
   totalPlant: number;
@@ -123,6 +123,12 @@ export interface SeasonalYieldResponse {
   statusCode: number;
   message: string;
   data: SeasonalYield[];
+}
+
+export interface DeadAndAlive {
+  total: number;
+  normalPercentage: number;
+  deadPercentage: number;
 }
 
 export interface SeasonalYield {
