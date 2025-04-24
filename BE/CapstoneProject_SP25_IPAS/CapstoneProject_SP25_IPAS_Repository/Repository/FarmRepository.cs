@@ -70,7 +70,7 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
                 .ThenInclude(x => x.User)
                 .ThenInclude(x => x.Role)
                 .Include(x => x.Orders)
-                .Include(x => x.LandPlots)
+                .Include(x => x.LandPlots.Where(p => p.IsDeleted == false))
                 .ThenInclude(x => x.LandPlotCoordinations)
                 //.Include( x => x.LandPlots)
                 //.Include(x => x.Processes)
