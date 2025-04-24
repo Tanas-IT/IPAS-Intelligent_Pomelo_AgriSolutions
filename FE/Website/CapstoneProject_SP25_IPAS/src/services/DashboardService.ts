@@ -6,6 +6,7 @@ import {
   CompareWorkPerformanceResponse,
   DashboardResponses,
   DeadAndAlive,
+  EmployeeDashboardData,
   EmployeeListItem,
   MaterialInstore,
   PomeloQualityBreakdownResponse,
@@ -103,5 +104,13 @@ export const getDeadAndAlive = async () => {
     `report/plant/statistic-dead-and-alive`,
   );
   const apiResponse = res.data as ApiResponse<DeadAndAlive>;
+  return apiResponse.data;
+};
+
+export const getEmployeeDashboard = async (farmId: number, userId: number): Promise<EmployeeDashboardData> => {
+  const res = await axiosAuth.axiosJsonRequest.get(
+    `report/employee/dashboard?farmId=${farmId}&userId=${userId}`,
+  );
+  const apiResponse = res.data as ApiResponse<EmployeeDashboardData>;
   return apiResponse.data;
 };

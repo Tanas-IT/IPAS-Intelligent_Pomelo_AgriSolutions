@@ -175,3 +175,16 @@ export interface CompareWorkPerformanceRequest {
 }
 
 export type CompareWorkPerformanceResponse = EmployeeListItem[];
+
+export interface EmployeeDashboardData {
+  total: number;
+  done: number;
+  notDone: number;
+  upcomingList: {
+    worlogId: number;
+    workLogName: string;
+    startTime: string;
+    endTime: string;
+    status: string;
+  }[];
+}
