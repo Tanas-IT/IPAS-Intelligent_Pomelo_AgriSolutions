@@ -10,6 +10,7 @@ namespace CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.PlanModel
     {
         public int PlanId { get; set; }
         public string? Status { get; set; }
+        public bool? IsActive { get; set; }
 
         public string? PlanName { get; set; }
 

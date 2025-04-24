@@ -1076,7 +1076,54 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             catch (Exception ex)
             {
 
-                throw;
+                return new BusinessResult(Const.ERROR_EXCEPTION, Const.ERROR_MESSAGE);
+            }
+        }
+
+        public async Task<BusinessResult> DashboardForEmployee(int userId, int farmId)
+        {
+            try
+            {
+                var getWorkLogOfEmployee = await _unitOfWork.WorkLogRepository.GetWorkLogByIdForDelete(userId, farmId);
+                var getStatusDone = await _unitOfWork.SystemConfigRepository
+                                        .GetConfigValue(SystemConfigConst.DONE.Trim(), "Done");
+
+                // Tổng số
+                int total = getWorkLogOfEmployee.Count;
+
+                // Hoàn thành
+                int done = getWorkLogOfEmployee.Count(x => x.Status == getStatusDone);
+
+                // Chưa hoàn thành
+                int notDone = total - done;
+
+                // Upcoming: những worklog có ngày bắt đầu lớn hơn hôm nay
+                var upcomingWorkLogs = getWorkLogOfEmployee
+                    .Where(x => x.Date.Value.Date == DateTime.Now.Date)
+                    .Select(x => new
+                    {
+                        WorkLogName = x.WorkLogName,
+                        StartTime = x.ActualStartTime,
+                        EndTime = x.ActualEndTime,
+                        Status = x.Status
+                    })
+                    .ToList();
+
+                // Kết quả trả về
+                var result = new
+                {
+                    Total = total,
+                    Done = done,
+                    NotDone = notDone,
+                    UpcomingList = upcomingWorkLogs
+                };
+                return new BusinessResult(200, "Get dashboard for employee success", result);
+
+            }
+            catch (Exception ex)
+            {
+
+                return new BusinessResult(Const.ERROR_EXCEPTION, Const.ERROR_MESSAGE);
             }
         }
     }
