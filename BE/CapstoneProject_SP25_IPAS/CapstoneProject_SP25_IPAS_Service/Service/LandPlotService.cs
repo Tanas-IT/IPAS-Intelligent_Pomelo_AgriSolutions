@@ -541,7 +541,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         if (existPlants)
                         {
                             return new BusinessResult(400, "Can not delete because LandPlot contains LandRow with living plants.");
-                        } else
+                        }
+                        else
                         {
                             foreach (var row in landRows)
                             {
@@ -642,33 +643,33 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             var minArea = await _unitOfWork.SystemConfigRepository.GetConfigValue(SystemConfigConst.MIN_AREA.Trim(), (double)1);
             if (createRequest.Area < minArea)
                 return new BusinessResult(400, $"Width of plot must > {minArea}.");
-            // Validate tổng diện tích của các LandRow
-            //double totalRowArea = 0;
-            //foreach (var row in createRequest.LandRows)
-            //{
-            //    if (row.Length <= 0 || row.Width <= 0)
-            //    {
-            //        return new BusinessResult(400, "Each row must have positive Length and Width.");
-            //    }
-            //    totalRowArea += (row.Length * row.Width);
-            //}
+            //Validate tổng diện tích của các LandRow
+            double totalRowArea = 0;
+            foreach (var row in createRequest.LandRows)
+            {
+                if (row.Length <= 0 || row.Width <= 0)
+                {
+                    return new BusinessResult(400, "Each row must have positive Length and Width.");
+                }
+                totalRowArea += (row.Length * row.Width);
+            }
 
-            ////  Tính thêm tổng diện tích của các khoảng cách giữa hàng (RowSpacing)
-            //if (createRequest.NumberOfRows > 1 && createRequest.RowSpacing > 0)
-            //{
-            //    totalRowArea += createRequest.RowSpacing * (createRequest.NumberOfRows - 1) * createRequest.PlotWidth;
-            //}
+            //  Tính thêm tổng diện tích của các khoảng cách giữa hàng (RowSpacing)
+            if (createRequest.NumberOfRows > 1 && createRequest.RowSpacing > 0)
+            {
+                totalRowArea += createRequest.RowSpacing * (createRequest.NumberOfRows - 1) * createRequest.PlotWidth;
+            }
 
-            //var allowDeviationPercent = await _unitOfWork.SystemConfigRepository.GetConfigValue(SystemConfigConst.ALLOW_AREA_DEVIATION_PERCENT.Trim(), (double)15.0);
-            //double allowDeviation = createRequest.Area * (allowDeviationPercent / 100.0);
+            var allowDeviationPercent = await _unitOfWork.SystemConfigRepository.GetConfigValue(SystemConfigConst.ALLOW_AREA_DEVIATION_PERCENT.Trim(), (double)15.0);
+            double allowDeviation = createRequest.Area * (allowDeviationPercent / 100.0);
 
-            //double minAcceptableArea = createRequest.Area - allowDeviation;
-            //double maxAcceptableArea = createRequest.Area + allowDeviation;
+            double minAcceptableArea = createRequest.Area - allowDeviation;
+            double maxAcceptableArea = createRequest.Area + allowDeviation;
 
-            //if (totalRowArea < minAcceptableArea || totalRowArea > maxAcceptableArea)
-            //{
-            //    return new BusinessResult(400, $"Total area of rows ({totalRowArea:F2} m²) must be between {minAcceptableArea:F2} m² and {maxAcceptableArea:F2} m² (allowing {allowDeviationPercent}% deviation).");
-            //}
+            if (totalRowArea < minAcceptableArea || totalRowArea > maxAcceptableArea)
+            {
+                return new BusinessResult(400, $"Total area of rows ({totalRowArea:F2} m²) must be between {minAcceptableArea:F2} m² and {maxAcceptableArea:F2} m² (allowing {allowDeviationPercent}% deviation).");
+            }
             return new BusinessResult(200, "No error found");
         }
 
@@ -837,19 +838,25 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     .Concat(rowsToInsert)
                     .Where(r => r.Length > 0 && r.Width > 0)
                     .Sum(r => r.Length * r.Width);
+                // Diện tích tất cả các hàng
 
-                // Cộng thêm khoảng cách giữa các rows (RowSpacing * (n-1) * PlotWidth)
+                // Diện tích khoảng cách giữa các hàng (nếu có nhiều hơn 1 hàng)
                 if ((landPlot.NumberOfRows ?? 0) > 1 && (landPlot.RowSpacing ?? 0) > 0)
                 {
-                    totalRowArea += (landPlot.RowSpacing.Value * (landPlot.NumberOfRows.Value - 1) * (landPlot.Width ?? 0));
+                    totalRowArea += landPlot.RowSpacing.Value * (landPlot.NumberOfRows.Value - 1) * (landPlot.Width ?? 0); // CHỈNH Ở ĐÂY
                 }
+                //// Cộng thêm khoảng cách giữa các rows (RowSpacing * (n-1) * PlotWidth)
+                //if ((landPlot.NumberOfRows ?? 0) > 1 && (landPlot.RowSpacing ?? 0) > 0)
+                //{
+                //    totalRowArea += (landPlot.RowSpacing.Value * (landPlot.NumberOfRows.Value - 1) * (landPlot.Width ?? 0));
+                //}
 
                 var allowDeviationPercent = await _unitOfWork.SystemConfigRepository.GetConfigValue(SystemConfigConst.ALLOW_AREA_DEVIATION_PERCENT.Trim(), 15.0);
                 var allowDeviation = (landPlot.Area ?? 0) * (allowDeviationPercent / 100.0);
                 var minAcceptableArea = (landPlot.Area ?? 0) - allowDeviation;
                 var maxAcceptableArea = (landPlot.Area ?? 0) + allowDeviation;
 
-                if (totalRowArea < minAcceptableArea || totalRowArea > maxAcceptableArea)
+                if (/*totalRowArea < minAcceptableArea ||*/ totalRowArea > maxAcceptableArea)
                 {
                     return new BusinessResult(400, $"Total area of rows ({totalRowArea:F2} m²) must be between {minAcceptableArea:F2} m² and {maxAcceptableArea:F2} m² (allowing {allowDeviationPercent}% deviation).");
                 }
@@ -907,6 +914,9 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 return new BusinessResult(400, $"Row '{row.LandRowCode}' cannot be deleted because it contains living plants.");
             }
 
+            bool IsBeingUsed = await _unitOfWork.PlanTargetRepository.AnyAsync(x => x.LandRowID == row.LandPlotId && x.Plan.IsDeleted == false);
+            if (IsBeingUsed)
+                return new BusinessResult(400, $"Row '{row.LandRowCode}' cannot be deleted because it contains in plan.");
             return new BusinessResult(200, "Row is safe to delete");
         }
 

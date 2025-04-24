@@ -23,7 +23,7 @@ using System.Threading.Tasks;
 
 namespace CapstoneProject_SP25_IPAS_Service.Service
 {
-    public class LandRowService : ILandRowService
+    public class LandRowService : ILandRowService, IValidateLandRowService
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
@@ -64,14 +64,14 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     var minPlant = await _unitOfWork.SystemConfigRepository.GetConfigValue(SystemConfigConst.MIN_PLANT_OF_LAND_ROW.Trim(), (int)1);
                     if (createRequest.TreeAmount < minPlant)
                         return new BusinessResult(400, $"Plant of Row must > {minPlant}.");
-                    //double areaUsed = 0;
-                    //foreach (var row in landplot.LandRows)
-                    //{
-                    //    if (row.Length!.Value > 0 && row.Width!.Value > 0)
-                    //        areaUsed += row.Length.Value * row.Width.Value;
-                    //}
-                    //if (areaUsed + (createRequest.Length * createRequest.Width) > (landplot.Length!.Value * landplot.Width!.Value))
-                    //    return new BusinessResult(Const.WARNING_AREA_WAS_USED_LARGER_THAN_LANDPLOT_CODE, Const.WARNING_AREA_WAS_USED_LARGER_THAN_LANDPLOT_MSG);
+                    double areaUsed = 0;
+                    foreach (var row in landplot.LandRows)
+                    {
+                        if (row.Length!.Value > 0 && row.Width!.Value > 0)
+                            areaUsed += row.Length.Value * row.Width.Value;
+                    }
+                    if (areaUsed + (createRequest.Length * createRequest.Width) > (landplot.Length!.Value * landplot.Width!.Value))
+                        return new BusinessResult(Const.WARNING_AREA_WAS_USED_LARGER_THAN_LANDPLOT_CODE, Const.WARNING_AREA_WAS_USED_LARGER_THAN_LANDPLOT_MSG);
                     var landPlotCode = Util.SplitByDash(landplot.LandPlotCode!).First();
                     var newRow = new LandRow
                     {
@@ -149,7 +149,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
         {
             try
             {
-                Expression<Func<LandRow, bool>> filter = x => x.LandPlotId == landplotId;
+                Expression<Func<LandRow, bool>> filter = x => x.LandPlotId == landplotId && x.IsDeleted == false;
                 string includeProperties = "LandPlot,Plants";
                 Func<IQueryable<LandRow>, IOrderedQueryable<LandRow>> orderBy = x => x.OrderByDescending(x => x.RowIndex);
                 var rowsOfFarm = await _unitOfWork.LandRowRepository.GetAllNoPaging(filter: filter, includeProperties: includeProperties, orderBy: orderBy);
@@ -172,7 +172,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
         {
             try
             {
-                Expression<Func<LandRow, bool>> filter = x => x.LandPlotId == landplotId;
+                Expression<Func<LandRow, bool>> filter = x => x.LandPlotId == landplotId && x.IsDeleted == false;
                 Func<IQueryable<LandRow>, IOrderedQueryable<LandRow>> orderBy = x => x.OrderByDescending(x => x.RowIndex);
                 string includeProperties = "LandPlot";
                 var rowsOfFarm = await _unitOfWork.LandRowRepository.GetAllNoPaging(filter: filter, includeProperties: includeProperties, orderBy: orderBy);
@@ -191,7 +191,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
         {
             try
             {
-                Expression<Func<LandRow, bool>> filter = x => x.LandRowId == landRowId;
+                Expression<Func<LandRow, bool>> filter = x => x.LandRowId == landRowId && x.IsDeleted == false;
                 string includeProperties = "Plants,LandPlot";
                 // set up them trong context moi xoa dc tat ca 1 lan
                 var row = await _unitOfWork.LandRowRepository.GetByCondition(filter: filter, includeProperties: includeProperties);
@@ -217,7 +217,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 using (var transaction = await _unitOfWork.BeginTransactionAsync())
                 {
                     string includeProperties = "LandPlot";
-                    var landRow = await _unitOfWork.LandRowRepository.GetByCondition(x => x.LandRowId == updateLandRowRequest.LandRowId, includeProperties);
+                    var landRow = await _unitOfWork.LandRowRepository.GetByCondition(x => x.LandRowId == updateLandRowRequest.LandRowId && x.IsDeleted == false, includeProperties);
                     if (landRow == null)
                         return new BusinessResult(Const.WARNING_ROW_NOT_EXIST_CODE, Const.WARNING_ROW_NOT_EXIST_MSG);
                     if (updateLandRowRequest.TreeAmount.HasValue)
@@ -278,7 +278,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
         {
             try
             {
-                Expression<Func<LandRow, bool>> filter = x => x.LandPlotId == request.LandPlotId;
+                Expression<Func<LandRow, bool>> filter = x => x.LandPlotId == request.LandPlotId && x.IsDeleted == false;
                 Func<IQueryable<LandRow>, IOrderedQueryable<LandRow>> orderBy = x => x.OrderByDescending(od => od.RowIndex).OrderByDescending(x => x.LandRowId);
                 if (!string.IsNullOrEmpty(paginationParameter.Search))
                 {
@@ -418,12 +418,17 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     {
 
                         bool isBeingUsed =
-                            await _unitOfWork.PlantRepository.AnyAsync(x => x.LandRowId == item.LandRowId) ||
+                            //await _unitOfWork.PlantRepository.AnyAsync(x => x.LandRowId == item.LandRowId) ||
                             await _unitOfWork.PlanTargetRepository.AnyAsync(x => x.LandRowID == item.LandRowId);
 
                         if (isBeingUsed)
                         {
                             return new BusinessResult(400, $"Can not delete because Row: {item.LandRowCode} is used in some where.");
+                        }
+                        var validation = await ValidateRowBeforeDeleteAsync(item);
+                        if (validation.StatusCode != 200)
+                        {
+                            return validation;
                         }
                         item.IsDeleted = true;
                     }
@@ -469,7 +474,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
         {
             try
             {
-                Expression<Func<LandRow, bool>> filter = x => x.LandRowId == rowId;
+                Expression<Func<LandRow, bool>> filter = x => x.LandRowId == rowId && x.IsDeleted == false;
                 //Func<IQueryable<LandRow>, IOrderedQueryable<LandRow>> orderBy = x => x.OrderByDescending(x => x.RowIndex);
                 string includeProperties = "Plants";
                 var landRow = await _unitOfWork.LandRowRepository.GetByCondition(filter: filter, includeProperties: includeProperties);
@@ -499,7 +504,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
         {
             try
             {
-                Expression<Func<LandRow, bool>> filter = x => x.LandPlotId == request.LandPlotId;
+                Expression<Func<LandRow, bool>> filter = x => x.LandPlotId == request.LandPlotId && x.IsDeleted == false;
 
                 if (!string.IsNullOrEmpty(request.Direction))
                 {
@@ -563,7 +568,21 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
             }
         }
+        public async Task<BusinessResult> ValidateRowBeforeDeleteAsync(LandRow row)
+        {
+            var hasPlants = await _unitOfWork.PlantRepository
+                .AnyAsync(p => p.LandRowId == row.LandRowId && !p.IsDeleted.Value && !p.IsDead.Value);
 
+            if (hasPlants)
+            {
+                return new BusinessResult(400, $"Row '{row.LandRowCode}' cannot be deleted because it contains living plants.");
+            }
+
+            bool IsBeingUsed = await _unitOfWork.PlanTargetRepository.AnyAsync(x => x.LandRowID == row.LandPlotId && x.Plan.IsDeleted == false);
+            if (IsBeingUsed)
+                return new BusinessResult(400, $"Row '{row.LandRowCode}' cannot be deleted because it contains in plan.");
+            return new BusinessResult(200, "Row is safe to delete");
+        }
     }
 
 }
