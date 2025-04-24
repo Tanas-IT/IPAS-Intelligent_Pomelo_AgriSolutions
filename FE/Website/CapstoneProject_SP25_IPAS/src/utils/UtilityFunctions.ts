@@ -15,6 +15,7 @@ import {
 import { PlanTarget, PlanTargetModel, SelectedTarget } from "@/payloads";
 import dayjs, { Dayjs } from "dayjs";
 import { getProcessDetail } from "@/services/ProcessService";
+import { franc } from "franc";
 
 export const convertQueryParamsToKebabCase = (params: Record<string, any>): Record<string, any> => {
   const newParams: Record<string, any> = {};
@@ -806,14 +807,21 @@ function textFromHTML(html: string) {
 }
 
 export const getAnswerParts = (parsed: AnswerData) => {
+  console.log(parsed);
+  const combinedText = `${parsed.summary} ${textFromHTML(parsed.details)} ${parsed.note}`;
+  const lang = franc(combinedText);
+  const isEnglish = lang === "eng" || lang === "und";
+
   return [
-    { key: "summary", label: "Tóm tắt", value: parsed.summary },
+    { key: "summary", label: isEnglish ? "Summary" : "Tóm tắt", value: parsed.summary },
     { key: "details", label: "", value: textFromHTML(parsed.details) },
-    { key: "note", label: "Lưu ý", value: parsed.note },
+    { key: "note", label: isEnglish ? "Note" : "Lưu ý", value: parsed.note },
     {
       key: "confidence",
       label: "",
-      value: parsed.confidence ? `Độ tin cậy: ${parsed.confidence}` : "",
+      value: parsed.confidence
+        ? `${isEnglish ? "Confidence" : "Độ tin cậy"}: ${parsed.confidence}`
+        : "",
     },
   ].filter((p) => !!p.value);
 };
