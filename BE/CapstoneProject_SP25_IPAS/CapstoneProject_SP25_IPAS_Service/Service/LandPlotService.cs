@@ -26,7 +26,7 @@ using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.LandRowRequest;
 
 namespace CapstoneProject_SP25_IPAS_Service.Service
 {
-    public class LandPlotService : ILandPlotService
+    public class LandPlotService : ILandPlotService, IValidateLandRowService
     {
         private readonly IUnitOfWork _unitOfWork;
         private readonly IMapper _mapper;
@@ -904,7 +904,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             }
         }
 
-        private async Task<BusinessResult> ValidateRowBeforeDeleteAsync(LandRow row)
+        public async Task<BusinessResult> ValidateRowBeforeDeleteAsync(LandRow row)
         {
             var hasPlants = await _unitOfWork.PlantRepository
                 .AnyAsync(p => p.LandRowId == row.LandRowId && !p.IsDeleted.Value && !p.IsDead.Value);
