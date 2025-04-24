@@ -375,24 +375,25 @@ const PestDetectionScreen = () => {
           </View>
           <View style={styles.resultContainer}>
             {detectionResults.map((result, index) => (
-              <View
-                key={index}
-                style={[styles.resultItem, theme.shadow.default]}
-              >
-                <TextCustom style={styles.resultText}>
+              <View key={index} style={[styles.resultItem, theme.shadow.default]}>
+                <TextCustom
+                  style={styles.resultText}
+                >
                   {result.tagName}
                 </TextCustom>
-                <Progress.Bar
-                  progress={result.probability}
-                  width={150}
-                  height={7}
-                  color={theme.colors.primary}
-                  unfilledColor={theme.colors.secondary}
-                  borderColor="none"
-                />
-                <TextCustom>
-                  {(result.probability * 100).toFixed(2)}%
-                </TextCustom>
+                <View style={styles.progressContainer}>
+                  <Progress.Bar
+                    progress={result.probability}
+                    width={270}
+                    height={7}
+                    color={theme.colors.primary}
+                    unfilledColor={theme.colors.secondary}
+                    borderColor="none"
+                  />
+                  <TextCustom style={styles.percentageText}>
+                    {(result.probability * 100).toFixed(2)}%
+                  </TextCustom>
+                </View>
               </View>
             ))}
           </View>

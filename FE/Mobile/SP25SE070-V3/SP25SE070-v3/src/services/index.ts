@@ -10,3 +10,4 @@ export * as reportService from "./reportService";
 export * as systemConfigService from "./SystemConfigService";
 export * as navigationService from "./NavigationService";
 export * as userService from "./userService";
+export * as dashboardService from "./dashboardService";
