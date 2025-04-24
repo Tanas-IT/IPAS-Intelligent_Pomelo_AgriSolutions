@@ -1134,7 +1134,16 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             try
             {
                 var getFarm = await _unitOfWork.FarmRepository.GetFarmById(farmId);
-                string url = $"https://api.openweathermap.org/data/2.5/weather?lat={getFarm.Latitude}&lon={getFarm.Longitude}&appid={_configuration["SystemDefault:API_KEY_WEATHER"]}&units=metric";
+                string url = "";
+                if(getFarm == null)
+                {
+                    url = "https://api.openweathermap.org/data/2.5/weather?lat=10.7769&lon=106.7009&appid=1eb2719e6d8fcb3efd4de03c57b633fe&units=metric";
+                    farmId = 3;
+                }
+                else
+                {
+                    url = $"https://api.openweathermap.org/data/2.5/weather?lat={getFarm.Latitude}&lon={getFarm.Longitude}&appid={_configuration["SystemDefault:API_KEY_WEATHER"]}&units=metric";
+                }
 
                 HttpResponseMessage response = await _httpClient.GetAsync(url);
                 response.EnsureSuccessStatusCode();
