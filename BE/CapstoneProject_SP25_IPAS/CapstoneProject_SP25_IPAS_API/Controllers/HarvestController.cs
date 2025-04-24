@@ -183,6 +183,36 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
         //[FarmExpired]
         public async Task<IActionResult> UpdateHarvestAsync([FromBody] UpdateHarvestHistoryRequest harvestUpdateRequest)
         {
+
+            if (!string.IsNullOrEmpty(harvestUpdateRequest.StartTime))
+            {
+                var normalizedStartTime = FlexibleTimeAttribute.NormalizeTo24HourFormat(harvestUpdateRequest.StartTime);
+                if (normalizedStartTime != null)
+                {
+                    harvestUpdateRequest.StartTime = normalizedStartTime; // Gán giá trị chuẩn hóa lại
+                }
+                else
+                {
+                    // Handle invalid StartTime here
+                    throw new InvalidOperationException("StartTime is invalid.");
+                }
+            }
+
+            // Validate and normalize EndTime
+            if (!string.IsNullOrEmpty(harvestUpdateRequest.EndTime))
+            {
+                var normalizedEndTime = FlexibleTimeAttribute.NormalizeTo24HourFormat(harvestUpdateRequest.EndTime);
+                if (normalizedEndTime != null)
+                {
+                    harvestUpdateRequest.EndTime = normalizedEndTime; // Gán giá trị chuẩn hóa lại
+                }
+                else
+                {
+                    // Handle invalid EndTime here
+                    throw new InvalidOperationException("EndTime is invalid.");
+                }
+            }
+
             var result = await _harvestHistoryService.updateHarvestHistoryInfo(harvestUpdateRequest);
             return Ok(result);
         }

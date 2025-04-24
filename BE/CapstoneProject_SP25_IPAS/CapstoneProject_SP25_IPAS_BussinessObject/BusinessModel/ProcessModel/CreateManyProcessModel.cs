@@ -21,12 +21,26 @@ namespace CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.ProcessModel
         public DateTime? EndDate { get; set; }
 
         // Chuỗi JSON chứa danh sách SubProcess (trong mỗi SubProcess có danh sách Plan)
-        [DefaultValue("[{\"SubProcessName\":\"Sub 1\", \"ParentSubProcessId\":0, \"IsDefault\":true, \"IsActive\":true, \"MasterTypeId\":1, \"ListPlan\":[{\"PlanName\":\"Plan 1\", \"PlanDetail\":\"Chi tiết 1\", \"PlanNote\":\"Ghi chú 1\", \"GrowthStageId\":2, \"MasterTypeId\":3}]}]")]
-        public List<string>? ListSubProcess { get; set; }
+        public List<SubProcessCreateManyModel>? ListSubProcess { get; set; }
+        public List<PlanCreateManyModel>? ListPlan { get; set; }
 
-        [DefaultValue(new[] { "{PlanName: \"string\", PlanDetail: \"string\", PlanNote: \"string\", GrowthStageId: 0, MasterTypeId: 0}" })]
-        public List<string>? ListPlan { get; set; }
+    }
+    public class SubProcessCreateManyModel
+    {
+        public string SubProcessName { get; set; }
+        public int ParentSubProcessId { get; set; }
+        public bool IsDefault { get; set; }
+        public bool IsActive { get; set; }
+        public int MasterTypeId { get; set; }
+        public List<PlanCreateManyModel> ListPlan { get; set; }
+    }
 
-        public IFormFile? ProcessData { get; set; }
+    public class PlanCreateManyModel
+    {
+        public string PlanName { get; set; }
+        public string PlanDetail { get; set; }
+        public string PlanNote { get; set; }
+        public int GrowthStageId { get; set; }
+        public int MasterTypeId { get; set; }
     }
 }

@@ -94,7 +94,7 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
                         HealthStatus = p.HealthStatus,
                         IsDead = p.IsDead,
                     }).ToList()
-                }).ToList()
+                }).OrderBy(x => x.RowIndex).ToList()
             })
             .FirstOrDefaultAsync();
                 return landPlot!;

@@ -4,6 +4,7 @@ using CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.OrderModels;
 using CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.ReportModel;
 using CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.UserBsModels;
 using CapstoneProject_SP25_IPAS_BussinessObject.Entities;
+using CapstoneProject_SP25_IPAS_BussinessObject.ProgramSetUpObject.Weather;
 using CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.ReportModel;
 using CapstoneProject_SP25_IPAS_Common.Constants;
 using CapstoneProject_SP25_IPAS_Common.Enum;
@@ -1102,6 +1103,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     .Where(x => x.Date.Value.Date == DateTime.Now.Date)
                     .Select(x => new
                     {
+                        WorlogId = x.WorkLogId,
                         WorkLogName = x.WorkLogName,
                         StartTime = x.ActualStartTime,
                         EndTime = x.ActualEndTime,
@@ -1119,6 +1121,107 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 };
                 return new BusinessResult(200, "Get dashboard for employee success", result);
 
+            }
+            catch (Exception ex)
+            {
+
+                return new BusinessResult(Const.ERROR_EXCEPTION, Const.ERROR_MESSAGE);
+            }
+        }
+
+        public async Task<BusinessResult> HomeMobileManager(int userId, int farmId)
+        {
+            try
+            {
+                var getFarm = await _unitOfWork.FarmRepository.GetFarmById(farmId);
+                string url = $"https://api.openweathermap.org/data/2.5/weather?lat={getFarm.Latitude}&lon={getFarm.Longitude}&appid={_configuration["SystemDefault:API_KEY_WEATHER"]}&units=metric";
+
+                HttpResponseMessage response = await _httpClient.GetAsync(url);
+                response.EnsureSuccessStatusCode();
+                string responseBody = await response.Content.ReadAsStringAsync();
+
+                JObject weatherData = JObject.Parse(responseBody);
+                var weatherProperty = new WeatherPropertyModel
+                {
+                    CurrentTemp = weatherData["main"]["temp"].Value<double>(),
+                    TempMax = weatherData["main"]["temp_max"].Value<double>(),
+                    TempMin = weatherData["main"]["temp_min"].Value<double>(),
+                    Status = weatherData["weather"][0]["main"].Value<string>(),
+                    Description = weatherData["weather"][0]["description"].Value<string>(),
+                    Humidity = weatherData["main"]["humidity"].Value<double>(),
+                    Visibility = weatherData["visibility"].Value<int>(),
+                    Clouds = weatherData["clouds"]["all"].Value<double>(),
+                    WindSpeed = weatherData["wind"]["speed"].Value<double>() + " m/s",
+                };
+                var warnings = new List<string>();
+                var rules = _configuration.GetSection("WeatherConfig:WorkRules").Get<Dictionary<string, WeatherRule>>() ?? new();
+                var extremeWeather = _configuration.GetSection("WeatherConfig:ExtremeWeatherConditions").Get<Dictionary<string, List<int>>>() ?? new();
+
+                foreach (var (workType, rule) in rules)
+                {
+                    var conditionsViolated = new List<string>();
+                    // troi qua lanh
+                    if (rule.MinTemperature.HasValue && weatherProperty.CurrentTemp < rule.MinTemperature)
+                        conditionsViolated.Add($"Temperature too low: {weatherProperty.CurrentTemp}°C");
+                    // troi qua nong
+                    if (rule.MaxTemperature.HasValue && weatherProperty.CurrentTemp > rule.MaxTemperature)
+                        conditionsViolated.Add($"Temperature too high: {weatherProperty.CurrentTemp}°C");
+                    // troi qua kho
+                    if (rule.MinHumidity.HasValue && weatherProperty.Humidity < rule.MinHumidity)
+                        conditionsViolated.Add($"Humidity too low: {weatherProperty.Humidity}%");
+                    // qua am
+                    if (rule.MaxHumidity.HasValue && weatherProperty.Humidity > rule.MaxHumidity)
+                        conditionsViolated.Add($"Humidity too high: {weatherProperty.Humidity}%");
+                    // nhieu gio
+                    if (rule.MaxWindSpeed.HasValue && weatherData["wind"]["speed"].Value<double>() > rule.MaxWindSpeed)
+                        conditionsViolated.Add($"Wind speed too high: {weatherData["wind"]["speed"].Value<double>()} m/s");
+
+                    // cv nay neu ko can lam khi troi mua
+                    if (rule.RainCondition == "NoRain" && weatherData["weather"][0].Contains("Rain"))
+                        conditionsViolated.Add("Rain detected, avoid work.");
+                    if (conditionsViolated.Any())
+                        warnings.Add($"{workType} - Not recommended work because: {string.Join(", ", conditionsViolated)} ");
+                }
+
+                // Kiểm tra các hiện tượng thời tiết cực đoan
+                foreach (var (condition, ids) in extremeWeather)
+                {
+                    if (weatherData["weather"][0].Any(w => ids.Contains(weatherData["weather"][0]["id"].Value<int>())))
+                        warnings.Add($"Extreme Weather Warning: {condition}");
+                }
+                var getAllPlantOfFarm = await _unitOfWork.PlantRepository.GetAllPlantByFarmId(farmId);
+                var total = getAllPlantOfFarm.Count;
+                var deadCount = getAllPlantOfFarm.Count(p => p.IsDead == true);
+                var normalCount = total - deadCount;
+                var deadPercentage = Math.Round((double)deadCount / total * 100, 2);
+                var normalPercentage = 100 - deadPercentage;
+                var getAllCrop = await _unitOfWork.CropRepository.GetAllCropByFarmId(farmId);
+                var totalYield = getAllCrop.Sum(x => x.ActualYield);
+
+                var workOverview = await _unitOfWork.WorkLogRepository.GetListWorkLogByFarmId(farmId);
+                var allStatuses = new[] { "Not Started", "In Progress", "Done", "Overdue", "Redo", "Cancelled", "Reviewing" };
+                var groupedByStatus = allStatuses
+                                    .Select(status => new
+                                    {
+                                        Status = status,
+                                        Count = workOverview.Count(w => w.Status == status)
+                                    })
+                                    .ToList();
+                var result = new
+                {
+                    Warning = warnings,
+                    FarmOverview = new
+                    {
+                        totalPlants = total,
+                        totalYield = totalYield,
+                        normalCount = normalCount,
+                        deadCount = deadCount,
+                        normalPercentage = normalPercentage,
+                        deadPercentage = deadPercentage
+                    },
+                    WorkOverview = groupedByStatus
+                };
+                return new BusinessResult(200, "Get home mobile manager success", result);
             }
             catch (Exception ex)
             {

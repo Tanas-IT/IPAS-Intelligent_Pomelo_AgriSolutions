@@ -358,6 +358,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             try
             {
                 var getCropInCurrentTime = await _unitOfWork.CropRepository.GetCropsInCurrentTime(farmId: farmId);
+                getCropInCurrentTime = getCropInCurrentTime.Where(x => !x.Status.Equals(CropStatusConst.Cancelled, StringComparison.OrdinalIgnoreCase)).ToList();
                 if (getCropInCurrentTime != null && getCropInCurrentTime.Any())
                 {
                     return new BusinessResult(200, "Get crop in current time success", getCropInCurrentTime);

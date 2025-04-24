@@ -506,6 +506,15 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             var harvest = await _unitOfWork.HarvestHistoryRepository.GetByCondition(h => h.HarvestHistoryId == harvestId);
             if (harvest == null)
                 return new BusinessResult(Const.WARNING_HARVEST_NOT_EXIST_CODE, Const.WARNING_HARVEST_NOT_EXIST_MSG);
+            foreach (var schedule in harvest.CarePlanSchedules)
+            {
+                foreach (var worklog in schedule.WorkLogs)
+                {
+                    worklog.UserWorkLogs = worklog.UserWorkLogs
+                        .Where(u => u.ReplaceUserId == null && (u.IsDeleted == false || u.IsDeleted == null))
+                        .ToList();
+                }
+            }
             var mappedResult = _mapper.Map<HarvestHistoryModel>(harvest);
             foreach (var product in mappedResult.ProductHarvestHistory)
             {
@@ -716,12 +725,14 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                             var relatedHarvestHistories = await _unitOfWork.ProductHarvestHistoryRepository
                                 .GetAllNoPaging(x => x.MasterTypeId == productHarvestHistory.MasterTypeId && x.HarvestHistoryId == productHarvestHistory.HarvestHistoryId && x.ProductHarvestHistoryId != productHarvestHistory.ProductHarvestHistoryId);
                             var recordsToUpdate = relatedHarvestHistories.Where(x => x.ProductHarvestHistoryId != productHarvestHistory.ProductHarvestHistoryId).ToList();
-
-                            foreach (var item in relatedHarvestHistories)
+                            if (recordsToUpdate.Any())
                             {
-                                item.Unit = updateRequest.Unit;
+                                foreach (var item in recordsToUpdate)
+                                {
+                                    item.Unit = updateRequest.Unit;
+                                }
+                                _unitOfWork.ProductHarvestHistoryRepository.UpdateRange(recordsToUpdate);
                             }
-                            _unitOfWork.ProductHarvestHistoryRepository.UpdateRange(relatedHarvestHistories);
                         }
                         if (updateRequest.SellPrice.HasValue)
                         {

@@ -17,5 +17,6 @@ namespace CapstoneProject_SP25_IPAS_Repository.IRepository
         public Task<IEnumerable<Crop>> GetAllCropsOfFarm(int FarmId, PaginationParameter paginationParameter, CropFilter cropFilter);
         public Task<List<Crop>> GetCropsInCurrentTime(int? farmId);
         public Task<List<LandPlot>> GetLandPlotOfCrops(int cropId);
+        public Task<List<Crop>> GetAllCropByFarmId(int farmId);
     }
 }

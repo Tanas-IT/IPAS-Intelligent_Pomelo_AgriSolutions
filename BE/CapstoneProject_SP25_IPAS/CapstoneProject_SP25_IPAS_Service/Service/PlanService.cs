@@ -141,6 +141,10 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                             }
                         }
                     }
+                    if(keyGroup == null)
+                    {
+                        keyGroup = Guid.NewGuid().ToString();
+                    }
                     var newPlan = new Plan()
                     {
                         PlanCode = $"PLAN{DateTime.Now:yyMMddHHmmssfff}",
