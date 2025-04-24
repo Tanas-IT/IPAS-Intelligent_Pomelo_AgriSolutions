@@ -52,7 +52,7 @@ export default function CustomDrawerContent(
       icon: "message-text",
       screen: ROUTE_NAMES.EXPERT_RESPONSE,
     },
-    { label: "Profile", icon: "account", screen: "Profile" },
+    { label: "Profile", icon: "account", screen: ROUTE_NAMES.MAIN.PROFILE },
     { label: "Settings", icon: "cog", screen: "Settings" },
   ];
 

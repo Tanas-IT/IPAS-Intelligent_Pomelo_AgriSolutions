@@ -33,21 +33,20 @@ const SimulationView: FC<SimulationViewProps> = ({ plotId }) => {
   const closeDrawer = () => setIsDrawerVisible(false);
   const showDrawer = () => setIsDrawerVisible(true);
 
-  useEffect(() => {
-    const fetchPlotData = async () => {
-      if (plotId) {
-        try {
-          setIsLoading(true);
-          const res = await landPlotService.getLandPlotSimulate(plotId);
-          console.log(res);
-          
-          if (res.statusCode === 200) setPlotData(res.data);
-        } finally {
-          setIsLoading(false);
-        }
-      }
-    };
+  const fetchPlotData = async () => {
+    if (plotId) {
+      try {
+        setIsLoading(true);
+        const res = await landPlotService.getLandPlotSimulate(plotId);
 
+        if (res.statusCode === 200) setPlotData(res.data);
+      } finally {
+        setIsLoading(false);
+      }
+    }
+  };
+
+  useEffect(() => {
     fetchPlotData();
   }, [plotId]);
 
@@ -125,6 +124,7 @@ const SimulationView: FC<SimulationViewProps> = ({ plotId }) => {
         plotSimulate={plotData}
         isOpen={isDrawerVisible}
         onClose={closeDrawer}
+        fetchSimulateLandPlots={fetchPlotData}
       />
     </div>
   );

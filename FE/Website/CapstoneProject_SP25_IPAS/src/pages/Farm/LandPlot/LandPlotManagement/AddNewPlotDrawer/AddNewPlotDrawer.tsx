@@ -6,6 +6,8 @@ import {
   LandPlotUpdateRequest,
   LandPlotUpdateCoordinationRequest,
   GetLandPlotSimulate,
+  LandPlotRequest,
+  LandPlotSimulateRequest,
 } from "@/payloads";
 import { ConfirmModal, EditActions } from "@/components";
 import { DraggableRow, LandPlotCreate, RowConfiguration } from "@/pages";
@@ -20,7 +22,6 @@ import {
   SYSTEM_CONFIG_GROUP,
   SYSTEM_CONFIG_KEY,
 } from "@/constants";
-import { LandPlotRequest } from "@/payloads/landplot/requests";
 import { DEFAULT_LAND_PLOT, isPlantOverflowing, validatePolygonBeforeSave } from "@/utils";
 import { landPlotService } from "@/services";
 
@@ -33,6 +34,7 @@ interface AddNewPlotDrawerProps {
   plotSimulate?: GetLandPlotSimulate;
   landPlots?: GetLandPlot[];
   fetchLandPlots?: () => Promise<void>;
+  fetchSimulateLandPlots?: () => Promise<void>;
   isOpen: boolean;
   onClose: () => void;
 }
@@ -44,6 +46,7 @@ const AddNewPlotDrawer: React.FC<AddNewPlotDrawerProps> = ({
   plotSimulate,
   landPlots,
   fetchLandPlots,
+  fetchSimulateLandPlots,
   isOpen,
   onClose,
 }) => {
@@ -113,6 +116,7 @@ const AddNewPlotDrawer: React.FC<AddNewPlotDrawerProps> = ({
         description: form.getFieldValue(createPlotFormFields.description),
       })),
     };
+
     setPlotData(plotDataRequest);
     try {
       var result = await landPlotService.createLandPlot(plotDataRequest);
@@ -207,9 +211,6 @@ const AddNewPlotDrawer: React.FC<AddNewPlotDrawerProps> = ({
 
   const handleSaveUpdate = async () => {
     await form.validateFields();
-    console.log(width);
-    console.log(length);
-    
     const isValid = validatePolygonBeforeSave(
       currentPolygon,
       isOverlapping,
@@ -297,7 +298,28 @@ const AddNewPlotDrawer: React.FC<AddNewPlotDrawerProps> = ({
     }
   };
 
-  const handleSaveSimulate = async () => {};
+  const handleSaveSimulate = async () => {
+    if (!plotSimulate) return;
+    const payload: LandPlotSimulateRequest = {
+      landPlotId: plotSimulate.landPlotId,
+      numberOfRows: rowsData.length,
+      landRows: rowsData,
+    };
+    setIsLoading(true);
+    try {
+      const res = await landPlotService.updateLandRowOfPlot(payload);
+      if (res.statusCode === 200) {
+        toast.success(res.message);
+        resetForm();
+        onClose();
+        await fetchSimulateLandPlots?.();
+      } else {
+        toast.error(res.message);
+      }
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   const resetForm = () => {
     form.resetFields();
@@ -322,11 +344,11 @@ const AddNewPlotDrawer: React.FC<AddNewPlotDrawerProps> = ({
     if (isSimulateUpdate && plotSimulate) {
       form.setFieldsValue({
         landRowCode: plotSimulate.landPlotCode,
-        isHorizontal: plotSimulate.isRowHorizontal,
+        // isHorizontal: plotSimulate.isRowHorizontal,
+        rowOrientation: plotSimulate.isRowHorizontal ? "Horizontal" : "Vertical",
         rowSpacing: plotSimulate.rowSpacing,
         rowsPerLine: plotSimulate.rowPerLine,
         lineSpacing: plotSimulate.lineSpacing,
-       
       });
       setRowsData(plotSimulate.landRows);
       setCurrentStep(2);
@@ -393,7 +415,14 @@ const AddNewPlotDrawer: React.FC<AddNewPlotDrawerProps> = ({
             form={form}
           />
         )}
-        {currentStep === 1 && <RowConfiguration form={form} />}
+        {currentStep === 1 && (
+          <RowConfiguration
+            form={form}
+            plotName={form.getFieldValue(createPlotFormFields.landPlotName)}
+            plotLength={Number(form.getFieldValue(createPlotFormFields.length))}
+            plotWidth={Number(form.getFieldValue(createPlotFormFields.width))}
+          />
+        )}
         {currentStep === 2 && (
           <DraggableRow
             rowsData={rowsData}

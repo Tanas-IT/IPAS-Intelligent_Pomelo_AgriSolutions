@@ -1,6 +1,7 @@
 import { FILE_FORMAT, UserRole } from "@/constants";
 import { DecodedToken, FileResource } from "@/types";
 import { format } from "date-fns";
+import dayjs from "dayjs";
 import { jwtDecode } from "jwt-decode";
 import moment from "moment";
 
@@ -179,4 +180,8 @@ export const processResourcesToVideos = (resources?: FileResource[]) => {
     });
 
   return videos;
+};
+
+export const formatDateReq = (date?: dayjs.ConfigType): string | null => {
+  return date ? dayjs(date).format("YYYY-MM-DD") : null;
 };

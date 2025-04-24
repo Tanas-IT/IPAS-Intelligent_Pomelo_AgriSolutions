@@ -391,9 +391,12 @@ const WorklogDetailScreen: React.FC<WorklogDetailScreenProps> = ({ route }) => {
             />
             <View style={styles.userInfo}>
               <View style={{ flexDirection: "row", gap: 7 }}>
-                <TextCustom style={styles.userName}>
-                  {worklog.assignorName}
-                </TextCustom>
+                <Image
+                  source={{ uri: worklog.assignorAvatarURL }}
+                  style={[
+                    styles.avatarSmall,
+                  ]}
+                />
                 <TextCustom style={styles.userRole}>
                   created this plan
                 </TextCustom>

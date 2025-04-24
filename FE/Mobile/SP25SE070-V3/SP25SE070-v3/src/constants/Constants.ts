@@ -71,3 +71,8 @@ export const SYSTEM_CONFIG_KEY = {
   EDIT_IN_DAY: "EditInDay",
   RECORD_AFTER_DATE: "RecordAfterDate",
 };
+
+export const GENDER_OPTIONS = [
+  { value: 'male', label: 'Male' },
+  { value: 'female', label: 'Female' },
+];

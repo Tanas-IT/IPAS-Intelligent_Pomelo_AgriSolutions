@@ -107,11 +107,21 @@ export const styles = StyleSheet.create({
       elevation: 2,
       flexDirection: 'row',
       alignItems: 'center',
-      justifyContent: 'space-between'
+      flexWrap: 'wrap', // Cho phép xuống dòng
     },
     resultText: {
       fontSize: 16,
       color: '#333',
+      width: '100%', // Chiếm toàn bộ chiều rộng trước
+      marginBottom: 5, // Khoảng cách với progress bar
+    },
+    progressContainer: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      width: '100%', // Chiếm toàn bộ chiều rộng
+    },
+    percentageText: {
+      marginLeft: 10,
     },
     actionButtons: {
       flexDirection: 'row',
