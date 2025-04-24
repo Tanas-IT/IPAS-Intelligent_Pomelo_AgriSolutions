@@ -23,6 +23,8 @@ const Tab = createBottomTabNavigator<MainTabParamList>();
 export default function MainTabs() {
   const { roleId } = useAuthStore();
   const isEmployee = roleId === UserRolesStr.Employee;
+  console.log("isEmployee", isEmployee);
+  
   return (
     <Tab.Navigator
       screenOptions={({ route, navigation }) => ({
