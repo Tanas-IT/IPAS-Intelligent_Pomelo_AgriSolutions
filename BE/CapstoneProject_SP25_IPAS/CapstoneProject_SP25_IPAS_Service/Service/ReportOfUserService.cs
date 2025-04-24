@@ -77,7 +77,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 }
                 var newReportOfUser = new Report()
                 {
-                    ReportCode = "RPT-" + DateTime.Now.Date,
+                    ReportCode = "RPT-" + DateTime.Now,
                     CreatedDate = DateTime.Now,
                     QuestionOfUser = createReportOfUserModel.QuestionOfUser,
                     QuestionerID = createReportOfUserModel.QuestionerID,
@@ -211,6 +211,9 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                ? x => x.OrderByDescending(x => x.Answerer.FullName)
                                : x => x.OrderBy(x => x.Answerer.FullName)) : x => x.OrderBy(x => x.Answerer.FullName);
                     break;
+                case "defaultSortBy":
+                    orderBy = x => x.OrderByDescending(x => x.ReportID);
+                    break;
                 default:
                     orderBy = x => x.OrderByDescending(x => x.ReportID);
                     break;
@@ -282,7 +285,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     orderBy = !string.IsNullOrEmpty(paginationParameter.Direction)
                                 ? (paginationParameter.Direction.ToLower().Equals("desc")
                                ? x => x.OrderByDescending(x => x.ReportID)
-                               : x => x.OrderBy(x => x.ReportID)) : x => x.OrderBy(x => x.ReportID);
+                               : x => x.OrderByDescending(x => x.ReportID)) : x => x.OrderBy(x => x.ReportID);
                     break;
                 case "reportcode":
                     orderBy = !string.IsNullOrEmpty(paginationParameter.Direction)
@@ -308,6 +311,9 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                 ? (paginationParameter.Direction.ToLower().Equals("desc")
                                ? x => x.OrderByDescending(x => x.Answerer.FullName)
                                : x => x.OrderBy(x => x.Answerer.FullName)) : x => x.OrderBy(x => x.Answerer.FullName);
+                    break;
+                case "defaultSortBy":
+                    orderBy = x => x.OrderByDescending(x => x.ReportID);
                     break;
                 default:
                     orderBy = x => x.OrderByDescending(x => x.ReportID);
@@ -557,6 +563,9 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                     ? (getAllReportOfUserModel.Direction.ToLower().Equals("desc")
                                    ? x => x.OrderByDescending(x => x.Answerer.FullName)
                                    : x => x.OrderBy(x => x.Answerer.FullName)) : x => x.OrderBy(x => x.Answerer.FullName);
+                        break;
+                    case "defaultSortBy":
+                        orderBy = x => x.OrderByDescending(x => x.ReportID);
                         break;
                     default:
                         orderBy = x => x.OrderByDescending(x => x.ReportID);
