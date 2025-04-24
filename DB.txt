@@ -1615,8 +1615,8 @@ VALUES
     ('HH005', '2024-03-01', 'Winter harvest', 27000.0, 'Completed', 5),
     ('HH006', '2024-06-01', 'Spring harvest', 28000.0, 'Completed', 6),
     ('HH007', '2024-09-01', 'Summer harvest', 29000.0, 'Completed', 7),
-    ('HH008', GETDATE(), 'Fall harvest', 25000.0, 'Completed', 8),
-	('HH009', GETDATE(), 'Fall harvest', 30000.0, 'Completed', 8);
+    ('HH008', '2024-12-05', 'Fall harvest', 25000.0, 'Completed', 8),
+	('HH009', '2024-12-10', 'Fall harvest', 30000.0, 'Completed', 8);
 
 GO
 INSERT INTO [ipas].dbo.ProductHarvestHistory 
