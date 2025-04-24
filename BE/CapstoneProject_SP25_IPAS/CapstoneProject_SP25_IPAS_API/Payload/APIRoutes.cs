@@ -433,6 +433,7 @@ namespace CapstoneProject_SP25_IPAS_API.Payload
             public const string EmployeeProductivity = prefix + "/employee/productivity";
             public const string StatisticPlantDeadAndAlive = prefix + "/plant/statistic-dead-and-alive";
             public const string DashboardForEmployee = prefix + "/employee/dashboard/";
+            public const string HomeMobileForManager = prefix + "/manager/home-mobile/";
         }
 
         public static class TaskFeedback
