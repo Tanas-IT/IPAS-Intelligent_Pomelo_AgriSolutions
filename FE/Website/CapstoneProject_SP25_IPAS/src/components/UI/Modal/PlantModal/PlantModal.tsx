@@ -129,7 +129,15 @@ const PlantModal = ({ isOpen, onClose, onSave, plantData, isLoadingAction }: Pla
     try {
       const res = await landRowService.getLandRowsSelected(plotId);
       if (res.statusCode === 200) {
-        setRows(res.data.map(({ id, code, name }) => ({ value: id, label: `${name} - ${code}` })));
+        // setRows(res.data.map(({ id, code, name }) => ({ value: id, label: `${name} - ${code}` })));
+        const data = res.data ?? [];
+        setRows(
+          data.length
+            ? data.map(({ id, code, name }) => ({ value: id, label: `${name} - ${code}` }))
+            : [],
+        );
+      } else {
+        setRows([]);
       }
     } finally {
       setLoading((prev) => ({ ...prev, rows: false }));
@@ -146,10 +154,15 @@ const PlantModal = ({ isOpen, onClose, onSave, plantData, isLoadingAction }: Pla
     setLoading((prev) => ({ ...prev, indexes: true }));
     try {
       const res = await landRowService.getPlantIndexesByRowId(rowId);
-
       if (res.statusCode === 200) {
-        if (res.data)
-          setPlantIndexes(res.data.map((index) => ({ value: index, label: `Plant #${index}` })));
+        const data = res.data ?? [];
+        // if (res.data)
+        // setPlantIndexes(res.data.map((index) => ({ value: index, label: `Plant #${index}` })));
+        setPlantIndexes(
+          data.length ? data.map((index) => ({ value: index, label: `Plant #${index}` })) : [],
+        );
+      } else {
+        setPlantIndexes([]);
       }
     } finally {
       setLoading((prev) => ({ ...prev, indexes: false }));

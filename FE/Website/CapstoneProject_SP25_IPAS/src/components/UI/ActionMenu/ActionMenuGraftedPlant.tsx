@@ -51,7 +51,7 @@ const ActionMenuGraftedPlant: FC<ActionMenuProps> = ({
           onClick: () => onApplyCriteria?.(),
         }
       : null,
-    isEmployeeIn && !isDead
+    (isEmployeeIn && !isDead) || !isEmployeeIn
       ? {
           icon: <Icons.edit />,
           label: "Update Grafted Plant",
