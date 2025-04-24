@@ -3330,7 +3330,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                             (!x.SubProcessOrder.HasValue || !currentSubProcessOrder.HasValue && string.Compare(x.Order, currentOrderStr, StringComparison.Ordinal) > 0)
                         )
                     )
-                    .OrderByDescending(x => x.Order)
+                    .OrderBy(x => x.Order)
                     .ThenBy(x => x.StartTime)
                     .ToList();
                 var result = dependentWorkLogs
@@ -3374,6 +3374,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             int shiftDays = (newWorkDate.Date - originalEndDate.Date).Days;
             if (shiftDays <= 0) return;
             var getOriginalPlan = await _unitOfWork.PlanRepository.GetByID(currentPlanId);
+            var keyGroup = getOriginalPlan.KeyGroup;
             if (getOriginalPlan.EndDate.HasValue == true)
             {
                 getOriginalPlan.EndDate = getOriginalPlan.EndDate.Value.AddDays(shiftDays);
@@ -3473,7 +3474,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 .ToList();
 
             var dependentPlans = await _unitOfWork.PlanRepository.GetPlansBySubProcessIds(allDependentSubProcessIds);
-            var dependentPlanIds = dependentPlans.Select(p => p.PlanId).ToList();
+            var dependentPlanIds = dependentPlans.Where(x => x.KeyGroup == keyGroup).Select(p => p.PlanId).ToList();
             var allWorkLogs = await _unitOfWork.WorkLogRepository.GetWorkLogsByPlanIdsWithNoScheduleAsync(dependentPlanIds);
             var getStatusCancelled = await _unitOfWork.SystemConfigRepository
                                       .GetConfigValue(SystemConfigConst.CANCELLED.Trim(), "Cancelled");
