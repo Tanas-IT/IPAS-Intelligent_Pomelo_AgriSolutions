@@ -1150,7 +1150,6 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 if(getFarm == null)
                 {
                     url = "https://api.openweathermap.org/data/2.5/weather?lat=10.7769&lon=106.7009&appid=1eb2719e6d8fcb3efd4de03c57b633fe&units=metric";
-                    farmId = 3;
                 }
                 else
                 {
