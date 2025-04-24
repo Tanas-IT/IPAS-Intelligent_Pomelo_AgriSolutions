@@ -85,7 +85,7 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
         public async Task<int> GetAllEmployeeByFarmId(int? farmId)
         {
             var listEmployee = await _context.Users.Include(x => x.UserFarms).ThenInclude(x => x.Farm)
-                                     .Where(x => x.UserFarms.Any(x => x.FarmId == farmId && x.RoleId == 5))
+                                     .Where(x => x.UserFarms.Any(x => x.FarmId == farmId && x.RoleId == (int)RoleEnum.EMPLOYEE))
                                      .ToListAsync();
             return listEmployee.Count;
         }
@@ -95,7 +95,8 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
             var result = await _context.Users
                                         .Where(x => x.Email!.ToLower().StartsWith(searchEmail.ToLower())
                                         && x.IsDeleted != true
-                                        && x.Status!.ToLower().Equals(UserStatusEnum.Active.ToString().ToLower()))
+                                        && x.Status!.ToLower().Equals(UserStatusEnum.Active.ToString().ToLower())
+                                        && x.RoleId == (int)RoleEnum.USER)
                                         .Take(5)
                                         .OrderByDescending(x => x.UserId)
                                         .ToListAsync();
