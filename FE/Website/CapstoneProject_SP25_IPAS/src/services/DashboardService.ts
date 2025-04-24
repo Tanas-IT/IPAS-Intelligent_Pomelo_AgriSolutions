@@ -5,6 +5,7 @@ import {
   CompareWorkPerformanceRequest,
   CompareWorkPerformanceResponse,
   DashboardResponses,
+  DeadAndAlive,
   EmployeeListItem,
   MaterialInstore,
   PomeloQualityBreakdownResponse,
@@ -94,5 +95,13 @@ export const getAdminDashboardData = async (yearRevenue?: number, yearFarm?: num
   const res = await axiosAuth.axiosJsonRequest.get(`report/admin/dashboard?${params.toString()}`);
 
   const apiResponse = res.data as ApiResponse<AdminDashboardResponses>;
+  return apiResponse.data;
+};
+
+export const getDeadAndAlive = async () => {
+  const res = await axiosAuth.axiosJsonRequest.get(
+    `report/plant/statistic-dead-and-alive`,
+  );
+  const apiResponse = res.data as ApiResponse<DeadAndAlive>;
   return apiResponse.data;
 };

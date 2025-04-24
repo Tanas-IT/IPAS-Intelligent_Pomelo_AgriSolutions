@@ -352,5 +352,11 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
             return await query.AsNoTracking().ToListAsync();
         }
 
+        public async Task<List<Crop>> GetAllCropByFarmId(int farmId)
+        {
+            var result = await _context.Crops.Where(x => x.FarmId == farmId).ToListAsync();
+            return result;
+        }
+
     }
 }

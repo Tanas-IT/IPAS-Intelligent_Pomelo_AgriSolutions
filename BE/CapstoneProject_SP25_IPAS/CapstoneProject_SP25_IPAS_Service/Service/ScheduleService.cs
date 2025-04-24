@@ -35,15 +35,36 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
         {
             try
             {
-                var findSchedule = await _unitOfWork.CarePlanScheduleRepository.GetByID(changeTimeOfEmployeeModel.ScheduleId);
+                var findSchedule = await _unitOfWork.CarePlanScheduleRepository.GetByCondition(x => x.ScheduleId == changeTimeOfEmployeeModel.ScheduleId, "CarePlan");
+                if(findSchedule.CarePlan != null && changeTimeOfEmployeeModel.StartTime != null && changeTimeOfEmployeeModel.EndTime != null)
+                {
+                    var parseStartTime = TimeSpan.Parse(changeTimeOfEmployeeModel.StartTime);
+                    var parseEndTime = TimeSpan.Parse(changeTimeOfEmployeeModel.EndTime);
+                   
+                        var checkTime = (int)(parseEndTime - parseStartTime).TotalMinutes;
+                        var masterType = await _unitOfWork.MasterTypeRepository
+                       .GetByCondition(x => x.MasterTypeId == findSchedule.CarePlan.MasterTypeId);
+
+                        if (masterType != null)
+                        {
+                            var minTime = masterType.MinTime;
+                            var maxTime = masterType.MaxTime;
+
+                            if (checkTime < minTime || checkTime > maxTime)
+                            {
+                                throw new Exception($"Time of work ({checkTime} minutes) does not valid! It must be in range {minTime} - {maxTime} minutes.");
+                            }
+                        }
+                }
+               
                 //if (changeTimeOfEmployeeModel.StartTime != null && changeTimeOfEmployeeModel.EndTime != null)
                 //{
-                    //var parseStartTime = TimeSpan.Parse(changeTimeOfEmployeeModel.StartTime);
-                    //var parseEndTime = TimeSpan.Parse(changeTimeOfEmployeeModel.EndTime);
+                //var parseStartTime = TimeSpan.Parse(changeTimeOfEmployeeModel.StartTime);
+                //var parseEndTime = TimeSpan.Parse(changeTimeOfEmployeeModel.EndTime);
 
-                    //findSchedule.StartTime = parseStartTime;
-                    //findSchedule.EndTime = parseEndTime;
-                    if (!string.IsNullOrWhiteSpace(changeTimeOfEmployeeModel.StartTime))
+                //findSchedule.StartTime = parseStartTime;
+                //findSchedule.EndTime = parseEndTime;
+                if (!string.IsNullOrWhiteSpace(changeTimeOfEmployeeModel.StartTime))
                     {
                         findSchedule.StartTime = TimeSpan.Parse(changeTimeOfEmployeeModel.StartTime);
                     }
@@ -144,11 +165,29 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     return new BusinessResult(404, "Can not find any workLog to update");
                 }
 
-                var getScheduleToUpdate = await _unitOfWork.CarePlanScheduleRepository.GetByCondition(x => x.ScheduleId == getWorkLogToUpdate.ScheduleId);
+                var getScheduleToUpdate = await _unitOfWork.CarePlanScheduleRepository.GetByCondition(x => x.ScheduleId == getWorkLogToUpdate.ScheduleId, "CarePlan");
+                
                 if (changeTimeAndEmployeeModel.StartTime != null && changeTimeAndEmployeeModel.EndTime != null)
                 {
                     var parseStartTime = TimeSpan.Parse(changeTimeAndEmployeeModel.StartTime);
                     var parseEndTime = TimeSpan.Parse(changeTimeAndEmployeeModel.EndTime);
+                    if (getScheduleToUpdate.CarePlan != null)
+                    {
+                        var checkTime = (int)(parseEndTime - parseStartTime).TotalMinutes;
+                        var masterType = await _unitOfWork.MasterTypeRepository
+                       .GetByCondition(x => x.MasterTypeId == getScheduleToUpdate.CarePlan.MasterTypeId);
+
+                        if (masterType != null)
+                        {
+                            var minTime = masterType.MinTime;
+                            var maxTime = masterType.MaxTime;
+
+                            if (checkTime < minTime || checkTime > maxTime)
+                            {
+                                throw new Exception($"Time of work ({checkTime} minutes) does not valid! It must be in range {minTime} - {maxTime} minutes.");
+                            }
+                        }
+                    }
                     await _unitOfWork.WorkLogRepository.CheckConflictTaskOfEmployee(parseStartTime, parseEndTime, changeTimeAndEmployeeModel.DateWork.Value, changeTimeAndEmployeeModel.ListEmployeeUpdate.Select(x => x.NewUserId).ToList());
                     if (getScheduleToUpdate != null)
                     {

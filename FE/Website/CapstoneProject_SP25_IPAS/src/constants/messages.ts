@@ -14,7 +14,7 @@ export const MESSAGES = {
   DRAW_PLOT: "Please draw a plot before proceeding to the next step!",
   DRAW_PLOT_UPDATE: "Please draw a plot before updating!",
   OVERLAPPING_PLOT: "The new plot overlaps with an existing plot!",
-
+  CANNOT_DELETE_ROW: "Cannot delete this row because plants have been added.",
   PLOT_UPDATE_SUCCESS: "Plot information updated successfully!",
   COORD_UPDATE_SUCCESS: "Plot coordinates updated successfully!",
   PLOT_AND_COORD_UPDATE_SUCCESS: "Plot information and coordinates updated successfully!",

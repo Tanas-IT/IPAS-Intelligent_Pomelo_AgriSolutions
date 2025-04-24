@@ -26,6 +26,8 @@ namespace CapstoneProject_SP25_IPAS_Service.IService
         public Task<BusinessResult> EmployeeTodayTask(int userId);
         public Task<BusinessResult> EmployeeProductivity(int userId, string? timeRange);
         public Task<BusinessResult> StatisticPlantDeadAndAlive(int farmId);
+        public Task<BusinessResult> DashboardForEmployee(int userId, int farmId);
+        public Task<BusinessResult> HomeMobileManager(int userId, int farmId);
 
     }
 }

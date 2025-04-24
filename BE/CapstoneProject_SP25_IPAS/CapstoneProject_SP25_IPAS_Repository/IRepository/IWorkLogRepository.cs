@@ -45,5 +45,6 @@ namespace CapstoneProject_SP25_IPAS_Repository.IRepository
         public Task<WorkLog> GetWorkLogByIdForDelete(int workLogId);
         public Task<WorkLog> GetWorkLogByIdWithPlanAndNotUserWorkLog(int workLogId);
         public Task<List<WorkLog>> GetWorkLogsByPlanIdsWithNoScheduleAsync(List<int> planIds);
+        public Task<List<WorkLog>> GetWorkLogByIdForDelete(int userId, int farmId);
     }
 }

@@ -141,6 +141,10 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                             }
                         }
                     }
+                    if(keyGroup == null)
+                    {
+                        keyGroup = Guid.NewGuid().ToString();
+                    }
                     var newPlan = new Plan()
                     {
                         PlanCode = $"PLAN{DateTime.Now:yyMMddHHmmssfff}",
@@ -294,7 +298,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                 // Lưu lại tất cả PlantID đã có trong các LandRow để loại bỏ khỏi ListPlant bên ngoài
                                 existingPlantIDs.UnionWith(plantsInRow);
                             }
-                           
+
                             if (plantTarget.LandPlotID.HasValue && plantTarget.Unit.ToLower().Equals("landplot"))
                             {
                                 // **Insert dữ liệu cho từng LandRow (tránh trùng lặp)**
@@ -323,7 +327,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                             else
                             {
                                 // **Insert dữ liệu cho từng LandRow (tránh trùng lặp)**
-                                if(plantTarget.Unit.ToLower().Equals("row"))
+                                if (plantTarget.Unit.ToLower().Equals("row"))
                                 {
                                     foreach (var row in rowToPlants)
                                     {
@@ -347,10 +351,10 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                         }
                                     }
                                 }
-                                
+
                                 // **Xử lý các PlantID từ input (chỉ insert nếu nó không có trong LandRows)**
                                 var plantsToInsert = inputPlantIDs.Except(existingPlantIDs).ToList();
-                                if(plantTarget.Unit.ToLower().Equals("plant"))
+                                if (plantTarget.Unit.ToLower().Equals("plant"))
                                 {
                                     plantsToInsert = inputPlantIDs
                                             .Where(id => !addedPlanTargets.Any(t => t.Item1 == id))
@@ -536,7 +540,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 Expression<Func<Plan, bool>> filter = x =>
                            x.IsDeleted == false && x.IsSample == false && // Chỉ lấy các bản ghi chưa bị xóa
                           x.FarmID == farmId;
-                                 
+
                 Func<IQueryable<Plan>, IOrderedQueryable<Plan>> orderBy = null!;
                 if (!string.IsNullOrEmpty(paginationParameter.Search))
                 {
@@ -834,11 +838,41 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             try
             {
                 string key = CacheKeyConst.PLAN + $"{planId}";
-                
+
                 var getPlan = await _unitOfWork.PlanRepository.GetPlanByInclude(planId);
+                var getStatusNotStarted = await _unitOfWork.SystemConfigRepository
+                                     .GetConfigValue(SystemConfigConst.NOT_STARTED.Trim(), "Not Started");
+                var getStatusInProgress = await _unitOfWork.SystemConfigRepository
+                                    .GetConfigValue(SystemConfigConst.IN_PROGRESS.Trim(), "In Progress");
+                var getStatusDone = await _unitOfWork.SystemConfigRepository
+                                    .GetConfigValue(SystemConfigConst.DONE.Trim(), "Done");
+                var getStatusOverdue = await _unitOfWork.SystemConfigRepository
+                                    .GetConfigValue(SystemConfigConst.OVERDUE.Trim(), "Overdue");
+              
+               
+                
                 if (getPlan != null)
                 {
                     double calculateProgress = await _unitOfWork.WorkLogRepository.CalculatePlanProgress(getPlan.PlanId);
+                    string statusResult = "";
+                    if (Math.Round(calculateProgress, 2) == 100)
+                    {
+                        statusResult = getStatusDone;
+                    }
+                    else if (getPlan.EndDate.Value.Date < DateTime.Now.Date)
+                    {
+                        statusResult = getStatusOverdue;
+                    }
+                    else if (getPlan.StartDate.Value.Date > DateTime.Now.Date)
+                    {
+                        statusResult = getStatusNotStarted;
+                    }
+                    else
+                    {
+                        statusResult = getStatusInProgress;
+                    }
+
+                    getPlan.Status = statusResult;
                     var result = _mapper.Map<PlanModel>(getPlan);
                     // Ánh xạ danh sách PlanTarget thành PlanTargetModels
                     var mappedPlanTargets = MapPlanTargets(getPlan.PlanTargets.ToList());
@@ -891,6 +925,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     }
 
                     result.Progress = Math.Round(calculateProgress, 2).ToString();
+                   
                     if (result != null)
                     {
                         //string groupKey = CacheKeyConst.GROUP_PLAN + $"{getPlan.PlanId}";
@@ -1086,27 +1121,27 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
                     var validatePlan = new CreatePlanModel();
                     var checkProcessId = 0;
-                    if(updatePlanModel.StartDate != null)
+                    if (updatePlanModel.StartDate != null)
                     {
                         validatePlan.StartDate = updatePlanModel.StartDate.Value;
                     }
-                    if(updatePlanModel.EndDate != null)
+                    if (updatePlanModel.EndDate != null)
                     {
                         validatePlan.EndDate = updatePlanModel.EndDate.Value;
                     }
-                    if(updatePlanModel.ProcessId != null)
+                    if (updatePlanModel.ProcessId != null)
                     {
                         validatePlan.ProcessId = updatePlanModel.ProcessId.Value;
                         checkProcessId = updatePlanModel.ProcessId.Value;
                     }
-                    if(updatePlanModel.SubProcessId != null)
+                    if (updatePlanModel.SubProcessId != null)
                     {
                         validatePlan.SubProcessId = updatePlanModel.SubProcessId.Value;
                         var getProcessBySub = await _unitOfWork.SubProcessRepository.GetProcessBySubProcessId(updatePlanModel.SubProcessId.Value);
                         checkProcessId = getProcessBySub.ProcessId;
                     }
                     var errors = await ValidatePlansAgainstTemplate(checkProcessId, new List<CreatePlanModel>() { validatePlan });
-                    if(errors.Any())
+                    if (errors.Any())
                     {
                         return new BusinessResult(400, string.Join("\n", errors));
                     }
@@ -1157,7 +1192,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         {
                             checkExistPlan.Frequency = updatePlanModel.Frequency;
                         }
-                        if(updatePlanModel.SubProcessId != null)
+                        if (updatePlanModel.SubProcessId != null)
                         {
                             checkExistPlan.SubProcessId = updatePlanModel.SubProcessId;
                         }
@@ -1573,7 +1608,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                 await transaction.CommitAsync();
                                 await _responseCacheService.RemoveCacheByGroupAsync($"{CacheKeyConst.GROUP_FARM_PLAN}:{checkExistPlan.FarmID}");
                                 await _responseCacheService.RemoveCacheByGroupAsync(CacheKeyConst.GROUP_PLAN + checkExistPlan.PlanId.ToString());
-                                
+
                                 if (!string.IsNullOrEmpty(warningUpdateMessage))
                                 {
                                     return new BusinessResult(Const.SUCCESS_UPDATE_PLAN_CODE, warningUpdateMessage, result);
@@ -1764,7 +1799,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                                                         createPlanModel.ListEmployee.Select(x => x.UserId).ToList()
                                                                     );
             }
-                
+
             if (schedule.ScheduleId <= 0)
             {
                 await _unitOfWork.CarePlanScheduleRepository.Insert(schedule);
@@ -2048,7 +2083,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                                                       updatePlanModel.MasterTypeId,
                                                                        updatePlanModel.ListEmployee.Select(x => x.UserId).ToList());
             }
-           
+
             if (schedule.ScheduleId <= 0)
             {
                 plan.CarePlanSchedule = schedule;
@@ -2566,7 +2601,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             try
             {
                 var getListPlanTarget = await _unitOfWork.PlanRepository.GetListPlanByFarmId(farmId);
-                
+
                 var listTemp = _mapper.Map<List<ForSelectedModels>>(getListPlanTarget).ToList();
                 //foreach (var planTemp in listTemp)
                 //{
@@ -2782,7 +2817,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             return new BusinessResult(200, "Filter type of work by growth stage id sucess");
         }
 
-            public async Task<BusinessResult> CreateManyPlan(List<CreatePlanModel> createPlanModel, int? farmId)
+        public async Task<BusinessResult> CreateManyPlan(List<CreatePlanModel> createPlanModel, int? farmId)
         {
             using (var transaction = await _unitOfWork.BeginTransactionAsync())
             {
@@ -2811,7 +2846,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     }
                     var processId = processIds.FirstOrDefault();
                     var errors = await ValidatePlansAgainstTemplate(processId, createPlanModel);
-                    if(errors.Any())
+                    if (errors.Any())
                     {
                         return new BusinessResult(400, string.Join("\n", errors));
                     }
@@ -2922,7 +2957,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     }).ToList(),
                     SubProcesses = rootSubProcesses
                 };
-               
+
                 if (result != null)
                 {
                     return new BusinessResult(200, "Get Process with tree structure", result);
@@ -2977,7 +3012,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     {
                         return new BusinessResult(Const.WARNING_INVALID_DATE_FILTER_CODE, Const.WARNING_INVALID_DATE_FILTER_MSG);
                     }
-                    filter = filter.And(x => x.StartDate >= filterRequest.FromDate&&
+                    filter = filter.And(x => x.StartDate >= filterRequest.FromDate &&
                                              x.EndDate <= filterRequest.ToDate);
                 }
 
@@ -3115,7 +3150,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         break;
                 }
                 string includeProperties = "PlanTargets";
-                var entities = await _unitOfWork.PlanRepository.GetPlanWithPagination(filter: filter, orderBy: orderBy, /*includeProperties:includeProperties ,*/ pageIndex: paginationParameter.PageIndex,pageSize: paginationParameter.PageSize);
+                var entities = await _unitOfWork.PlanRepository.GetPlanWithPagination(filter: filter, orderBy: orderBy, /*includeProperties:includeProperties ,*/ pageIndex: paginationParameter.PageIndex, pageSize: paginationParameter.PageSize);
                 var pagin = new PageEntity<PlanModel>();
 
                 var listTemp = _mapper.Map<IEnumerable<PlanModel>>(entities).ToList();

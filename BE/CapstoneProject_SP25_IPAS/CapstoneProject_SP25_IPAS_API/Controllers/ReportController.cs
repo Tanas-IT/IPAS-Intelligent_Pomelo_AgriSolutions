@@ -392,6 +392,58 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             }
         }
 
+        [HttpGet(APIRoutes.Report.DashboardForEmployee, Name = "DashboardForEmployee")]
+        //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)}")]
+        //[CheckUserFarmAccess]
+        //[FarmExpired]
+        public async Task<IActionResult> DashboardForEmployee([FromQuery] int? farmId, [FromQuery] int? userId)
+        {
+            try
+            {
+                if (!farmId.HasValue)
+                    farmId = _jwtTokenService.GetFarmIdFromToken() ?? 0;
+                if (!userId.HasValue)
+                    userId = _jwtTokenService.GetUserIdFromToken() ?? 0;
+                var result = await _reportService.DashboardForEmployee(userId.Value, farmId.Value);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                var response = new BaseResponse()
+                {
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    Message = ex.Message
+                };
+                return BadRequest(response);
+            }
+        }
+
+
+        [HttpGet(APIRoutes.Report.HomeMobileForManager, Name = "HomeMobileForManager")]
+        //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)}")]
+        //[CheckUserFarmAccess]
+        //[FarmExpired]
+        public async Task<IActionResult> HomeMobileForManager([FromQuery] int? farmId, [FromQuery] int? userId)
+        {
+            try
+            {
+                if (!farmId.HasValue)
+                    farmId = _jwtTokenService.GetFarmIdFromToken() ?? 0;
+                if (!userId.HasValue)
+                    userId = _jwtTokenService.GetUserIdFromToken() ?? 0;
+                var result = await _reportService.HomeMobileManager(userId.Value, farmId.Value);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+                var response = new BaseResponse()
+                {
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    Message = ex.Message
+                };
+                return BadRequest(response);
+            }
+        }
 
     }
 

@@ -2,7 +2,7 @@ import moment from "moment";
 import { UserRole } from "@/constants/Enum";
 import { camelCase, kebabCase } from "change-case";
 import { jwtDecode } from "jwt-decode";
-import { AnswerData, DecodedToken, FileType } from "@/types";
+import { AnswerData, DecodedToken, FileType, PlotAutoFillOutput } from "@/types";
 import { FILE_FORMAT, LOCAL_STORAGE_KEYS, UserRolesStr } from "@/constants";
 import {
   cropService,
@@ -453,21 +453,26 @@ const getDaySuffix = (day: number): string => {
   }
 };
 
-export const isDayInRange = (day: number, startDate: Dayjs, endDate: Dayjs, type: "weekly" | "monthly") => {
+export const isDayInRange = (
+  day: number,
+  startDate: Dayjs,
+  endDate: Dayjs,
+  type: "weekly" | "monthly",
+) => {
   if (type === "weekly") {
-      let current = startDate.clone();
-      while (current.isBefore(endDate, "day") || current.isSame(endDate, "day")) {
-          if (current.day() === day) return true;
-          current = current.add(1, "day");
-      }
-      return false;
+    let current = startDate.clone();
+    while (current.isBefore(endDate, "day") || current.isSame(endDate, "day")) {
+      if (current.day() === day) return true;
+      current = current.add(1, "day");
+    }
+    return false;
   } else if (type === "monthly") {
-      let current = startDate.clone();
-      while (current.isBefore(endDate, "day") || current.isSame(endDate, "day")) {
-          if (current.date() === day) return true;
-          current = current.add(1, "day");
-      }
-      return false;
+    let current = startDate.clone();
+    while (current.isBefore(endDate, "day") || current.isSame(endDate, "day")) {
+      if (current.date() === day) return true;
+      current = current.add(1, "day");
+    }
+    return false;
   }
   return false;
 };
@@ -821,4 +826,44 @@ export const calculateRowLength = (treeAmount: number, distance: number, sizePla
 
   // return Math.max(calculatedLength, minRowLength); // Đảm bảo chiều dài không nhỏ hơn minRowLength
   return calculatedLength;
+};
+
+export const generateValidPlotAutoFillData = (
+  plotLength: number,
+  plotWidth: number,
+): PlotAutoFillOutput => {
+  const rowOrientation: "Vertical" | "Horizontal" = "Horizontal";
+
+  // Giả định rowWidth, rowSpacing, lineSpacing
+  const rowWidth = 2;
+  const rowSpacing = 1;
+  const lineSpacing = 1;
+  const plantSpacing = 1.2;
+
+  const targetArea = plotLength * plotWidth;
+
+  // Giả sử cố định numberOfRows
+  let numberOfRows = 5;
+
+  // Tính rowLength sao cho đủ diện tích
+  const totalSpacing = (numberOfRows - 1) * rowSpacing * plotWidth;
+  const remainingArea = targetArea - totalSpacing;
+  const rowLength = remainingArea / (rowWidth * numberOfRows);
+
+  // Tính rowsPerLine
+  const rowsPerLine = Math.floor((plotWidth + lineSpacing) / (rowWidth + lineSpacing));
+
+  const plantsPerRow = Math.floor(rowLength / plantSpacing);
+
+  return {
+    rowLength: parseFloat(rowLength.toFixed(2)),
+    rowWidth,
+    numberOfRows,
+    rowSpacing,
+    rowsPerLine,
+    lineSpacing,
+    rowOrientation,
+    plantsPerRow,
+    plantSpacing,
+  };
 };
