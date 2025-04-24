@@ -600,6 +600,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     Width = row.Width,
                     Distance = row.Distance,
                     Direction = row.Direction,
+                    IsDeleted = false,
                     TreeAmount = row.TreeAmount,
                     Description = row.Description,
                     Status = LandRowStatus.Active.ToString(),
