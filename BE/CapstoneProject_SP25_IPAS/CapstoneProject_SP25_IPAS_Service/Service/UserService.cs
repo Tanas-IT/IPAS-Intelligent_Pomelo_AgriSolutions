@@ -624,12 +624,6 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 var uploadImageLink = await _cloudinaryService.UploadImageAsync(avatarOfUser, CloudinaryPath.USER_AVARTAR);
                 if (uploadImageLink != null)
                 {
-                    if (!string.IsNullOrEmpty(checkExistUser.AvatarURL) &&
-                        !string.Equals(checkExistUser.AvatarURL, _configuration["SystemDefault:ResourceDefault"]) &&
-                        !string.Equals(checkExistUser.AvatarURL, _configuration["SystemDefault:AvatarDefault"]))
-                    {
-                        await _cloudinaryService.DeleteImageByUrlAsync(checkExistUser.AvatarURL);
-                    }
                     checkExistUser.AvatarURL = uploadImageLink;
                     _unitOfWork.UserRepository.Update(checkExistUser);
                     var result = await _unitOfWork.SaveAsync();
