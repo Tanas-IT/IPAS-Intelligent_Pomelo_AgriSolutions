@@ -278,8 +278,8 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
             var result = await _context.Crops
                         .Where(x => x.FarmId == farmId &&
                                 x.IsDeleted == false &&
-                                    x.StartDate.HasValue && x.EndDate.HasValue &&
-                                    x.StartDate.Value <= currentDate && x.EndDate.Value >= currentDate)
+                                    x.StartDate.HasValue && x.EndDate.HasValue /*&&
+                                    x.StartDate.Value <= currentDate*/ && x.EndDate.Value >= currentDate)
                         .ToListAsync();
             return result;
         }

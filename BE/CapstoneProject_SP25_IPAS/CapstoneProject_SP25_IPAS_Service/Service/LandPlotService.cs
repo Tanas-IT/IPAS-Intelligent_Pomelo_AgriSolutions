@@ -79,7 +79,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     };
 
                     // Xử lý danh sách hàng trong thửa
-                    var landRowsResult = ProcessLandRows(createRequest, landplotCreateEntity, LandPlotCode);
+                    var landRowsResult = await ProcessLandRows(createRequest, landplotCreateEntity, LandPlotCode);
                     if (landRowsResult != null) return landRowsResult;
 
                     // Xử lý tọa độ
@@ -572,7 +572,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             }
         }
 
-        private BusinessResult? ProcessLandRows(LandPlotCreateRequest createRequest, LandPlot landplotCreateEntity, string? SplitLandPlotCode = null)
+        private async Task<BusinessResult> ProcessLandRows(LandPlotCreateRequest createRequest, LandPlot landplotCreateEntity, string? SplitLandPlotCode = null)
         {
             // Kiểm tra hàng có bị trùng index không
             var duplicateRowIndex = createRequest.LandRows.GroupBy(r => r.RowIndex)
@@ -593,6 +593,23 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             // Tạo danh sách hàng
             foreach (var row in createRequest.LandRows)
             {
+
+                var minPlant = await _unitOfWork.SystemConfigRepository.GetConfigValue(SystemConfigConst.MIN_PLANT_OF_LAND_ROW.Trim(), (int)1);
+                if (row.TreeAmount < minPlant)
+                    return new BusinessResult(400, $"Plant of Row must >= {minPlant}.");
+
+                var minDistance = await _unitOfWork.SystemConfigRepository.GetConfigValue(SystemConfigConst.MIN_DISTANCE_OF_PLANT.Trim(), (double)2.0);
+                if (row.Distance < minDistance)
+                    return new BusinessResult(400, $"Distance between plants must >= {minDistance}.");
+
+                var minLength = await _unitOfWork.SystemConfigRepository.GetConfigValue(SystemConfigConst.MIN_LENGTH.Trim(), (double)1);
+                if (row.Length < minLength)
+                    return new BusinessResult(400, $"Row length must >= {minLength}.");
+
+                var minWidth = await _unitOfWork.SystemConfigRepository.GetConfigValue(SystemConfigConst.MIN_WIDTH.Trim(), (double)1);
+                if (row.Width < minWidth)
+                    return new BusinessResult(400, $"Row width must >= {minWidth}.");
+
                 var landRow = new LandRow()
                 {
                     LandRowCode = $"{CodeAliasEntityConst.LANDROW}{CodeHelper.GenerateCode()}-{DateTime.Now.ToString("ddMMyy")}-{CodeAliasEntityConst.LANDPLOT}{SplitLandPlotCode}",
