@@ -1,6 +1,6 @@
 import { Flex, Form, FormInstance } from "antd";
 import style from "./RowConfiguration.module.scss";
-import React, { useEffect } from "react";
+import React from "react";
 import { CustomButton, InfoField } from "@/components";
 import { generateValidPlotAutoFillData, RulesManager } from "@/utils";
 import { createPlotFormFields } from "@/constants";
