@@ -11,7 +11,7 @@ type RowItemModalProps = {
   isOpen: boolean;
   onClose: (values: landRowSimulate, isUpdate: boolean) => void;
   onSave: (values: landRowSimulate) => void;
-  onDelete?: (landRowId: number) => void;
+  onDelete?: (landRowId: number, indexUsed: number) => void;
   rowData?: landRowSimulate;
 };
 
@@ -46,26 +46,16 @@ const RowItemModal = ({ isOpen, onClose, onSave, onDelete, rowData }: RowItemMod
     width: form.getFieldValue(rowFormFields.width),
     treeAmount: form.getFieldValue(rowFormFields.plantsPerRow),
     distance: form.getFieldValue(rowFormFields.plantSpacing),
+    indexUsed: rowData?.indexUsed,
     plants: [],
   });
 
   const handleOk = async () => {
     await form.validateFields();
-
     onSave(getFormData());
   };
 
   const handleCancel = () => onClose(getFormData(), isUpdate);
-
-  const renderDeleteButton = () => {
-    if (!isUpdate || !rowData || !onDelete) return null;
-
-    return (
-      <Button danger onClick={() => onDelete(rowData.landRowId!)}>
-        Delete
-      </Button>
-    );
-  };
 
   return (
     <ModalForm
@@ -88,8 +78,7 @@ const RowItemModal = ({ isOpen, onClose, onSave, onDelete, rowData }: RowItemMod
                   className: style.cancelBtn,
                 },
                 onOk: () => {
-                  onDelete?.(rowData.landRowId);
-                  handleCancel();
+                  onDelete?.(rowData.landRowId, rowData.indexUsed ?? 0);
                 },
               });
             }

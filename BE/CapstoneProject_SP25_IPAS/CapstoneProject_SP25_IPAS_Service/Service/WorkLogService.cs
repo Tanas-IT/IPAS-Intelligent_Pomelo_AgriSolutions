@@ -3206,6 +3206,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
                 var subProcess = plan.SubProcess;
                 var processId = plan.ProcessId ?? subProcess?.ProcessId;
+                var keyGroup = plan.KeyGroup;
                 if (plan.ProcessId != null && subProcess == null)
                 {
                     return new BusinessResult(200, "No workLog dependency.");
@@ -3215,6 +3216,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
                 // Lấy toàn bộ SubProcess liên quan
                 var allSubProcesses = await _unitOfWork.SubProcessRepository.GetAllByProcessOrParentAsync(processId.Value);
+                
                 if (allSubProcesses == null || !allSubProcesses.Any())
                     return new BusinessResult(200, "No SubProcess found.");
 
@@ -3246,7 +3248,10 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 }
 
                 // Lấy tất cả Plan thuộc các SubProcess này
-                var allPlans = await _unitOfWork.PlanRepository.GetPlansBySubProcessIds(relatedSubProcessIds.ToList());
+                var getAllPlans = await _unitOfWork.PlanRepository.GetPlansBySubProcessIds(relatedSubProcessIds.ToList());
+                var allPlans = getAllPlans
+                                    .Where(p => p.KeyGroup == plan.KeyGroup)
+                                    .ToList();
                 if (allPlans == null || !allPlans.Any())
                     return new BusinessResult(200, "No Plans found under the process.");
 

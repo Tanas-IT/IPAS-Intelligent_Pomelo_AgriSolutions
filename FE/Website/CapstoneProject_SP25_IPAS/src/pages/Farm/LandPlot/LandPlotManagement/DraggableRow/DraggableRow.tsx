@@ -1,7 +1,7 @@
 import React, { useCallback } from "react";
 import { DndProvider } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
-import { Divider, Flex, Modal } from "antd";
+import { Divider, Flex } from "antd";
 import style from "./DraggableRow.module.scss";
 import { Icons } from "@/assets";
 import { ConfirmModal, CustomButton, MapControls, RowList } from "@/components";
@@ -9,7 +9,8 @@ import RowItemModal from "./RowItemModal";
 import { useHasChanges, useModal, usePanZoom } from "@/hooks";
 import { isPlantOverflowing } from "@/utils";
 import { landRowSimulate } from "@/payloads";
-import { useVirtualPlotConfigStore } from "@/stores";
+import { toast } from "react-toastify";
+import { MESSAGES } from "@/constants";
 
 interface DraggableRowProps {
   rowsData: landRowSimulate[];
@@ -24,8 +25,6 @@ const DraggableRow: React.FC<DraggableRowProps> = ({
   isHorizontal,
   rowsPerLine,
 }) => {
-  const { rowSpacing, lineSpacing } = useVirtualPlotConfigStore();
-
   const moveRow = useCallback(
     (dragIndex: number, hoverIndex: number) => {
       setRowsData((prevRows) => {
@@ -40,6 +39,7 @@ const DraggableRow: React.FC<DraggableRowProps> = ({
         // Re-index lại để giữ đúng thứ tự khi kéo dọc
         return updatedRows.map((row, index) => ({
           ...row,
+          rowIndex: index + 1,
           index: index + 1,
         }));
       });
@@ -87,10 +87,10 @@ const DraggableRow: React.FC<DraggableRowProps> = ({
     setRowsData((prevRows) => {
       const lastRow = prevRows[prevRows.length - 1];
       const nextIndex = lastRow ? lastRow.rowIndex + 1 : 1;
-      const nextId = lastRow ? lastRow.landRowId + 1 : 1;
+      // const nextId = lastRow ? lastRow.landRowId + 1 : 1;
 
       const updatedRow: landRowSimulate = {
-        landRowId: nextId,
+        // landRowId: nextId,
         landRowCode: "",
         rowIndex: nextIndex,
         length: Number(newRow.length),
@@ -120,26 +120,37 @@ const DraggableRow: React.FC<DraggableRowProps> = ({
     //   toast.error(MESSAGES.OUT_PLANT);
     //   return;
     // }
-
-    setRowsData((prevRows) =>
-      prevRows.map((row) =>
-        row.landRowId === updatedRow.landRowId
-          ? {
-              ...row,
-              length: Number(updatedRow.length),
-              width: Number(updatedRow.width),
-              treeAmount: Number(updatedRow.treeAmount),
-              distance: Number(updatedRow.distance),
-            }
-          : row,
-      ),
-    );
-
-    updateConfirmModal.hideModal();
-    formModal.hideModal();
+    try {
+      if (updatedRow.indexUsed && Number(updatedRow.treeAmount) < updatedRow.indexUsed) {
+        toast.error(
+          `Cannot update the plant amount. The number of plants must be at least ${updatedRow.indexUsed} which have already been added.`,
+        );
+        return;
+      }
+      setRowsData((prevRows) =>
+        prevRows.map((row) =>
+          row.landRowId === updatedRow.landRowId
+            ? {
+                ...row,
+                length: Number(updatedRow.length),
+                width: Number(updatedRow.width),
+                treeAmount: Number(updatedRow.treeAmount),
+                distance: Number(updatedRow.distance),
+              }
+            : row,
+        ),
+      );
+      formModal.hideModal();
+    } finally {
+      updateConfirmModal.hideModal();
+    }
   };
 
-  const handleDeleteRow = (landRowId: number) => {
+  const handleDeleteRow = (landRowId: number, indexUsed: number) => {
+    if (indexUsed > 0) {
+      toast.error(MESSAGES.CANNOT_DELETE_ROW);
+      return;
+    }
     setRowsData((prev) => {
       const updatedRows = prev.filter((r) => r.landRowId !== landRowId); // Lọc ra hàng đã xóa
       // Cập nhật lại index của các hàng còn lại
@@ -148,6 +159,7 @@ const DraggableRow: React.FC<DraggableRowProps> = ({
         rowIndex: index + 1, // Cập nhật lại rowIndex, bắt đầu từ 1
       }));
     });
+    formModal.hideModal();
   };
 
   return (
@@ -155,7 +167,10 @@ const DraggableRow: React.FC<DraggableRowProps> = ({
       <div ref={containerRef}>
         <Flex className={style.rowHeader}>
           <Flex className={style.rowInfoContainer}>
-            <span className={style.totalRowsLabel}>Total Rows: {rowsData.length}</span>
+            <span className={style.totalRowsLabel}>
+              Total Rows: {rowsData.length} 
+              {/* — Total Area: {100} m² */}
+            </span>
             <Divider className={style.divider} />
             <span className={style.rowOrientationLabel}>
               Orientation: {isHorizontal ? "Horizontal" : "Vertical"}

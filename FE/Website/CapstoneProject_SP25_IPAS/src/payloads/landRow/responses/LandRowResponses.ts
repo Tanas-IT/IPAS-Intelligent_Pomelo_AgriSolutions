@@ -25,13 +25,14 @@ export interface GetLandRow {
 }
 
 export interface landRowSimulate {
-  landRowId: number;
+  landRowId?: number;
   landRowCode: string;
   rowIndex: number;
   treeAmount: number;
   distance: number;
   length: number;
   width: number;
+  indexUsed?: number;
   plants: plantSimulate[];
 }
 

@@ -200,3 +200,15 @@ export interface AnswerData {
 }
 
 export type CriteriaExportType = "PlantID" | "PlantLotID" | "GraftedPlantID";
+
+export interface PlotAutoFillOutput {
+  rowLength: number;
+  rowWidth: number;
+  numberOfRows: number;
+  rowSpacing: number;
+  rowsPerLine: number;
+  lineSpacing: number;
+  rowOrientation: "Horizontal" | "Vertical";
+  plantsPerRow: number;
+  plantSpacing: number;
+}
