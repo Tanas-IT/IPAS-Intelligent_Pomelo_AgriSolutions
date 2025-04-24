@@ -140,7 +140,7 @@ function Dashboard() {
               </div>
               <div className={style.pieChart}>
                 <h3>Plant Development Stages</h3>
-                <PlantDevelopmentStages data={data?.plantDevelopmentStages || {}} />
+                <PlantDevelopmentStages />
               </div>
               <div className={style.pieChart}>
                 <h3>Plant Health Status</h3>

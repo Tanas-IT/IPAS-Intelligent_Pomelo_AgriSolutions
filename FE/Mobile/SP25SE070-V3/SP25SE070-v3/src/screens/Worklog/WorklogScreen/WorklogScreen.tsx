@@ -30,6 +30,7 @@ import { SegmentedControl, TextCustom } from "@/components";
 import { worklogService } from "@/services";
 import { getUserId } from "@/utils";
 import { useAuthStore } from "@/store";
+import { UserRole } from "@/constants";
 
 interface CustomEventt {
   id?: string;
@@ -105,7 +106,7 @@ const MIN_CALENDAR_HEIGHT = 90;
 const MAX_CALENDAR_HEIGHT = 350;
 
 export default function WorklogScreen() {
-  const { userId } = useAuthStore();
+  const { userId, roleId } = useAuthStore();
   const [worklogs, setWorklogs] = useState<GetWorklog[]>([]);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -132,7 +133,7 @@ export default function WorklogScreen() {
     setTimelineEvents(timelineEvents);
     setEventDates(eventDates);
     // Cập nhật selectedDate nếu chưa có sự kiện nào cho ngày hiện tại
-    if (eventDates.length > 0 && !eventDates.includes(selectedDate)) {
+    if (eventDates.length > 0 && !eventDates.includes(selectedDate as never)) {
       setSelectedDate(eventDates[0]);
     }
   }, [worklogs]);
@@ -172,7 +173,13 @@ export default function WorklogScreen() {
     setError(null);
     
     try {
-      const response = await worklogService.getWorklogByUserId(Number(userId));
+      // const response = await worklogService.getWorklogByUserId(Number(userId));
+      let response;
+      if (roleId === UserRole.Owner.toString() || roleId === UserRole.Manager.toString()) {
+        response = await worklogService.getWorklog(filters);
+      } else {
+        response = await worklogService.getWorklogByUserId(Number(userId));
+      }
       setWorklogs(response);
       console.log("Data fetched successfully:", response);
     } catch (error) {

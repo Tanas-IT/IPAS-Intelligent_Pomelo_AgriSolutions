@@ -36,10 +36,11 @@ import {
 import { worklogService } from "@/services";
 import { useAuthStore } from "@/store";
 import FeedbackSection from "../FeedbackSection/FeedbackSection";
+import { UserRole } from "@/constants";
 
 const WorklogDetailScreen: React.FC<WorklogDetailScreenProps> = ({ route }) => {
   const { worklogId } = route.params;
-  const { userId } = useAuthStore();
+  const { userId, roleId } = useAuthStore();
   const navigation = useNavigation<RootStackNavigationProp>();
   const [worklog, setWorklog] = useState<WorklogDetail | null>(null);
   const [loading, setLoading] = useState(true);
@@ -299,26 +300,29 @@ const WorklogDetailScreen: React.FC<WorklogDetailScreenProps> = ({ route }) => {
           </TextCustom>
           <StatusBadge status={worklog.status as StatusType} />
         </View>
-
-        {!isUserRejected() && worklog.status === "Not Started" ? (
-          <TouchableOpacity onPress={handleCancelWorklog} style={styles.delBtn}>
-            <CustomIcon
-              name="cancel"
-              size={24}
-              color="red"
-              type="MaterialCommunityIcons"
-            />
-          </TouchableOpacity>
-        ) : canRedoWorklog() ? (
-          <TouchableOpacity onPress={handleRedoWorklog} style={styles.delBtn}>
-            <CustomIcon
-              name="restore"
-              size={24}
-              color="green"
-              type="MaterialCommunityIcons"
-            />
-          </TouchableOpacity>
-        ) : null}
+        {![UserRole.Owner.toString(), UserRole.Manager.toString()].includes(roleId!) && (
+          <>
+            {!isUserRejected() && worklog.status === "Not Started" ? (
+              <TouchableOpacity onPress={handleCancelWorklog} style={styles.delBtn}>
+                <CustomIcon
+                  name="cancel"
+                  size={24}
+                  color="red"
+                  type="MaterialCommunityIcons"
+                />
+              </TouchableOpacity>
+            ) : canRedoWorklog() ? (
+              <TouchableOpacity onPress={handleRedoWorklog} style={styles.delBtn}>
+                <CustomIcon
+                  name="restore"
+                  size={24}
+                  color="green"
+                  type="MaterialCommunityIcons"
+                />
+              </TouchableOpacity>
+            ) : null}
+          </>
+        )}
       </View>
 
       <View style={styles.dateTimeFrame}>
@@ -347,7 +351,7 @@ const WorklogDetailScreen: React.FC<WorklogDetailScreenProps> = ({ route }) => {
         </View>
       </View>
 
-      {isUserReporter() && worklog.status === "In Progress" && (
+      {isUserReporter() && worklog.status === "In Progress" && ![UserRole.Owner.toString(), UserRole.Manager.toString()].includes(roleId!) && (
         <TouchableOpacity
           style={[
             styles.markAsCompleted,
@@ -589,18 +593,23 @@ const WorklogDetailScreen: React.FC<WorklogDetailScreenProps> = ({ route }) => {
       <View style={styles.section}>
         <View style={styles.timelineHeader}>
           <TextCustom style={styles.sectionTitle}>Timeline Notes</TextCustom>
-          <TouchableOpacity
-            style={styles.addNoteButton}
-            onPress={handleAddNote}
-          >
-            <CustomIcon
-              name="plus"
-              size={20}
-              color="#fff"
-              type="MaterialCommunityIcons"
-            />
-            <TextCustom style={styles.addNoteText}>Add Note</TextCustom>
-          </TouchableOpacity>
+          {
+            ![UserRole.Owner.toString(), UserRole.Manager.toString()].includes(roleId!) && (
+              <TouchableOpacity
+                style={styles.addNoteButton}
+                onPress={handleAddNote}
+              >
+                <CustomIcon
+                  name="plus"
+                  size={20}
+                  color="#fff"
+                  type="MaterialCommunityIcons"
+                />
+                <TextCustom style={styles.addNoteText}>Add Note</TextCustom>
+              </TouchableOpacity>
+            )
+          }
+
         </View>
         {worklog.listNoteOfWorkLog.length > 0 ? (
           worklog.listNoteOfWorkLog.map((note, index) => (
