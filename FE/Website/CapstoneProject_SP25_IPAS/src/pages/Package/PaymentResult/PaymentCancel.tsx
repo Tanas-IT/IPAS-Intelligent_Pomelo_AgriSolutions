@@ -74,8 +74,8 @@ const PaymentCancel = () => {
             transactionId: transactionId || "",
           });
           console.log("Update result:", updateResult);
-          
-          
+
+
           if (updateResult.statusCode !== 200) {
             toast.error("Failed to update order status");
           }
@@ -120,20 +120,21 @@ const PaymentCancel = () => {
       <div className={styles.content}>
         <Result
           status="error"
-          title="Thanh toán đã bị hủy"
+          title="Payment Was Cancelled"
           subTitle={
-            orderId 
-              ? `Đơn hàng #${orderId} đã được hủy. Bạn sẽ được chuyển hướng sau 5 giây...`
-              : "Thanh toán đã bị hủy. Bạn sẽ được chuyển hướng sau 5 giây..."
+            orderId
+              ? `Order #${orderId} was cancelled. You will be redirected in 5 seconds...`
+              : "The payment process was cancelled. You will be redirected in 5 seconds..."
           }
+
           extra={[
-            <Button 
-              type="primary" 
-              key="home" 
+            <Button
+              type="primary"
+              key="home"
               onClick={handleManualBack}
-              loading={!orderId} // Hiển thị loading nếu không có orderId
+              loading={!orderId}
             >
-              Quay về trang chủ
+              Back Home
             </Button>,
           ]}
         />
