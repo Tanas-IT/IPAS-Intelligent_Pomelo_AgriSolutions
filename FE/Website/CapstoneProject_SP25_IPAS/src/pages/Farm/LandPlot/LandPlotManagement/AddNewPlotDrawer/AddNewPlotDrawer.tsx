@@ -418,6 +418,7 @@ const AddNewPlotDrawer: React.FC<AddNewPlotDrawerProps> = ({
         {currentStep === 1 && (
           <RowConfiguration
             form={form}
+            plotName={form.getFieldValue(createPlotFormFields.landPlotName)}
             plotLength={Number(form.getFieldValue(createPlotFormFields.length))}
             plotWidth={Number(form.getFieldValue(createPlotFormFields.width))}
           />

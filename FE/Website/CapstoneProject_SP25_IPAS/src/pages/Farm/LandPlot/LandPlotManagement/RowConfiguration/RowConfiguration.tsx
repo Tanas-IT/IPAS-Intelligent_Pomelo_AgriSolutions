@@ -8,12 +8,13 @@ import { useMapStore, useVirtualPlotConfigStore } from "@/stores";
 
 interface RowConfigurationProps {
   form: FormInstance;
+  plotName: string;
   plotLength: number;
   plotWidth: number;
 }
 
 const RowConfiguration: React.FC<RowConfigurationProps> = React.memo(
-  ({ form, plotLength, plotWidth }) => {
+  ({ form, plotName, plotLength, plotWidth }) => {
     const { setIsDirty } = useMapStore();
     const { metricUnit } = useVirtualPlotConfigStore();
 
@@ -40,7 +41,7 @@ const RowConfiguration: React.FC<RowConfigurationProps> = React.memo(
       <Flex className={style.rowConfigurationContainer}>
         <Flex className={style.plotInfoHeader}>
           <label className={style.plotLabel}>Plot Name: </label>
-          <span className={style.plotName}>Land plot A</span>
+          <span className={style.plotName}>{plotName}</span>
           {/* <span className={style.separator}>-------</span>
         <span
           className={`${style.orientationTag} ${isHorizontal ? style.horizontal : style.vertical}`}
