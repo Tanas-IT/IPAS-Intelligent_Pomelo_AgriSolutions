@@ -1063,8 +1063,20 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 var deadCount = getAllPlantInFarm.Count(p => p.IsDead == true);
                 var normalCount = total - deadCount;
 
-                var deadPercentage = Math.Round((double)deadCount / total * 100, 2);
-                var normalPercentage = 100 - deadPercentage;
+                double deadPercentage = 0;
+                double normalPercentage = 100;
+
+                if (total > 0)
+                {
+                    deadPercentage = Math.Round((double)deadCount / total * 100, 2);
+                    normalPercentage = 100 - deadPercentage;
+                }
+                else
+                {
+                    // Gán mặc định hoặc xử lý trường hợp không có dữ liệu
+                    deadPercentage = 0;
+                    normalPercentage = 0;
+                }
                 var result = new
                 {
                     total = total,
@@ -1202,8 +1214,20 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 var total = getAllPlantOfFarm.Count;
                 var deadCount = getAllPlantOfFarm.Count(p => p.IsDead == true);
                 var normalCount = total - deadCount;
-                var deadPercentage = Math.Round((double)deadCount / total * 100, 2);
-                var normalPercentage = 100 - deadPercentage;
+                double deadPercentage = 0;
+                double normalPercentage = 100;
+
+                if (total > 0)
+                {
+                    deadPercentage = Math.Round((double)deadCount / total * 100, 2);
+                    normalPercentage = 100 - deadPercentage;
+                }
+                else
+                {
+                    // Gán mặc định hoặc xử lý trường hợp không có dữ liệu
+                    deadPercentage = 0;
+                    normalPercentage = 0;
+                }
                 var getAllCrop = await _unitOfWork.CropRepository.GetAllCropByFarmId(farmId);
                 var totalYield = getAllCrop.Sum(x => x.ActualYield);
 
