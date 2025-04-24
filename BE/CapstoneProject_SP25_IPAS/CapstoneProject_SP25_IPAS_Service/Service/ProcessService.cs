@@ -409,12 +409,24 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     {
                         MasterTypeId = createProcessModel.MasterTypeId,
                         ProcessName = createProcessModel.ProcessName,
-                        ListSubProcess = createProcessModel.ListSubProcess,
-                        ListPlan = createProcessModel.ListPlan,
                         IsActive = createProcessModel.IsActive,
                         IsDeleted = createProcessModel.IsDeleted,
                         Order = createProcessModel.Order,
                     };
+                    if (createProcessModel.ListSubProcess != null)
+                    {
+                        newProcessModel.ListSubProcess = createProcessModel.ListSubProcess
+                            .Select(x => JsonConvert.SerializeObject(x))
+                            .ToList();
+                        
+                    }
+
+                    if (createProcessModel.ListPlan != null)
+                    {
+                        newProcessModel.ListPlan = createProcessModel.ListPlan
+                            .Select(x => JsonConvert.SerializeObject(x))
+                            .ToList();
+                    }
                     var result = await CreateProcess(newProcessModel, farmId);
                     if (result.StatusCode == 200)
                     {
