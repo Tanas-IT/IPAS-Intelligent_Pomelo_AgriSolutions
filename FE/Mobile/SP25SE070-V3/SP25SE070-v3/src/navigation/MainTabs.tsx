@@ -16,6 +16,7 @@ import ManagerHomeScreen from "@/screens/Home/ManagerHomeScreen/ManagerHomeScree
 import { CustomIcon } from "@/components";
 import { useAuthStore } from "@/store";
 import { UserRolesStr } from "@/constants";
+import { ReportResponseScreen } from "@/screens";
 
 const Tab = createBottomTabNavigator<MainTabParamList>();
 
@@ -133,7 +134,7 @@ export default function MainTabs() {
       />
       <Tab.Screen
         name="ChatAI"
-        component={AIScreen}
+        component={ReportResponseScreen}
         options={{
           tabBarLabel: "Chat AI",
           headerShown: false,

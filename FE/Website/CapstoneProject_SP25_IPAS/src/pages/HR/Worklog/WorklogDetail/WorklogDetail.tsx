@@ -719,6 +719,7 @@ function WorklogDetail() {
               style={{
                 fontWeight: 500,
               }}
+              disabled={!worklogDetail?.status || !["Not Started", "In Progress"].includes(worklogDetail.status)}
             >
               Mark as complete
             </Button>

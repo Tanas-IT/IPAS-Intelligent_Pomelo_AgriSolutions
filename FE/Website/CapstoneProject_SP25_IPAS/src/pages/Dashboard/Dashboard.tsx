@@ -113,7 +113,7 @@ function Dashboard() {
     },
     {
       title: "Completed Tasks",
-      subtitle: `${data?.taskStatusDistribution?.taskStatus?.["Completed"] || 0}%`,
+      subtitle: `${data?.taskComplete || 0}%`,
       icon: <Icons.checkCircle style={{ fontSize: 24, color: "#722ed1" }} />,
       progress: (data?.taskStatusDistribution?.taskStatus?.["Completed"] || 0) / 100,
     },

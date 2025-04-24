@@ -300,10 +300,10 @@ const WorklogDetailScreen: React.FC<WorklogDetailScreenProps> = ({ route }) => {
           <StatusBadge status={worklog.status as StatusType} />
         </View>
 
-        {!isUserRejected() ? (
+        {!isUserRejected() && worklog.status === "Not Started" ? (
           <TouchableOpacity onPress={handleCancelWorklog} style={styles.delBtn}>
             <CustomIcon
-              name="delete"
+              name="cancel"
               size={24}
               color="red"
               type="MaterialCommunityIcons"

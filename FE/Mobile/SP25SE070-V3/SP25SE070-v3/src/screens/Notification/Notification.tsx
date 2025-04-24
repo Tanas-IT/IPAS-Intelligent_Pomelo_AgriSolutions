@@ -33,6 +33,8 @@ const NotificationScreen = () => {
   const filteredNotifications =
     filter === "ALL" ? notifications : notifications.filter((n) => !n.isRead);
 
+  console.log("notifications", notifications);
+
   const groupAndSortNotifications = (notifs: GetNotification[]) => {
     // sort all notification từ mới đến cũ
     const sortedNotifications = [...notifs].sort((a, b) => 
@@ -77,15 +79,15 @@ const NotificationScreen = () => {
       style={[styles.itemContainer, item.isRead && styles.readItem]}
       onPress={() => handleItemPress(item)}
     >
-      <View style={styles.avatarContainer}>
-        {item.sender.avt ? (
-          <Image source={{ uri: item.sender.avt }} style={styles.avatar} />
+      {/* <View style={styles.avatarContainer}>
+        {item?.sender?.avt ? (
+          <Image source={{ uri: item?.sender?.avt }} style={styles.avatar} />
         ) : (
           <View style={styles.defaultAvatar}>
             <AntDesign name="user" size={20} color="#fff" />
           </View>
         )}
-      </View>
+      </View> */}
 
       <View style={styles.contentContainer}>
         <View style={styles.headerRow}>
