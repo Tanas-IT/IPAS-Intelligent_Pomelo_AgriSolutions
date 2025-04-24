@@ -1063,8 +1063,20 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 var deadCount = getAllPlantInFarm.Count(p => p.IsDead == true);
                 var normalCount = total - deadCount;
 
-                var deadPercentage = Math.Round((double)deadCount / total * 100, 2);
-                var normalPercentage = 100 - deadPercentage;
+                double deadPercentage = 0;
+                double normalPercentage = 100;
+
+                if (total > 0)
+                {
+                    deadPercentage = Math.Round((double)deadCount / total * 100, 2);
+                    normalPercentage = 100 - deadPercentage;
+                }
+                else
+                {
+                    // Gán mặc định hoặc xử lý trường hợp không có dữ liệu
+                    deadPercentage = 0;
+                    normalPercentage = 0;
+                }
                 var result = new
                 {
                     total = total,
@@ -1137,8 +1149,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 string url = "";
                 if(getFarm == null)
                 {
-                    url = "https://api.openweathermap.org/data/2.5/weather?lat=10.7769&lon=106.7009&appid=1eb2719e6d8fcb3efd4de03c57b633fe&units=metric";
-                    farmId = 3;
+                    return new BusinessResult(400, "Do not have any data");
                 }
                 else
                 {
@@ -1202,8 +1213,20 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 var total = getAllPlantOfFarm.Count;
                 var deadCount = getAllPlantOfFarm.Count(p => p.IsDead == true);
                 var normalCount = total - deadCount;
-                var deadPercentage = Math.Round((double)deadCount / total * 100, 2);
-                var normalPercentage = 100 - deadPercentage;
+                double deadPercentage = 0;
+                double normalPercentage = 100;
+
+                if (total > 0)
+                {
+                    deadPercentage = Math.Round((double)deadCount / total * 100, 2);
+                    normalPercentage = 100 - deadPercentage;
+                }
+                else
+                {
+                    // Gán mặc định hoặc xử lý trường hợp không có dữ liệu
+                    deadPercentage = 0;
+                    normalPercentage = 0;
+                }
                 var getAllCrop = await _unitOfWork.CropRepository.GetAllCropByFarmId(farmId);
                 var totalYield = getAllCrop.Sum(x => x.ActualYield);
 
