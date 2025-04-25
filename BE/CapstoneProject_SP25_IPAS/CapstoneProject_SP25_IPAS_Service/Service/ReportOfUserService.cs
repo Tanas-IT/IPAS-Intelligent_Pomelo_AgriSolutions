@@ -285,7 +285,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     orderBy = !string.IsNullOrEmpty(paginationParameter.Direction)
                                 ? (paginationParameter.Direction.ToLower().Equals("desc")
                                ? x => x.OrderByDescending(x => x.ReportID)
-                               : x => x.OrderByDescending(x => x.ReportID)) : x => x.OrderBy(x => x.ReportID);
+                               : x => x.OrderBy(x => x.ReportID)) : x => x.OrderByDescending(x => x.ReportID);
                     break;
                 case "reportcode":
                     orderBy = !string.IsNullOrEmpty(paginationParameter.Direction)
@@ -439,7 +439,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             try
             {
                 var getReportOfUserByImageURL = await _unitOfWork.ReportRepository.GetByID(reportId);
-                
+               
                 if(getReportOfUserByImageURL != null)
                 {
                     var uploadImageModel = new UploadImageModel()
