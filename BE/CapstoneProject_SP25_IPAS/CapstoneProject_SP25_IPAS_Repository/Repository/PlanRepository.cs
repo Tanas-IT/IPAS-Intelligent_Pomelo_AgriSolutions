@@ -91,6 +91,60 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
                 query = query.Where(filter);
             }
             query = query
+                    .Include(x => x.PlanTargets) // Gọi 1 lần
+                        .ThenInclude(pt => pt.LandPlot)
+                    .Include(x => x.PlanTargets)
+                        .ThenInclude(pt => pt.PlantLot)
+                    .Include(x => x.PlanTargets)
+                        .ThenInclude(pt => pt.Plant)
+                    .Include(x => x.PlanTargets)
+                        .ThenInclude(pt => pt.GraftedPlant)
+                    .Include(x => x.PlanTargets)
+                        .ThenInclude(pt => pt.LandRow)
+                        .ThenInclude(pt => pt.Plants)
+                    .Include(x => x.MasterType)
+                    .Include(x => x.Process)
+                    .Include(x => x.User)
+                    .Include(x => x.Crop)
+                    .Include(x => x.CarePlanSchedule)
+                        .ThenInclude(cs => cs.WorkLogs)
+                            .ThenInclude(wl => wl.UserWorkLogs)
+                                .ThenInclude(uwl => uwl.User)
+                    .Include(x => x.GrowthStagePlans)
+                    .ThenInclude(x => x.GrowthStage);
+
+
+            if (orderBy != null)
+            {
+                query = orderBy(query);
+            }
+
+            // Implementing pagination
+            if (pageIndex.HasValue && pageSize.HasValue)
+            {
+                // Ensure the pageIndex and pageSize are valid
+                int validPageIndex = pageIndex.Value > 0 ? pageIndex.Value - 1 : 0;
+                int validPageSize = pageSize.Value > 0 ? pageSize.Value : 10; // Assuming a default pageSize of 10 if an invalid value is passed
+
+                query = query.Skip(validPageIndex * validPageSize).Take(validPageSize);
+            }
+
+            return await query.AsNoTracking().ToListAsync();
+        }
+
+        public virtual async Task<IEnumerable<Plan>> GetAllPlanWithPagination(
+           Expression<Func<Plan, bool>> filter = null!,
+           Func<IQueryable<Plan>, IOrderedQueryable<Plan>> orderBy = null!,
+           int? pageIndex = null,
+           int? pageSize = null)
+        {
+            IQueryable<Plan> query = dbSet;
+
+            if (filter != null)
+            {
+                query = query.Where(filter);
+            }
+            query = query
                     .Include(x => x.GrowthStagePlans)
                     .ThenInclude(x => x.GrowthStage);
 
