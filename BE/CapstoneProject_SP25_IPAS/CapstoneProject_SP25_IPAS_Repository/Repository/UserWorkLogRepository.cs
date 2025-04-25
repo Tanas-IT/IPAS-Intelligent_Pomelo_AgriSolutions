@@ -93,6 +93,14 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
             return result;
         }
 
+        public async Task<List<UserWorkLog>> GetListUserWorkLogWithNoWorkLogByWorkLogId(int workLogId)
+        {
+            var result = await _context.UserWorkLogs
+                .Include(x => x.User)
+                .Where(x => x.WorkLogId == workLogId).ToListAsync();
+            return result;
+        }
+
         public async Task<List<UserWorkLog>> GetListUserWorkLogByWorkLogIdAndReplaceUserid(int workLogId, int replaceUserId)
         {
             var result = await _context.UserWorkLogs
