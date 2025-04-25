@@ -1063,8 +1063,20 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 var deadCount = getAllPlantInFarm.Count(p => p.IsDead == true);
                 var normalCount = total - deadCount;
 
-                var deadPercentage = Math.Round((double)deadCount / total * 100, 2);
-                var normalPercentage = 100 - deadPercentage;
+                double deadPercentage = 0;
+                double normalPercentage = 100;
+
+                if (total > 0)
+                {
+                    deadPercentage = Math.Round((double)deadCount / total * 100, 2);
+                    normalPercentage = 100 - deadPercentage;
+                }
+                else
+                {
+                    // Gán mặc định hoặc xử lý trường hợp không có dữ liệu
+                    deadPercentage = 0;
+                    normalPercentage = 0;
+                }
                 var result = new
                 {
                     total = total,
@@ -1134,7 +1146,15 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             try
             {
                 var getFarm = await _unitOfWork.FarmRepository.GetFarmById(farmId);
-                string url = $"https://api.openweathermap.org/data/2.5/weather?lat={getFarm.Latitude}&lon={getFarm.Longitude}&appid={_configuration["SystemDefault:API_KEY_WEATHER"]}&units=metric";
+                string url = "";
+                if(getFarm == null)
+                {
+                    return new BusinessResult(400, "Do not have any data");
+                }
+                else
+                {
+                    url = $"https://api.openweathermap.org/data/2.5/weather?lat={getFarm.Latitude}&lon={getFarm.Longitude}&appid={_configuration["SystemDefault:API_KEY_WEATHER"]}&units=metric";
+                }
 
                 HttpResponseMessage response = await _httpClient.GetAsync(url);
                 response.EnsureSuccessStatusCode();
@@ -1191,10 +1211,18 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 }
                 var getAllPlantOfFarm = await _unitOfWork.PlantRepository.GetAllPlantByFarmId(farmId);
                 var total = getAllPlantOfFarm.Count;
-                var deadCount = getAllPlantOfFarm.Count(p => p.IsDead == true);
-                var normalCount = total - deadCount;
-                var deadPercentage = Math.Round((double)deadCount / total * 100, 2);
-                var normalPercentage = 100 - deadPercentage;
+
+                var statusPercentage = new Dictionary<string, double>();
+                
+                if (total > 0)
+                {
+                    statusPercentage = getAllPlantOfFarm
+                        .GroupBy(p => p.HealthStatus ?? "Unknown") // nếu Status null thì gán "Unknown"
+                        .ToDictionary(
+                            g => g.Key,
+                            g => Math.Round((double)g.Count() / total * 100, 2)
+                        );
+                }
                 var getAllCrop = await _unitOfWork.CropRepository.GetAllCropByFarmId(farmId);
                 var totalYield = getAllCrop.Sum(x => x.ActualYield);
 
@@ -1214,10 +1242,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     {
                         totalPlants = total,
                         totalYield = totalYield,
-                        normalCount = normalCount,
-                        deadCount = deadCount,
-                        normalPercentage = normalPercentage,
-                        deadPercentage = deadPercentage
+                        statusPercentage = statusPercentage,
                     },
                     WorkOverview = groupedByStatus
                 };

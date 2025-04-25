@@ -413,12 +413,37 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         IsDeleted = createProcessModel.IsDeleted,
                         Order = createProcessModel.Order,
                     };
+                    var listPlan = new List<string>
+                                {
+                                    JsonConvert.SerializeObject(new {
+                                        PlanName = "Plan 1",
+                                        PlanDetail = "Chi tiết 1",
+                                        PlanNote = "Ghi chú 1",
+                                        GrowthStageId = 2,
+                                        MasterTypeId = 3
+                                    })
+                                };
+
+                    var subProcess = new AddSubProcessModel
+                    {
+                        SubProcessName = "Sub 1",
+                        ListPlan = listPlan
+                    };
+
                     if (createProcessModel.ListSubProcess != null)
                     {
                         newProcessModel.ListSubProcess = createProcessModel.ListSubProcess
                             .Select(x => JsonConvert.SerializeObject(x))
                             .ToList();
-                        
+
+                        var listPlanStrings = subProcess.ListPlan
+                                        .Select(plan => JsonConvert.SerializeObject(plan))
+                                        .ToList();
+
+                        subProcess.ListPlan = listPlanStrings;
+
+                        // Gán vào ListPlan của AddSubProcessModel
+
                     }
 
                     if (createProcessModel.ListPlan != null)
