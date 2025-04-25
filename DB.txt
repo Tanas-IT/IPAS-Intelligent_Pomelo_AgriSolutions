@@ -1870,7 +1870,7 @@ INSERT INTO [dbo].[Plan]
      [ResponsibleBy], [Frequency], [PlanName], [AssignorID], [PesticideName], [MaxVolume], [MinVolume], [ProcessID], 
      [CropID], [IsDeleted], [MasterTypeID], [SubProcessID], [FarmID], [IsSample], [KeyGroup])
 VALUES
-    ('Not Started', 'PLN001', GETDATE(), '2025-05-02', '2025-05-10', GETDATE(), 1, 'Plan for watering spraying', 'Watering for all tree in farm', 
+    ('Not Started', 'PLN001', GETDATE(), '2025-04-02', '2025-04-10', GETDATE(), 1, 'Plan for watering spraying', 'Watering for all tree in farm', 
      'JohnDoe', NULL, 'Watering Plan', 3, NULL, 5.0, 2.0, NULL, NULL, 0, 15, 4, 1, 0, '00c889cf-3b65-4471-83ba-0a3362a5c9f4'),
     ('Done', 'PLN002', GETDATE(), '2025-05-01', '2025-05-01', GETDATE(), 1, 'Soil preparation', 'Detail 2', 
      'JaneSmith', NULL, 'Soil Prep Plan', 3, NULL, NULL, NULL, NULL, NULL, 0, 11, 2, 1, 0,'cd108998-e339-4816-b798-97dffda9cda6'),
@@ -1878,13 +1878,13 @@ VALUES
      'AlexBrown', NULL, 'Harvest Plan', 3, NULL, NULL, NULL, 3, NULL, 1, 12, 3, 1, 0, 'a851c9fe-8ef3-467d-b41d-dacdf24010fc'),
     ('Not Started', 'PLN004', GETDATE(), '2025-07-01', '2025-07-12', GETDATE(), 1, 'Irrigation management', 'Detail 4', 
      'ChrisWhite', NULL, 'Irrigation Plan', 3, NULL, NULL, NULL, 4, NULL, 0, 13, 8, 1, 0, '81fc69c3-251d-4a33-97c8-ffef6fa0a5f0'),
-    ('Not Started', 'PLN005', GETDATE(), '2025-05-16', '2025-05-18', GETDATE(), 1, 'Fertilizer application', 'Detail 5', 
+    ('Not Started', 'PLN005', GETDATE(), '2025-04-16', '2025-04-18', GETDATE(), 1, 'Fertilizer application', 'Detail 5', 
      'EmilyGreen', NULL, 'Fertilization Plan', 3, 'Fertilizer X', 3.5, 1.5, NULL, NULL, 0, 16, 5, 1, 0, '00c889cf-3b65-4471-83ba-0a3362a5c9f4'),
     ('Not Started', 'PLN006', GETDATE(), '2025-09-01', '2025-09-15', GETDATE(), 0, 'Weed control applied', 'Detail 6', 
      'MichaelBlack', NULL, 'Weed Control Plan', 3, 'Herbicide Y', 4.0, 1.0, 6, NULL, 1, 15, 8, 1, 0, 'b8f47d67-e768-4330-885f-aeda5591d6ba'),
-	 ('Not Started', 'PLN007', GETDATE(), '2025-05-19', '2025-05-20', GETDATE(), 1, 'Pest management', 'Detail 7', 
+	 ('Not Started', 'PLN007', GETDATE(), '2025-04-19', '2025-04-20', GETDATE(), 1, 'Pest management', 'Detail 7', 
      'SarahBlue', NULL, 'Pest Control Plan', 3, 'Pesticide B', 6.0, 2.5, NULL, NULL, 0, 18, 6, 1, 0, '00c889cf-3b65-4471-83ba-0a3362a5c9f4'),
-	 ('Not Started', 'PLN008', GETDATE(), '2025-05-21', '2025-05-25', GETDATE(), 1, 'Spraying', 'Detail 8', 
+	 ('Not Started', 'PLN008', GETDATE(), '2025-04-21', '2025-04-25', GETDATE(), 1, 'Spraying', 'Detail 8', 
      'SarahBlue', NULL, 'Spraying Plan', 3, 'Pesticide B', 6.0, 2.5, NULL, NULL, 0, 45, 7, 1, 0,'00c889cf-3b65-4471-83ba-0a3362a5c9f4'),
     ('Not Started', 'PLN009', GETDATE(), '2025-11-01', '2025-11-30', GETDATE(), 1, 'New planting season', 'Detail 9', 
      'DavidYellow', NULL, 'Planting Plan', 3, NULL, NULL, NULL, 8, NULL, 0, 17, 8, 1, 0, 'e2608ecb-55ac-4bfb-a225-57920dbb4f87'),
@@ -2246,29 +2246,29 @@ INSERT INTO [dbo].[WorkLog]
            ,[ReasonDelay]
 	   ,[RedoWorkLogID])
      VALUES
-           ('WL31162235' ,'Watering_on_Plot A','Not Started','2025-05-02 07:30:00',0,0,'07:30:00','09:10:00',1,NULL,NULL,NULL),
-		   ('WL31163456' ,'Watering_on_Plot A','Not Started','2025-05-03 07:30:00',0,0,'07:30:00','09:10:00',1,NULL,NULL,NULL),
-('WL31162237' ,'Watering_on_Plot A','Not Started','2025-05-04 07:30:00',0,0,'07:30:00','09:10:00',1,NULL,NULL,NULL),
-('WL31162238' ,'Watering_on_Plot A','Not Started','2025-05-05 07:30:00',0,0,'07:30:00','09:10:00',1,NULL,NULL,NULL),
-('WL31162239' ,'Watering_on_Plot A','Not Started','2025-05-06 07:30:00',0,0,'07:30:00','09:10:00',1,NULL,NULL,NULL),
-('WL31162240' ,'Watering_on_Plot A','Not Started','2025-05-07 07:30:00',0,0,'07:30:00','09:10:00',1,NULL,NULL,NULL),
-('WL31162242' ,'Watering_on_Plot A','Not Started','2025-05-08 07:30:00',0,0,'07:30:00','09:10:00',1,NULL,NULL,NULL),
-('WL31162243' ,'Watering_on_Plot A','Not Started','2025-05-09 07:30:00',0,0,'07:30:00','09:10:00',1,NULL,NULL,NULL),
-('WL31162244' ,'Watering_on_Plot A','Not Started','2025-05-10 07:30:00',0,0,'07:30:00','09:10:00',1,NULL,NULL,NULL),
+           ('WL31162235' ,'Watering_on_Plot A','Not Started','2025-04-02 07:30:00',0,0,'07:30:00','09:10:00',1,NULL,NULL,NULL),
+		   ('WL31163456' ,'Watering_on_Plot A','Not Started','2025-04-03 07:30:00',0,0,'07:30:00','09:10:00',1,NULL,NULL,NULL),
+('WL31162237' ,'Watering_on_Plot A','Not Started','2025-04-04 07:30:00',0,0,'07:30:00','09:10:00',1,NULL,NULL,NULL),
+('WL31162238' ,'Watering_on_Plot A','Not Started','2025-04-05 07:30:00',0,0,'07:30:00','09:10:00',1,NULL,NULL,NULL),
+('WL31162239' ,'Watering_on_Plot A','Not Started','2025-04-06 07:30:00',0,0,'07:30:00','09:10:00',1,NULL,NULL,NULL),
+('WL31162240' ,'Watering_on_Plot A','Not Started','2025-04-07 07:30:00',0,0,'07:30:00','09:10:00',1,NULL,NULL,NULL),
+('WL31162242' ,'Watering_on_Plot A','Not Started','2025-04-08 07:30:00',0,0,'07:30:00','09:10:00',1,NULL,NULL,NULL),
+('WL31162243' ,'Watering_on_Plot A','Not Started','2025-04-09 07:30:00',0,0,'07:30:00','09:10:00',1,NULL,NULL,NULL),
+('WL31162244' ,'Watering_on_Plot A','Not Started','2025-04-10 07:30:00',0,0,'07:30:00','09:10:00',1,NULL,NULL,NULL),
 
 
-		   ('WL31163456' ,'Fertilizing_on_Plot A','Not Started','2025-05-16 05:00:00',0,0,'05:00:00','07:00:00',5,NULL,NULL,NULL),
-('WL31162237' ,'Fertilizing_on_Plot A','Not Started','2025-05-17 05:00:00',0,0,'05:00:00','07:00:00',5,NULL,NULL,NULL),
-('WL31162238' ,'Fertilizing_on_Plot A','Not Started','2025-05-18 05:00:00',0,0,'05:00:00','07:00:00',5,NULL,NULL,NULL),
+		   ('WL31163456' ,'Fertilizing_on_Plot A','Not Started','2025-04-16 05:00:00',0,0,'05:00:00','07:00:00',5,NULL,NULL,NULL),
+('WL31162237' ,'Fertilizing_on_Plot A','Not Started','2025-04-17 05:00:00',0,0,'05:00:00','07:00:00',5,NULL,NULL,NULL),
+('WL31162238' ,'Fertilizing_on_Plot A','Not Started','2025-04-18 05:00:00',0,0,'05:00:00','07:00:00',5,NULL,NULL,NULL),
 
-('WL31162239' ,'Pest_Control_on_Plot A','Not Started','2025-05-19 14:00:00',0,0,'03:00:00','04:00:00',7,NULL,NULL,NULL),
-('WL31162240' ,'Pest_Control_on_Plot A','Not Started','2025-05-20 14:00:00',0,0,'03:00:00','04:00:00',7,NULL,NULL,NULL),
+('WL31162239' ,'Pest_Control_on_Plot A','Not Started','2025-04-19 14:00:00',0,0,'03:00:00','04:00:00',7,NULL,NULL,NULL),
+('WL31162240' ,'Pest_Control_on_Plot A','Not Started','2025-04-20 14:00:00',0,0,'03:00:00','04:00:00',7,NULL,NULL,NULL),
 
-('WL31162242' ,'Spaying_on_Plot A','Not Started','2025-05-21 05:00:00',0,0,'20:00:00','21:00:00',8,NULL,NULL,NULL),
-('WL31162243' ,'Spaying_on_Plot A','Not Started','2025-05-22 05:00:00',0,0,'20:00:00','21:00:00',8,NULL,NULL,NULL),
-('WL31162244' ,'Spaying_on_Plot A','Not Started','2025-05-23 05:00:00',0,0,'20:00:00','21:00:00',8,NULL,NULL,NULL),
-('WL31162245' ,'Spaying_on_Plot A','Not Started','2025-05-24 05:00:00',0,0,'20:00:00','21:00:00',8,NULL,NULL,NULL),
-('WL31162246' ,'Spaying_on_Plot A','Not Started','2025-05-25 05:00:00',0,0,'20:00:00','21:00:00',8,NULL,NULL,NULL),
+('WL31162242' ,'Spaying_on_Plot A','Not Started','2025-04-21 05:00:00',0,0,'20:00:00','21:00:00',8,NULL,NULL,NULL),
+('WL31162243' ,'Spaying_on_Plot A','Not Started','2025-04-22 05:00:00',0,0,'20:00:00','21:00:00',8,NULL,NULL,NULL),
+('WL31162244' ,'Spaying_on_Plot A','Not Started','2025-04-23 05:00:00',0,0,'20:00:00','21:00:00',8,NULL,NULL,NULL),
+('WL31162245' ,'Spaying_on_Plot A','Not Started','2025-04-24 05:00:00',0,0,'20:00:00','21:00:00',8,NULL,NULL,NULL),
+('WL31162246' ,'Spaying_on_Plot A','Not Started','2025-04-25 05:00:00',0,0,'20:00:00','21:00:00',8,NULL,NULL,NULL),
 
 ('WL31162247' ,'Pruning_on__Plot A','Done','2025-04-19 09:30:00',0,0,'19:30:00','20:30:00',2,NULL,NULL,NULL),
 ('WL31162248' ,'Grafting_on__Plot A','Redo','2025-04-17 09:30:00',0,0,'19:30:00','20:30:00',2,NULL,NULL,22),
@@ -2532,6 +2532,8 @@ SELECT TOP 2 @UserID1 = UserID
 FROM [ipas].dbo.UserFarm
 WHERE RoleId = 5;
 
+@UserID1 = 6
+
 SELECT TOP 1 @UserID2 = uf.UserId
 FROM [ipas].dbo.UserFarm uf
 WHERE  uf.RoleId = 5 AND uf.UserId <> @UserID1;
@@ -2642,8 +2644,6 @@ BEGIN
         DECLARE @WorkLogStatus NVARCHAR(50);
         IF @LoopDate < @TodayDate
             SET @WorkLogStatus = 'Done';
-        ELSE IF @LoopDate = @TodayDate
-            SET @WorkLogStatus = 'In Progress';
         ELSE
             SET @WorkLogStatus = 'Not Started';
 
