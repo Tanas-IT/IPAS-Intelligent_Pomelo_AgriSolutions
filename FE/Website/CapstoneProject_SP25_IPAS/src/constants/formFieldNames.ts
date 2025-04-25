@@ -176,6 +176,7 @@ export const graftedPlantFormFields: Record<keyof GetGraftedPlant, keyof GetGraf
   plantLotName: "plantLotName",
   plantName: "plantName",
   isDead: "isDead",
+  finishedPlantCode: "finishedPlantCode",
 };
 
 export const growthStageFormFields: Record<keyof GetGrowthStage, keyof GetGrowthStage> = {
