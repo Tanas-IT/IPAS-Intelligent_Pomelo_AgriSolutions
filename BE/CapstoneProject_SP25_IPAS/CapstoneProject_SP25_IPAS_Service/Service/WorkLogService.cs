@@ -1473,6 +1473,10 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         }
                     }
                 }
+                if(!(addNewTaskModel.DateWork >= getExistPlan.StartDate &&  addNewTaskModel.DateWork <= getExistPlan.EndDate))
+                {
+                    return new BusinessResult(400, $"Date Work must in range from {getExistPlan.StartDate} to {getExistPlan.EndDate}");
+                }
 
                 await _unitOfWork.WorkLogRepository.CheckWorkLogAvailabilityWhenAddPlan(
                                                                       startTime,
