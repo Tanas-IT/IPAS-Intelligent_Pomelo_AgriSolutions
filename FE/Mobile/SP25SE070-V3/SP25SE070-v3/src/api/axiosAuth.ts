@@ -5,8 +5,12 @@ import { handleApiError } from "@/utils";
 
 const API_HOST = process.env.EXPO_PUBLIC_API_HOST;
 const API_PORT = process.env.EXPO_PUBLIC_API_PORT;
+const API_DEPLOY = process.env.EXPO_PUBLIC_API_DEPLOY;
+const isDevelopment = process.env.EXPO_PUBLIC_API_DEVELOPMENT;
 
-const BASE_URL = `${API_HOST}:${API_PORT}/ipas`;
+// const BASE_URL = `${API_HOST}:${API_PORT}/ipas`;
+const BASE_URL =
+  isDevelopment === "true" ? `${API_HOST}:${API_PORT}/ipas` : `${API_DEPLOY}`;
 
 const createAxiosInstance = (contentType: string): AxiosInstance => {
   const instance = axios.create({
