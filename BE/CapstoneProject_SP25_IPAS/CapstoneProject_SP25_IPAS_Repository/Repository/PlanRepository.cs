@@ -91,25 +91,6 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
                 query = query.Where(filter);
             }
             query = query
-                    .Include(x => x.PlanTargets) // Gọi 1 lần
-                        .ThenInclude(pt => pt.LandPlot)
-                    .Include(x => x.PlanTargets)
-                        .ThenInclude(pt => pt.PlantLot)
-                    .Include(x => x.PlanTargets)
-                        .ThenInclude(pt => pt.Plant)
-                    .Include(x => x.PlanTargets)
-                        .ThenInclude(pt => pt.GraftedPlant)
-                    .Include(x => x.PlanTargets)
-                        .ThenInclude(pt => pt.LandRow)
-                        .ThenInclude(pt => pt.Plants)
-                    .Include(x => x.MasterType)
-                    .Include(x => x.Process)
-                    .Include(x => x.User)
-                    .Include(x => x.Crop)
-                    .Include(x => x.CarePlanSchedule)
-                        .ThenInclude(cs => cs.WorkLogs)
-                            .ThenInclude(wl => wl.UserWorkLogs)
-                                .ThenInclude(uwl => uwl.User)
                     .Include(x => x.GrowthStagePlans)
                     .ThenInclude(x => x.GrowthStage);
 
