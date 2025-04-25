@@ -1749,7 +1749,7 @@ VALUES
 GO
 INSERT INTO ipas.dbo.Package (PackageCode, PackageName, PackagePrice, Duration, isActive, CreateDate, UpdateDate, Status)
 VALUES
-('PKG101', 'Starter Farm Package', 500000, 30, 1, GETDATE(), NULL, 'Active'),
+('PKG101', 'Starter Farm Package', 50000, 30, 1, GETDATE(), NULL, 'Active'),
 ('PKG102', 'Standard Farm Package', 100000, 180, 1, GETDATE(), NULL, 'Active'),
 ('PKG103', 'Premium Farm Package', 200000, 365, 1, GETDATE(), NULL, 'Active');
 GO

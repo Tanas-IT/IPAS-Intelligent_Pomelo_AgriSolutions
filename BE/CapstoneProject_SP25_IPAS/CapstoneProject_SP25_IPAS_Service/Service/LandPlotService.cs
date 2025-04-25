@@ -683,7 +683,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             double minAcceptableArea = createRequest.Area - allowDeviation;
             double maxAcceptableArea = createRequest.Area + allowDeviation;
 
-            if (totalRowArea < minAcceptableArea || totalRowArea > maxAcceptableArea)
+            if (/*totalRowArea < minAcceptableArea || */totalRowArea > maxAcceptableArea)
             {
                 return new BusinessResult(400, $"Total area of rows ({totalRowArea:F2} m²) must be between {minAcceptableArea:F2} m² and {maxAcceptableArea:F2} m² (allowing {allowDeviationPercent}% deviation).");
             }
