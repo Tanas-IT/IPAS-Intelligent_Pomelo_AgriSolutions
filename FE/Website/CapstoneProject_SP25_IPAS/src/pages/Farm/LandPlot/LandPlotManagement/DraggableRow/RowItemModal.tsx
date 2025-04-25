@@ -78,7 +78,7 @@ const RowItemModal = ({ isOpen, onClose, onSave, onDelete, rowData }: RowItemMod
                   className: style.cancelBtn,
                 },
                 onOk: () => {
-                  onDelete?.(rowData.landRowId, rowData.indexUsed ?? 0);
+                  onDelete?.(rowData.landRowId ?? 0, rowData.indexUsed ?? 0);
                 },
               });
             }

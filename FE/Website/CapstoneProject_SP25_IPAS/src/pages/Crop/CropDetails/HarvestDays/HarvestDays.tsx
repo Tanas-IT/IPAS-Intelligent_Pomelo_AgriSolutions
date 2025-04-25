@@ -241,7 +241,6 @@ function HarvestDays() {
       {isHarvestDetailView && selectedHarvest ? (
         <HarvestDayDetail
           selectedHarvest={selectedHarvest}
-          onBack={handleBackToList}
           actionMenu={
             <ActionMenuHarvest
               onEdit={() => formModal.showModal(selectedHarvest)}
