@@ -344,14 +344,19 @@ const AddPlanByProcess = () => {
             setCustomDates([]);
             scheduleForm.setFieldValue("customDates", []);
             scheduleForm.resetFields(["customDates"]);
+            scheduleForm.setFields([{ name: "customDates", errors: [] }]);
         }
         if (value !== "Weekly") {
             setDayOfWeek([]);
             scheduleForm.setFieldValue("dayOfWeek", []);
+            scheduleForm.resetFields(["dayOfWeek"]); // Thêm resetFields
+            scheduleForm.setFields([{ name: "dayOfWeek", errors: [] }]);
         }
         if (value !== "Monthly") {
             setDayOfMonth([]);
             scheduleForm.setFieldValue("dayOfMonth", []);
+            scheduleForm.resetFields(["dayOfMonth"]);
+            scheduleForm.setFields([{ name: "dayOfMonth", errors: [] }]);
         }
         setIsDaySelectorSaved(false);
 
@@ -486,6 +491,7 @@ const AddPlanByProcess = () => {
         setIsScheduleModalOpen(true);
         setSelectedPlanId(record.planId);
         setIsDaySelectorSaved(false);
+        scheduleForm.resetFields();
 
         const findPlan = (items: DataSourceNode[]): PlanNode | undefined => {
             for (const item of items) {
@@ -1034,6 +1040,8 @@ const AddPlanByProcess = () => {
                             }}
                             onFinishFailed={(errorInfo) => {
                                 console.log("Form validation failed:", errorInfo);
+                                console.log("frequency", frequency);
+
                                 Modal.error({
                                     title: "Validation Failed",
                                     content: "Please fill in all required fields correctly.",
@@ -1073,7 +1081,7 @@ const AddPlanByProcess = () => {
                                 <Form.Item
                                     label="Select Days of Week"
                                     name={addPlanFormFields.dayOfWeek}
-                                    rules={[{ required: true, message: "Please select the days of week!" }]}
+                                    // rules={[{ required: true, message: "Please select the days of week!" }]}
                                     validateStatus={dateError ? "error" : ""}
                                     help={dateError}
                                 >
@@ -1093,7 +1101,7 @@ const AddPlanByProcess = () => {
                                 <Form.Item
                                     label="Select Dates"
                                     name={addPlanFormFields.dayOfMonth}
-                                    rules={[{ required: true, message: "Please select the dates!" }]}
+                                    // rules={[{ required: true, message: "Please select the dates!" }]}
                                     validateStatus={dateError ? "error" : ""}
                                     help={dateError}
                                 >
@@ -1110,7 +1118,7 @@ const AddPlanByProcess = () => {
                                 <Form.Item
                                     label="Select Specific Dates"
                                     name={addPlanFormFields.customDates}
-                                    rules={frequency === "None" ? [{ required: true, message: "Please select the dates!" }] : []}
+                                    // rules={frequency === "None" ? [{ required: true, message: "Please select the dates!" }] : []}
                                     validateStatus={dateError ? "error" : ""}
                                     help={dateError}
                                 >
@@ -1127,8 +1135,26 @@ const AddPlanByProcess = () => {
                                 <Button
                                     type="primary"
                                     disabled={(frequency === "Weekly" || frequency === "Monthly") && !isDaySelectorSaved}
+                                    // onClick={() => {
+                                    //     if (frequency !== "None") {
+                                    //         scheduleForm.setFields([{ name: "customDates", errors: [] }]);
+                                    //     }
+                                    //     scheduleForm.validateFields().then(() => scheduleForm.submit());
+                                    // }}
                                     onClick={() => {
-                                        scheduleForm.validateFields().then(() => scheduleForm.submit());
+                                        const fieldsToValidate = ["dateRange", "timeRange", "frequency"];
+                                        if (frequency === "None") {
+                                            fieldsToValidate.push("customDates");
+                                        } else if (frequency === "Weekly") {
+                                            fieldsToValidate.push("dayOfWeek");
+                                        } else if (frequency === "Monthly") {
+                                            fieldsToValidate.push("dayOfMonth");
+                                        }
+                                        scheduleForm.validateFields(fieldsToValidate).then(() => {
+                                            scheduleForm.submit();
+                                        }).catch((errorInfo) => {
+                                            console.log("Validation failed:", errorInfo);
+                                        });
                                     }}
                                 >
                                     Save
