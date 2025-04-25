@@ -214,6 +214,15 @@ function GraftedPlantDetail() {
       value: graftedPlant?.separatedDate ? formatDayMonth(graftedPlant.separatedDate) : "N/A",
       icon: Icons.time,
     },
+    ...(graftedPlant?.finishedPlantCode
+      ? [
+          {
+            label: "Finished Plant",
+            value: graftedPlant.finishedPlantCode,
+            icon: Icons.plant,
+          },
+        ]
+      : []),
     { label: "Note", value: graftedPlant?.note ?? "N/A", icon: Icons.description },
   ];
 

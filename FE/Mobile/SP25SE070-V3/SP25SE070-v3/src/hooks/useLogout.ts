@@ -5,8 +5,6 @@ import AsyncStorage from "@react-native-async-storage/async-storage";
 import { useNavigation } from "@react-navigation/native";
 
 const useLogout = () => {
-  console.log("=========================================================");
-  
   const navigation = useNavigation<AuthNavigationProp>();
 
   const handleLogout = async () => {

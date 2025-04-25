@@ -343,6 +343,8 @@ const AddPlanByProcess = () => {
         if (value !== "None") {
             setCustomDates([]);
             scheduleForm.setFieldValue("customDates", []);
+            scheduleForm.resetFields(["customDates"]);
+            scheduleForm.setFields([{ name: "customDates", errors: [] }]);
         }
         if (value !== "Weekly") {
             setDayOfWeek([]);
@@ -485,6 +487,7 @@ const AddPlanByProcess = () => {
         setIsScheduleModalOpen(true);
         setSelectedPlanId(record.planId);
         setIsDaySelectorSaved(false);
+        scheduleForm.resetFields();
 
         const findPlan = (items: DataSourceNode[]): PlanNode | undefined => {
             for (const item of items) {
@@ -1033,6 +1036,8 @@ const AddPlanByProcess = () => {
                             }}
                             onFinishFailed={(errorInfo) => {
                                 console.log("Form validation failed:", errorInfo);
+                                console.log("frequency", frequency);
+
                                 Modal.error({
                                     title: "Validation Failed",
                                     content: "Please fill in all required fields correctly.",
@@ -1109,7 +1114,7 @@ const AddPlanByProcess = () => {
                                 <Form.Item
                                     label="Select Specific Dates"
                                     name={addPlanFormFields.customDates}
-                                    rules={frequency === "None" ? [{ required: true, message: "Please select the dates!" }] : []}
+                                    // rules={frequency === "None" ? [{ required: true, message: "Please select the dates!" }] : []}
                                     validateStatus={dateError ? "error" : ""}
                                     help={dateError}
                                 >
@@ -1126,8 +1131,26 @@ const AddPlanByProcess = () => {
                                 <Button
                                     type="primary"
                                     disabled={(frequency === "Weekly" || frequency === "Monthly") && !isDaySelectorSaved}
+                                    // onClick={() => {
+                                    //     if (frequency !== "None") {
+                                    //         scheduleForm.setFields([{ name: "customDates", errors: [] }]);
+                                    //     }
+                                    //     scheduleForm.validateFields().then(() => scheduleForm.submit());
+                                    // }}
                                     onClick={() => {
-                                        scheduleForm.validateFields().then(() => scheduleForm.submit());
+                                        const fieldsToValidate = ["dateRange", "timeRange", "frequency"];
+                                        if (frequency === "None") {
+                                            fieldsToValidate.push("customDates");
+                                        } else if (frequency === "Weekly") {
+                                            fieldsToValidate.push("dayOfWeek");
+                                        } else if (frequency === "Monthly") {
+                                            fieldsToValidate.push("dayOfMonth");
+                                        }
+                                        scheduleForm.validateFields(fieldsToValidate).then(() => {
+                                            scheduleForm.submit();
+                                        }).catch((errorInfo) => {
+                                            console.log("Validation failed:", errorInfo);
+                                        });
                                     }}
                                 >
                                     Save

@@ -833,9 +833,9 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                             {
                                 plantCriteria.IsPassed = true;
                             }
-                            if (criteriaData.ValueChecked < plantCriteria.Criteria!.MinValue && criteriaData.ValueChecked > plantCriteria.Criteria.MaxValue)
+                            if (criteriaData.ValueChecked < plantCriteria.Criteria!.MinValue || criteriaData.ValueChecked > plantCriteria.Criteria.MaxValue)
                             {
-                                plantCriteria.IsPassed = true;
+                                plantCriteria.IsPassed = false;
                             }
                         }
                     }
@@ -856,7 +856,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         pl.IsPassed = true;
                         pl.PassedDate = DateTime.Now;
                     }
-                    else if (checkResult.StatusCode == 250)
+                    else if (checkResult.StatusCode == 250 || checkResult.StatusCode == 300)
                     {
                         pl.IsPassed = false;
                     }
