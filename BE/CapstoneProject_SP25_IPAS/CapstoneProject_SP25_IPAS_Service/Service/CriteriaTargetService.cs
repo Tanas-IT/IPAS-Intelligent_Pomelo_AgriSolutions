@@ -833,7 +833,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                             {
                                 plantCriteria.IsPassed = true;
                             }
-                            if (criteriaData.ValueChecked < plantCriteria.Criteria!.MinValue && criteriaData.ValueChecked > plantCriteria.Criteria.MaxValue)
+                            if (criteriaData.ValueChecked < plantCriteria.Criteria!.MinValue || criteriaData.ValueChecked > plantCriteria.Criteria.MaxValue)
                             {
                                 plantCriteria.IsPassed = true;
                             }
