@@ -39,10 +39,6 @@ interface WorkOverview {
 
 const ManagerHomeScreen = () => {
   const { fullName, accessToken, roleId } = useAuthStore();
-  console.log("accessToken", accessToken);
-  if (roleId !== UserRolesStr.Manager || roleId !== UserRolesStr.Owner) {
-    return;
-  }
   
   const navigation = useNavigation<RootStackNavigationProp>();
   const [warnings, setWarnings] = useState<Alert[]>([]);

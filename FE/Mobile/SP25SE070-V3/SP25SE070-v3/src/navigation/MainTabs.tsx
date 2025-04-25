@@ -1,6 +1,6 @@
 import React from "react";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-import { View, Text, TouchableOpacity, StyleSheet } from "react-native";
+import { View, Text, TouchableOpacity, StyleSheet, ActivityIndicator } from "react-native";
 import { MaterialCommunityIcons } from "@expo/vector-icons";
 import WorklogScreen from "@/screens/Worklog/WorklogScreen/WorklogScreen";
 import ScanScreen from "@/screens/Scan/ScanScreen";
@@ -22,6 +22,13 @@ const Tab = createBottomTabNavigator<MainTabParamList>();
 
 export default function MainTabs() {
   const { roleId } = useAuthStore();
+  if (!roleId || roleId === UserRolesStr.User.toString()) {
+    return (
+      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+        <ActivityIndicator />
+      </View>
+    );
+  }
   const isEmployee = roleId === UserRolesStr.Employee;
   console.log("isEmployee", isEmployee);
   
