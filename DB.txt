@@ -1062,7 +1062,7 @@ ImageID nvarchar(MAX) NULL,
 	CONSTRAINT Report_User_FK FOREIGN KEY (AnswererID) REFERENCES ipas.dbo.[User](UserID),
 	CONSTRAINT Report_User_FK_1 FOREIGN KEY (QuestionerID) REFERENCES ipas.dbo.[User](UserID)
 );
-GO
+
 CREATE TABLE SystemConfiguration (
     ConfigID INT IDENTITY(1,1) PRIMARY KEY,
 	ConfigGroup NVARCHAR(100) NOT NULL,  
@@ -1082,7 +1082,7 @@ ALTER TABLE SystemConfiguration
 ADD CONSTRAINT FK_SystemConfiguration_Reference
 FOREIGN KEY (ReferenceConfigId)
 REFERENCES SystemConfiguration(ConfigID);
-GO
+
 CREATE TABLE EmployeeSkill (
     EmployeeSkillID INT IDENTITY(1,1) PRIMARY KEY,
     EmployeeID INT NULL,  
@@ -1092,7 +1092,7 @@ CREATE TABLE EmployeeSkill (
     CONSTRAINT EmployeeSkill_Employee_FK FOREIGN KEY (EmployeeID,FarmID) REFERENCES ipas.dbo.[UserFarm](UserID, FarmID),
     CONSTRAINT  EmployeeSkill_WorkType_FK_1 FOREIGN KEY (WorkTypeID) REFERENCES ipas.dbo.[MasterType](MasterTypeID)    
 );
-GO
+
 INSERT INTO [ipas].[dbo].[Farm] 
 ([FarmCode], [FarmName], [Address], [Longitude], [Latitude], [LogoURL], [Ward], [Province], [District], [Area], [SoilType], [ClimateZone], [CreateDate], [UpdateDate], [IsDeleted], [Status], [Length], [Width], [Description])
 VALUES
@@ -1128,9 +1128,7 @@ VALUES
  'https://res.cloudinary.com/dgshx4n2c/image/upload/v1738660419/rzaub3vswgnfzvunvuov.jpg', 
  N'Ward 3', N'Province Z', N'District 3', 150.0, 'Sandy', 'Arid', GETDATE(), GETDATE(), 0, 'Inactive', 400, 350, 'Farm for livestock breeding');
 
-GO
 
-GO
 INSERT INTO [ipas].[dbo].[Role] ([RoleName], [isSystem])
 VALUES
 ('Admin', 1),
@@ -1139,7 +1137,7 @@ VALUES
 ('Manager', 4),
 ('Employee', 5),
 ('Expert', 6);
-GO
+
 INSERT INTO [ipas].[dbo].[User] ([Email], [Password], [FullName], [PhoneNumber], [Gender], [DOB], [UserCode], [CreateDate], [UpdateDate], [IsDeleted], [Status], [IsDependency], [AvatarURL], [Otp], [ExpiredOtpTime], [RoleID])
 VALUES
 ('thetamthd@gmail.com', '$2a$11$1V.AriJm/OGpjG0vWRH8tuD9/Fi2ezrgyDJItAZ5bzGH1DTukcH9e', 'John Doe', '0123456789', 'Male', '1990-05-10', 'U001', GETDATE(), GETDATE(), 0, 'Active', NULL, 'https://res.cloudinary.com/dgshx4n2c/image/upload/v1741755465/ppgzlr8a9fdf5kxbo3uv.png', NULL, NULL, 1),
@@ -1170,7 +1168,7 @@ VALUES
 ('expert@gmail.com', '$2a$11$qi491eunYFCQeO..SFS.Iethgoa5BFyMgH5ugmS8Drv54uqZ5QpnC', 'Expert', '0912345678', 'Male', '1992-12-20', 'U003', GETDATE(), GETDATE(), 0, 'Active', NULL, 'https://res.cloudinary.com/dgshx4n2c/image/upload/v1738903142/user/avatar/tgfbqvv5f3jmuc220rhy.webp', NULL, NULL, 6),
 ('admin@gmail.com', '$2a$11$qi491eunYFCQeO..SFS.Iethgoa5BFyMgH5ugmS8Drv54uqZ5QpnC', 'Admin', '0912345678', 'Male', '1992-12-20', 'U003', GETDATE(), GETDATE(), 0, 'Active', NULL, 'https://res.cloudinary.com/dgshx4n2c/image/upload/v1745387411/zhldeggmvwca6eemozoc.png', NULL, NULL, 1);
 
-GO
+
 INSERT INTO [ipas].[dbo].[UserFarm] ([FarmID], [UserID], [RoleId])
 VALUES 
 (1,3,3),
@@ -1192,7 +1190,7 @@ VALUES
 (1, 16, 4), -- Olivia Martinez (Manager)
 (1, 17, 4), -- Daniel Brown (Manager)
 (1, 23, 5);
-GO
+
 -- Fake data for GrowthStage table with FarmID = 1
 INSERT INTO ipas.dbo.GrowthStage (GrowthStageCode, GrowthStageName, MonthAgeStart, MonthAgeEnd, isDefault, FarmID, IsDeleted, CreateDate, ActiveFunction, Description)
 VALUES
@@ -1201,7 +1199,7 @@ VALUES
 ('GS103', 'Vegetative Growth Stage', 25, 48, 0, 1, 0, GETDATE(), NULL, 'Tree develops canopy and root system'),
 ('GS104', 'Flowering Stage', 49, 60, 0, 1, 0, GETDATE(), 'Harvest', 'Tree reaches maturity and starts flowering'),
 ('GS105', 'Fruiting & Harvest Stage', 61, 120, 0, 1, 0, GETDATE(), 'Grafted,Harvest', 'Fruits mature and are ready for harvest');
-GO
+
 
 -- Fake data for GrowthStage table with FarmID = 2
 INSERT INTO ipas.dbo.GrowthStage (GrowthStageCode, GrowthStageName, MonthAgeStart, MonthAgeEnd, isDefault, FarmID, IsDeleted, CreateDate, ActiveFunction, Description)
@@ -1212,7 +1210,7 @@ VALUES
 ('GS204', 'Flowering Stage', 21, 27, 0, 2, 0, GETDATE(), 'Harvest', 'Tree reaches maturity and begins to flower'),
 ('GS205', 'Fruiting & Harvest Stage', 28, 40, 0, 2, 0, GETDATE(), 'Grafted,Harvest', 'Fruits develop and ripen for harvesting');
 
-GO
+
 SET IDENTITY_INSERT [ipas].[dbo].[MasterType] ON;
 INSERT INTO [ipas].[dbo].[MasterType] 
     ([MasterTypeID], [MasterTypeCode], [MasterTypeName], [TypeName], [MasterTypeDescription], [BackgroundColor], [TextColor], [Characteristic], [isDeleted], [isActive], [CreateDate], [IsDefault], [FarmID], [IsConflict], [Target], [MinTime], [MaxTime])
@@ -1268,9 +1266,7 @@ VALUES
     (44,'MT044', 'Grafting', 'Work', 'Take care grafted plant', '#F2F2F2', '#4A4A4A', NULL, 0, 1, GETDATE(), 0, 1, 0, 'Others', 60, 240),
     (45,'MT045', 'Spraying', 'Work', 'Spraying to limit the pest on plant', '#F2F2F2', '#4A4A4A', NULL, 0, 1, GETDATE(), 0, 1, 0, 'Others', 60, 240);
 	SET IDENTITY_INSERT [ipas].[dbo].[MasterType] OFF;
-GO
 
-GO
 INSERT INTO [dbo].[Criteria]
     ([CriteriaCode], [CriteriaName], [CriteriaDescription], [Priority],[isActive], [isDeleted],[MasterTypeID], [FrequencyDate])
 VALUES
@@ -1333,7 +1329,7 @@ VALUES
     ('CR037', 'Size & Weight', 'Evaluate size and weight standards for grade 1', 1, 1, 0, 41, 20), -- Ki?m tra m?i 20 ngày
     ('CR038', 'Color & Appearance', 'Assess color uniformity and skin condition', 2, 1, 0, 41, 25), -- Ki?m tra m?i 25 ngày
     ('CR039', 'Taste & Freshness', 'Test sweetness, acidity, and premium freshness', 3, 1, 0, 41, 35); -- Ki?m tra m?i 35 ngày
-GO
+
 UPDATE [dbo].[Criteria]
 SET 
     MinValue = CASE 
@@ -1478,7 +1474,7 @@ WHERE CriteriaCode IN ('CR001', 'CR002', 'CR003', 'CR004', 'CR005', 'CR006', 'CR
                        'CR021', 'CR022', 'CR023', 'CR024', 'CR025', 'CR026', 'CR027', 'CR028', 'CR029', 'CR030',
 					   'CR031', 'CR032', 'CR033',  'CR034', 'CR035', 'CR036',  'CR037', 'CR038', 'CR039');
 
-GO
+
 INSERT INTO ipas.dbo.LandPlot (
     LandPlotCode, LandPlotName, Area, [Length], Width, RowperLine, RowSpacing, SoilType, 
     CreateDate, UpdateDate, Status, Description, FarmID, IsDeleted, IsRowHorizontal, 
@@ -1487,7 +1483,7 @@ INSERT INTO ipas.dbo.LandPlot (
 VALUES 
     ('LP001', 'Plot A', 500.5, 500, 10, 10, 0.5, 'Loamy', '2024-01-01', '2024-02-01', 'Active', 'Good for vegetables', 1, 0, 0, 1, 10, 'Local Market'),
     ('LP002', 'Plot B', 300.2, 300, 10, 10, 0.5, 'Sandy', '2024-01-05', '2024-02-10', 'Active', 'Best for root crops', 1, 0, 0, 1, 10, 'Export');
-GO
+
 
 INSERT INTO ipas.dbo.LandPlotCoordination (LandPlotCoordinationCode, Longitude, Latitude, LandPlotID)  
 VALUES  
@@ -1502,7 +1498,7 @@ VALUES
     ('LPC-008', 106.78593105040267, 10.997509293796838, 2),  
     ('LPC-009', 106.78547802086456, 10.997225685284874, 2),  
     ('LPC-010', 106.7855136114656, 10.997171331485006, 2);
-GO
+
 
 INSERT INTO [ipas].dbo.LandRow 
 ( LandRowCode, RowIndex, TreeAmount, Distance, [Length], Width, Direction, CreateDate, UpdateDate, Status, Description, LandPlotID) 
@@ -1554,7 +1550,7 @@ FROM ipas.dbo.Plant p
 JOIN ipas.dbo.GrowthStage gs
 ON DATEDIFF(MONTH, p.PlantingDate, GETDATE()) BETWEEN gs.MonthAgeStart AND gs.MonthAgeEnd;
 
-GO
+
 -- Chèn d? li?u vào b?ng LegalDocument
 INSERT INTO [ipas].dbo.LegalDocument (LegalDocumentCode, LegalDocumentType, LegalDocumentName, LegalDocumentURL, IssueDate, ExpiredDate, Status, CreateAt, UpdateAt, FarmID)
 VALUES
@@ -1563,7 +1559,7 @@ VALUES
 ('LD-003', 'Registration', 'Land Registration Document', 'https://example.com/doc3.pdf', '2021-05-20', '2031-05-20', 'Active', GETDATE(), GETDATE(), 2),
 ('LD-004', 'Certificate', 'ISO 9001 Certification', 'https://example.com/doc4.pdf', '2020-09-12', '2025-09-12', 'Expired', GETDATE(), GETDATE(), 1),
 ('LD-005', 'Agreement', 'Supplier Contract', 'https://example.com/doc5.pdf', '2023-02-01', '2026-02-01', 'Active', GETDATE(), GETDATE(), 2);
-GO
+
 -- Chèn d? li?u vào b?ng Resource v?i liên k?t d?n LegalDocument
 INSERT INTO [ipas].dbo.Resource (ResourceCode, ResourceURL, Description, CreateDate, UpdateDate, ResourceType, FileFormat, UserWorkLogID, PlantGrowthHistoryID, LegalDocumentID, GraftedPlantNoteID)
 VALUES
@@ -1572,7 +1568,7 @@ VALUES
 ('RES-003', 'https://res.cloudinary.com/dgshx4n2c/image/upload/v1739010457/farm/legal-document/rhdtcktzwkbqzhe4njcc.jpg', 'Land Ownership Data', GETDATE(), GETDATE(), 'LegalDocument', 'image', NULL, NULL, 1, NULL),
 ('RES-004', 'https://res.cloudinary.com/dgshx4n2c/image/upload/v1739010609/iy0c6zxgjkdx7ocmvmih.jpg', 'ISO 9001 Audit Report', GETDATE(), GETDATE(), 'LegalDocument', 'image', NULL, NULL, 2, NULL),
 ('RES-005', 'https://res.cloudinary.com/dgshx4n2c/image/upload/v1739010644/lfcr5rsg6rnm1y2a7euc.jpg', 'Supplier Agreement Presentation', GETDATE(), GETDATE(), 'LegalDocument', 'image', NULL, NULL, 2, NULL);
-GO
+
 -- Insert fake data into Crop
 INSERT INTO [ipas].dbo.Crop (CropCode, CropName, StartDate, EndDate, CreateDate, UpdateDate, CropExpectedTime, CropActualTime, HarvestSeason, EstimateYield, ActualYield, IsDeleted, Status, Notes, MarketPrice, FarmID)
 VALUES 
@@ -1591,7 +1587,7 @@ VALUES
 -- 2025
 (N'CRP009', N'Winter Harvest 2025', '2025-01-01', '2025-03-31', '2024-12-10', '2025-04-10', '2025-02-01', '2025-04-05', N'Pomelo Winter Harvest', 5300, 5200, 0, N'Completed', N'Excellent growth', 1200, 1);
 
-GO
+
 -- Insert fake data into LandPlotCrop (Mapping crops to land plots)
 INSERT INTO [ipas].dbo.LandPlotCrop (LandPlotID, CropID)
 VALUES 
@@ -1603,7 +1599,7 @@ VALUES
 (1, 6),
 (2, 7),
 (1, 8);
-GO
+
 INSERT INTO [ipas].dbo.HarvestHistory 
     (HarvestHistoryCode, DateHarvest, HarvestHistoryNote, TotalPrice, HarvestStatus, CropID)
 VALUES 
@@ -1618,7 +1614,7 @@ VALUES
     ('HH008', '2024-12-05', 'Fall harvest', 25000.0, 'Completed', 8),
 	('HH009', '2024-12-10', 'Fall harvest', 30000.0, 'Completed', 8);
 
-GO
+
 INSERT INTO [ipas].dbo.ProductHarvestHistory 
     (MasterTypeID, PlantID, Unit, Revenue, CostPrice, QuantityNeed, ActualQuantity, HarvestHistoryID)
 VALUES 
@@ -1727,11 +1723,11 @@ VALUES
     (32, 8, N'kg', 6700.3, 6300.0, 105, 100, 6),  -- HarvestHistoryID 6
     (31, 8, N'kg', 7000.0, 6600.0, 90, 85, 7),  -- HarvestHistoryID 7
     (32, 8, N'kg', 7300.4, 6900.0, 95, 90, 8);  -- HarvestHistoryID 8
-GO
+
 UPDATE ipas.dbo.ProductHarvestHistory
 SET UserID = 1, RecordDate = GETDATE()
 WHERE UserID IS NULL;
-GO
+
 INSERT INTO [ipas].dbo.Process 
 (ProcessCode, ProcessName, isDefault, isActive, CreateDate, UpdateDate, IsDeleted, GrowthStageID, MasterTypeID, IsSample, FarmID)  
 VALUES
@@ -1746,13 +1742,13 @@ VALUES
 (N'P014', N'Early Harvest', 0, 1, '2024-02-14', NULL, 0, NULL, 3, 1, 3), -- tham khảo
 (N'P015', N'Productivity Evaluation', 0, 1, '2024-02-15', '2024-02-22', 0, 2, 15, 1, 1); -- tham khảo
 
-GO
+
 INSERT INTO ipas.dbo.Package (PackageCode, PackageName, PackagePrice, Duration, isActive, CreateDate, UpdateDate, Status)
 VALUES
 ('PKG101', 'Starter Farm Package', 50000, 30, 1, GETDATE(), NULL, 'Active'),
 ('PKG102', 'Standard Farm Package', 100000, 180, 1, GETDATE(), NULL, 'Active'),
 ('PKG103', 'Premium Farm Package', 200000, 365, 1, GETDATE(), NULL, 'Active');
-GO
+
 
 INSERT INTO ipas.dbo.PackageDetail (PackageDetailCode, FeatureName, FeatureDescription, PackageID)
 VALUES
@@ -1773,7 +1769,7 @@ VALUES
 ('PKD113', 'Task Management', 'Organize and assign farm tasks.', 3),
 ('PKD114', 'Real-time AI Advice', 'Receive AI-driven suggestions for farming.', 3),
 ('PKD115', 'Multi-platform Access', 'Access your farm data from any device.', 3);
-GO
+
 
 INSERT INTO ipas.dbo.[Order] 
 (OrderCode, OrderName, TotalPrice, Notes, OrderDate, EnrolledDate, ExpiredDate, PackageID, FarmID, Status)
@@ -1789,7 +1785,7 @@ VALUES
 ('ORD009', 'Order for Premium Package', 4000000, 'Bronze order', '2025-02-01', '2025-02-01', '2026-01-31', 3, 3, 'Paid'),
 ('ORD010', 'Order for Starter Package', 500000, 'Custom order', '2025-03-25', '2025-03-25', '2025-05-24', 1, 3, 'Paid');
 
-GO
+
 INSERT INTO ipas.dbo.Partner (PartnerCode, PartnerName, Province, PhoneNumber, Email, CreateDate, UpdateDate, [National],  District, Ward, Description, Major, Status, ContactName, Note, BusinessField, FarmID)
 VALUES 
 ('P001', 'Southern Vietnam Plant Seedling JSC', 'Hanoi', '0123456789', 'partner1@example.com', GETDATE(), NULL, 'Vietnam',  'Ba Dinh', 'Kim Ma', 'Leading partner in agriculture', 'Provider', 'Active', 'Nguyen Van A', 'Trusted partner', 'Farming', 1),
@@ -1802,7 +1798,7 @@ VALUES
 ('P008', 'Partner Three', 'Da Nang', '0345678901', 'partner3@example.com', GETDATE(), NULL, 'Vietnam',  'Hai Chau', 'Phuoc Ninh', 'Exporter of fresh fruits', 'Customer', 'Inactive', 'Le Van C', 'Looking for investors', 'Export', 1),
 ('P009', 'Partner Four', 'Can Tho', '0789456123', 'partner4@example.com', GETDATE(), NULL, 'Vietnam',  'Ninh Kieu', 'An Hoa', 'Specialist in high-tech farming', 'Customer', 'Active', 'Pham Van D', 'Innovative farming techniques', 'Technology', 1),
 ('P010', 'Partner Five', 'Hai Phong', '0567894321', 'partner5@example.com', GETDATE(), NULL, 'Vietnam',  'Le Chan', 'Niem Nghia', 'Distributor of farming equipment', 'Customer', 'Pending', 'Hoang Thi E', 'Partnering with local farmers', 'Machinery', 1);
-GO
+
 INSERT INTO ipas.dbo.PlantLot 
 (PlantLotCode, PlantLotName, PreviousQuantity, InputQuantity, LastQuantity, UsedQuantity, Unit, Status, ImportedDate, Note, PartnerID, PlantLotReferenceID, FarmID, IsDeleted, MasterTypeId, IsPassed) 
 VALUES
@@ -1815,7 +1811,7 @@ VALUES
 ('PL004', 'Plant Lot A - Extra', 30, 30, 30, 30, 'Plant', 'Active', '2024-06-02', 'Additional for PL001', 1, 1, 1, 0, 9, 1),
 ('PL005', 'Plant Lot B - Extra', 50, 50, 50, 50, 'Plant', 'Active', '2024-06-06', 'Additional for PL002', 1, 2, 1, 0, 9, 1),
 ('PL006', 'Plant Lot C - Extra', 30, 30, 30, 30, 'Plant', 'Active', '2024-06-11', 'Additional for PL003', 1, 3, 1, 0, 9, 1);
-GO
+
 INSERT INTO ipas.dbo.GraftedPlant 
 (GraftedPlantCode, GraftedPlantName, SeparatedDate, Status, GraftedDate, Note, MotherPlantID, IsDeleted,isCompleted ,PlantLotID, FarmID) 
 VALUES
@@ -1834,7 +1830,7 @@ VALUES
 ('GP013', 'Grafted Plant M', '2025-01-15', 'Used', '2025-01-05', 'Prone to pests', 3, 0, 0 ,3, 2),
 ('GP014', 'Grafted Plant N', '2025-02-20', 'Healthy', '2025-02-10', 'Strong and steady', 4, 0, 0 ,3, 2),
 ('GP015', 'Grafted Plant O',  '2025-03-10', 'Healthy', '2025-03-01', 'Requires urgent intervention', 5, 0, 0 ,3, 2);
-GO
+
 
 INSERT INTO [dbo].[SubProcess]
 ([SubProcessCode], [SubProcessName], [ParentSubProcessID], [isDefault], [isActive], [Description], [CreateDate], [UpdateDate], [StartDate], [EndDate], [IsDeleted], [Order], [ProcessID], [MasterTypeID], [FarmID])
@@ -1864,7 +1860,7 @@ VALUES
 ('SPC009', N'Harvesting phase 1', NULL, 0, 1, N'Conduct trial harvest', '2025-04-14 10:00:00', '2025-04-14 10:00:00', '2025-04-22 08:00:00', '2025-04-22 12:00:00', 0, 4, 10, NULL, 2),
 ('SPC010', N'Internal transportation', NULL, 0, 1, N'Transfer fruit from garden to warehouse', '2025-04-14 11:30:00', '2025-04-14 11:30:00', '2025-04-22 13:00:00', '2025-04-22 14:00:00', 0, 5, 10, NULL, 2),
 ('SPC011', N'Cleaning and sorting', NULL, 0, 1, N'Clean fruit, classify before packing', '2025-04-14 12:00:00', '2025-04-14 12:00:00', '2025-04-22 15:00:00', '2025-04-22 18:00:00', 0, 6, 10, NULL, 2);
-GO
+
 INSERT INTO [dbo].[Plan] 
     ([Status], [PlanCode], [CreateDate], [StartDate], [EndDate], [UpdateDate], [isActive], [Notes], [PlanDetail], 
      [ResponsibleBy], [Frequency], [PlanName], [AssignorID], [PesticideName], [MaxVolume], [MinVolume], [ProcessID], 
@@ -1892,7 +1888,7 @@ VALUES
      'EmmaPurple', NULL, 'Processing Plan', 3, NULL, NULL, NULL, 9, NULL, 1, 18, 9, 1, 0, 'fbf70009-fb16-4930-a017-023210e8eca8'),
     ('Done', 'PLN011', GETDATE(), '2026-01-01', '2026-01-15', GETDATE(), 1, 'Greenhouse maintenance', 'Detail 11', 
      'DanielOrange', NULL, 'Maintenance Plan', 3, NULL, NULL, NULL, 10, NULL, 0, 19, 10, 1, 0, 'b3ddaee6-18a3-4a0e-804c-940af15f8017');
-GO
+
 INSERT INTO [dbo].[CarePlanSchedule]
            ([DayOfWeek]
            ,[Status]
@@ -1914,7 +1910,7 @@ INSERT INTO [dbo].[CarePlanSchedule]
            (NULL, 'Active', '20:00:00', '21:00:00', 8, NULL, NULL, 1, NULL),
            (NULL, 'Pending', '13:00:00', '15:00:00', 9, NULL, '["2025/12/01"]', 1, NULL),
            (NULL, 'Completed', '15:30:00', '17:30:00', 10, NULL, '["2025/06/12"]', 1, NULL);
-GO
+
 INSERT INTO [dbo].[PlanTarget]
            ([PlanID]
            ,[LandRowID]
@@ -1967,7 +1963,7 @@ INSERT INTO [dbo].[PlanTarget]
            (8, 1, 1, NULL, NULL, 3, 'Land Plot'),
            (8, 1, 1, NULL, NULL, 4, 'Land Plot'),
            (8, 1, 1, NULL, NULL, 5, 'Land Plot');
-GO
+
 
 INSERT INTO ipas.dbo.PlantGrowthHistory 
     (PlantGrowthHistoryCode, Content, CreateDate, UpdateDate, PlantID, IssueName, UserID)
@@ -2027,7 +2023,7 @@ VALUES
 ('Criteria', 'Product', 'Product', 'string', 'Product'),
 ('Criteria', 'Others', 'Others', 'string', 'Others');
 
-GO
+
 
 -- Validation List
 INSERT INTO SystemConfiguration (ConfigGroup, ConfigKey, ConfigValue, ValueType, Description)
@@ -2038,7 +2034,7 @@ VALUES
 ('ValidationVariable', 'MaxTime', '35', 'double', 'Maximum Time'),
 ('ValidationVariable', 'MaximumGraftingLimit', '100', 'int', 'Maximum Grafting Limit');
 
-GO
+
 
 -- Danh sách Config trong farm
 INSERT INTO SystemConfiguration (ConfigGroup,ConfigKey, ConfigValue, ValueType, Description)
@@ -2053,7 +2049,7 @@ VALUES
 ('ValidationVariable','EditInDay', '3', 'int', N'Số ngày có thể chỉnh sửa sau khi đã được ghi nhận'),
 ('ValidationVariable','RecordAfterDate', '3', 'int', N'Sau bao nhiêu ngày có thể ghi nhận thu hoạch'),
 ('ValidationVariable','AllowAreaDeviationPercent', '15', 'double', N'Phần trăm diện tích chênh lệch khi tạo thửa-hàng');
-GO
+
 
 -- Criteria Apply
 --INSERT INTO SystemConfiguration (ConfigGroup, ConfigKey, ConfigValue, ValueType, Description, ReferenceConfigId)
@@ -2077,7 +2073,7 @@ GO
 --    ON c.ConfigGroup = 'Criteria' AND c.ConfigValue = v.ConfigValue;
 
 
-GO
+
 INSERT INTO SystemConfiguration (ConfigGroup,ConfigKey, ConfigValue, ValueType, Description)
 VALUES 
 ('PlantCriteria', 'GraftedCondition', 'Grafted Condition', 'string', N'Bộ tiêu chí dánh giá cây mẹ đủ điều kiện chiết cành'),
@@ -2096,7 +2092,7 @@ VALUES
 ('GraftedEvaluationApply','GraftedEvaluation', 'Grafted Evaluation', 'string', N'Bộ tiêu chí dùng để dánh giá Cây mẹ truớc khi chiết'),
 ('PlantLotConditionApply','PlantLotCondition', 'PlantLot Condition', 'string', N'Tiêu chí dánh giá cành chiết'),
 ('PlantLotEvaluationApply','PlantLotEvaluation', 'PlantLot Evaluation', 'string', N'Tiêu chí dánh giá lô giống sau khi nhập vào');
-GO
+
 -- Update ReferenceConfigId cho GraftedConditionApply
 UPDATE a
 SET a.ReferenceConfigId = b.ConfigId
@@ -2105,7 +2101,7 @@ JOIN SystemConfiguration b
     ON a.ConfigGroup = 'PlantCriteria'
     AND b.ConfigGroup = 'Criteria'
     AND a.ConfigKey = b.ConfigKey;
-	GO
+	
 	-- Update ReferenceConfigId cho GraftedConditionApply
 UPDATE a
 SET a.ReferenceConfigId = b.ConfigId
@@ -2114,7 +2110,7 @@ JOIN SystemConfiguration b
     ON a.ConfigGroup = 'GraftedCriteria'
     AND b.ConfigGroup = 'Criteria'
     AND a.ConfigKey = b.ConfigKey;
-	GO
+	
 	-- Update ReferenceConfigId cho GraftedConditionApply
 UPDATE a
 SET a.ReferenceConfigId = b.ConfigId
@@ -2123,7 +2119,7 @@ JOIN SystemConfiguration b
     ON a.ConfigGroup = 'PlantLotCriteria'
     AND b.ConfigGroup = 'Criteria'
     AND a.ConfigKey = b.ConfigKey;
-	GO
+	
 	-- Update ReferenceConfigId cho GraftedConditionApply
 UPDATE a
 SET a.ReferenceConfigId = b.ConfigId
@@ -2132,7 +2128,7 @@ JOIN SystemConfiguration b
     ON a.ConfigGroup = 'ProductCriteria'
     AND b.ConfigGroup = 'Criteria'
     AND a.ConfigKey = b.ConfigKey;
-	GO
+	
 -- Update ReferenceConfigId cho GraftedConditionApply
 UPDATE a
 SET a.ReferenceConfigId = b.ConfigId
@@ -2141,7 +2137,7 @@ JOIN SystemConfiguration b
     ON a.ConfigGroup = 'GraftedConditionApply'
     AND b.ConfigGroup = 'Criteria'
     AND a.ConfigKey = b.ConfigKey;
-	GO
+	
 -- Update ReferenceConfigId cho GraftedEvaluationApply
 UPDATE a
 SET a.ReferenceConfigId = b.ConfigId
@@ -2150,7 +2146,7 @@ JOIN SystemConfiguration b
     ON a.ConfigGroup = 'GraftedEvaluationApply'
     AND b.ConfigGroup = 'Criteria'
     AND a.ConfigKey = b.ConfigKey;
-	GO
+	
 -- Update ReferenceConfigId cho PlantLotConditionApply
 UPDATE a
 SET a.ReferenceConfigId = b.ConfigId
@@ -2159,7 +2155,7 @@ JOIN SystemConfiguration b
     ON a.ConfigGroup = 'PlantLotConditionApply'
     AND b.ConfigGroup = 'Criteria'
     AND a.ConfigKey = b.ConfigKey;
-	GO
+	
 -- Update ReferenceConfigId cho PlantLotEvaluationApply
 UPDATE a
 SET a.ReferenceConfigId = b.ConfigId
@@ -2168,7 +2164,7 @@ JOIN SystemConfiguration b
     ON a.ConfigGroup = 'PlantLotEvaluationApply'
     AND b.ConfigGroup = 'Criteria'
     AND a.ConfigKey = b.ConfigKey;
-	GO
+	
 
 
 INSERT INTO SystemConfiguration (ConfigGroup, ConfigKey, ConfigValue, ValueType, Description)
@@ -2355,7 +2351,7 @@ INSERT INTO [dbo].[TaskFeedback]
            ,'2024-02-15 08:30:00'
            ,22
            ,3);
-GO
+
 DECLARE @i INT = 0;
 WHILE @i < 10
 BEGIN
@@ -2448,7 +2444,7 @@ VALUES
     ('REP018', N'Report description 18', '2025-04-09 12:50:00', N'Plant grows well but bears no fruit?', N'Might need pollination or change of variety.', 'https://res.cloudinary.com/dm1xkvrjf/image/upload/v1745401513/e6wx4derx2la4n3hlimk.jpg', 1, 4, 15),
     ('REP019', N'Report description 19', '2025-04-09 16:30:00', N'Tree sheds many leaves after flowering?', N'Nutrient or temperature shock.', 'https://res.cloudinary.com/dm1xkvrjf/image/upload/v1745401513/ir0xhkcwfrw0yrklwvkg.jpg', 1, 2, 10),
     ('REP020', N'Report description 20', '2025-04-09 18:15:00', N'Can lime powder be used for soil treatment?', N'Yes, but apply with proper dosage.', 'https://res.cloudinary.com/dm1xkvrjf/image/upload/v1745402524/yzgilheic2u2gelst2yt.jpg', 0, 1, 11);
-	GO
+	
 	-- =============================================
 -- 1. Insert Process: Quy trình mẫu chăm sóc cây bưởi bị sâu vẽ bùa
 -- =============================================
@@ -2477,25 +2473,25 @@ DECLARE @SubProcess2 INT = (SELECT TOP 1 SubProcessID FROM SubProcess WHERE SubP
 --DECLARE @SubProcess4 INT = (SELECT TOP 1 SubProcessID FROM SubProcess WHERE SubProcessCode = 'SP004' ORDER BY SubProcessID ASC);
 DECLARE @SubProcess5 INT = (SELECT TOP 1 SubProcessID FROM SubProcess WHERE SubProcessCode = 'SP005' ORDER BY SubProcessID ASC);
 
-INSERT INTO [Plan] (PlanCode, PlanName, Status, CreateDate, StartDate, EndDate, IsActive, SubProcessID, FarmID, IsSample)
+INSERT INTO [Plan] (PlanCode, PlanName, PlanDetail, Notes, Status, CreateDate, StartDate, EndDate, IsActive, SubProcessID, FarmID, IsSample)
 VALUES
-(N'PL002', N'Initial survey', N'Active', GETDATE(), NULL, NULL, 1, @SubProcess1, 1, 1),
-(N'PL003', N'Trim and clean', N'Active', GETDATE(), NULL, NULL, 1, @SubProcess2, 1,1 ),
+(N'PL002', N'Initial survey', 'Survey the condition of grapefruit trees and collect data on suspected pests and diseases','Capture images, locations and use AI to help identify pests', N'Active', GETDATE(), NULL, NULL, 1, @SubProcess1, 1, 1),
+(N'PL003', N'Trim and clean', 'Prune to create canopy, remove diseased branches and clean the base of the tree', 'Make sure tools are clean, avoid spreading pathogens when pruning, and properly collect plant debris', N'Active', GETDATE(), NULL, NULL, 1, @SubProcess2, 1,1 ),
 --(N'PL004', N'Phun thuốc trị sâu vẽ bùa lần 1', N'Active', GETDATE(), NULL, NULL, 1, @SubProcess3, 1, 1 ),
 --(N'PL005', N'Theo dõi sau phun', N'Active', GETDATE(), NULL, NULL, 1, @SubProcess4, 1, 1),
-(N'PL006', N'Fertilizer restoration', N'Active', GETDATE(), NULL, NULL, 1, @SubProcess5, 1, 1);
-GO
+(N'PL006', N'Fertilizer restoration', 'Fertilize after harvest to help grapefruit trees regenerate nutrients and grow stably', 'Use organic fertilizer combined with NPK, apply into furrows 30-50cm from the base, avoid applying when it rains', N'Active', GETDATE(), NULL, NULL, 1, @SubProcess5, 1, 1);
+
 
 -- Declare variables
-DECLARE @TodayDate DATE = CAST(GETDATE() AS DATE);
-DECLARE @StartTime TIME = '02:30:00';
-DECLARE @EndTime TIME = '03:30:00';
+DECLARE @TodayDate1 DATE = CAST(GETDATE() AS DATE);
+DECLARE @StartTime1 TIME = '02:30:00';
+DECLARE @EndTime1 TIME = '03:30:00';
 
 -- 1. Insert Plan
 INSERT INTO [ipas].dbo.[Plan] 
 (Status, PlanCode, CreateDate, StartDate, EndDate, UpdateDate, isActive, PlanName, FarmID, IsSample)
 VALUES 
-('Active', CONCAT('PLAN_', FORMAT(GETDATE(), 'yyyyMMdd_HHmmss')), GETDATE(), @TodayDate, @TodayDate, NULL, 1, N'Chăm sóc cây bưởi sâu vẽ bùa (hôm nay)', 1, 0);
+('Active', CONCAT('PLAN_', FORMAT(GETDATE(), 'yyyyMMdd_HHmmss')), GETDATE(), @TodayDate1, @TodayDate1, NULL, 1, N'Chăm sóc cây bưởi sâu vẽ bùa (hôm nay)', 1, 0);
 
 -- 2. Get PlanID
 DECLARE @PlanID INT = SCOPE_IDENTITY();
@@ -2504,19 +2500,19 @@ DECLARE @PlanID INT = SCOPE_IDENTITY();
 INSERT INTO [ipas].dbo.CarePlanSchedule 
 (Status, CarePlanID, StartTime, EndTime, DayOfWeek, CustomDates, FarmID)
 VALUES 
-('Active', @PlanID, @StartTime, @EndTime, NULL, '["2025/04/23"]', 1);
+('Active', @PlanID, @StartTime1, @EndTime1, NULL, '["2025/04/23"]', 1);
 
 -- 4. Get ScheduleID
-DECLARE @ScheduleID INT = SCOPE_IDENTITY();
+DECLARE @ScheduleID1 INT = SCOPE_IDENTITY();
 
 -- 5. Insert WorkLog
 INSERT INTO [ipas].dbo.WorkLog 
 (WorkLogCode, WorkLogName, Status, [Date], IsConfirm, ScheduleID, ActualStartTime, ActualEndTime)
 VALUES 
-(CONCAT('WL_ABC123456', FORMAT(GETDATE(), 'yyyyMMdd_HHmmss')), N'Pruning and strengthening tree branches', 'Not Started', @TodayDate, 0, @ScheduleID, @StartTime, @EndTime);
+(CONCAT('WL_ABC123456', FORMAT(GETDATE(), 'yyyyMMdd_HHmmss')), N'Pruning and strengthening tree branches', 'Not Started', @TodayDate1, 0, @ScheduleID1, @StartTime1, @EndTime1);
 
 -- 6. Get WorkLogID
-DECLARE @WorkLogID INT = SCOPE_IDENTITY();
+DECLARE @WorkLogID1 INT = SCOPE_IDENTITY();
 
 -- 7. Insert 2 PlanTarget (PlantID = 1 và 2)
 INSERT INTO [ipas].dbo.PlanTarget (PlanID, LandPlotID)
@@ -2525,25 +2521,24 @@ VALUES
 (@PlanID, 2);
 
 -- 8. Insert 2 UserWorkLog
-DECLARE @UserID1 INT, @UserID2 INT;
+DECLARE @UserID3 INT, @UserID4 INT;
 
 -- Lấy 2 user Role = 5 từ UserFarm
-SELECT TOP 2 @UserID1 = UserID
+SELECT TOP 2 @UserID3 = UserID
 FROM [ipas].dbo.UserFarm
 WHERE RoleId = 5;
 
-@UserID1 = 6
 
-SELECT TOP 1 @UserID2 = uf.UserId
+SELECT TOP 1 @UserID4 = uf.UserId
 FROM [ipas].dbo.UserFarm uf
-WHERE  uf.RoleId = 5 AND uf.UserId <> @UserID1;
+WHERE  uf.RoleId = 5 AND uf.UserId <> @UserID3;
 
 -- Insert 2 user vào WorkLog
 INSERT INTO [ipas].dbo.UserWorkLog (WorkLogID, UserID, IsReporter, CreateDate)
 VALUES 
-(@WorkLogID, @UserID1, 1, GETDATE()),
-(@WorkLogID, @UserID2, 0, GETDATE());
-GO
+(@WorkLogID1, @UserID3, 1, GETDATE()),
+(@WorkLogID1, @UserID4, 0, GETDATE());
+
 
 INSERT INTO [dbo].[EmployeeSkill] ([EmployeeID], [FarmID], [WorkTypeID], [ScoreOfSkill])
 VALUES
@@ -2565,7 +2560,7 @@ VALUES
 (6, 1, 18, 5),
 (6, 1, 19, 3);
 
-GO
+
 -- ==========================================
 -- 1. Setup Thông Số Cần Thiết
 -- ==========================================
@@ -2621,8 +2616,8 @@ BEGIN
     -- ==========================================
     -- 4. Insert CarePlanSchedule cho Plan
     -- ==========================================
-    DECLARE @StartTime TIME = '14:30:00';
-    DECLARE @EndTime TIME = '16:00:00';
+    DECLARE @StartTime TIME = '07:30:00';
+    DECLARE @EndTime TIME = '09:10:00';
 
     INSERT INTO CarePlanSchedule (
         Status, CarePlanID, StartTime, EndTime, CustomDates, FarmID
