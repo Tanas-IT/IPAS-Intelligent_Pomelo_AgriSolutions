@@ -349,10 +349,14 @@ const AddPlanByProcess = () => {
         if (value !== "Weekly") {
             setDayOfWeek([]);
             scheduleForm.setFieldValue("dayOfWeek", []);
+            scheduleForm.resetFields(["dayOfWeek"]); // Thêm resetFields
+            scheduleForm.setFields([{ name: "dayOfWeek", errors: [] }]);
         }
         if (value !== "Monthly") {
             setDayOfMonth([]);
             scheduleForm.setFieldValue("dayOfMonth", []);
+            scheduleForm.resetFields(["dayOfMonth"]);
+            scheduleForm.setFields([{ name: "dayOfMonth", errors: [] }]);
         }
         setIsDaySelectorSaved(false);
 
@@ -1077,7 +1081,7 @@ const AddPlanByProcess = () => {
                                 <Form.Item
                                     label="Select Days of Week"
                                     name={addPlanFormFields.dayOfWeek}
-                                    rules={[{ required: true, message: "Please select the days of week!" }]}
+                                    // rules={[{ required: true, message: "Please select the days of week!" }]}
                                     validateStatus={dateError ? "error" : ""}
                                     help={dateError}
                                 >
@@ -1097,7 +1101,7 @@ const AddPlanByProcess = () => {
                                 <Form.Item
                                     label="Select Dates"
                                     name={addPlanFormFields.dayOfMonth}
-                                    rules={[{ required: true, message: "Please select the dates!" }]}
+                                    // rules={[{ required: true, message: "Please select the dates!" }]}
                                     validateStatus={dateError ? "error" : ""}
                                     help={dateError}
                                 >
