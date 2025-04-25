@@ -2532,7 +2532,6 @@ SELECT TOP 2 @UserID1 = UserID
 FROM [ipas].dbo.UserFarm
 WHERE RoleId = 5;
 
-@UserID1 = 6
 
 SELECT TOP 1 @UserID2 = uf.UserId
 FROM [ipas].dbo.UserFarm uf
