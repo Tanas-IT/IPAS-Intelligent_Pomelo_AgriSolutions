@@ -163,7 +163,7 @@ const FarmPickerScreen = () => {
                           <TextCustom
                             style={[
                               styles.statusTag,
-                              farm.roleId == UserRolesStr.Employee
+                              farm.roleId == UserRolesStr.Owner
                                 ? styles.ownerText
                                 : styles.otherText,
                             ]}
