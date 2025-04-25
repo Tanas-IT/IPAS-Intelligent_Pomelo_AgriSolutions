@@ -168,7 +168,7 @@ const DraggableRow: React.FC<DraggableRowProps> = ({
         <Flex className={style.rowHeader}>
           <Flex className={style.rowInfoContainer}>
             <span className={style.totalRowsLabel}>
-              Total Rows: {rowsData.length} 
+              Total Rows: {rowsData.length}
               {/* — Total Area: {100} m² */}
             </span>
             <Divider className={style.divider} />

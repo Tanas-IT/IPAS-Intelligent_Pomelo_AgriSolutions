@@ -35,17 +35,18 @@ export const getProcessesOfFarmForSelect = async (farmId?: number, isSample?: bo
   if (typeof isSample !== "undefined") {
     queryParams.append("isSample", isSample.toString());
   }
-  const url = `proceesses/get-for-select${queryParams.toString() ? `?${queryParams.toString()}` : ""}`;
+  const url = `proceesses/get-for-select${
+    queryParams.toString() ? `?${queryParams.toString()}` : ""
+  }`;
   const res = await axiosAuth.axiosJsonRequest.get(url);
 
   const apiResponse = res.data as ApiResponse<GetProcess[]>;
 
   return apiResponse.data.map(({ processId, processName }) => ({
     processId,
-    processName
+    processName,
   }));
 };
-
 
 export const getProcessDetail = async (processId: string | number) => {
   const res = await axiosAuth.axiosJsonRequest.get(`processes/get-process-by-id/${processId}`);
@@ -69,23 +70,22 @@ export const getProcessDetail = async (processId: string | number) => {
     listPlanIsSampleTrue: apiResponse.data.listPlanIsSampleTrue,
     listPlanIsSampleFalse: apiResponse.data.listPlanIsSampleFalse,
     isSample: apiResponse.data.isSample,
-    planTargetInProcess: apiResponse.data.planTargetInProcess
+    planTargetInProcess: apiResponse.data.planTargetInProcess,
   };
 };
 
-export const createProcess = async (
-  type: ProcessRequest,
-): Promise<ApiResponse<boolean>> => {
+export const createProcess = async (type: ProcessRequest): Promise<ApiResponse<boolean>> => {
   const res = await axiosAuth.axiosMultipartForm.post(`processes`, type);
   return res.data as ApiResponse<boolean>;
 };
 
-export const updateFProcess = async (payload: UpdateProcessRequest): Promise<ApiResponse<Object>> => {
+export const updateFProcess = async (
+  payload: UpdateProcessRequest,
+): Promise<ApiResponse<Object>> => {
   const formData = new FormData();
-  console.log("payload in updateFProcess", payload);
-  
+
   formData.append("ProcessId", String(payload.ProcessId));
-  formData.append("ProcessName", payload.ProcessName);
+  if (payload.ProcessName) formData.append("ProcessName", payload.ProcessName);
   formData.append("IsActive", String(payload.IsActive));
   formData.append("IsDefault", String(payload.IsDefault));
   formData.append("IsDeleted", String(payload.IsDeleted));
@@ -94,38 +94,43 @@ export const updateFProcess = async (payload: UpdateProcessRequest): Promise<Api
 
   if (payload.ListUpdateSubProcess && payload.ListUpdateSubProcess.length > 0) {
     payload.ListUpdateSubProcess.forEach((subProcess, index) => {
-      formData.append(`ListUpdateSubProcess[${index}]`, JSON.stringify({
-        SubProcessId: subProcess.SubProcessId,
-        SubProcessName: subProcess.SubProcessName,
-        ParentSubProcessId: subProcess.ParentSubProcessId ?? null,
-        IsDefault: subProcess.IsDefault,
-        IsActive: subProcess.IsActive,
-        MasterTypeId: subProcess.MasterTypeId ?? null,
-        GrowthStageId: subProcess.GrowthStageId ?? null,
-        Status: subProcess.Status,
-        Order: subProcess.Order,
-        ListPlan: subProcess.ListPlan
-      }));
+      formData.append(
+        `ListUpdateSubProcess[${index}]`,
+        JSON.stringify({
+          SubProcessId: subProcess.SubProcessId,
+          SubProcessName: subProcess.SubProcessName,
+          ParentSubProcessId: subProcess.ParentSubProcessId ?? null,
+          IsDefault: subProcess.IsDefault,
+          IsActive: subProcess.IsActive,
+          MasterTypeId: subProcess.MasterTypeId ?? null,
+          GrowthStageId: subProcess.GrowthStageId ?? null,
+          Status: subProcess.Status,
+          Order: subProcess.Order,
+          ListPlan: subProcess.ListPlan,
+        }),
+      );
     });
   }
 
   if (payload.ListPlan && payload.ListPlan.length > 0) {
     console.log("payload.ListPlan", payload.ListPlan);
-    
+
     payload.ListPlan.forEach((plan, index) => {
-      formData.append(`ListPlan[${index}]`, JSON.stringify({
-        PlanId: plan.PlanId,
-        PlanName: plan.PlanName,
-        PlanDetail: plan.PlanDetail,
-        PlanNote: plan.PlanNote,
-        GrowthStageId: plan.GrowthStageId,
-        MasterTypeId: plan.MasterTypeId ?? null,
-        PlanStatus: plan.PlanStatus
-      }));
+      formData.append(
+        `ListPlan[${index}]`,
+        JSON.stringify({
+          PlanId: plan.PlanId,
+          PlanName: plan.PlanName,
+          PlanDetail: plan.PlanDetail,
+          PlanNote: plan.PlanNote,
+          GrowthStageId: plan.GrowthStageId,
+          MasterTypeId: plan.MasterTypeId ?? null,
+          PlanStatus: plan.PlanStatus,
+        }),
+      );
     });
   }
   console.log("form data", formData.getAll("ListPlan"));
-  
 
   const res = await axiosAuth.axiosMultipartForm.put("processes/update-process-info", formData);
   const apiResponse = res.data as ApiResponse<Object>;
@@ -139,14 +144,13 @@ export const deleteProcess = async (ids: number[] | string[]): Promise<ApiRespon
 };
 
 export const getProcessOfFarmByMasterType = async (processIds: number[]) => {
-  const queryParams = processIds.map(id => `id=${id}`).join('&');
+  const queryParams = processIds.map((id) => `id=${id}`).join("&");
   const res = await axiosAuth.axiosJsonRequest.get(
-    `processes/for-selected-by-master-type?${queryParams}`
+    `processes/for-selected-by-master-type?${queryParams}`,
   );
   const apiResponse = res.data as ApiResponse<GetProcessSelect[]>;
   return apiResponse.data.map(({ id, name }) => ({
     value: id,
-    label: name
+    label: name,
   }));
-}
-
+};

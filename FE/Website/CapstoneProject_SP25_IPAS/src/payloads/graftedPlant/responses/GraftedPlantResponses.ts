@@ -22,6 +22,7 @@ export interface GetGraftedPlant {
   plantLotName: string;
   plantCode: string;
   plantName: string;
+  finishedPlantCode: string;
 }
 
 export interface GetGraftedPlantDetail extends GetGraftedPlant {}
