@@ -107,18 +107,18 @@ export const styles = StyleSheet.create({
       elevation: 2,
       flexDirection: 'row',
       alignItems: 'center',
-      flexWrap: 'wrap', // Cho phép xuống dòng
+      flexWrap: 'wrap',
     },
     resultText: {
       fontSize: 16,
       color: '#333',
-      width: '100%', // Chiếm toàn bộ chiều rộng trước
-      marginBottom: 5, // Khoảng cách với progress bar
+      width: '100%',
+      marginBottom: 5,
     },
     progressContainer: {
       flexDirection: 'row',
       alignItems: 'center',
-      width: '100%', // Chiếm toàn bộ chiều rộng
+      width: '100%',
     },
     percentageText: {
       marginLeft: 10,

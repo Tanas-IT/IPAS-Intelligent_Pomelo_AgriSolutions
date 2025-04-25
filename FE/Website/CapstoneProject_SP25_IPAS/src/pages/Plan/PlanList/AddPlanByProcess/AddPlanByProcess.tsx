@@ -343,6 +343,7 @@ const AddPlanByProcess = () => {
         if (value !== "None") {
             setCustomDates([]);
             scheduleForm.setFieldValue("customDates", []);
+            scheduleForm.resetFields(["customDates"]);
         }
         if (value !== "Weekly") {
             setDayOfWeek([]);
