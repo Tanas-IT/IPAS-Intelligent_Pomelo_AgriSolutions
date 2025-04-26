@@ -71,11 +71,11 @@ const useNotifications = () => {
 
 
     ws.onclose = (event) => {
-      console.error("WebSocket disconnected:", event);
+      // console.error("WebSocket disconnected:", event);
     };
 
     ws.onerror = (error) => {
-      console.error("WebSocket error:", error);
+      // console.error("WebSocket error:", error);
     };
 
     setSocket(ws);

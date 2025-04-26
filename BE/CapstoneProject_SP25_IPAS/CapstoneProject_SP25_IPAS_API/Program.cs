@@ -18,7 +18,7 @@ using FirebaseAdmin;
 using Google.Apis.Auth.OAuth2;
 
 var builder = WebApplication.CreateBuilder(args);
-builder.WebHost.UseUrls("http://0.0.0.0:5242");
+ builder.WebHost.UseUrls("http://0.0.0.0:5242");
 
 builder.Services.ConfigureServices(builder.Configuration);
 builder.Services.InstallerService(builder.Configuration);
@@ -103,7 +103,7 @@ builder.Services.AddAuthentication(options =>
 //}));
 builder.Services.AddCors(p => p.AddPolicy("Cors", policy =>
 {
-    policy.WithOrigins(builder.Configuration["AllowedHosts:localhostCORS"], builder.Configuration["AllowedHosts:vecelHost"])
+    policy.WithOrigins("http://localhost:5173","https://ipas.id.vn", "https://sp-25-se-070-ipas.vercel.app")
           .AllowAnyHeader()
           .AllowAnyMethod()
           .AllowCredentials()

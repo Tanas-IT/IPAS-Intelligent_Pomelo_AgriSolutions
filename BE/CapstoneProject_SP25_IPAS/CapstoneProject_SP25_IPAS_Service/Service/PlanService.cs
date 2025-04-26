@@ -801,7 +801,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         orderBy = x => x.OrderByDescending(x => x.CreateDate);
                         break;
                 }
-                var entities = await _unitOfWork.PlanRepository.GetPlanWithPagination(filter, orderBy, paginationParameter.PageIndex, paginationParameter.PageSize);
+                var entities = await _unitOfWork.PlanRepository.GetAllPlanWithPagination(filter, orderBy, paginationParameter.PageIndex, paginationParameter.PageSize);
                 var pagin = new PageEntity<PlanGetAllModel>();
 
                 var listTemp = _mapper.Map<IEnumerable<PlanGetAllModel>>(entities).ToList();
@@ -2602,7 +2602,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             {
                 var getListPlanTarget = await _unitOfWork.PlanRepository.GetListPlanByFarmId(farmId);
 
-                var listTemp = _mapper.Map<List<ForSelectedModels>>(getListPlanTarget).ToList();
+                var listTemp = _mapper.Map<List<GetPlanForSelected>>(getListPlanTarget).ToList();
                 //foreach (var planTemp in listTemp)
                 //{
                 //    double calculateProgress = await _unitOfWork.WorkLogRepository.CalculatePlanProgress(planTemp.PlanId);
