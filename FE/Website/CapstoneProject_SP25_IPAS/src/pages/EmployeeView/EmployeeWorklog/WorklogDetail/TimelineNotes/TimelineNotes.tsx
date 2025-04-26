@@ -28,8 +28,6 @@ interface TimelineNotesProps {
 const TimelineNotes: React.FC<TimelineNotesProps> = ({ notes, onAddNote, currentUserId }) => {
     const { styles } = useStyle();
     const [selectedNote, setSelectedNote] = useState<Note | null>(null);
-    console.log(notes);
-    
 
     const handleViewDetails = (note: Note) => {
         setSelectedNote(note);

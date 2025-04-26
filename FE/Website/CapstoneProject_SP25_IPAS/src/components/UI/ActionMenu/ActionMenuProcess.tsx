@@ -13,7 +13,6 @@ const ActionMenuProcess: FC<ActionMenuProps> = ({ id, onDelete }) => {
   const navigate = useNavigate();
 
   const handleDetailClick = async () => {
-    console.log("Detail Clicked");
     navigate(`/processes/${id}`);
   };
   const actionItems = [

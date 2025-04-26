@@ -26,8 +26,6 @@ const SeasonalYieldChart: React.FC = () => {
     const fetchSeasonalYieldData = async (year: number) => {
         try {
             const seasonalData = await dashboardService.getSeasonalYield(year);
-            console.log("seasonalData", seasonalData);
-
             if (seasonalData) {
                 const processedData = seasonalData.map((item: SeasonalYield) => {
                     const dataPoint: any = { harvestSeason: item.harvestSeason };

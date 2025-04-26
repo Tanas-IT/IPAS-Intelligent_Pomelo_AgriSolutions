@@ -121,7 +121,6 @@ const ReportManagementScreen = () => {
   };
 
   const handleViewDetails = (report: GetReportResponse) => {
-    console.log("View details:", report);
   };
 
   const handleAddToTraining = (report: GetReportResponse) => {
@@ -220,9 +219,10 @@ const ReportManagementScreen = () => {
         <h2>Overview</h2>
         <Button
           type="primary"
-          danger
           style={{
             fontWeight: 500,
+            backgroundColor: "#bcd379",
+            color: "#20461e",
           }}
           onClick={confirmReTraining}
           disabled={reTrainingLoading}

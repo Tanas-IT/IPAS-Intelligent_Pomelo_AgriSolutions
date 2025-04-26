@@ -24,8 +24,6 @@ export const getPlans = async (
   );
 
   const res = await axiosAuth.axiosJsonRequest.get("plan", { params });
-  console.log('res', res);
-
   const apiResponse = res.data as ApiResponse<Object>;
 
   return apiResponse.data as GetData<GetPlan>;
@@ -93,8 +91,6 @@ export const filterPlantLotsByUnitAndGrowthStage = async (unit: string, listGrow
   const res = await axiosAuth.axiosJsonRequest.post(`plan/filter-by-growth-stage?farmId=${farmId}&unit=${unit}`,
     { listGrowthStage });
   const apiResponse = res.data as ApiResponse<GetPlantTargetResponse[]>;
-  console.log("log filter lot", apiResponse);
-
   return apiResponse.data.flatMap((lot) =>
     lot.plantLots.map((lotItem) => ({
       value: lotItem.plantLotId,
@@ -104,8 +100,6 @@ export const filterPlantLotsByUnitAndGrowthStage = async (unit: string, listGrow
 };
 
 export const deletePlan = async (ids: number[] | string[]): Promise<ApiResponse<Object>> => {
-  console.log("ids", ids);
-
   const res = await axiosAuth.axiosJsonRequest.patch(`plan/soft-delete-plan`, ids);
   const apiResponse = res.data as ApiResponse<Object>;
   return apiResponse;
@@ -135,8 +129,6 @@ export const updatePlan = async (payload: UpdatePlanRequest): Promise<ApiRespons
 };
 
 export const createManyPlans = async (plan: PlanRequest[], farmId: number): Promise<ApiResponse<Object>> => {
-  console.log("lạ z ta", plan);
-  
   const res = await axiosAuth.axiosJsonRequest.post(`plan/create-many?farmId=${farmId}`, plan);
   const apiResponse = res.data as ApiResponse<Object>;
   return apiResponse;

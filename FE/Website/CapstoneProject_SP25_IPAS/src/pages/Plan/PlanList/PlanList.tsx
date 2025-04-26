@@ -50,8 +50,6 @@ function PlanList() {
   useEffect(() => {
     fetchData();
   }, [currentPage, rowsPerPage, sortField, searchValue, filters]);
-  console.log("plan", data);
-  
 
   const { handleDelete } = useTableDelete(
       {
@@ -77,7 +75,6 @@ function PlanList() {
   };
 
   const handleApply = () => {
-    console.log("Applying filters:", filters);
     fetchData();
   };
 

@@ -13,7 +13,6 @@ const Header: React.FC = () => {
     const handleScroll = () => {
       if (window.scrollY > 0) {
         setScrolling(true);
-        console.log("scrolling");
       } else {
         setScrolling(false);
       }

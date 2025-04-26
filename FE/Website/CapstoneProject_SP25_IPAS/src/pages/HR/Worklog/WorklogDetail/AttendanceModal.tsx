@@ -33,6 +33,8 @@ const AttendanceModal: React.FC<AttendanceModalProps> = ({
   const fetchListAttendance = async () => {
     try {
       const result = await worklogService.getAttendanceList(worklogId);
+      console.log("result", result);
+      
       if (result.statusCode === 200) {
         setList(result.data);
       }
@@ -91,7 +93,8 @@ const AttendanceModal: React.FC<AttendanceModalProps> = ({
                 <span>{employee.fullName}</span>
               </Flex>
               <Radio.Group
-                value={attendanceStatus[employee.userId] || undefined}
+                // value={attendanceStatus[employee.userId] || undefined}
+                value={list.find((item) => item.userId === employee.userId)?.statusOfUser || undefined}
                 onChange={(e) => onAttendanceChange(employee.userId, e.target.value)}
               >
                 <Radio value="Received">Present</Radio>
