@@ -36,5 +36,10 @@ namespace CapstoneProject_SP25_IPAS_Repository.IRepository
         public Task<List<Plan>> GetPlanByPlantId(int plantId);
         public Task<Plan> GetPlanWithEmployeeSkill(int planId);
         public Task<Plan> GetPlanByWorkLogId(int workLogId);
+        public Task<IEnumerable<Plan>> GetAllPlanWithPagination(
+        Expression<Func<Plan, bool>> filter = null!,
+        Func<IQueryable<Plan>, IOrderedQueryable<Plan>> orderBy = null!,
+        int? pageIndex = null,
+        int? pageSize = null);
     }
 }

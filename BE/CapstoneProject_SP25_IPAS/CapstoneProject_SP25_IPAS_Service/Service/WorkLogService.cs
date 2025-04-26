@@ -390,7 +390,16 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         {
                             if (workDate <= today)
                             {
-                                if (getDetailWorkLog.ActualEndTime < DateTime.Now.TimeOfDay)
+                                var expectedEndDateTime = new DateTime(
+                                                           workDate.Year,
+                                                           workDate.Month,
+                                                           workDate.Day,
+                                                           getDetailWorkLog.ActualEndTime?.Hours ?? 0,
+                                                           getDetailWorkLog.ActualEndTime?.Minutes ?? 0,
+                                                           getDetailWorkLog.ActualEndTime?.Seconds ?? 0
+                                                       );
+
+                                if (expectedEndDateTime < DateTime.Now)
                                 {
                                     getDetailWorkLog.Status = getStatusOverdue;
                                     _unitOfWork.WorkLogRepository.Update(getDetailWorkLog);
@@ -709,48 +718,48 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
                 var getAllWorkLog = await _unitOfWork.WorkLogRepository.GetAllNoPaging();
                 var entities = await _unitOfWork.WorkLogRepository.GetWorkLog(filter, orderBy);
-                foreach (var getDetailWorkLog in entities)
-                {
-                    var getWorkLogToUpdate = await _unitOfWork.WorkLogRepository.GetByID(getDetailWorkLog.WorkLogId);
-                    var getStatusNotStarted = await _unitOfWork.SystemConfigRepository
-                                      .GetConfigValue(SystemConfigConst.NOT_STARTED.Trim(), "Not Started");
-                    var getStatusInProgress = await _unitOfWork.SystemConfigRepository
-                                           .GetConfigValue(SystemConfigConst.IN_PROGRESS.Trim(), "In Progress");
-                    var getStatusOverdue = await _unitOfWork.SystemConfigRepository
-                                          .GetConfigValue(SystemConfigConst.OVERDUE.Trim(), "Overdue");
-                    var getStatusDone = await _unitOfWork.SystemConfigRepository
-                                          .GetConfigValue(SystemConfigConst.DONE.Trim(), "Done");
-                    if (getWorkLogToUpdate.Date != null)
-                    {
-                        if (getWorkLogToUpdate.Date.Value.Date <= DateTime.Now.Date)
-                        {
-                            if (getWorkLogToUpdate.Date.Value.Date == DateTime.Now.Date)
-                            {
-                                if (getWorkLogToUpdate.Status != null && getWorkLogToUpdate.Status!.Equals(getStatusNotStarted))
-                                {
-                                    if (getWorkLogToUpdate.ActualStartTime <= DateTime.Now.TimeOfDay)
-                                    {
-                                        getWorkLogToUpdate.Status = getStatusInProgress;
-                                         _unitOfWork.WorkLogRepository.Update(getWorkLogToUpdate);
-                                        await _unitOfWork.SaveAsync();
-                                    }
+                //foreach (var getDetailWorkLog in entities)
+                //{
+                //    var getWorkLogToUpdate = await _unitOfWork.WorkLogRepository.GetByID(getDetailWorkLog.WorkLogId);
+                //    var getStatusNotStarted = await _unitOfWork.SystemConfigRepository
+                //                      .GetConfigValue(SystemConfigConst.NOT_STARTED.Trim(), "Not Started");
+                //    var getStatusInProgress = await _unitOfWork.SystemConfigRepository
+                //                           .GetConfigValue(SystemConfigConst.IN_PROGRESS.Trim(), "In Progress");
+                //    var getStatusOverdue = await _unitOfWork.SystemConfigRepository
+                //                          .GetConfigValue(SystemConfigConst.OVERDUE.Trim(), "Overdue");
+                //    var getStatusDone = await _unitOfWork.SystemConfigRepository
+                //                          .GetConfigValue(SystemConfigConst.DONE.Trim(), "Done");
+                //    if (getWorkLogToUpdate.Date != null)
+                //    {
+                //        if (getWorkLogToUpdate.Date.Value.Date <= DateTime.Now.Date)
+                //        {
+                //            if (getWorkLogToUpdate.Date.Value.Date == DateTime.Now.Date)
+                //            {
+                //                if (getWorkLogToUpdate.Status != null && getWorkLogToUpdate.Status!.Equals(getStatusNotStarted))
+                //                {
+                //                    if (getWorkLogToUpdate.ActualStartTime <= DateTime.Now.TimeOfDay)
+                //                    {
+                //                        getWorkLogToUpdate.Status = getStatusInProgress;
+                //                         _unitOfWork.WorkLogRepository.Update(getWorkLogToUpdate);
+                //                        await _unitOfWork.SaveAsync();
+                //                    }
 
-                                }
-                            }
-                            else
-                            {
-                                if (getWorkLogToUpdate.Status != null && !getWorkLogToUpdate.Status!.Equals(getStatusDone))
-                                {
-                                    getWorkLogToUpdate.Status = getStatusOverdue;
-                                    _unitOfWork.WorkLogRepository.Update(getWorkLogToUpdate);
-                                    await _unitOfWork.SaveAsync();
+                //                }
+                //            }
+                //            else
+                //            {
+                //                if (getWorkLogToUpdate.Status != null && !getWorkLogToUpdate.Status!.Equals(getStatusDone))
+                //                {
+                //                    getWorkLogToUpdate.Status = getStatusOverdue;
+                //                    _unitOfWork.WorkLogRepository.Update(getWorkLogToUpdate);
+                //                    await _unitOfWork.SaveAsync();
 
-                                }
-                            }
+                //                }
+                //            }
 
-                        }
-                    }
-                }
+                //        }
+                //    }
+                //}
                 var getStatusReceived = await _unitOfWork.SystemConfigRepository
                                         .GetConfigValue(SystemConfigConst.RECEIVED.Trim(), "Received");
                 var result = entities
@@ -782,9 +791,9 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
                 if (result.Any())
                 {
-                    string groupKey = $"{CacheKeyConst.GROUP_FARM_WORKLOG}:{farmId}";
+                    //string groupKey = $"{CacheKeyConst.GROUP_FARM_WORKLOG}:{farmId}";
                     var finalResult = new BusinessResult(Const.SUCCESS_GET_ALL_SCHEDULE_CODE, Const.SUCCESS_GET_ALL_SCHEDULE_MSG, result);
-                    await _responseCacheService.AddCacheWithGroupAsync(groupKey.Trim(), key.Trim(), finalResult, TimeSpan.FromMinutes(5));
+                    //await _responseCacheService.AddCacheWithGroupAsync(groupKey.Trim(), key.Trim(), finalResult, TimeSpan.FromMinutes(5));
                     return finalResult;
                 }
                 else
@@ -1473,6 +1482,19 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         }
                     }
                 }
+                if (getExistPlan.StartDate == null || getExistPlan.EndDate == null)
+                {
+                    return new BusinessResult(400, $"Plan {getExistPlan.PlanName} does not have valid start or end date.");
+                }
+
+                var dateWork = addNewTaskModel.DateWork.Date;
+                var startDate = getExistPlan.StartDate.Value.Date;
+                var endDate = getExistPlan.EndDate.Value.Date;
+
+                if (dateWork < startDate || dateWork > endDate)
+                {
+                    return new BusinessResult(400, $"Date Work must be in range from {startDate:dd/MM/yyyy} to {endDate:dd/MM/yyyy} of plan '{getExistPlan.PlanName}'.");
+                }
 
                 await _unitOfWork.WorkLogRepository.CheckWorkLogAvailabilityWhenAddPlan(
                                                                       startTime,
@@ -1906,7 +1928,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 {
                     getWorkLog.ActualEndTime = TimeSpan.Parse(changeEmployeeOfWorkLog.EndTime);
                 }
-                if (changeEmployeeOfWorkLog.DateWork != null && changeEmployeeOfWorkLog.StartTime != null || changeEmployeeOfWorkLog.EndTime != null)
+                if (changeEmployeeOfWorkLog.DateWork != null && (changeEmployeeOfWorkLog.StartTime != null || changeEmployeeOfWorkLog.EndTime != null))
                 {
                     var parseStartTime = TimeSpan.TryParse(changeEmployeeOfWorkLog.StartTime, out var startTime);
                     var parseEndTime = TimeSpan.TryParse(changeEmployeeOfWorkLog.EndTime, out var endTime);
@@ -2521,7 +2543,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
         {
             try
             {
-                var getListUserWorkLog = await _unitOfWork.UserWorkLogRepository.GetListUserWorkLogByWorkLogId(workLogId);
+                var getListUserWorkLog = await _unitOfWork.UserWorkLogRepository.GetListUserWorkLogWithNoWorkLogByWorkLogId(workLogId);
                 var getWorkLog = await _unitOfWork.WorkLogRepository.GetByCondition(x => x.WorkLogId == workLogId);
                 if (getWorkLog != null)
                 {
@@ -2541,6 +2563,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                 foreach (var userWorkLog in getListUserWorkLog.Where(x => x.StatusOfUserWorkLog == null))
                                 {
                                     userWorkLog.StatusOfUserWorkLog = newStatus;
+                                    _unitOfWork.UserWorkLogRepository.Update(userWorkLog);
                                     await _unitOfWork.SaveAsync();
                                 }
 
@@ -2556,6 +2579,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                             foreach (var userWorkLog in getListUserWorkLog.Where(x => x.StatusOfUserWorkLog == null))
                             {
                                 userWorkLog.StatusOfUserWorkLog = newStatus;
+                                 _unitOfWork.UserWorkLogRepository.Update(userWorkLog);
                                 await _unitOfWork.SaveAsync();
                             }
 

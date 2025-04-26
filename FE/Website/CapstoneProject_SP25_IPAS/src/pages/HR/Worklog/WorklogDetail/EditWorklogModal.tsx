@@ -49,7 +49,8 @@ const EditWorklogModal: React.FC<EditWorklogModalProps> = ({
   const [employee, setEmployee] = useState<EmployeeWithSkills[]>([]);
   const [tempReporterId, setTempReporterId] = useState<number | undefined>(initialReporterId);
   const [replacingStates, setReplacingStates] = useState<{ [key: number]: number | null }>({});
-  const isEditable = worklog?.status === "Not Started";
+  const isEditable = worklog?.status === "Not Started" || worklog?.status === "In Progress";
+  const isTimeAndDateEditable = worklog?.status === "Not Started";
 
   const fetchEmployees = async () => {
       try {
@@ -163,7 +164,7 @@ const EditWorklogModal: React.FC<EditWorklogModalProps> = ({
         <EditableTimeRangeField
           value={selectedTimeRange}
           onChange={onTimeRangeChange}
-          disabled={!isEditable}
+          disabled={!isTimeAndDateEditable}
         />
         <label>Date:</label>
         <DatePicker
@@ -172,7 +173,7 @@ const EditWorklogModal: React.FC<EditWorklogModalProps> = ({
             const selectedDateString = date ? date.format("YYYY-MM-DD") : "";
             onDateChange(selectedDateString);
           }}
-          disabled={!isEditable}
+          disabled={!isTimeAndDateEditable}
         />
       </Flex>
     </Modal>
