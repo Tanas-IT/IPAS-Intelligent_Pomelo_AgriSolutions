@@ -483,7 +483,10 @@ function WorklogDetail() {
       emp => !replacedUserIds.includes(emp.userId)
     );
 
-    if (employeesNeedingReassignment.length > 0) {
+    if (
+      employeesNeedingReassignment.length > 0 &&
+      (worklogDetail?.status === 'Not Started' || worklogDetail?.status === 'In Progress')
+    ) {
       const namesNeedingReassignment = employeesNeedingReassignment.map(emp => emp.fullName);
       const message = "Need to re-assign because there are rejected employees:";
       setWarning({ message, names: namesNeedingReassignment });
