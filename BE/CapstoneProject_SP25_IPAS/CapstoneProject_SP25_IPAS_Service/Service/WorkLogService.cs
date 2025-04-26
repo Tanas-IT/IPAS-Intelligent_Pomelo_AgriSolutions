@@ -359,7 +359,38 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
                     if (workDate <= today)
                     {
-                        if(getDetailWorkLog.Status!.Equals(getStatusNotStarted))
+                        if (getDetailWorkLog.Date.Value.Date == today.Date)
+                        {
+                            if (getDetailWorkLog.ActualEndTime < DateTime.Now.TimeOfDay)
+                            {
+                                var getAutoTakeAttendance = await _unitOfWork.SystemConfigRepository
+                                                            .GetConfigValue(SystemConfigConst.AUTO_TAKE_ATTENDANCE.Trim(), "True");
+
+                                var newStatus = getAutoTakeAttendance.ToLower().Equals("true") ? "Received" : "Rejected";
+
+                                foreach (var userWorkLog in getDetailWorkLog.UserWorkLogs.Where(x => x.StatusOfUserWorkLog == null))
+                                {
+                                    userWorkLog.StatusOfUserWorkLog = newStatus;
+
+                                }
+
+                            }
+                        }
+                        else
+                        {
+                            var getAutoTakeAttendance = await _unitOfWork.SystemConfigRepository
+                                                            .GetConfigValue(SystemConfigConst.AUTO_TAKE_ATTENDANCE.Trim(), "True");
+
+                            var newStatus = getAutoTakeAttendance.ToLower().Equals("true") ? "Received" : "Rejected";
+
+                            foreach (var userWorkLog in getDetailWorkLog.UserWorkLogs.Where(x => x.StatusOfUserWorkLog == null))
+                            {
+                                userWorkLog.StatusOfUserWorkLog = newStatus;
+
+                            }
+
+                        }
+                        if (getDetailWorkLog.Status!.Equals(getStatusNotStarted))
                         {
                             // Trường hợp ngày làm việc là hôm nay
                             if (workDate == today)
@@ -407,7 +438,6 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                 }
                             }
                         }
-                        
                     }
                 }
                 var result = _mapper.Map<WorkLogDetailModel>(getDetailWorkLog);
