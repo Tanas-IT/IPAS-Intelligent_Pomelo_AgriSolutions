@@ -12,12 +12,10 @@ interface ActionMenuProps {
 const ActionMenuPlan: FC<ActionMenuProps> = ({ id, onDelete }) => {
   const navigate = useNavigate();
   const handleUpdateClick = async () => {
-    console.log("Edit Clicked");
     navigate(`/plans/update/${id}`);
   };
 
   const handleDetailClick = async () => {
-    console.log("Detail Clicked");
     navigate(`/plans/${id}`);
   };
   const actionItems = [

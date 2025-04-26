@@ -30,8 +30,6 @@ export const getWorklog = async (filters: {
   };
 
   const res = await axiosAuth.axiosJsonRequest.get("work-log/get-all-schedule", { params });
-  console.log("result of worklog filter", res);
-
   const apiResponse = res.data as ApiResponse<GetWorklog[]>;
   return apiResponse.data;
 }

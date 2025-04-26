@@ -95,8 +95,6 @@ const usePlanManager = (nodes?: CustomTreeDataNode[], setNodes?: (newNodes: Cust
         setIsPlanModalOpen(false);
     };
     const handleEditPlan = (plan: PlanType) => {
-        console.log(plan);
-
         setEditPlan(plan);
         planForm.setFieldsValue(plan);
         setIsPlanModalOpen(true);

@@ -31,8 +31,6 @@ export const getWorklog = async (filters: {
     "work-log/get-all-schedule",
     { params }
   );
-  console.log("result of worklog filter", res);
-
   const apiResponse = res.data as ApiResponse<GetWorklog[]>;
   return apiResponse.data;
 };

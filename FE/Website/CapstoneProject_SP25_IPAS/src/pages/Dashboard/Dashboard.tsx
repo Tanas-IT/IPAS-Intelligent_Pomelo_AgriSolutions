@@ -1,9 +1,9 @@
-import { Col, Flex, Segmented } from "antd";
+import { Col, Empty, Flex, Segmented } from "antd";
 import style from "./Dashboard.module.scss";
 import StatBox from "./components/StatBox/StatBox";
 import { Icons } from "@/assets";
 import WeatherCard from "./components/WeatherCard/WeatherCard";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { dashboardService } from "@/services";
 import {
   CompareWorkPerformanceResponse,
@@ -52,6 +52,7 @@ function Dashboard() {
     plan: true,
     // employee: true,
   });
+  const compareResultRef = useRef<HTMLDivElement>(null);
 
   const fetchDashboard = async () => {
     try {
@@ -59,7 +60,7 @@ function Dashboard() {
       const res = await dashboardService.getDashboardData();
       setData(res);
     } catch (error) {
-      console.error("error", error);
+      console.log("error", error);
     } finally {
       setLoading((prev) => ({ ...prev, plant: false, harvest: false }));
     }
@@ -88,6 +89,17 @@ function Dashboard() {
       setLoading((prev) => ({ ...prev, employee: false }));
     }
   };
+
+  useEffect(() => {
+    if (compareData && compareResultRef.current) {
+      setTimeout(() => {
+        compareResultRef.current?.scrollIntoView({
+          behavior: 'smooth',
+          block: 'nearest'
+        });
+      }, 100);
+    }
+  }, [compareData]);
 
   useEffect(() => {
     fetchDashboard();
@@ -120,7 +132,6 @@ function Dashboard() {
   ];
 
   useEffect(() => {
-    console.log(farmExpiredDate);
     if (farmExpiredDate && new Date(farmExpiredDate).getTime() < Date.now()) {
       setIsModalVisible(true);
     }
@@ -203,7 +214,7 @@ function Dashboard() {
                 </Col>
               </>
             ) : (
-              <div>No plan data available</div>
+              <Empty description="No plan data available" />
             )}
           </Flex>
         );
@@ -211,11 +222,10 @@ function Dashboard() {
         return (
           <Flex gap={20} className={style.chartContainer} vertical>
             <Col span={24} className={style.pieChart}>
-              <h3>Employee Overview</h3>
               <EmployeeOverview onCompare={handleCompare} />
             </Col>
             {compareData && (
-              <Col span={24} className={style.pieChart}>
+              <Col span={24} className={style.pieChart} ref={compareResultRef}>
                 <CompareWorkPerformance data={compareData} />
               </Col>
             )}

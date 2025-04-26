@@ -26,7 +26,6 @@ const FeedbackModal = ({ isOpen, onClose, onSave, worklogId, managerId }: Feedba
 
   const handleSave = async () => {
     const values = await form.validateFields();
-    console.log("Feedback Form Values:", values);
     const payload: CreateFeedbackRequest = {
       content: values.content,
       managerId,
