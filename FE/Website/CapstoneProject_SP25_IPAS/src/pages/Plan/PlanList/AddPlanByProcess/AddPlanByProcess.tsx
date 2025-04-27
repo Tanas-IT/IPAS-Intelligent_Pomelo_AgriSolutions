@@ -659,6 +659,7 @@ const AddPlanByProcess = () => {
 
     const handleSubmit = async () => {
         try {
+            setIsLoading(true);
             if (dataSource.length === 0) {
                 toast.error("No plans to submit. Please add at least one plan.");
                 return;
@@ -812,6 +813,8 @@ const AddPlanByProcess = () => {
         } catch (error) {
             console.error("Failed to create plans:", error);
             toast.error("Failed to create plans. Please try again later.");
+        } finally {
+            setIsLoading(false);
         }
     };
 
@@ -877,7 +880,7 @@ const AddPlanByProcess = () => {
                             >
                                 <Row gutter={16}>
                                     <Col span={8}>
-                                        <InfoField label="Process Name" value={selectedProcess.processName} name="processName" isEditing={false} />
+                                        <InfoField label="Process Name" value={selectedProcess.processName} name="processName" isEditing={false} isLoading={isPartlyLoading} />
                                     </Col>
                                     <Col span={8}>
                                         <InfoField
@@ -1182,7 +1185,7 @@ const AddPlanByProcess = () => {
                         initialValues={initialValues}
                     />
                     <Flex justify="flex-end">
-                        <CustomButton label="Add" handleOnClick={handleSubmit} disabled={!selectedProcess} />
+                        <CustomButton label="Add" handleOnClick={handleSubmit} disabled={!selectedProcess} isLoading={isLoading} />
                     </Flex>
                     <ToastContainer />
                 </Form>
