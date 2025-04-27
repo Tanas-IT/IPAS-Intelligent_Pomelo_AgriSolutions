@@ -359,7 +359,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
                     if (workDate <= today)
                     {
-                        if (getDetailWorkLog.Date.Value.Date == today.Date)
+                        if (getDetailWorkLog.Date.Value.Date == today)
                         {
                             if (getDetailWorkLog.ActualEndTime < DateTime.Now.TimeOfDay)
                             {
