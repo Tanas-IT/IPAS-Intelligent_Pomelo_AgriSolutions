@@ -59,15 +59,10 @@ function Worklog() {
   });
 
   const fetchData = async () => {
-    console.log("gọi fetch data");
-    console.log("Đang gọi API với filters:", filters);
     try {
-      console.log("ủa?");
 
       const response = await worklogService.getWorklog(filters);
-      console.log("ủa?????", response);
       if (response) {
-        console.log("if?????");
         const worklogs = response.map((log: GetWorklog) => ({
           id: log.workLogId.toString(),
           title: log.workLogName,
@@ -75,7 +70,6 @@ function Worklog() {
           end: dayjs(`${log.date.split("T")[0]} ${log.endTime}`).format("YYYY-MM-DD HH:mm"),
           status: log.status,
         }));
-        console.log("wl được filter", worklogs);
         setWorklog(worklogs);
       }
     } catch (error) {
@@ -131,7 +125,6 @@ function Worklog() {
       };
     });
   }, [worklog]);
-  console.log("số lần render");
 
   const hadleAddWorklog = async (worklog: CreateWorklogRequest) => {
     const res = await worklogService.addWorklog(worklog);
@@ -147,10 +140,8 @@ function Worklog() {
 
   useEffect(() => {
     if (eventsService && formattedEvents.length > 0) {
-      console.log("formattedEvents:", formattedEvents);
       eventsService.set(formattedEvents);
     }
-    console.log("gọi use effect của calendar");
   }, [eventsService, formattedEvents]);
 
   const calendar = useCalendarApp({

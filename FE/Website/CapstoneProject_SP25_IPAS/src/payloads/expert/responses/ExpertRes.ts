@@ -22,6 +22,8 @@ export interface GetReportResponse {
     image?: GetImageResponse
     createdDate: string
     imageURL: string
+    avatarOfQuestioner: string
+    avatarOfAnswer: string
 }
 
 export interface GetTagResponse {

@@ -1,12 +1,15 @@
 import React, { useState, useEffect } from "react";
-import { Table, Input, Button, Avatar, Tag, Space, Select, InputNumber } from "antd";
+import { Table, Input, Button, Avatar, Tag, Space, Select, InputNumber, Typography } from "antd";
 import { dashboardService } from "@/services";
 import { EmployeeListItem } from "@/payloads/dashboard";
 import { Loading } from "@/components";
 import { CheckCircleOutlined, CloseCircleOutlined, WarningOutlined } from "@ant-design/icons";
+import { Icons } from "@/assets";
+import styles from "./EmployeeOverview.module.scss";
 
 const { Search } = Input;
 const { Option } = Select;
+const { Title } = Typography;
 
 interface EmployeeOverviewProps {
   onCompare: (selectedIds: number[]) => void;
@@ -31,8 +34,6 @@ const EmployeeOverview: React.FC<EmployeeOverviewProps> = ({ onCompare }) => {
         minScore ?? undefined,
         maxScore ?? undefined
       );
-      console.log("employeeList", employeeList);
-
       setData(employeeList);
       setLoading(false);
     } catch (error) {
@@ -88,10 +89,10 @@ const EmployeeOverview: React.FC<EmployeeOverviewProps> = ({ onCompare }) => {
       title: "Task OK / Failed",
       render: (_: any, record: EmployeeListItem) => (
         <Space>
-          <Tag icon={<CheckCircleOutlined />} color="success">
+          <Tag className={`${styles.tag} ${styles.success}`} icon={<Icons.checkCircle />}>
             {record.taskSuccess}
           </Tag>
-          <Tag icon={<CloseCircleOutlined />} color="error">
+          <Tag className={`${styles.tag} ${styles.error}`} icon={<Icons.closee />}>
             {record.taskFail}
           </Tag>
         </Space>
@@ -104,11 +105,11 @@ const EmployeeOverview: React.FC<EmployeeOverviewProps> = ({ onCompare }) => {
       render: (_: any, record: EmployeeListItem) => {
         const warningCount = record.taskFail;
         return warningCount > 0 ? (
-          <Tag icon={<WarningOutlined />} color="warning">
+          <Tag className={`${styles.tag} ${styles.warning}`} icon={<WarningOutlined />}>
             {warningCount} Warning{warningCount > 1 ? "s" : ""}
           </Tag>
         ) : (
-          <Tag color="success">Good</Tag>
+          <Tag className={`${styles.tag} ${styles.success}`}>Good</Tag>
         );
       },
       sorter: (a: EmployeeListItem, b: EmployeeListItem) => a.taskFail - b.taskFail,
@@ -118,7 +119,10 @@ const EmployeeOverview: React.FC<EmployeeOverviewProps> = ({ onCompare }) => {
   if (loading) return <Loading />;
 
   return (
-    <div style={{ padding: "10px" }}>
+    <div className={styles.container}>
+      <div className={styles.header}>
+        <Title level={2}>Employee Performance</Title>
+      </div>
       <Space style={{ marginBottom: 16, flexWrap: "wrap" }}>
         <Select value={type} onChange={setType} style={{ width: 120 }}>
           <Option value="top">Top</Option>
@@ -156,21 +160,38 @@ const EmployeeOverview: React.FC<EmployeeOverviewProps> = ({ onCompare }) => {
           />
         </Space>
         <Button
+          className={styles.clearButton}
+          onClick={() => {
+            setType("top");
+            setLimit(10);
+            setSearch("");
+            setMinScore(null);
+            setMaxScore(null);
+            setSelectedRowKeys([]);
+          }}
+          icon={<CloseCircleOutlined />}
+        >
+          Clear
+        </Button>
+        <Button
           type="primary"
           onClick={handleCompare}
           disabled={selectedRowKeys.length < 2 || selectedRowKeys.length > 5}
+          style={{ backgroundColor: "#bcd379", color: "#20461e"}}
         >
           Compare Selected ({selectedRowKeys.length})
         </Button>
       </Space>
-      <Table
-        rowSelection={rowSelection}
-        columns={columns}
-        dataSource={data.map((item) => ({ ...item, key: item.employeeId }))}
-        pagination={{ pageSize: 5 }}
-        bordered
-        style={{ background: "#fff", borderRadius: "10px", boxShadow: "0 4px 12px rgba(0,0,0,0.1)" }}
-      />
+
+      <div className={styles.tableContainer}>
+        <Table
+          rowSelection={rowSelection}
+          columns={columns}
+          dataSource={data.map((item) => ({ ...item, key: item.employeeId }))}
+          pagination={{ pageSize: 5 }}
+          bordered={false}
+        />
+      </div>
     </div>
   );
 };

@@ -41,6 +41,7 @@ export {
   MdReportProblem as trainned,
   MdGrade as grade,
   MdFormatLineSpacing as spacing,
+  MdCancel as closee
 } from "react-icons/md";
 export {
   LuUsers as users,

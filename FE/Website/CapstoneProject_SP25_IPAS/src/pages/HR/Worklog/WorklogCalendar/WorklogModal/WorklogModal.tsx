@@ -30,9 +30,6 @@ const WorklogModal = ({ isOpen, onClose, onSave }: WorklogModalProps) => {
   const [selectedPlan, setSelectedPlan] = useState<number | null>(null);
   const [planMasterTypeId, setPlanMasterTypeId] = useState<number | null>(null);
   const farmId = getFarmId();
-  const { options: workTypeOptions } = useMasterTypeOptions(MASTER_TYPE.WORK, false);
-  console.log("log skill", employee);
-  
 
   const handleCancel = () => {
     onClose();

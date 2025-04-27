@@ -129,7 +129,6 @@ const AddPlan = () => {
         const result = await masterTypeService.getProcessTypeSelect("Grafting");
 
         if (result.statusCode === 200) {
-          console.log("thanh cong");
           setMasterTypeGrafting(result.data.map((m) => m.id));
           setProcessFarmOptions(await processService.getProcessOfFarmByMasterType(result.data.map((m) => m.id)));
         } else {
@@ -184,7 +183,6 @@ const AddPlan = () => {
   const handleChangeProcess = async (processId: number | undefined) => {
     if (processId) {
       const growthStageId = await getGrowthStageOfProcess(processId);
-      console.log("growthStageId", growthStageId);
 
       form.setFieldValue("processId", processId);
       const masterTypeId = await getTypeOfProcess(processId);
@@ -469,7 +467,6 @@ const AddPlan = () => {
         };
       });
     } else if (targetType === "plantLot") {
-      console.log("vô plantLot");
       formattedPlanTargetModel = [{
         landPlotID: undefined,
         landRowID: [],
@@ -479,8 +476,6 @@ const AddPlan = () => {
         unit: targetType,
       }];
     } else if (targetType === "graftedPlant") {
-      console.log("vô grafted");
-
       formattedPlanTargetModel = [{
         landPlotID: undefined,
         landRowID: [],
@@ -490,8 +485,6 @@ const AddPlan = () => {
         unit: targetType,
       }];
     }
-
-    console.log("formattedPlanTargetModel", formattedPlanTargetModel);
 
     const planData: PlanRequest = {
       planName: values.planName,
@@ -523,7 +516,6 @@ const AddPlan = () => {
       planTargetModel: formattedPlanTargetModel,
       listLandPlotOfCrop: values.listLandPlotOfCrop
     };
-    console.log("planData", planData);
 
     const result = await planService.addPlan(planData);
 
