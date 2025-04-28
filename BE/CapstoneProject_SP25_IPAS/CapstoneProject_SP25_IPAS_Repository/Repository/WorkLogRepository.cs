@@ -417,7 +417,10 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
 
         public async Task<List<WorkLog>> GetWorkLogsByFarm(int farmId)
         {
-            var nowTimeSpan = DateTime.Now.TimeOfDay;
+            var timeZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
+            var today = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, timeZone).Date;
+            var vietnamTimeOfDay = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, timeZone).TimeOfDay;
+            var nowTimeSpan = vietnamTimeOfDay;
             var timeAfter3Hours = DateTime.Now.AddHours(3).TimeOfDay;
 
             var result = await _context.WorkLogs
