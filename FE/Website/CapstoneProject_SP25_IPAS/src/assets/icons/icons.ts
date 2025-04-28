@@ -129,3 +129,4 @@ export {
 } from "react-icons/io";
 export { GrCycle as process } from "react-icons/gr";
 export { GoPackage as package } from "react-icons/go";
+export { FiInfo as info } from "react-icons/fi";
