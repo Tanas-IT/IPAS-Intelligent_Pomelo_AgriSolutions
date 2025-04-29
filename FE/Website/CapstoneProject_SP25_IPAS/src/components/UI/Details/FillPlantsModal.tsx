@@ -40,7 +40,7 @@ const FillPlantsModal = ({ isOpen, onClose, onSave, isLoadingAction }: FillPlant
 
   const handleConfirm = (plotId: number) => {
     if (lot?.usedQuantity === lot?.lastQuantity) {
-      toast.error("You have filled all available plants from this lot.");
+      toast.warning("You have filled all available plants from this lot.");
     } else {
       confirmModal.showModal({ plotId });
     }
@@ -56,7 +56,7 @@ const FillPlantsModal = ({ isOpen, onClose, onSave, isLoadingAction }: FillPlant
       setLot(res.data);
       await fetchPlotHaveEmptyPlant();
     } else {
-      toast.error(res.message);
+      toast.warning(res.message);
     }
   };
 

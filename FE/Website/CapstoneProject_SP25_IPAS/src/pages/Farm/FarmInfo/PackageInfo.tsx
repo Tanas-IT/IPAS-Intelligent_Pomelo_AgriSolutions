@@ -121,7 +121,7 @@ const PackageInfo: React.FC<PackageInfoProps> = ({ farm }) => {
       setOrders(response.data);
     // setOrders(mockOrders);
     } catch (error) {
-      toast.error('Không thể tải danh sách gói dịch vụ');
+      toast.warning('Không thể tải danh sách gói dịch vụ');
       console.error(error);
       // setOrders(mockOrders);
     } finally {

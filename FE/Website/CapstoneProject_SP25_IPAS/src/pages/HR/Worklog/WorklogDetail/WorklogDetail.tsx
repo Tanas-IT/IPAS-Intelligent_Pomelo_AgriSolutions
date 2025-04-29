@@ -173,7 +173,7 @@ function WorklogDetail() {
       toast.success("Removed successfully!");
       await fetchPlanDetail();
     } catch (error) {
-      toast.error("Failed to remove replacement.");
+      toast.warning("Failed to remove replacement.");
     }
   };
 
@@ -341,11 +341,11 @@ function WorklogDetail() {
         await fetchPlanDetail();
         setIsEditModalVisible(false);
       } else {
-        toast.error(response?.message || "Failed to update worklog.");
+        toast.warning(response?.message || "Failed to update worklog.");
       }
     } catch (error) {
       console.error("Error updating worklog:", error);
-      toast.error("An error occurred while updating the worklog.");
+      toast.warning("An error occurred while updating the worklog.");
     }
   };
 
@@ -591,7 +591,7 @@ function WorklogDetail() {
     try {
       const canCheck = await worklogService.canTakeAttendance(Number(id));
       if (canCheck.statusCode !== 200 || !canCheck.data) {
-        toast.error(canCheck.message);
+        toast.warning(canCheck.message);
         return;
       }
 
@@ -600,7 +600,7 @@ function WorklogDetail() {
         toast.success(resultAttendance.message);
         await fetchPlanDetail();
       } else {
-        toast.error(resultAttendance.message);
+        toast.warning(resultAttendance.message);
       }
       setIsAttendanceModalVisible(false);
     } catch (error) {
@@ -641,7 +641,7 @@ function WorklogDetail() {
       toast.success("Worklog marked as completed successfully");
       fetchPlanDetail();
     } else {
-      toast.error("Failed to mark worklog as completed");
+      toast.warning("Failed to mark worklog as completed");
     }
     setIsConfirmModalOpen(false);
   };

@@ -105,7 +105,7 @@ const useAddressLocation = <T extends { latitude: number; longitude: number }>(
             longitude: newCoords.longitude,
           })); // Dùng để hiển thị
         } else {
-          toast.error("Failed to get coordinates for the new address.");
+          toast.warning("Failed to get coordinates for the new address.");
         }
       }
     } catch (error) {
@@ -139,7 +139,7 @@ const useAddressLocation = <T extends { latitude: number; longitude: number }>(
           longitude: newCoords.longitude,
         }));
       } else {
-        toast.error("Failed to get coordinates for the new address.");
+        toast.warning("Failed to get coordinates for the new address.");
       }
     };
 

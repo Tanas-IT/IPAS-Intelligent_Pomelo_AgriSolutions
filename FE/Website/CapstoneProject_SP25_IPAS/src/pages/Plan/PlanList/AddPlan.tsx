@@ -434,22 +434,22 @@ const AddPlan = () => {
     const startTime = timeRange?.[0]?.toDate().toLocaleTimeString();
     const endTime = timeRange?.[1]?.toDate().toLocaleTimeString();
     if (frequency === "Weekly" && dayOfWeek.length === 0) {
-      toast.error("Please select at least one custom date for Weekly frequency.");
+      toast.warning("Please select at least one custom date for Weekly frequency.");
       return;
     }
 
     if (frequency === "Monthly" && dayOfMonth.length === 0) {
-      toast.error("Please select at least one day for Monthly frequency.");
+      toast.warning("Please select at least one day for Monthly frequency.");
       return;
     }
 
     if (assignorId === undefined) {
-      toast.error("Please select at least one employee.");
+      toast.warning("Please select at least one employee.");
       return;
     }
 
     if (!selectedCrop && planTargetModel.length === 0 && targetType === "regular") {
-      toast.error("Please select at least one plan target.");
+      toast.warning("Please select at least one plan target.");
       return;
     }
     const graftedPlantIDs = graftedPlant || [];
@@ -532,7 +532,7 @@ const AddPlan = () => {
       navigate(`${PATHS.PLAN.PLAN_LIST}?sf=createDate&sd=desc`);
       form.resetFields();
     } else {
-      toast.error(result.message);
+      toast.warning(result.message);
     }
 
     setIsFormDirty(false);

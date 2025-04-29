@@ -19,7 +19,7 @@ const TagManagementModal: React.FC<TagManagementModalProps> = ({ tags, onClose, 
 
   const handleAddTag = async () => {
     if (!newTag.trim()) {
-      toast.error('Please enter a tag name.', {
+      toast.warning('Please enter a tag name.', {
         position: 'top-right',
         autoClose: 3000,
       });
@@ -38,7 +38,7 @@ const TagManagementModal: React.FC<TagManagementModalProps> = ({ tags, onClose, 
         setNewTag('');
       }
     } catch (error) {
-      toast.error('Failed to add tag. Please try again.', {
+      toast.warning('Failed to add tag. Please try again.', {
         position: 'top-right',
         autoClose: 3000,
       });
@@ -49,7 +49,7 @@ const TagManagementModal: React.FC<TagManagementModalProps> = ({ tags, onClose, 
 
   const handleUpdateTag = async (tagId: string) => {
     if (!editingTagName.trim()) {
-      toast.error('Please enter a new tag name.', {
+      toast.warning('Please enter a new tag name.', {
         position: 'top-right',
         autoClose: 3000,
       });
@@ -69,7 +69,7 @@ const TagManagementModal: React.FC<TagManagementModalProps> = ({ tags, onClose, 
         setEditingTagName('');
       }
     } catch (error) {
-      toast.error('Failed to update tag. Please try again.', {
+      toast.warning('Failed to update tag. Please try again.', {
         position: 'top-right',
         autoClose: 3000,
       });
@@ -90,7 +90,7 @@ const TagManagementModal: React.FC<TagManagementModalProps> = ({ tags, onClose, 
         onTagUpdated();
       }
     } catch (error) {
-      toast.error('Failed to delete tag. Please try again.', {
+      toast.warning('Failed to delete tag. Please try again.', {
         position: 'top-right',
         autoClose: 3000,
       });

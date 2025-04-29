@@ -40,12 +40,12 @@ const RedoWorklogModal = ({ isOpen, onClose, onSuccess, failedOrRedoWorkLogId }:
       const values = await form.validateFields();
 
       if (selectedEmployees.length === 0) {
-        toast.error("Please assign at least one employee.");
+        toast.warning("Please assign at least one employee.");
         return;
       }
 
       if (!selectedReporter) {
-        toast.error("Please select a reporter.");
+        toast.warning("Please select a reporter.");
         return;
       }
 
@@ -76,11 +76,11 @@ const RedoWorklogModal = ({ isOpen, onClose, onSuccess, failedOrRedoWorkLogId }:
         onSuccess();
         handleCancel();
       } else {
-        toast.error(result.message);
+        toast.warning(result.message);
       }
     } catch (error) {
       console.error("Validation failed:", error);
-      toast.error("Failed to create redo worklog");
+      toast.warning("Failed to create redo worklog");
     }
   };
 
@@ -115,11 +115,11 @@ const RedoWorklogModal = ({ isOpen, onClose, onSuccess, failedOrRedoWorkLogId }:
         setEmployee(response.data);
         setAllEmployees(response.data);
       } else {
-        toast.error("Failed to fetch employees");
+        toast.warning("Failed to fetch employees");
       }
     } catch (error) {
       console.error("Error fetching employees:", error);
-      toast.error("Error fetching employees");
+      toast.warning("Error fetching employees");
     }
   };
 

@@ -15,12 +15,12 @@ import { plantLotService } from "@/services";
 import { GetPlantLotDetail, PlantLotRequest } from "@/payloads";
 import { LOT_TYPE, ROUTES } from "@/constants";
 import { usePlantLotStore } from "@/stores";
-import { useModal, useTableUpdate } from "@/hooks";
+import { useModal, useStyle, useTableUpdate } from "@/hooks";
 import { toast } from "react-toastify";
 import { PATHS } from "@/routes";
-import SectionLong from "./SectionLong";
 
 function PlantLotDetail() {
+  const { styles } = useStyle();
   const navigate = useNavigate();
   const location = useLocation();
   const pathnames = location.pathname.split("/");
@@ -55,7 +55,7 @@ function PlantLotDetail() {
       deleteConfirmModal.hideModal();
       navigate(PATHS.FARM.FARM_PLANT_LOT_LIST, { state: { toastMessage } });
     } else {
-      toast.error(toastMessage);
+      toast.warning(toastMessage);
     }
   };
 
@@ -180,7 +180,7 @@ function PlantLotDetail() {
           <h3 className={style.sectionTitle}>Additional Plant Lots</h3>
           <div className={style.additionalTableWrapper}>
             <Table
-              className={style.additionalTable}
+              className={`${style.additionalTable} ${styles.customeTable2}`}
               dataSource={additionalLots}
               rowKey="plantLotId"
               columns={[

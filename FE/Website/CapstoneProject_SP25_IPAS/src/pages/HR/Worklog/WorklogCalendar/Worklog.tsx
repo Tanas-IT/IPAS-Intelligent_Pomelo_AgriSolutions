@@ -140,7 +140,7 @@ function Worklog() {
       addModal.hideModal();
       fetchData();
     } else {
-      toast.error(res.message);
+      toast.warning(res.message);
     }
   }
   

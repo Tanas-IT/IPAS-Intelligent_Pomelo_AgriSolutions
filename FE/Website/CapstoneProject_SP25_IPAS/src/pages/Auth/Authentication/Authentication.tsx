@@ -53,7 +53,7 @@ function Authentication() {
           if (roleId === UserRolesStr.Expert)
             navigate(PATHS.EXPERT.REPORT_LIST, { state: { toastMessage } });
         } else {
-          toast.error(result.message);
+          toast.warning(result.message);
         }
       }
     } finally {

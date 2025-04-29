@@ -1,31 +1,43 @@
-import React, { useCallback, useMemo } from 'react';
-import { ReactFlow, Node, Edge, Background, Controls, Panel, ConnectionLineType, NodeTypes, MarkerType, Handle, Position } from '@xyflow/react';
-import '@xyflow/react/dist/style.css';
-import '@xyflow/react/dist/base.css';
-import { Tag } from 'antd';
-import { Icons } from '@/assets';
-import { PlanNodes, ProcessByPlanResponse, SubProcessNodes } from '@/payloads';
-import style from './ProcessFlow.module.scss';
-import dagre from 'dagre';
-import { Loading } from '@/components';
+import React, { useCallback, useMemo } from "react";
+import {
+  ReactFlow,
+  Node,
+  Edge,
+  Background,
+  Controls,
+  Panel,
+  ConnectionLineType,
+  NodeTypes,
+  MarkerType,
+  Handle,
+  Position,
+} from "@xyflow/react";
+import "@xyflow/react/dist/style.css";
+import "@xyflow/react/dist/base.css";
+import { Tag } from "antd";
+import { Icons } from "@/assets";
+import { PlanNodes, ProcessByPlanResponse, SubProcessNodes } from "@/payloads";
+import style from "./ProcessFlow.module.scss";
+import dagre from "dagre";
+import { Loading } from "@/components";
 
 interface PlanNodeData {
-  type: 'plan';
+  type: "plan";
   planData: PlanNodes;
   isCurrent: boolean;
   [key: string]: unknown;
 }
 
 interface SubProcessNodeData {
-  type: 'subProcess';
+  type: "subProcess";
   subProcessData: SubProcessNodes;
   hasChildren: boolean;
   [key: string]: unknown;
 }
 
 interface ProcessNodeData {
-  type: 'process';
-  processData: Omit<ProcessByPlanResponse, 'plans' | 'subProcesses'>;
+  type: "process";
+  processData: Omit<ProcessByPlanResponse, "plans" | "subProcesses">;
   [key: string]: unknown;
 }
 
@@ -34,46 +46,46 @@ type CustomNode = Node<CustomNodeData>;
 
 const ProcessNode = ({ data }: { data: ProcessNodeData }) => (
   <div className={style.processNode}>
-    <Handle type="target" position={Position.Top} style={{ background: '#555' }} />
+    <Handle type="target" position={Position.Top} style={{ background: "#555" }} />
     <Icons.process className={style.nodeIcon} />
     <h3>{data.processData.processName}</h3>
     <Tag color="blue">Process</Tag>
-    <Handle type="source" position={Position.Bottom} style={{ background: '#555' }} />
+    <Handle type="source" position={Position.Bottom} style={{ background: "#555" }} />
   </div>
 );
 
 const PlanNode = ({ data }: { data: PlanNodeData }) => (
-  <div className={`${style.planNode} ${data.isCurrent ? style.current : ''}`}>
-    <Handle type="target" position={Position.Top} style={{ background: '#555' }} />
+  <div className={`${style.planNode} ${data.isCurrent ? style.current : ""}`}>
+    <Handle type="target" position={Position.Top} style={{ background: "#555" }} />
     <Icons.plan className={style.leafIcon} />
     <div className={style.nodeContent}>
       <h4>{data.planData.planName}</h4>
       {data.planData.startDate && (
-        <Tag color={data.isCurrent ? 'green' : 'purple'}>
+        <Tag color={data.isCurrent ? "green" : "purple"}>
           {new Date(data.planData.startDate).toLocaleDateString()}
         </Tag>
       )}
     </div>
-    <Handle type="source" position={Position.Bottom} style={{ background: '#555' }} />
+    <Handle type="source" position={Position.Bottom} style={{ background: "#555" }} />
   </div>
 );
 
 const SubProcessNode = ({ data }: { data: SubProcessNodeData }) => (
   <div className={style.subprocessNode}>
-    <Handle type="target" position={Position.Top} style={{ background: '#555' }} />
+    <Handle type="target" position={Position.Top} style={{ background: "#555" }} />
     <Icons.process className={style.nodeIcon} />
     <div className={style.nodeContent}>
       <h4>{data.subProcessData.subProcessName}</h4>
       <Tag color="#1890ff">Order: {data.subProcessData.order}</Tag>
     </div>
-    <Handle type="source" position={Position.Bottom} style={{ background: '#555' }} />
+    <Handle type="source" position={Position.Bottom} style={{ background: "#555" }} />
   </div>
 );
 
 const getLayoutedElements = (nodes: CustomNode[], edges: Edge[]) => {
   const dagreGraph = new dagre.graphlib.Graph();
   dagreGraph.setDefaultEdgeLabel(() => ({}));
-  dagreGraph.setGraph({ rankdir: 'TB', nodesep: 50, ranksep: 100 });
+  dagreGraph.setGraph({ rankdir: "TB", nodesep: 50, ranksep: 100 });
 
   nodes.forEach((node) => {
     dagreGraph.setNode(node.id, { width: 200, height: 60 });
@@ -89,7 +101,7 @@ const getLayoutedElements = (nodes: CustomNode[], edges: Edge[]) => {
     const nodeWithPosition = dagreGraph.node(node.id);
     node.position = {
       x: nodeWithPosition.x - 100,
-      y: nodeWithPosition.y
+      y: nodeWithPosition.y,
     };
   });
 
@@ -103,51 +115,47 @@ interface ProcessFlowProps {
   onNodeClick?: (node: PlanNodes | SubProcessNodes) => void;
 }
 
-const ProcessFlow: React.FC<ProcessFlowProps> = ({
-  data,
-  currentPlanId,
-  onNodeClick
-}) => {
+const ProcessFlow: React.FC<ProcessFlowProps> = ({ data, currentPlanId, onNodeClick }) => {
   const nodeTypes: NodeTypes = useMemo(
     () => ({
       process: ProcessNode,
       plan: PlanNode,
-      subProcess: SubProcessNode
+      subProcess: SubProcessNode,
     }),
-    []
+    [],
   );
 
   const generateNodesAndEdges = useCallback(
     (
       parentId: string,
-      parentType: 'process' | 'subProcess',
+      parentType: "process" | "subProcess",
       items: (PlanNodes | SubProcessNodes)[],
-      level: number = 1
+      level: number = 1,
     ) => {
       const nodes: CustomNode[] = [];
       const edges: Edge[] = [];
 
       items.forEach((item, index) => {
-        const isSubProcess = 'subProcessID' in item;
+        const isSubProcess = "subProcessID" in item;
         const nodeId = isSubProcess ? `sub-${item.subProcessID}` : `plan-${item.planId}`;
 
         nodes.push({
           id: nodeId,
-          type: isSubProcess ? 'subProcess' : 'plan',
+          type: isSubProcess ? "subProcess" : "plan",
           position: { x: 0, y: 0 },
           data: isSubProcess
             ? {
-                type: 'subProcess',
+                type: "subProcess",
                 subProcessData: item,
                 hasChildren: item.children.length > 0 || item.plans.length > 0,
-                [Symbol.iterator]: undefined
+                [Symbol.iterator]: undefined,
               }
             : {
-                type: 'plan',
+                type: "plan",
                 planData: item,
                 isCurrent: item.planId === currentPlanId,
-                [Symbol.iterator]: undefined
-              }
+                [Symbol.iterator]: undefined,
+              },
         });
 
         if (parentId) {
@@ -158,15 +166,15 @@ const ProcessFlow: React.FC<ProcessFlowProps> = ({
             type: ConnectionLineType.SmoothStep,
             animated: !isSubProcess && (item as PlanNodes).isSelected,
             style: {
-              stroke: !isSubProcess && (item as PlanNodes).isSelected ? '#52c41a' : '#333',
-              strokeWidth: 2
+              stroke: !isSubProcess && (item as PlanNodes).isSelected ? "#52c41a" : "#333",
+              strokeWidth: 2,
             },
             markerEnd: {
               type: MarkerType.ArrowClosed,
               width: 20,
               height: 20,
-              color: !isSubProcess && (item as PlanNodes).isSelected ? '#52c41a' : '#333'
-            }
+              color: !isSubProcess && (item as PlanNodes).isSelected ? "#52c41a" : "#333",
+            },
           });
         }
 
@@ -174,9 +182,9 @@ const ProcessFlow: React.FC<ProcessFlowProps> = ({
           const subProcess = item as SubProcessNodes;
           const childResults = generateNodesAndEdges(
             nodeId,
-            'subProcess',
+            "subProcess",
             [...subProcess.children, ...subProcess.plans],
-            level + 1
+            level + 1,
           );
           nodes.push(...childResults.nodes);
           edges.push(...childResults.edges);
@@ -185,7 +193,7 @@ const ProcessFlow: React.FC<ProcessFlowProps> = ({
 
       return { nodes, edges };
     },
-    [currentPlanId]
+    [currentPlanId],
   );
 
   const { nodes, edges } = useMemo(() => {
@@ -194,24 +202,24 @@ const ProcessFlow: React.FC<ProcessFlowProps> = ({
     const nodes: CustomNode[] = [
       {
         id: `process-${data.processId}`,
-        type: 'process',
+        type: "process",
         position: { x: 0, y: 0 },
         data: {
-          type: 'process',
+          type: "process",
           processData: {
             processId: data.processId,
-            processName: data.processName
+            processName: data.processName,
           },
-          [Symbol.iterator]: undefined
-        }
-      }
+          [Symbol.iterator]: undefined,
+        },
+      },
     ];
     const edges: Edge[] = [];
 
     const { nodes: childNodes, edges: childEdges } = generateNodesAndEdges(
       `process-${data.processId}`,
-      'process',
-      [...data.plans, ...data.subProcesses]
+      "process",
+      [...data.plans, ...data.subProcesses],
     );
 
     const allNodes = [...nodes, ...childNodes];
@@ -225,13 +233,13 @@ const ProcessFlow: React.FC<ProcessFlowProps> = ({
       const customNode = node as unknown as CustomNode; // Safe type casting
       if (!onNodeClick) return;
 
-      if (customNode.data.type === 'plan') {
+      if (customNode.data.type === "plan") {
         onNodeClick(customNode.data.planData);
-      } else if (customNode.data.type === 'subProcess') {
+      } else if (customNode.data.type === "subProcess") {
         onNodeClick(customNode.data.subProcessData);
       }
     },
-    [onNodeClick]
+    [onNodeClick],
   );
 
   if (!data) {
@@ -255,10 +263,14 @@ const ProcessFlow: React.FC<ProcessFlowProps> = ({
         <Background />
         <Controls />
         <Panel position="top-right">
-          <div style={{ display: 'flex', gap: '8px' }}>
+          <div style={{ display: "flex", gap: "8px" }}>
             <Tag color="green">Current Plan</Tag>
-            <Tag color="blue">Process: <Icons.process className={style.nodeIcon} /></Tag>
-            <Tag color="purple">Plan: <Icons.plan className={style.leafIcon} /></Tag>
+            <Tag color="blue">
+              Process: <Icons.process className={style.nodeIcon} />
+            </Tag>
+            <Tag color="purple">
+              Plan: <Icons.plan className={style.leafIcon} />
+            </Tag>
           </div>
         </Panel>
       </ReactFlow>

@@ -44,11 +44,11 @@ const EmployeeTable: React.FC<EmployeeTableProps> = ({
         if (response.statusCode === 200) {
           setEmployee(response.data);
         } else {
-          toast.error("Failed to fetch employees");
+          toast.warning("Failed to fetch employees");
         }
       } catch (error) {
         console.error("Error fetching employees:", error);
-        toast.error("Error fetching employees");
+        toast.warning("Error fetching employees");
       }
     };
     fetchEmployees();

@@ -122,3 +122,124 @@
     }
   }
 }
+
+// @media (max-width: 1400px) {
+//   .emptyContainer {
+//     .empty {
+//       width: 70%;
+
+//       .emptyDescription {
+//         font-size: 1.5vw;
+//       }
+//     }
+//   }
+
+//   .container {
+//     row-gap: 16px;
+//     margin-top: 10px;
+
+//     .headerWrapper {
+//       margin-right: 12px;
+//     }
+
+//     .contentWrapper {
+//       .cardWrapper {
+//         .card {
+//           .cardInfoWrapper {
+//             .cardInfo {
+//               gap: 12px;
+
+//               .farmDetails {
+//                 .farmName {
+//                   font-size: 18px;
+//                 }
+//               }
+
+//               .creationInfo {
+//                 .date {
+//                   font-size: 14px;
+//                 }
+//               }
+//             }
+//           }
+
+//           .statusTag {
+//             font-size: 12px;
+//           }
+//         }
+//       }
+//     }
+//   }
+// }
+
+@media (max-width: 1400px) {
+  .emptyContainer {
+    margin-top: 4rem;
+
+    .empty {
+      width: 90%;
+
+      .emptyDescription {
+        font-size: 4vw;
+      }
+    }
+  }
+
+  .container {
+    row-gap: 12px;
+    margin-top: 8px;
+
+    .headerWrapper {
+      margin-right: 8px;
+    }
+
+    .contentWrapper {
+      flex: 1;
+      flex-direction: column;
+      align-items: center;
+
+      .cardWrapper {
+        .card {
+          .cardContent {
+            flex-direction: column;
+            align-items: center;
+          }
+
+          .cardImgWrapper {
+            .cardImg {
+              width: 80%;
+            }
+          }
+
+          .cardInfoWrapper {
+            .cardInfo {
+              gap: 8px;
+              text-align: center;
+
+              .farmDetails {
+                .farmName {
+                  font-size: 16px;
+                }
+              }
+
+              .creationInfo {
+                flex-direction: column;
+                gap: 4px;
+
+                .date {
+                  font-size: 12px;
+                }
+              }
+            }
+          }
+
+          .roleTagWrapper {
+            max-width: 100% !important;
+            padding: 0 !important;
+            margin-top: 8px;
+          }
+        }
+      }
+    }
+  }
+}

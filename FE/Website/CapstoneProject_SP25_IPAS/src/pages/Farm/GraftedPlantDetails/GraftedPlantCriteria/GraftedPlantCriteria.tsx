@@ -88,7 +88,7 @@ function GraftedPlantCriteria() {
         await fetchCriteriaGraftedPlant();
         toast.success(res.message);
       } else {
-        toast.error(res.message);
+        toast.warning(res.message);
       }
     } finally {
       setIsLoading(false);
@@ -121,7 +121,7 @@ function GraftedPlantCriteria() {
         toast.success(res.message);
         await fetchCriteriaGraftedPlant();
       } else {
-        toast.error(res.message);
+        toast.warning(res.message);
       }
     } finally {
       setIsLoading(false);
@@ -144,7 +144,7 @@ function GraftedPlantCriteria() {
         await fetchCriteriaGraftedPlant();
         setUpdatedCriteria([]);
       } else {
-        toast.error(res.message);
+        toast.warning(res.message);
       }
     } finally {
       deleteConfirmModal.hideModal();
