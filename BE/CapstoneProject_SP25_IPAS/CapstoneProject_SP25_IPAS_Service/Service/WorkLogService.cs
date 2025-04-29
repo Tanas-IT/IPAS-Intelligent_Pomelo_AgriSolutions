@@ -355,23 +355,57 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 if (getDetailWorkLog.Date != null)
                 {
                     var workDate = getDetailWorkLog.Date.Value.Date;
-                    var today = DateTime.Now.Date;
+                    //var today = DateTime.Now.Date;
+                    var timeZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
+                    var today = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, timeZone).Date;
+                    var vietnamTimeOfDay = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, timeZone).TimeOfDay;
 
                     if (workDate <= today)
                     {
-                        if(getDetailWorkLog.Status!.Equals(getStatusNotStarted))
+                        if (getDetailWorkLog.Date.Value.Date == today)
+                        {
+                            if (getDetailWorkLog.ActualEndTime < vietnamTimeOfDay)
+                            {
+                                var getAutoTakeAttendance = await _unitOfWork.SystemConfigRepository
+                                                            .GetConfigValue(SystemConfigConst.AUTO_TAKE_ATTENDANCE.Trim(), "True");
+
+                                var newStatus = getAutoTakeAttendance.ToLower().Equals("true") ? "Received" : "Rejected";
+
+                                foreach (var userWorkLog in getDetailWorkLog.UserWorkLogs.Where(x => x.StatusOfUserWorkLog == null))
+                                {
+                                    userWorkLog.StatusOfUserWorkLog = newStatus;
+
+                                }
+
+                            }
+                        }
+                        else
+                        {
+                            var getAutoTakeAttendance = await _unitOfWork.SystemConfigRepository
+                                                            .GetConfigValue(SystemConfigConst.AUTO_TAKE_ATTENDANCE.Trim(), "True");
+
+                            var newStatus = getAutoTakeAttendance.ToLower().Equals("true") ? "Received" : "Rejected";
+
+                            foreach (var userWorkLog in getDetailWorkLog.UserWorkLogs.Where(x => x.StatusOfUserWorkLog == null))
+                            {
+                                userWorkLog.StatusOfUserWorkLog = newStatus;
+
+                            }
+
+                        }
+                        if (getDetailWorkLog.Status!.Equals(getStatusNotStarted))
                         {
                             // Trường hợp ngày làm việc là hôm nay
                             if (workDate == today)
                             {
-                                if (getDetailWorkLog.ActualStartTime <= DateTime.Now.TimeOfDay && DateTime.Now.TimeOfDay <= getDetailWorkLog.ActualEndTime)
+                                if (getDetailWorkLog.ActualStartTime <= vietnamTimeOfDay && vietnamTimeOfDay <= getDetailWorkLog.ActualEndTime)
                                 {
                                     getDetailWorkLog.Status = getStatusInProgress;
                                     _unitOfWork.WorkLogRepository.Update(getDetailWorkLog);
                                     await _unitOfWork.SaveAsync();
                                 }
 
-                                if (getDetailWorkLog.ActualEndTime < DateTime.Now.TimeOfDay)
+                                if (getDetailWorkLog.ActualEndTime < vietnamTimeOfDay)
                                 {
                                     getDetailWorkLog.Status = getStatusOverdue;
                                     _unitOfWork.WorkLogRepository.Update(getDetailWorkLog);
@@ -399,7 +433,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                                            getDetailWorkLog.ActualEndTime?.Seconds ?? 0
                                                        );
 
-                                if (expectedEndDateTime < DateTime.Now)
+                                if (expectedEndDateTime < TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, timeZone))
                                 {
                                     getDetailWorkLog.Status = getStatusOverdue;
                                     _unitOfWork.WorkLogRepository.Update(getDetailWorkLog);
@@ -407,7 +441,6 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                 }
                             }
                         }
-                        
                     }
                 }
                 var result = _mapper.Map<WorkLogDetailModel>(getDetailWorkLog);
@@ -560,13 +593,15 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                       .GetConfigValue(SystemConfigConst.NOT_STARTED.Trim(), "Not Started");
                     var getStatusInProgress = await _unitOfWork.SystemConfigRepository
                                            .GetConfigValue(SystemConfigConst.IN_PROGRESS.Trim(), "In Progress");
+                    var timeZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
+                    var vietnamTimeOfDay = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, timeZone).TimeOfDay;
                     if (getDetailWorkLog.Date != null)
                     {
                         if (getDetailWorkLog.Date.Value.Date == DateTime.Now.Date)
                         {
                             if (getDetailWorkLog.Status!.Equals(getStatusNotStarted))
                             {
-                                if (getDetailWorkLog.ActualStartTime <= DateTime.Now.TimeOfDay)
+                                if (getDetailWorkLog.ActualStartTime <= vietnamTimeOfDay)
                                 {
                                     getDetailWorkLog.Status = getStatusInProgress;
                                     _unitOfWork.WorkLogRepository.Update(getDetailWorkLog);
@@ -718,48 +753,51 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
                 var getAllWorkLog = await _unitOfWork.WorkLogRepository.GetAllNoPaging();
                 var entities = await _unitOfWork.WorkLogRepository.GetWorkLog(filter, orderBy);
-                //foreach (var getDetailWorkLog in entities)
-                //{
-                //    var getWorkLogToUpdate = await _unitOfWork.WorkLogRepository.GetByID(getDetailWorkLog.WorkLogId);
-                //    var getStatusNotStarted = await _unitOfWork.SystemConfigRepository
-                //                      .GetConfigValue(SystemConfigConst.NOT_STARTED.Trim(), "Not Started");
-                //    var getStatusInProgress = await _unitOfWork.SystemConfigRepository
-                //                           .GetConfigValue(SystemConfigConst.IN_PROGRESS.Trim(), "In Progress");
-                //    var getStatusOverdue = await _unitOfWork.SystemConfigRepository
-                //                          .GetConfigValue(SystemConfigConst.OVERDUE.Trim(), "Overdue");
-                //    var getStatusDone = await _unitOfWork.SystemConfigRepository
-                //                          .GetConfigValue(SystemConfigConst.DONE.Trim(), "Done");
-                //    if (getWorkLogToUpdate.Date != null)
-                //    {
-                //        if (getWorkLogToUpdate.Date.Value.Date <= DateTime.Now.Date)
-                //        {
-                //            if (getWorkLogToUpdate.Date.Value.Date == DateTime.Now.Date)
-                //            {
-                //                if (getWorkLogToUpdate.Status != null && getWorkLogToUpdate.Status!.Equals(getStatusNotStarted))
-                //                {
-                //                    if (getWorkLogToUpdate.ActualStartTime <= DateTime.Now.TimeOfDay)
-                //                    {
-                //                        getWorkLogToUpdate.Status = getStatusInProgress;
-                //                         _unitOfWork.WorkLogRepository.Update(getWorkLogToUpdate);
-                //                        await _unitOfWork.SaveAsync();
-                //                    }
+                foreach (var getDetailWorkLog in entities)
+                {
+                    var getWorkLogToUpdate = await _unitOfWork.WorkLogRepository.GetByID(getDetailWorkLog.WorkLogId);
+                    var getStatusNotStarted = await _unitOfWork.SystemConfigRepository
+                                      .GetConfigValue(SystemConfigConst.NOT_STARTED.Trim(), "Not Started");
+                    var getStatusInProgress = await _unitOfWork.SystemConfigRepository
+                                           .GetConfigValue(SystemConfigConst.IN_PROGRESS.Trim(), "In Progress");
+                    var getStatusOverdue = await _unitOfWork.SystemConfigRepository
+                                          .GetConfigValue(SystemConfigConst.OVERDUE.Trim(), "Overdue");
+                    var getStatusDone = await _unitOfWork.SystemConfigRepository
+                                          .GetConfigValue(SystemConfigConst.DONE.Trim(), "Done");
+                    var timeZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
+                    var today = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, timeZone).Date;
+                    var vietnamTimeOfDay = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, timeZone).TimeOfDay;
+                    if (getWorkLogToUpdate.Date != null)
+                    {
+                        if (getWorkLogToUpdate.Date.Value.Date <= DateTime.Now.Date)
+                        {
+                            if (getWorkLogToUpdate.Date.Value.Date == DateTime.Now.Date)
+                            {
+                                if (getWorkLogToUpdate.Status != null && getWorkLogToUpdate.Status!.Equals(getStatusNotStarted))
+                                {
+                                    if (getWorkLogToUpdate.ActualStartTime <= vietnamTimeOfDay)
+                                    {
+                                        getWorkLogToUpdate.Status = getStatusInProgress;
+                                        _unitOfWork.WorkLogRepository.Update(getWorkLogToUpdate);
+                                        await _unitOfWork.SaveAsync();
+                                    }
 
-                //                }
-                //            }
-                //            else
-                //            {
-                //                if (getWorkLogToUpdate.Status != null && !getWorkLogToUpdate.Status!.Equals(getStatusDone))
-                //                {
-                //                    getWorkLogToUpdate.Status = getStatusOverdue;
-                //                    _unitOfWork.WorkLogRepository.Update(getWorkLogToUpdate);
-                //                    await _unitOfWork.SaveAsync();
+                                }
+                            }
+                            else
+                            {
+                                if (getWorkLogToUpdate.Status != null && !getWorkLogToUpdate.Status!.Equals(getStatusDone))
+                                {
+                                    getWorkLogToUpdate.Status = getStatusOverdue;
+                                    _unitOfWork.WorkLogRepository.Update(getWorkLogToUpdate);
+                                    await _unitOfWork.SaveAsync();
 
-                //                }
-                //            }
+                                }
+                            }
 
-                //        }
-                //    }
-                //}
+                        }
+                    }
+                }
                 var getStatusReceived = await _unitOfWork.SystemConfigRepository
                                         .GetConfigValue(SystemConfigConst.RECEIVED.Trim(), "Received");
                 var result = entities
@@ -926,6 +964,9 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     var findWorkLog = await _unitOfWork.WorkLogRepository.GetWorkLogForUpdateById(updateWorkLogModel.WorkLogId);
                     var getStatusNotStarted = await _unitOfWork.SystemConfigRepository
                                         .GetConfigValue(SystemConfigConst.NOT_STARTED.Trim(), "Not Started");
+                    var timeZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
+                    var today = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, timeZone).Date;
+                    var vietnamTimeOfDay = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, timeZone).TimeOfDay;
                     if (!findWorkLog.Status.ToLower().Equals(getStatusNotStarted.ToLower()))
                     {
                         throw new Exception("WorkLog is happended. Can not update");
@@ -944,7 +985,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         }
                         if (updateWorkLogModel.DateWork.Value.Date == DateTime.Now.Date)
                         {
-                            if (TimeSpan.Parse(updateWorkLogModel.StartTime) <= DateTime.Now.TimeOfDay)
+                            if (TimeSpan.Parse(updateWorkLogModel.StartTime) <= vietnamTimeOfDay)
                             {
                                 throw new Exception("Start time must be later than the current time");
                             }
@@ -1490,11 +1531,27 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 var dateWork = addNewTaskModel.DateWork.Date;
                 var startDate = getExistPlan.StartDate.Value.Date;
                 var endDate = getExistPlan.EndDate.Value.Date;
-
+                var timeZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
+                var today = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, timeZone).Date;
+                var vietnamTimeOfDay = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, timeZone).TimeOfDay;
                 if (dateWork < startDate || dateWork > endDate)
                 {
                     return new BusinessResult(400, $"Date Work must be in range from {startDate:dd/MM/yyyy} to {endDate:dd/MM/yyyy} of plan '{getExistPlan.PlanName}'.");
                 }
+
+                if(dateWork == today)
+                {
+                    if (startTime <= vietnamTimeOfDay)
+                    {
+                        throw new Exception("Start time must be later than the current time");
+                    }
+
+                    if (endTime <= startTime)
+                    {
+                        throw new Exception("End time must be greater than start time");
+                    }
+                }
+               
 
                 await _unitOfWork.WorkLogRepository.CheckWorkLogAvailabilityWhenAddPlan(
                                                                       startTime,
@@ -1932,6 +1989,9 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 {
                     var parseStartTime = TimeSpan.TryParse(changeEmployeeOfWorkLog.StartTime, out var startTime);
                     var parseEndTime = TimeSpan.TryParse(changeEmployeeOfWorkLog.EndTime, out var endTime);
+                    var timeZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
+                    var today = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, timeZone).Date;
+                    var vietnamTimeOfDay = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, timeZone).TimeOfDay;
                     if (parseStartTime == false)
                     {
                         startTime = getWorkLog.ActualStartTime.Value;
@@ -1946,7 +2006,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     }
                     if (changeEmployeeOfWorkLog.DateWork.Value.Date == DateTime.Now.Date)
                     {
-                        if (startTime <= DateTime.Now.TimeOfDay)
+                        if (startTime <= vietnamTimeOfDay)
                         {
                             throw new Exception("Start time must be later than the current time");
                         }
@@ -2545,6 +2605,9 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             {
                 var getListUserWorkLog = await _unitOfWork.UserWorkLogRepository.GetListUserWorkLogWithNoWorkLogByWorkLogId(workLogId);
                 var getWorkLog = await _unitOfWork.WorkLogRepository.GetByCondition(x => x.WorkLogId == workLogId);
+                var timeZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
+                var today = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, timeZone).Date;
+                var vietnamTimeOfDay = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, timeZone).TimeOfDay;
                 if (getWorkLog != null)
                 {
                     var now = DateTime.Now.Date;
@@ -2553,7 +2616,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     {
                         if (getWorkLog.Date.Value.Date == now)
                         {
-                            if (getWorkLog.ActualEndTime < DateTime.Now.TimeOfDay)
+                            if (getWorkLog.ActualEndTime < vietnamTimeOfDay)
                             {
                                 var getAutoTakeAttendance = await _unitOfWork.SystemConfigRepository
                                                             .GetConfigValue(SystemConfigConst.AUTO_TAKE_ATTENDANCE.Trim(), "True");
@@ -2837,15 +2900,17 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         }
                     }
                 }
-
+                var timeZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
+                var today = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, timeZone).Date;
+                var vietnamTimeOfDay = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, timeZone).TimeOfDay;
                 if (addNewTaskModel.NewDateWork.Date == DateTime.Now.Date)
                 {
-                    if (startTime <= DateTime.Now.TimeOfDay)
+                    if (startTime <= vietnamTimeOfDay)
                     {
                         throw new Exception("StartTime must be greater than now");
                     }
 
-                    if (endTime <= DateTime.Now.TimeOfDay)
+                    if (endTime <= vietnamTimeOfDay)
                     {
                         throw new Exception("EndTime must be greater than now");
                     }

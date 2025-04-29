@@ -24,8 +24,6 @@ export const Notification: React.FC<NotificationIconProps> = ({
   const handlePress = () => {
     if (onPress) {
       onPress();
-    } else {
-      console.log("không được");
     }
   };
 

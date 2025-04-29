@@ -30,7 +30,6 @@ export default function MainTabs() {
     );
   }
   const isEmployee = roleId === UserRolesStr.Employee;
-  console.log("isEmployee", isEmployee);
   
   return (
     <Tab.Navigator

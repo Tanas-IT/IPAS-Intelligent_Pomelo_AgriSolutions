@@ -94,16 +94,12 @@ builder.Services.AddAuthentication(options =>
     googleOptions.ClientSecret = builder.Configuration["Authentication:Google:ClientSecret"];
 });
 
-// Add CORS
-//builder.Services.AddCors(p => p.AddPolicy("Cors", policy =>
-//{
-//    policy.WithOrigins("*")
-//          .AllowAnyHeader()
-//          .AllowAnyMethod();
-//}));
+
+var allowedHosts = builder.Configuration.GetSection("AllowedHosts").Get<string[]>();
 builder.Services.AddCors(p => p.AddPolicy("Cors", policy =>
 {
-    policy.WithOrigins("http://localhost:5173","https://ipas.id.vn", "https://sp-25-se-070-ipas.vercel.app")
+    //policy.WithOrigins("http://localhost:5173","https://ipas.id.vn", "https://sp-25-se-070-ipas.vercel.app")
+    policy.WithOrigins(allowedHosts)
           .AllowAnyHeader()
           .AllowAnyMethod()
           .AllowCredentials()

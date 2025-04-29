@@ -153,7 +153,6 @@ const PlanTarget = ({
   };
 
   useEffect(() => {
-    console.log("Selected Land Plots updated:", selectedLandPlots);
   }, [selectedLandPlots]);
 
   const handleLandRowChange = (value: number | number[], index: number, remove: (index: number) => void) => {

@@ -22,7 +22,7 @@ export const columns: ColumnsType<GetGraftedPlantHistory> = [
     align: "center",
   },
   {
-    title: "Grafted Quantity",
+    title: "Seperated Quantity",
     dataIndex: "completedCount",
     key: "completedCount",
     align: "center",

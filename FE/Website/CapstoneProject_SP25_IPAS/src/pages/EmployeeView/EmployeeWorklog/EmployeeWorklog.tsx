@@ -58,13 +58,10 @@ function EmployeeWorklog() {
     const handleApply = () => {
         fetchData();
     };
-    console.log("ảo z");
-    
 
     const fetchData = async () => {
         try {
-            const response = await worklogService.getWorklogByUserId(Number(getUserId())); // API lấy công việc của nhân viên hiện tại
-            console.log("emp wl", response);
+            const response = await worklogService.getWorklogByUserId(Number(getUserId()));
             
             if (response) {
                 const worklogs = response.data.map((log: GetWorklog) => ({

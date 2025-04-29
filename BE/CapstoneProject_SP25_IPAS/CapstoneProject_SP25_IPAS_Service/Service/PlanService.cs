@@ -2602,7 +2602,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             {
                 var getListPlanTarget = await _unitOfWork.PlanRepository.GetListPlanByFarmId(farmId);
 
-                var listTemp = _mapper.Map<List<ForSelectedModels>>(getListPlanTarget).ToList();
+                var listTemp = _mapper.Map<List<GetPlanForSelected>>(getListPlanTarget).ToList();
                 //foreach (var planTemp in listTemp)
                 //{
                 //    double calculateProgress = await _unitOfWork.WorkLogRepository.CalculatePlanProgress(planTemp.PlanId);

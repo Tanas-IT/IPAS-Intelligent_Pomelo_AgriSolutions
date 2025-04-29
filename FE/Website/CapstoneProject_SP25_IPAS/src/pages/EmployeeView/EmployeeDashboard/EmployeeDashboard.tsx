@@ -62,7 +62,6 @@ const EmployeeDashboard = () => {
       try {
         setLoading(true);
         const data = await dashboardService.getEmployeeDashboard(Number(getFarmId()), Number(getUserId()));
-        console.log('Dashboard data:', data);
         setStatistics({
           totalTasks: data.total,
           completedTasks: data.done,
