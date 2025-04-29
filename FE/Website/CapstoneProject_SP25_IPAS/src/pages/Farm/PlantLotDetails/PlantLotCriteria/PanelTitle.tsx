@@ -111,7 +111,8 @@ const PanelTitle = ({
           </Tooltip>
         )}
         {isAllConditionChecked &&
-          (lot.inputQuantity === undefined || lot.inputQuantity === null) &&
+          // (lot.inputQuantity === undefined || lot.inputQuantity === null) &&
+          !lot.isPassed &&
           target === CRITERIA_TARGETS["Plantlot Condition"] && (
             <MapControls
               icon={<Icons.edit />}

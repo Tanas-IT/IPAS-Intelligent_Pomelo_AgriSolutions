@@ -22,7 +22,7 @@ export default function useTableAdd<T>({ addService, fetchData, onSuccess }: Use
           await fetchData();
           onSuccess?.();
         } else {
-          toast.error(result.message);
+          toast.warning(result.message);
         }
       } finally {
         setIsAdding(false);

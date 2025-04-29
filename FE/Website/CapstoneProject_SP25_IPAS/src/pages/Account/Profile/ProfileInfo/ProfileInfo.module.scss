@@ -5,6 +5,8 @@
   user-select: none;
   flex-direction: column;
   gap: 24px;
+  max-height: 80vh;
+  overflow: auto;
 }
 
 .headerRow {
@@ -33,6 +35,10 @@
   .headerRow {
     flex-direction: column;
     gap: 16px;
+  }
+
+  .actionBtnWrapper {
+    flex-direction: column;
   }
 
   .updateButton {

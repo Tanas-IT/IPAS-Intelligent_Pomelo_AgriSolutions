@@ -11,7 +11,8 @@ import { useAuthStore } from "@/store";
 // import { PushNotificationService } from "@/services/pushNotificationService";
 
 const WS_URL = process.env.EXPO_PUBLIC_PUBLIC_WS_URL;
-console.log("WS_URL", WS_URL);
+const WS_DEPLOY_URL = process.env.EXPO_PUBLIC_PUBLIC_WS_DEPLOY_URL;
+const IS_DEVELOPMENT = process.env.EXPO_PUBLIC_API_DEVELOPMENT === "true";
 
 const useNotifications = () => {
   const [notifications, setNotifications] = useState<GetNotification[]>([]);
@@ -69,7 +70,8 @@ const useNotifications = () => {
     const setupWebSocket = async () => {
       if (!userId) return;
 
-      const ws = new WebSocket(`${WS_URL}?userId=${userId}`);
+      const wsUrl = IS_DEVELOPMENT ? WS_URL : WS_DEPLOY_URL;
+      const ws = new WebSocket(`${wsUrl}?userId=${userId}`);
 
       ws.onopen = () => {
         console.log("Connected to WebSocket!");

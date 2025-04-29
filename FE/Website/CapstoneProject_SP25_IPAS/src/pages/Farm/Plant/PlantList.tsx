@@ -173,7 +173,7 @@ function PlantList() {
         markAsDeadModal.hideModal();
         await fetchData();
       } else {
-        toast.error(res.message);
+        toast.warning(res.message);
       }
     } finally {
       setIsPlantActionLoading(false);
@@ -196,7 +196,7 @@ function PlantList() {
         criteriaModal.hideModal();
         toast.success(res.message);
       } else {
-        toast.error(res.message);
+        toast.warning(res.message);
       }
     } finally {
       setIsPlantActionLoading(false);

@@ -40,7 +40,7 @@ const FeedbackModal = ({ isOpen, onClose, onSave, worklogId, managerId }: Feedba
       toast.success(result.message);
       form.resetFields();
     } else {
-      toast.error(result.message);
+      toast.warning(result.message);
     }
     // onSave(values);
     onClose();

@@ -86,7 +86,7 @@ const ChatBox = () => {
         changeNameModal.hideModal();
         await fetchRooms();
       } else {
-        toast.error(res.message);
+        toast.warning(res.message);
       }
     } finally {
       setIsLoading(false);
@@ -103,7 +103,7 @@ const ChatBox = () => {
         deleteConfirmModal.hideModal();
         await fetchRooms();
       } else {
-        toast.error(res.message);
+        toast.warning(res.message);
       }
     } finally {
       setIsLoading(false);
@@ -249,10 +249,10 @@ const ChatBox = () => {
     //     const imageMarkdown = `![image](${res.data.url})`;
     //     setMessageInput((prev) => `${prev}\n${imageMarkdown}`);
     //   } else {
-    //     toast.error("Tải ảnh thất bại");
+    //     toast.warning("Tải ảnh thất bại");
     //   }
     // } catch (error) {
-    //   toast.error("Có lỗi khi tải ảnh");
+    //   toast.warning("Có lỗi khi tải ảnh");
     // }
   };
 

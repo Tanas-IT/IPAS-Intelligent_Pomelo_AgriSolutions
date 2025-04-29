@@ -83,7 +83,7 @@ function GraftedPlantDetail() {
       deleteConfirmModal.hideModal();
       navigate(PATHS.FARM.GRAFTED_PLANT_LIST, { state: { toastMessage } });
     } else {
-      toast.error(toastMessage);
+      toast.warning(toastMessage);
     }
   };
 
@@ -160,7 +160,7 @@ function GraftedPlantDetail() {
       markAsDeadModal.hideModal();
       await fetchGraftedPlant();
     } else {
-      toast.error(res.message);
+      toast.warning(res.message);
     }
   };
 
@@ -173,7 +173,7 @@ function GraftedPlantDetail() {
       toast.success(res.message);
       await fetchGraftedPlant();
     } else {
-      toast.error(res.message);
+      toast.warning(res.message);
     }
   };
 
@@ -186,7 +186,7 @@ function GraftedPlantDetail() {
       toast.success(res.message);
       await fetchGraftedPlant();
     } else {
-      toast.error(res.message);
+      toast.warning(res.message);
     }
   };
 
@@ -199,7 +199,7 @@ function GraftedPlantDetail() {
       toast.success(res.message);
       await fetchGraftedPlant();
     } else {
-      toast.error(res.message);
+      toast.warning(res.message);
     }
   };
 

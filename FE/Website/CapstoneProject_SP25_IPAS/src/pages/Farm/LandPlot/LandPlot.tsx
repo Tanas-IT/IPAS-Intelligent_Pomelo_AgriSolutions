@@ -98,7 +98,7 @@ function LandPlot() {
       toast.success(res.message);
       await fetchLandPlotData();
     } else {
-      toast.error(res.message);
+      toast.warning(res.message);
     }
     deleteConfirmModal.hideModal();
   };

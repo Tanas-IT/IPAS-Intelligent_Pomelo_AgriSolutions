@@ -14,7 +14,7 @@ const useToastMessage = () => {
     if (toastMessage) {
       toast.success(toastMessage, { autoClose: 2500 });
     } else if (warningMessage) {
-      toast.error(warningMessage, { autoClose: 2500 });
+      toast.warning(warningMessage, { autoClose: 2500 });
     }
 
     // Chỉ gọi navigate nếu location.state không rỗng

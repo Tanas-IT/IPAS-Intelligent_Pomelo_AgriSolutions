@@ -147,7 +147,7 @@ function PlantLot() {
         criteriaModal.hideModal();
         toast.success(res.message);
       } else {
-        toast.error(res.message);
+        toast.warning(res.message);
       }
     } finally {
       setIsActionLoading(false);

@@ -80,7 +80,7 @@ const DraggableRow: React.FC<DraggableRowProps> = ({
 
   const handleAdd = (newRow: Omit<landRowSimulate, "landRowId" | "rowIndex">) => {
     // if (isPlantOverflowing(newRow.distance, newRow.treeAmount, newRow.length)) {
-    //   toast.error(MESSAGES.OUT_PLANT);
+    //   toast.warning(MESSAGES.OUT_PLANT);
     //   return;
     // }
 
@@ -117,12 +117,12 @@ const DraggableRow: React.FC<DraggableRowProps> = ({
     if (!updatedRow) return;
     // if (isPlantOverflowing(updatedRow.distance, updatedRow.treeAmount, updatedRow.length)) {
     //   updateConfirmModal.hideModal();
-    //   toast.error(MESSAGES.OUT_PLANT);
+    //   toast.warning(MESSAGES.OUT_PLANT);
     //   return;
     // }
     try {
       if (updatedRow.indexUsed && Number(updatedRow.treeAmount) < updatedRow.indexUsed) {
-        toast.error(
+        toast.warning(
           `Cannot update the plant amount. The number of plants must be at least ${updatedRow.indexUsed} which have already been added.`,
         );
         return;
@@ -148,7 +148,7 @@ const DraggableRow: React.FC<DraggableRowProps> = ({
 
   const handleDeleteRow = (landRowId: number, indexUsed: number) => {
     if (indexUsed > 0) {
-      toast.error(MESSAGES.CANNOT_DELETE_ROW);
+      toast.warning(MESSAGES.CANNOT_DELETE_ROW);
       return;
     }
     setRowsData((prev) => {

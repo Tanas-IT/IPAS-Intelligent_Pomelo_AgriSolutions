@@ -13,7 +13,7 @@ const useRequireAuth = (): boolean => {
     const refreshToken = localStorage.getItem(LOCAL_STORAGE_KEYS.REFRESH_TOKEN);
 
     if (!accessToken && !refreshToken) {
-      toast.error(MESSAGES.LOGIN_REQUIRED);
+      toast.warning(MESSAGES.LOGIN_REQUIRED);
       navigate(PATHS.AUTH.LOGIN);
     } else {
       setIsAuthChecked(true);

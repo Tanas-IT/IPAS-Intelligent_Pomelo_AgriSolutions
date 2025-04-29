@@ -90,7 +90,7 @@ function PlantCriteria() {
         toast.success(res.message);
         setPlant({ ...plant, isPassed: res.data.isPassed });
       } else {
-        toast.error(res.message);
+        toast.warning(res.message);
       }
     } finally {
       setIsLoading(false);
@@ -125,7 +125,7 @@ function PlantCriteria() {
         await fetchCriteriaPlant();
         if (res.data.isPassed) setPlant({ ...plant, isPassed: res.data.isPassed });
       } else {
-        toast.error(res.message);
+        toast.warning(res.message);
       }
     } finally {
       setIsLoading(false);
@@ -148,7 +148,7 @@ function PlantCriteria() {
         await fetchCriteriaPlant();
         setUpdatedCriteria([]);
       } else {
-        toast.error(res.message);
+        toast.warning(res.message);
       }
     } finally {
       deleteConfirmModal.hideModal();
@@ -174,7 +174,7 @@ function PlantCriteria() {
         setUpdatedCriteria([]);
         if (res.data.isPassed == false) setPlant({ ...plant, isPassed: res.data.isPassed });
       } else {
-        toast.error(res.message);
+        toast.warning(res.message);
       }
     } finally {
       setIsLoading(false);

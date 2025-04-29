@@ -63,17 +63,8 @@ const PlantSectionHeader = ({
             />
           </Flex>
         )}
-        {!onApplyCriteria && !formModal && onCreateGraftedBranch && (
-          <Flex>
-            <CustomButton
-              label="Create Grafted Plants"
-              icon={<Icons.plus />}
-              disabled={!plant.isPassed}
-              handleOnClick={onCreateGraftedBranch}
-            />
-          </Flex>
-        )}
-        <Flex gap={20}>
+
+        <Flex className={style.actionBtns}>
           {onExport && (
             <CustomButton label="Export" icon={<Icons.download />} handleOnClick={onExport} />
           )}
@@ -89,6 +80,14 @@ const PlantSectionHeader = ({
               label="Add New Criteria"
               icon={<Icons.plus />}
               handleOnClick={onApplyCriteria}
+            />
+          )}
+          {!onApplyCriteria && !formModal && onCreateGraftedBranch && (
+            <CustomButton
+              label="Create Grafted Plants"
+              icon={<Icons.plus />}
+              disabled={!plant.isPassed}
+              handleOnClick={onCreateGraftedBranch}
             />
           )}
         </Flex>

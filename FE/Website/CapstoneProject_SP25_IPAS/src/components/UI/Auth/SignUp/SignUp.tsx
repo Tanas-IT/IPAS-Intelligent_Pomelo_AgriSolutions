@@ -50,7 +50,7 @@ const SignUp: React.FC<Props> = ({ toggleForm, isSignUp, handleGoogleLoginSucces
           state: { type: "sign-up", values, otp: result.data.otpHash },
         });
       } else if (result.statusCode === 400) {
-        toast.error(result.message);
+        toast.warning(result.message);
       }
     } catch (error) {
       console.error("Error in handleSignUp:", error);
