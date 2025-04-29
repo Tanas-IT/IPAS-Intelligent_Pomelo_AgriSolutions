@@ -144,7 +144,7 @@ const Overview: React.FC<OverviewProps> = ({ farm, setFarm, logo, setLogo }) => 
           });
           useFarmStore.getState().setFarmInfo(formValues.farmName, "");
         } else {
-          toast.error(result.message);
+          toast.warning(result.message);
         }
       }
 
@@ -162,7 +162,7 @@ const Overview: React.FC<OverviewProps> = ({ farm, setFarm, logo, setLogo }) => 
   const beforeUpload = (file: File) => {
     const isImage = file.type.startsWith("image/");
     if (!isImage) {
-      toast.error("Only image files (JPG, PNG, GIF, WEBP) are allowed!");
+      toast.warning("Only image files (JPG, PNG, GIF, WEBP) are allowed!");
       return Upload.LIST_IGNORE;
     }
 

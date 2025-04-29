@@ -30,7 +30,7 @@ const RecordImportModal = ({
     const file = event.target.files?.[0];
     if (file) {
       if (!file.name.endsWith(".csv")) {
-        toast.error("Please select a CSV file!");
+        toast.warning("Please select a CSV file!");
         return;
       }
       setSelectedFile(file);
@@ -44,7 +44,7 @@ const RecordImportModal = ({
 
   const handleSave = () => {
     if (!selectedFile) {
-      toast.error("No file selected!");
+      toast.warning("No file selected!");
       return;
     }
     onSave(selectedFile);

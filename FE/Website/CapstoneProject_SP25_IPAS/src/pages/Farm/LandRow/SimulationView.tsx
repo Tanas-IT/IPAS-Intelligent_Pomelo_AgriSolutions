@@ -61,15 +61,12 @@ const SimulationView: FC<SimulationViewProps> = ({ plotId }) => {
   return (
     <div ref={containerRef} style={{ width: "100%" }}>
       <Flex className={style.rowHeaderWrapper}>
-        <Flex>
-          <Flex className={style.rowInfoContainer}>
-            <span className={style.rowOrientationLabel}>
-              Orientation: {plotData.isRowHorizontal ? "Horizontal" : "Vertical"}
-            </span>
-          </Flex>
-
-          {/* Nút Zoom In/Out */}
-          <Flex className={style.zoomControls}>
+        {/* Nút Zoom In/Out */}
+        <Flex className={style.zoomControls}>
+          <span className={style.rowOrientationLabel}>
+            Orientation: {plotData.isRowHorizontal ? "Horizontal" : "Vertical"}
+          </span>
+          <Flex gap={20}>
             {notManagerIn && (
               <MapControls
                 icon={<Icons.edit />}
@@ -77,7 +74,6 @@ const SimulationView: FC<SimulationViewProps> = ({ plotId }) => {
                 onClick={() => showDrawer()}
               />
             )}
-
             <MapControls
               icon={<Icons.zoomIn />}
               label="Zoom In"

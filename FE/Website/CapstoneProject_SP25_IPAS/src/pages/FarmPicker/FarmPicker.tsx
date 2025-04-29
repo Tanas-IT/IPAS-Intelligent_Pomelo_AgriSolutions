@@ -71,16 +71,16 @@ function FarmPicker() {
               navigate(PATHS.EMPLOYEE.DASHBOARD);
               break;
             default:
-              toast.error("Unauthorized access.");
+              toast.warning("Unauthorized access.");
               navigate(PATHS.FARM_PICKER);
               break;
           }
         }
       } else {
-        toast.error("Failed to fetch farm details.");
+        toast.warning("Failed to fetch farm details.");
       }
     } else {
-      toast.error(MESSAGES.ERROR_OCCURRED);
+      toast.warning(MESSAGES.ERROR_OCCURRED);
     }
   };
 
@@ -105,7 +105,7 @@ function FarmPicker() {
   //     }
   //   } catch (error) {
   //     console.error("Error checking subscription:", error);
-  //     toast.error(MESSAGES.ERROR_OCCURRED);
+  //     toast.warning(MESSAGES.ERROR_OCCURRED);
   //   }
   // };
 
@@ -114,7 +114,7 @@ function FarmPicker() {
       navigate(PATHS.FARM.CREATE_FARM);
     } catch (error) {
       console.error("Error checking subscription:", error);
-      toast.error(MESSAGES.ERROR_OCCURRED);
+      toast.warning(MESSAGES.ERROR_OCCURRED);
     }
   };
 
@@ -156,7 +156,7 @@ function FarmPicker() {
           {farmsData?.map((farm) => {
             const isInactive = farm.farm.status.toLowerCase() === "inactive" || !farm.isActive;
             return (
-              <Col span={12} key={farm.farm.farmId}>
+              <Col key={farm.farm.farmId} xs={24} sm={24} md={12} lg={12} xl={12}>
                 <Card
                   className={`${style.card} ${isInactive ? style.inactiveCard : ""}`}
                   hoverable
@@ -164,7 +164,7 @@ function FarmPicker() {
                 >
                   <Row gutter={16} className={style.cardContent}>
                     {/* Cột chứa hình ảnh */}
-                    <Col span={5} className={style.cardImgWrapper}>
+                    <Col xs={24} sm={24} md={6} lg={5} className={style.cardImgWrapper}>
                       <img
                         crossOrigin="anonymous"
                         alt="farm"
@@ -174,7 +174,7 @@ function FarmPicker() {
                     </Col>
 
                     {/* Cột chứa thông tin */}
-                    <Col span={15} className={style.cardInfoWrapper}>
+                    <Col xs={24} sm={24} md={14} lg={15} className={style.cardInfoWrapper}>
                       <Flex className={style.cardInfo}>
                         <Flex className={style.farmDetails}>
                           <Text className={style.farmName}>{farm.farm.farmName}</Text>
@@ -196,16 +196,14 @@ function FarmPicker() {
                       </Flex>
                     </Col>
 
-                    <Col span={4}>
-                      <Flex className={style.roleTagWrapper}>
-                        <Tag
-                          className={`${style.statusTag} ${
-                            farm.roleId == UserRolesStr.Owner ? style.owner : style.other
-                          }`}
-                        >
-                          {farm.roleName}
-                        </Tag>
-                      </Flex>
+                    <Col span={4} className={style.roleTagWrapper}>
+                      <Tag
+                        className={`${style.statusTag} ${
+                          farm.roleId == UserRolesStr.Owner ? style.owner : style.other
+                        }`}
+                      >
+                        {farm.roleName}
+                      </Tag>
                     </Col>
                   </Row>
                 </Card>

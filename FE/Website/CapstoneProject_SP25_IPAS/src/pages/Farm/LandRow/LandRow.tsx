@@ -33,7 +33,7 @@ import { useVirtualPlotConfigStore } from "@/stores";
 
 function LandRow() {
   const location = useLocation();
-  const { options: plotOptions } = useLandPlotOptions();
+  const { options: plotOptions, isLoading: isLoadingPlotOptions } = useLandPlotOptions();
   const { metricUnit } = useVirtualPlotConfigStore();
   const addPlantsModal = useModal<{ row: GetLandRow }>();
   const viewPlantsModal = useModal<{ id: number }>();
@@ -54,7 +54,6 @@ function LandRow() {
 
   useEffect(() => {
     if (plotOptions.length > 0 && !location.state?.plotId) setPlotId(Number(plotOptions[0].value));
-    // if (plotOptions.length > 0 && !location.state?.plotId) setPlotId(9);
   }, [plotOptions, location.state]);
 
   const { filters, updateFilters, applyFilters, clearFilters } = useFilters<FilterLandRowState>(
@@ -136,7 +135,8 @@ function LandRow() {
             placeholder="Select Plot"
             options={plotOptions}
             className={style.controlSelect}
-            value={plotId}
+            value={isLoadingPlotOptions ? "" : plotId}
+            loading={isLoadingPlotOptions}
             onChange={(value) => handlePlotChange(Number(value))}
           />
           <Segmented

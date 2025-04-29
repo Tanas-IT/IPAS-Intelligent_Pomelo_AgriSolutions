@@ -127,7 +127,7 @@ const AddNewPlotDrawer: React.FC<AddNewPlotDrawerProps> = ({
         await fetchLandPlots?.();
         toast.success(result.message);
       } else {
-        toast.error(result.message);
+        toast.warning(result.message);
       }
     } finally {
       setIsLoading(false);
@@ -176,7 +176,7 @@ const AddNewPlotDrawer: React.FC<AddNewPlotDrawerProps> = ({
       } = values;
 
       // if (isPlantOverflowing(distance, treeAmount, rowLength)) {
-      //   toast.error(MESSAGES.OUT_PLANT);
+      //   toast.warning(MESSAGES.OUT_PLANT);
       //   return;
       // }
 
@@ -289,10 +289,10 @@ const AddNewPlotDrawer: React.FC<AddNewPlotDrawerProps> = ({
         await fetchLandPlots?.();
       }
 
-      if (plotError) toast.error(MESSAGES.PLOT_UPDATE_FAILED);
-      if (coordError) toast.error(MESSAGES.COORD_UPDATE_FAILED);
+      if (plotError) toast.warning(MESSAGES.PLOT_UPDATE_FAILED);
+      if (coordError) toast.warning(MESSAGES.COORD_UPDATE_FAILED);
     } catch (error) {
-      toast.error("Failed to update plot. Please try again!");
+      toast.warning("Failed to update plot. Please try again!");
     } finally {
       setIsLoading(false);
     }
@@ -314,7 +314,7 @@ const AddNewPlotDrawer: React.FC<AddNewPlotDrawerProps> = ({
         onClose();
         await fetchSimulateLandPlots?.();
       } else {
-        toast.error(res.message);
+        toast.warning(res.message);
       }
     } finally {
       setIsLoading(false);

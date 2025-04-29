@@ -50,11 +50,11 @@ console.log("fb", feedbackData);
             }));
             setStatusOptions(options);
           } else {
-            toast.error(response.message);
+            toast.warning(response.message);
           }
         } catch (error) {
           console.error('Error fetching worklog statuses:', error);
-          toast.error('Failed to load status options');
+          toast.warning('Failed to load status options');
         } finally {
           setLoadingStatuses(false);
         }
@@ -111,7 +111,7 @@ console.log("fb", feedbackData);
       form.resetFields();
       onSuccess();
     } else {
-      toast.error(result.message);
+      toast.warning(result.message);
     }
     onClose();
   };

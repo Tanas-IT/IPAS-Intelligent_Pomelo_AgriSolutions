@@ -26,7 +26,7 @@ const AssignTagModal: React.FC<AssignTagModalProps> = ({ reportId, onClose, onTa
                 setTags(response.data || []);
             }
         } catch (error) {
-            toast.error('Failed to fetch tags.', {
+            toast.warning('Failed to fetch tags.', {
                 position: 'top-right',
                 autoClose: 3000,
             });
@@ -39,7 +39,7 @@ const AssignTagModal: React.FC<AssignTagModalProps> = ({ reportId, onClose, onTa
 
     const handleAssignTag = async () => {
         if (!selectedTag) {
-            toast.error('Please select a tag to assign.', {
+            toast.warning('Please select a tag to assign.', {
                 position: 'top-right',
                 autoClose: 3000,
             });
@@ -61,13 +61,13 @@ const AssignTagModal: React.FC<AssignTagModalProps> = ({ reportId, onClose, onTa
                 onTagAssigned();
                 onClose();
             } else {
-                toast.error('Failed to assign tag. Please try again.', {
+                toast.warning('Failed to assign tag. Please try again.', {
                     position: 'top-right',
                     autoClose: 3000,
                 });
             }
         } catch (error) {
-            toast.error('Failed to assign tag. Please try again.', {
+            toast.warning('Failed to assign tag. Please try again.', {
                 position: 'top-right',
                 autoClose: 3000,
             });

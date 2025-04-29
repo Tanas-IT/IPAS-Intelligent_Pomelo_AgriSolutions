@@ -53,7 +53,7 @@ const ProfileInfo: React.FC = () => {
         setUserData(updatedUser);
         useUserStore.getState().setUserInfo(updatedUser.fullName, updatedUser.avatarURL || "");
       } else {
-        toast.error(res.message);
+        toast.warning(res.message);
       }
     } finally {
       setIsUploadingAvatar(false);
@@ -75,7 +75,7 @@ const ProfileInfo: React.FC = () => {
       setIsChanged(false);
       useUserStore.getState().setUserInfo(updatedUser.fullName, updatedUser.avatarURL || "");
     } else {
-      toast.error(res.message);
+      toast.warning(res.message);
     }
   };
 
@@ -143,7 +143,7 @@ const ProfileInfo: React.FC = () => {
 
         {/* Footer buttons */}
         <Flex justify="end" style={{ marginTop: 24 }}>
-          <Flex gap={20}>
+          <Flex gap={20} className={style.actionBtnWrapper}>
             <Button onClick={handleReset} disabled={!isChanged}>
               Reset changes
             </Button>

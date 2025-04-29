@@ -124,7 +124,7 @@ function OTP() {
         const toastMessage = result.message;
         navigate(PATHS.FARM_PICKER, { state: { toastMessage } });
       } else if (result.statusCode === 400) {
-        toast.error(result.message);
+        toast.warning(result.message);
       }
     } catch (e) {
       console.error(e);

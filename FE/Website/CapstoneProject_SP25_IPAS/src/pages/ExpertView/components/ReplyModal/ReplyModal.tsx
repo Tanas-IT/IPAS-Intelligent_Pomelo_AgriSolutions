@@ -28,7 +28,10 @@ const ReplyModal: React.FC<ReplyModalProps> = ({ report, onClose, onSubmit }) =>
       await onSubmit(data);
       toast.success('Reply submitted successfully!');
     } catch (error) {
-      toast.error('Failed to submit reply. Please try again.');
+      toast.warning('Failed to submit reply. Please try again.', {
+        position: 'top-right',
+        autoClose: 3000,
+      });
     } finally {
       setLoading(false);
     }

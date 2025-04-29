@@ -41,7 +41,7 @@ function CreateFarm() {
   const beforeUpload = (file: File) => {
     const isImage = file.type.startsWith("image/");
     if (!isImage) {
-      toast.error("Only image files (JPG, PNG, GIF, WEBP) are allowed!");
+      toast.warning("Only image files (JPG, PNG, GIF, WEBP) are allowed!");
       return Upload.LIST_IGNORE;
     }
 
@@ -67,7 +67,7 @@ function CreateFarm() {
       if (result.statusCode === 201) {
         navigate(PATHS.FARM_PICKER, { state: { toastMessage } });
       } else {
-        toast.error(toastMessage);
+        toast.warning(toastMessage);
       }
     } finally {
       setIsLoading(false);

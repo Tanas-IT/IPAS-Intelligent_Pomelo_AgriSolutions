@@ -91,10 +91,10 @@ const handleUpdateEmployee = async (
       }
       await fetchData();
     } else {
-      toast.error(res.message || "Failed to update employee");
+      toast.warning(res.message || "Failed to update employee");
     }
   } catch (error) {
-    toast.error("An error occurred while updating the employee");
+    toast.warning("An error occurred while updating the employee");
   } finally {
     setIsUpdateLoading(false);
   }
@@ -118,10 +118,10 @@ const handleUpdateEmployee = async (
         addEmployeeModal.hideModal();
         await fetchData();
       } else {
-        toast.error(res.message || "Failed to add employee");
+        toast.warning(res.message || "Failed to add employee");
       }
     } catch (error) {
-      toast.error("An error occurred while adding the employee");
+      toast.warning("An error occurred while adding the employee");
     } finally {
       setIsAddLoading(false);
     }

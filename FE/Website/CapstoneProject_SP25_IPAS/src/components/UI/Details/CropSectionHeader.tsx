@@ -40,16 +40,16 @@ const CropSectionHeader = ({
             />
           )}
 
-          {onAddNewHarvest && crop.status !== CROP_STATUS.COMPLETED && (
-            <Flex>
+          <Flex className={style.actionBtns}>
+            {onAddNewHarvest && crop.status !== CROP_STATUS.COMPLETED && (
               <CustomButton
                 label="Add New Harvest"
                 icon={<Icons.plus />}
                 handleOnClick={onAddNewHarvest}
                 // disabled={graftedPlant.isCompleted}
               />
-            </Flex>
-          )}
+            )}
+          </Flex>
         </Flex>
       </Flex>
       <label className={style.subTitle}>Code: {crop.cropCode}</label>

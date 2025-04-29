@@ -1,4 +1,5 @@
 export { default as useStyle } from "./useStyle";
+export { default as useResponsive } from "./useResponsive";
 export { default as useFetchData } from "./useFetchData";
 export { default as useFilters } from "./useFilters";
 export { default as useTableAdd } from "./useTableAdd";

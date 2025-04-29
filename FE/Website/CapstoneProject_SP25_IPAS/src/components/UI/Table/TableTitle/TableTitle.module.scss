@@ -2,6 +2,7 @@
   width: 100%;
   justify-content: space-between;
   align-items: center;
+  gap: 20px;
   .sectionLeft {
     width: 100%;
     min-width: 30rem;
@@ -25,6 +26,26 @@
     }
     &.small {
       width: 50%;
+    }
+  }
+}
+
+@media (max-width: 1400px) {
+  .headerWrapper {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+
+    .sectionLeft,
+    .sectionRight {
+      width: 100%;
+      min-width: 0rem;
+      justify-content: space-between;
+    }
+
+    .sectionRight {
+      justify-content: flex-start;
+      gap: 12px;
     }
   }
 }

@@ -260,8 +260,16 @@ const useStyle = createStyles(({ css }) => {
         color: #20461e !important;
       }
       ,
-      .ant-table-tbody > tr:hover {
-        background-color: rgb(214, 220, 196) !important;
+      .ant-table-row {
+        transition: background-color 0.3s ease;
+
+        &:hover {
+          background-color: ${hoverBackground} !important;
+        }
+      }
+
+      .ant-table-cell-row-hover {
+        background-color: ${hoverBackground} !important;
       }
     `,
     customCollapse: css`
