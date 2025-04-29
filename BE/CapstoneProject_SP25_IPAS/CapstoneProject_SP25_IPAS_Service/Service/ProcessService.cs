@@ -502,9 +502,12 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 {
                     var checkExistProcess = await _unitOfWork.ProcessRepository.GetByID(updateProcessModel.ProcessId);
                     var result = 0;
+                    var timeZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
+                    var today = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, timeZone).Date;
+                    var vietnamTimeOfDay = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, timeZone).TimeOfDay;
                     if (checkExistProcess != null)
                     {
-                        if (checkExistProcess.StartDate <= DateTime.Now || checkExistProcess.IsActive == true)
+                        if (checkExistProcess.StartDate <= TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, timeZone) || checkExistProcess.IsActive == true)
                         {
                             if(checkExistProcess.Plans.Count > 0)
                             {

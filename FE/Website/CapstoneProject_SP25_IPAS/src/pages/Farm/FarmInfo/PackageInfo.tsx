@@ -5,8 +5,6 @@ import { PlusOutlined, DollarOutlined, CalendarOutlined, WarningOutlined } from 
 import { ColumnsType } from 'antd/es/table';
 import dayjs from 'dayjs';
 import { toast } from 'react-toastify';
-import axios from 'axios';
-import { css } from 'antd-style';
 import AOS from 'aos';
 import 'aos/dist/aos.css';
 import style from "./FarmInfo.module.scss";
@@ -43,58 +41,6 @@ interface Order {
   package: Package;
 }
 
-// Dữ liệu mẫu tạm thời (sẽ thay bằng API)
-const mockOrders: Order[] = [
-  {
-    orderId: 1,
-    orderCode: 'ORD001',
-    orderName: 'Gói Cơ Bản',
-    totalPrice: 500000,
-    notes: 'Gói dùng thử cho farm nhỏ',
-    status: 'Active',
-    orderDate: '2025-03-01T10:00:00',
-    enrolledDate: '2025-03-02T00:00:00',
-    expiredDate: '2025-06-01T23:59:59',
-    packageId: 1,
-    farmId: 1,
-    package: {
-      packageId: 1,
-      packageCode: 'PKG001',
-      packageName: 'Gói Cơ Bản',
-      packagePrice: 500000,
-      duration: 90,
-      isActive: true,
-      createDate: '2025-02-01T00:00:00',
-      updateDate: null,
-      status: 'Available',
-    },
-  },
-  {
-    orderId: 2,
-    orderCode: 'ORD002',
-    orderName: 'Gói Nâng Cao',
-    totalPrice: 1200000,
-    notes: 'Gói nâng cao với nhiều tính năng',
-    status: 'Active',
-    orderDate: '2025-03-15T14:00:00',
-    enrolledDate: '2025-03-16T00:00:00',
-    expiredDate: '2025-09-15T23:59:59',
-    packageId: 2,
-    farmId: 1,
-    package: {
-      packageId: 2,
-      packageCode: 'PKG002',
-      packageName: 'Gói Nâng Cao',
-      packagePrice: 1200000,
-      duration: 180,
-      isActive: true,
-      createDate: '2025-02-01T00:00:00',
-      updateDate: null,
-      status: 'Available',
-    },
-  },
-];
-
 interface PackageInfoProps {
   farm: GetFarmInfo;
 }
@@ -102,16 +48,13 @@ interface PackageInfoProps {
 const PackageInfo: React.FC<PackageInfoProps> = ({ farm }) => {
   const [orders, setOrders] = useState<GetOrder[]>([]);
   const [loading, setLoading] = useState(false);
-  const [isModalVisible, setIsModalVisible] = useState(false);
   const navigate = useNavigate();
 
-  // Khởi tạo AOS cho animation
   useEffect(() => {
     AOS.init({ duration: 1000 });
     fetchOrders();
   }, []);
 
-  // Gọi API để lấy danh sách đơn hàng của farm
   const fetchOrders = async () => {
     setLoading(true);
     try {
@@ -128,30 +71,11 @@ const PackageInfo: React.FC<PackageInfoProps> = ({ farm }) => {
       setLoading(false);
     }
   };
-  console.log('o', orders);
-  
 
-  // Xử lý mua gói mới
   const handleBuyPackage = () => {
     navigate(PATHS.PACKAGE.PACKAGE_PURCHASE);
   };
 
-  // Đóng modal
-  const handleModalClose = () => {
-    setIsModalVisible(false);
-  };
-
-  // Tính % thời gian còn lại
-  const calculateRemainingTime = (expiredDate: string | null) => {
-    if (!expiredDate) return 0;
-    const now = dayjs();
-    const expiry = dayjs(expiredDate);
-    const totalDays = expiry.diff(now, 'day');
-    const packageDuration = orders.find(o => o.expiredDate === expiredDate)?.package.duration || 90;
-    return Math.max(0, Math.round((totalDays / packageDuration) * 100));
-  };
-
-  // Columns cho bảng
   const columns: ColumnsType<GetOrder> = [
     {
       title: 'Order Code',
@@ -206,8 +130,6 @@ const PackageInfo: React.FC<PackageInfoProps> = ({ farm }) => {
       ),
     },
   ];
-  console.log('dd', farm);
-  
 
   return (
     <div className={style.packageContainer} data-aos="fade-up">
@@ -216,7 +138,6 @@ const PackageInfo: React.FC<PackageInfoProps> = ({ farm }) => {
       </Typography.Title>
       <Divider />
 
-      {/* Card Tổng quan */}
       <Flex className={style.summaryCard} data-aos="zoom-in">
         <Space direction="vertical" size="middle">
           <Typography.Text>
@@ -238,7 +159,6 @@ const PackageInfo: React.FC<PackageInfoProps> = ({ farm }) => {
         </Button>
       </Flex>
 
-      {/* Bảng danh sách gói */}
       <Table
         columns={columns}
         dataSource={orders}
@@ -249,28 +169,6 @@ const PackageInfo: React.FC<PackageInfoProps> = ({ farm }) => {
         data-aos="fade-up"
         data-aos-delay="200"
       />
-
-      {/* Modal mua gói */}
-      <Modal
-        title="Chọn gói dịch vụ mới"
-        open={isModalVisible}
-        onCancel={handleModalClose}
-        footer={[
-          <Button key="cancel" onClick={handleModalClose}>
-            Hủy
-          </Button>,
-          <Button key="buy" type="primary" onClick={() => toast.success('Mua gói thành công!')}>
-            Xác nhận mua
-          </Button>,
-        ]}
-      >
-        <Typography.Text>Chọn gói dịch vụ bạn muốn mua (sẽ cộng dồn ngày):</Typography.Text>
-        {/* TODO: Thêm danh sách gói từ API */}
-        <ul>
-          <li>Gói Cơ Bản - 500,000 VND (90 ngày)</li>
-          <li>Gói Nâng Cao - 1,200,000 VND (180 ngày)</li>
-        </ul>
-      </Modal>
     </div>
   );
 };

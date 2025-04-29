@@ -3,6 +3,7 @@ import { Button, Flex, Image } from 'antd';
 import { GetReportResponse } from '@/payloads';
 import style from './ReportCard.module.scss';
 import AssignTagModal from '../AssignTagModal/AssignTagModal';
+import { UserAvatar } from '@/components';
 
 interface ReportCardProps {
   report: GetReportResponse;
@@ -25,7 +26,7 @@ const ReportCard: React.FC<ReportCardProps> = ({ report, onReply, onTagAssigned 
       <Flex justify='space-between' className={style.cardHeader}>
         <Flex>
           <div className={style.icon}>
-            <span>📋</span>
+            <UserAvatar size={40} avatarURL={report.avatarOfQuestioner} />
           </div>
           {/* <div className={style.title}>{report.reportCode}</div> */}
           <Flex vertical className={style.meta} gap={0}>

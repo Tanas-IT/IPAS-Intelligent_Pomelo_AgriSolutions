@@ -75,8 +75,6 @@ function EmployeeWorklogDetail() {
         const fetchPlanDetail = async () => {
             try {
                 const res = await worklogService.getWorklogDetail(Number(id));
-                console.log("res", res);
-
                 setWorklogDetail(res);
                 setFeedbackList(res.listTaskFeedback || []);
 

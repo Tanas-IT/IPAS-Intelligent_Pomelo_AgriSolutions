@@ -267,6 +267,14 @@ namespace CapstoneProject_SP25_IPAS_Service.Mapping
                .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.CropName))
                 .ReverseMap();
 
+            CreateMap<Plan, GetPlanForSelected>()
+              .ForMember(dest => dest.Id, opt => opt.MapFrom(src => src.PlanId))
+              .ForMember(dest => dest.Code, opt => opt.MapFrom(src => src.PlanCode))
+              .ForMember(dest => dest.Name, opt => opt.MapFrom(src => src.PlanName))
+              .ForMember(dest => dest.StartDate, opt => opt.MapFrom(src => src.StartDate))
+              .ForMember(dest => dest.EndDate, opt => opt.MapFrom(src => src.EndDate))
+               .ReverseMap();
+
             CreateMap<Plan, PlanGetAllModel>()
               .ForMember(dest => dest.PlanId, opt => opt.MapFrom(src => src.PlanId))
               .ForMember(dest => dest.PlanCode, opt => opt.MapFrom(src => src.PlanCode))

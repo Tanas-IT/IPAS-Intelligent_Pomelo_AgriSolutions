@@ -41,6 +41,7 @@ export {
   MdReportProblem as trainned,
   MdGrade as grade,
   MdFormatLineSpacing as spacing,
+  MdCancel as closee
 } from "react-icons/md";
 export {
   LuUsers as users,
@@ -128,3 +129,4 @@ export {
 } from "react-icons/io";
 export { GrCycle as process } from "react-icons/gr";
 export { GoPackage as package } from "react-icons/go";
+export { FiInfo as info } from "react-icons/fi";

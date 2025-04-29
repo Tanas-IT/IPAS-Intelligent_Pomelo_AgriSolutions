@@ -68,7 +68,7 @@ const useNotifications = () => {
 
         fetchNotifications();
       } catch (error) {
-        console.error("Error parse JSON:", error);
+        console.log("Error parse JSON:", error);
       }
     };
 

@@ -148,6 +148,7 @@ export interface GetAttendanceList {
   avatarURL: string;
   fullName: string;
   isReporter: boolean;
+  statusOfUser: string;
 }
 
 export interface GetEmpListForUpdate {

@@ -1,7 +1,7 @@
-import { useState, useEffect } from "react";
-import { Form, Row, Col, Button, Modal, DatePicker, Flex, Divider, Image } from "antd";
+import React, { useState, useEffect } from "react";
+import { Form, Select, Row, Col, Button, Modal, DatePicker, Flex, Divider, Image } from "antd";
 import { planService, processService, worklogService } from "@/services";
-import { CustomButton, InfoField, Loading, Section, Tooltip } from "@/components";
+import { CustomButton, InfoField, Section, Tooltip } from "@/components";
 import {
   fetchProcessesOfFarm,
   getFarmId,
@@ -15,7 +15,12 @@ import { addPlanFormFields, frequencyOptions, MASTER_TYPE } from "@/constants";
 import dayjs, { Dayjs } from "dayjs";
 import PlanTarget from "../PlanTarget";
 import style from "./AddPlanByProcess.module.scss";
-import { useGrowthStageOptions, useMasterTypeOptions } from "@/hooks";
+import {
+  useGrowthStageOptions,
+  useLandPlotOptions,
+  useLandRowOptions,
+  useMasterTypeOptions,
+} from "@/hooks";
 import { Icons, Images } from "@/assets";
 import {
   Plan,
@@ -28,8 +33,11 @@ import {
 } from "@/payloads";
 import TaskAssignmentModal from "./TaskAssignmentModal";
 import PlanDetailsTable from "./PlanDetailsTable";
-import { usePlantOfRowOptions, useGraftedPlantOptions, usePlantLotOptions } from "@/hooks";
+import usePlantOfRowOptions from "@/hooks/usePlantOfRowOptions";
+import useGraftedPlantOptions from "@/hooks/useGraftedPlantOptions";
+import usePlantLotOptions from "@/hooks/usePlantLotOptions";
 import { toast } from "react-toastify";
+import "react-toastify/dist/ReactToastify.css";
 import { useNavigate } from "react-router-dom";
 import { PATHS } from "@/routes";
 import DaySelector from "./DaySelector";
@@ -42,6 +50,7 @@ const AddPlanByProcess = () => {
   const [planDetailsForm] = Form.useForm();
   const [scheduleForm] = Form.useForm();
   const [isLoading, setIsLoading] = useState(false);
+  const [isPartlyLoading, setIsPartlyLoading] = useState(false);
   const [processOptions, setProcessOptions] = useState<OptionType<number>[]>([]);
   const [selectedProcess, setSelectedProcess] = useState<GetProcessDetail>();
   const [isScheduleModalOpen, setIsScheduleModalOpen] = useState(false);
@@ -57,6 +66,7 @@ const AddPlanByProcess = () => {
   const [planTargetType, setPlanTargetType] = useState<number>();
   const [isProcessSelected, setIsProcessSelected] = useState(false);
   const [selectedLandRow, setSelectedLandRow] = useState<number | null>(null);
+  const [selectedLandPlot, setSelectedLandPlot] = useState<number | null>(null);
   const { options: growthStageOptions } = useGrowthStageOptions(false);
   const { options: workTypeOptions } = useMasterTypeOptions(MASTER_TYPE.WORK, false);
   const { options: plantsOptions } = usePlantOfRowOptions(selectedLandRow);
@@ -224,7 +234,7 @@ const AddPlanByProcess = () => {
 
   const handleProcessChange = async (value: number) => {
     try {
-      setIsLoading(true);
+      setIsPartlyLoading(true);
       const response = await processService.getProcessDetail(value);
       if (response) {
         setPlanTargetType(response.planTargetInProcess);
@@ -235,7 +245,7 @@ const AddPlanByProcess = () => {
       console.error("Failed to fetch process details:", error);
       toast.warning("Failed to fetch process details. Please try again later.");
     } finally {
-      setIsLoading(false);
+      setIsPartlyLoading(false);
     }
   };
 
@@ -696,6 +706,7 @@ const AddPlanByProcess = () => {
 
   const handleSubmit = async () => {
     try {
+      setIsLoading(true);
       if (dataSource.length === 0) {
         toast.warning("No plans to submit. Please add at least one plan.");
         return;
@@ -746,10 +757,11 @@ const AddPlanByProcess = () => {
         return;
       }
 
-      const plansWithoutEmployees = allPlans.filter(
-        ({ plan }) => !plan.listEmployee || plan.listEmployee.length === 0,
+      const plansWithoutEmployeesAndMasterType = allPlans.filter(
+        ({ plan }) => (!plan.listEmployee || plan.listEmployee.length === 0) && !plan.masterTypeId,
       );
-      if (plansWithoutEmployees.length > 0) {
+
+      if (plansWithoutEmployeesAndMasterType.length > 0) {
         toast.warning("Please assign at least one employee to each plan.");
         return;
       }
@@ -852,15 +864,17 @@ const AddPlanByProcess = () => {
     } catch (error) {
       console.error("Failed to create plans:", error);
       toast.warning("Failed to create plans. Please try again later.");
+    } finally {
+      setIsLoading(false);
     }
   };
 
-  if (isLoading)
-    return (
-      <Flex justify="center" align="center" style={{ width: "100%" }}>
-        <Loading />
-      </Flex>
-    );
+  // if (isLoading)
+  //     return (
+  //         <Flex justify="center" align="center" style={{ width: "100%" }}>
+  //             <Loading />
+  //         </Flex>
+  //     );
 
   return (
     <div className={style.container}>
@@ -898,6 +912,7 @@ const AddPlanByProcess = () => {
                 placeholder="Enter process name"
                 options={processOptions}
                 type="select"
+                isLoading={isPartlyLoading}
               />
             </Row>
           </Section>
@@ -920,6 +935,8 @@ const AddPlanByProcess = () => {
                       label="Process Name"
                       value={selectedProcess.processName}
                       name="processName"
+                      isEditing={false}
+                      isLoading={isPartlyLoading}
                     />
                   </Col>
                   <Col span={8}>
@@ -927,6 +944,8 @@ const AddPlanByProcess = () => {
                       label="Process Type"
                       value={selectedProcess.processMasterTypeModel.masterTypeName}
                       name="processType"
+                      isLoading={isPartlyLoading}
+                      isEditing={false}
                     />
                   </Col>
                   <Col span={8}>
@@ -937,6 +956,8 @@ const AddPlanByProcess = () => {
                       options={planTargetOptions2}
                       value={selectedProcess.planTargetInProcess}
                       type="select"
+                      isLoading={isPartlyLoading}
+                      isEditing={false}
                     />
                   </Col>
                 </Row>
@@ -1235,7 +1256,12 @@ const AddPlanByProcess = () => {
             initialValues={initialValues}
           />
           <Flex justify="flex-end">
-            <CustomButton label="Add" handleOnClick={handleSubmit} disabled={!selectedProcess} />
+            <CustomButton
+              label="Add"
+              handleOnClick={handleSubmit}
+              disabled={!selectedProcess}
+              isLoading={isLoading}
+            />
           </Flex>
         </Form>
       </div>

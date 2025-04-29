@@ -71,6 +71,7 @@ const AddPlan = () => {
   const authData = getAuthData();
 
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [isFormDirty, setIsFormDirty] = useState(false);
   const [selectedIds, setSelectedIds] = useState<number[]>([]);
   const [selectedLandPlot, setSelectedLandPlot] = useState<number | null>(null);
@@ -129,7 +130,6 @@ const AddPlan = () => {
         const result = await masterTypeService.getProcessTypeSelect("Grafting");
 
         if (result.statusCode === 200) {
-          console.log("thanh cong");
           setMasterTypeGrafting(result.data.map((m) => m.id));
           setProcessFarmOptions(await processService.getProcessOfFarmByMasterType(result.data.map((m) => m.id)));
         } else {
@@ -184,7 +184,6 @@ const AddPlan = () => {
   const handleChangeProcess = async (processId: number | undefined) => {
     if (processId) {
       const growthStageId = await getGrowthStageOfProcess(processId);
-      console.log("growthStageId", growthStageId);
 
       form.setFieldValue("processId", processId);
       const masterTypeId = await getTypeOfProcess(processId);
@@ -424,12 +423,13 @@ const AddPlan = () => {
 
 
   const handleSubmit = async (values: any) => {
-    const { dateRange, timeRange, planTargetModel, frequency, graftedPlant, plantLot } = values;
-    const startDate = new Date(dateRange?.[0]);
-    const endDate = new Date(dateRange?.[1]);
+    try {
+      const { dateRange, timeRange, planTargetModel, frequency, graftedPlant, plantLot } = values;
+      const startDate = new Date(dateRange?.[0]);
+      const endDate = new Date(dateRange?.[1]);
 
-    const adjustedStartDate = new Date(startDate.getTime() - startDate.getTimezoneOffset() * 60000);
-    const adjustedEndDate = new Date(endDate.getTime() - endDate.getTimezoneOffset() * 60000);
+      const adjustedStartDate = new Date(startDate.getTime() - startDate.getTimezoneOffset() * 60000);
+      const adjustedEndDate = new Date(endDate.getTime() - endDate.getTimezoneOffset() * 60000);
 
     const startTime = timeRange?.[0]?.toDate().toLocaleTimeString();
     const endTime = timeRange?.[1]?.toDate().toLocaleTimeString();
@@ -455,87 +455,86 @@ const AddPlan = () => {
     const graftedPlantIDs = graftedPlant || [];
     const plantLotIDs = plantLot || [];
 
-    let formattedPlanTargetModel;
-    // Format planTargetModel
-    if (targetType === "regular") {
-      formattedPlanTargetModel = planTargetModel.map((target: any) => {
-        return {
-          landPlotID: target.landPlotID ?? 0,
-          landRowID: target.landRowID ? (Array.isArray(target.landRowID) ? target.landRowID : [target.landRowID]) : [],
-          plantID: target.plantID ?? [],
+      let formattedPlanTargetModel;
+      // Format planTargetModel
+      if (targetType === "regular") {
+        formattedPlanTargetModel = planTargetModel.map((target: any) => {
+          return {
+            landPlotID: target.landPlotID ?? 0,
+            landRowID: target.landRowID ? (Array.isArray(target.landRowID) ? target.landRowID : [target.landRowID]) : [],
+            plantID: target.plantID ?? [],
+            graftedPlantID: [],
+            plantLotID: [],
+            unit: target.unit,
+          };
+        });
+      } else if (targetType === "plantLot") {
+        formattedPlanTargetModel = [{
+          landPlotID: undefined,
+          landRowID: [],
+          plantID: [],
           graftedPlantID: [],
+          plantLotID: plantLotIDs,
+          unit: targetType,
+        }];
+      } else if (targetType === "graftedPlant") {
+        formattedPlanTargetModel = [{
+          landPlotID: undefined,
+          landRowID: [],
+          plantID: [],
+          graftedPlantID: graftedPlantIDs,
           plantLotID: [],
-          unit: target.unit,
-        };
-      });
-    } else if (targetType === "plantLot") {
-      console.log("vô plantLot");
-      formattedPlanTargetModel = [{
-        landPlotID: undefined,
-        landRowID: [],
-        plantID: [],
-        graftedPlantID: [],
-        plantLotID: plantLotIDs,
-        unit: targetType,
-      }];
-    } else if (targetType === "graftedPlant") {
-      console.log("vô grafted");
+          unit: targetType,
+        }];
+      }
 
-      formattedPlanTargetModel = [{
-        landPlotID: undefined,
-        landRowID: [],
-        plantID: [],
-        graftedPlantID: graftedPlantIDs,
-        plantLotID: [],
-        unit: targetType,
-      }];
+      const planData: PlanRequest = {
+        planName: values.planName,
+        planDetail: values.planDetail,
+        notes: values.notes || "",
+        cropId: values.cropId,
+        processId: values.processId,
+        growthStageId: values.growthStageId,
+        frequency: values.frequency,
+        isActive: values.isActive,
+        masterTypeId: values.masterTypeId,
+        assignorId,
+        responsibleBy: values.responsibleBy || "",
+        pesticideName: values.pesticideName || "",
+        maxVolume: values.maxVolume || 0,
+        minVolume: values.minVolume || 0,
+        isDelete: values.isDelete || false,
+        listEmployee: selectedEmployees.map((employee) => ({
+          userId: employee.userId,
+          isReporter: employee.userId === selectedReporter,
+        })),
+        dayOfWeek,
+        dayOfMonth,
+        customDates: customDates.map((date) => date.toISOString()),
+        startDate: adjustedStartDate.toISOString(),
+        endDate: adjustedEndDate.toISOString(),
+        startTime: startTime,
+        endTime: endTime,
+        planTargetModel: formattedPlanTargetModel,
+        listLandPlotOfCrop: values.listLandPlotOfCrop
+      };
+
+      const result = await planService.addPlan(planData);
+
+      if (result.statusCode === 200) {
+        await toast.success(result.message);
+        navigate(`${PATHS.PLAN.PLAN_LIST}?sf=createDate&sd=desc`);
+        form.resetFields();
+      } else {
+        toast.error(result.message);
+      }
+
+      setIsFormDirty(false);
+    } catch (error) {
+      toast.error("Failed to create plan. Please try again later.");
+    } finally {
+      setIsLoading(false);
     }
-
-    console.log("formattedPlanTargetModel", formattedPlanTargetModel);
-
-    const planData: PlanRequest = {
-      planName: values.planName,
-      planDetail: values.planDetail,
-      notes: values.notes || "",
-      cropId: values.cropId,
-      processId: values.processId,
-      growthStageId: values.growthStageId,
-      frequency: values.frequency,
-      isActive: values.isActive,
-      masterTypeId: values.masterTypeId,
-      assignorId,
-      responsibleBy: values.responsibleBy || "",
-      pesticideName: values.pesticideName || "",
-      maxVolume: values.maxVolume || 0,
-      minVolume: values.minVolume || 0,
-      isDelete: values.isDelete || false,
-      listEmployee: selectedEmployees.map((employee) => ({
-        userId: employee.userId,
-        isReporter: employee.userId === selectedReporter,
-      })),
-      dayOfWeek,
-      dayOfMonth,
-      customDates: customDates.map((date) => date.toISOString()),
-      startDate: adjustedStartDate.toISOString(),
-      endDate: adjustedEndDate.toISOString(),
-      startTime: startTime,
-      endTime: endTime,
-      planTargetModel: formattedPlanTargetModel,
-      listLandPlotOfCrop: values.listLandPlotOfCrop
-    };
-    console.log("planData", planData);
-
-    const result = await planService.addPlan(planData);
-
-    if (result.statusCode === 200) {
-      await toast.success(result.message);
-      navigate(`${PATHS.PLAN.PLAN_LIST}?sf=createDate&sd=desc`);
-      form.resetFields();
-    } else {
-      toast.warning(result.message);
-    }
-
-    setIsFormDirty(false);
   };
 
   const fetchData = async () => {
@@ -1032,12 +1031,10 @@ const AddPlan = () => {
 
         <Divider className={style.divider} />
 
-
-
         {/* FORM ACTIONS */}
         <Flex gap={10} justify="end" className={style.btnGroup}>
           <CustomButton label="Clear" isCancel handleOnClick={() => form.resetFields()} />
-          <CustomButton label="Add Plan" htmlType="submit" />
+          <CustomButton label="Add Plan" htmlType="submit" isLoading={isLoading} disabled={isLoading} />
         </Flex>
       </Form>
       {isModalVisible && (
