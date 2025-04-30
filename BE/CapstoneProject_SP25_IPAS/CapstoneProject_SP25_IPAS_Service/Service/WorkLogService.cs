@@ -2040,6 +2040,29 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     }
                     getWorkLog.Date = changeEmployeeOfWorkLog.DateWork;
                 }
+                
+                    var checkDate = DateTime.UtcNow;
+                    var parseConflictStartTime = TimeSpan.TryParse(changeEmployeeOfWorkLog.StartTime, out var startCheckTime);
+                    var parseConflictEndTime = TimeSpan.TryParse(changeEmployeeOfWorkLog.EndTime, out var endCheckTime);
+                    if(parseConflictStartTime == false)
+                    {
+                        startCheckTime = getWorkLog.ActualStartTime.Value;
+                    }
+                    if(parseConflictEndTime == false)
+                    {
+                        endCheckTime = getWorkLog.ActualEndTime.Value;
+                    }
+                    if (changeEmployeeOfWorkLog.DateWork.HasValue)
+                    {
+                        checkDate = changeEmployeeOfWorkLog.DateWork.Value;
+                    }
+                    else
+                    {
+                        checkDate = getWorkLog.Date.Value;
+                    }
+                    await _unitOfWork.WorkLogRepository.CheckConflictTaskOfEmployee(startCheckTime, endCheckTime, checkDate, changeEmployeeOfWorkLog.ListEmployeeUpdate.Select(x => x.NewUserId).ToList(), changeEmployeeOfWorkLog.WorkLogId);
+
+                
 
                 if (changeEmployeeOfWorkLog.DateWork != null)
                 {
