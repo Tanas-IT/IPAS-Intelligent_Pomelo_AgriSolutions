@@ -87,6 +87,8 @@ const ApplyPlantCriteriaModal = ({
       }));
       setCriteriaOptions(formattedOptions);
       setIsDirty(true);
+    } else {
+      setCriteriaOptions([]);
     }
   };
 

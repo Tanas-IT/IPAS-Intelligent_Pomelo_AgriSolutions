@@ -216,7 +216,7 @@ const CriteriaModel = ({
           <FormFieldModal
             type="select"
             label="Target"
-            name={masterTypeFormFields.target}
+            name={masterTypeFormFields.targetDisplay}
             rules={RulesManager.getTargetRules()}
             isLoading={loading}
             options={criteriaTargetOptions}

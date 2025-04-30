@@ -100,29 +100,30 @@
   width: 100%;
   padding: 10px;
   max-width: 35vw;
+
   .row {
     flex-direction: row;
     gap: 12px;
+
+    @media (max-width: 1400px) {
+      flex-direction: column; // Trên mobile: xếp dọc cho dễ đọc
+      gap: 8px;
+    }
   }
 
   input,
   label,
   span {
     font-size: 16px !important;
+
+    @media (max-width: 1400px) {
+      font-size: 14px !important; // Font size nhẹ hơn chút cho vừa mắt mobile
+    }
   }
+
   @media (max-width: 1400px) {
     max-width: 90vw; // Cho mobile: filter popup rộng gần hết màn hình
     padding: 8px; // Padding nhỏ hơn chút cho gọn
-    .row {
-      flex-direction: column; // Trên mobile: xếp dọc cho dễ đọc
-      gap: 8px;
-    }
-
-    input,
-    label,
-    span {
-      font-size: 14px !important; // Font size nhẹ hơn chút cho vừa mắt mobile
-    }
   }
 }
 
