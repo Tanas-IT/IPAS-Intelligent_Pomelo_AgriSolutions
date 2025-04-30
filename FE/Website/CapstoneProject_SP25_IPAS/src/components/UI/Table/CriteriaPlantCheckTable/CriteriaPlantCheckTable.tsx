@@ -106,7 +106,7 @@ const CriteriaPlantCheckTable: React.FC<CriteriaPlantCheckTableProps> = ({
   return (
     <div className={style.criteriaTableWrapper}>
       <Table
-        className={style.criteriaTable}
+        className={`${style.criteriaTable} ${styles.customeTable2}`}
         columns={columns}
         dataSource={data}
         pagination={false}

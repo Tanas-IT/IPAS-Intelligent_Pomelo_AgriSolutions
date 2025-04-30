@@ -89,7 +89,7 @@ function PlantLotCriteria() {
         await fetchCriteriaPlantLot();
         toast.success(res.message);
       } else {
-        toast.error(res.message);
+        toast.warning(res.message);
       }
     } finally {
       setIsLoading(false);
@@ -132,7 +132,7 @@ function PlantLotCriteria() {
     if (!target) return;
 
     if (!lot.inputQuantity && target === CRITERIA_TARGETS["Plantlot Evaluation"]) {
-      toast.error("Please update check quantity before proceeding.");
+      toast.warning("Please update check quantity before proceeding.");
       return;
     }
     try {
@@ -145,7 +145,7 @@ function PlantLotCriteria() {
         var resUpdate = await plantLotService.updateQuantityLot(lot.plantLotId, target, quantity);
 
         if (resUpdate.statusCode !== 200) {
-          toast.error(resUpdate.message);
+          toast.warning(resUpdate.message);
           return;
         } else {
           quantityModal.hideModal();
@@ -164,7 +164,7 @@ function PlantLotCriteria() {
           supplementQuantity,
         );
         if (resAdditional.statusCode !== 200) {
-          toast.error(resAdditional.message);
+          toast.warning(resAdditional.message);
           return;
         }
       }
@@ -176,7 +176,7 @@ function PlantLotCriteria() {
   const handleSave = async (isAllConditionChecked: boolean, target: string) => {
     const isEvaluation = target === CRITERIA_TARGETS["Plantlot Evaluation"];
     if ((!isAllConditionChecked || !lot.inputQuantity) && isEvaluation) {
-      toast.error("Please pass 'Plantlot Condition' before updating 'Plantlot Evaluation'.");
+      toast.warning("Please pass 'Plantlot Condition' before updating 'Plantlot Evaluation'.");
       return;
     }
     const criteriaDatas: CriteriaCheckData[] = Object.entries(updatedCriteria)
@@ -201,7 +201,7 @@ function PlantLotCriteria() {
         await fetchCriteriaPlantLot();
         if (isEvaluation) markForRefetch();
       } else {
-        toast.error(res.message);
+        toast.warning(res.message);
       }
     } finally {
       setIsLoading(false);
@@ -229,7 +229,7 @@ function PlantLotCriteria() {
         await fetchCriteriaPlantLot();
         setUpdatedCriteria([]);
       } else {
-        toast.error(res.message);
+        toast.warning(res.message);
       }
     } finally {
       deleteConfirmModal.hideModal();

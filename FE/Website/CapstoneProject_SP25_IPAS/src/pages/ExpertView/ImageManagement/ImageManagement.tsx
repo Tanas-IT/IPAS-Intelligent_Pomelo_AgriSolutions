@@ -42,7 +42,7 @@ const ImageManagementScreen: React.FC = () => {
         setTotalImages(response.data?.length || 0); // Giả định API trả về total, nếu không thì cần điều chỉnh
       }
     } catch (error) {
-      toast.error('Failed to fetch tagged images.', {
+      toast.warning('Failed to fetch tagged images.', {
         position: 'top-right',
         autoClose: 3000,
       });
@@ -71,7 +71,7 @@ const ImageManagementScreen: React.FC = () => {
         setTotalImages(untagged.length);
       }
     } catch (error) {
-      toast.error('Failed to fetch untagged reports.', {
+      toast.warning('Failed to fetch untagged reports.', {
         position: 'top-right',
         autoClose: 3000,
       });
@@ -87,7 +87,7 @@ const ImageManagementScreen: React.FC = () => {
         setTags(response.data || []);
       }
     } catch (error) {
-      toast.error('Failed to fetch tags.', {
+      toast.warning('Failed to fetch tags.', {
         position: 'top-right',
         autoClose: 3000,
       });
@@ -115,7 +115,7 @@ const ImageManagementScreen: React.FC = () => {
         autoClose: 3000,
       });
     } catch (error) {
-      toast.error('Failed to start re-training.', {
+      toast.warning('Failed to start re-training.', {
         position: 'top-right',
         autoClose: 3000,
       });

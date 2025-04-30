@@ -2,6 +2,7 @@ import { Table } from "antd";
 import style from "./Criteria.module.scss";
 import { GetCriteria } from "@/payloads";
 import { CRITERIA_TARGETS } from "@/constants";
+import { useStyle } from "@/hooks";
 
 const columns = [
   {
@@ -63,10 +64,12 @@ const columns = [
 ];
 
 const CriteriaTable = ({ criteria }: { criteria: GetCriteria[] }) => {
+  const { styles } = useStyle();
+
   return (
     <div className={style.criteriaTableWrapper}>
       <Table
-        className={style.criteriaTable}
+        className={`${style.criteriaTable} ${styles.customeTable2}`}
         columns={columns}
         dataSource={criteria.map((c) => ({ ...c, key: c.criteriaId }))}
         pagination={false}

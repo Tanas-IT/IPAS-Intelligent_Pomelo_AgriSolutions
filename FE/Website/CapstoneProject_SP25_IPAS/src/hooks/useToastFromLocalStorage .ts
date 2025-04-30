@@ -9,7 +9,7 @@ const useToastFromLocalStorage = () => {
 
     if (message) {
       // Hiển thị toast nếu có thông điệp
-      toast.error(message);
+      toast.warning(message);
       // Sau khi hiển thị, xóa thông điệp khỏi localStorage
       localStorage.removeItem(LOCAL_STORAGE_KEYS.ERROR_MESSAGE);
     }

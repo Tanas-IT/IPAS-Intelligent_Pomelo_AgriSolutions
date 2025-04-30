@@ -38,7 +38,7 @@ function ResetPassword() {
       if (result.statusCode === 200) {
         navigate(PATHS.AUTH.LOGIN, { state: { toastMessage } });
       } else {
-        toast.error(toastMessage);
+        toast.warning(toastMessage);
       }
     } catch (err) {
       console.error(err);

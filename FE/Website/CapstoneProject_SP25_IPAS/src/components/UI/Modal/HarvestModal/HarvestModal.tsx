@@ -120,26 +120,26 @@ const HarvestModal = ({
     const endDate = dayjs(crop.endDate);
 
     if (!harvestDate.isBetween(startDate, endDate, "day", "[]")) {
-      toast.error(MESSAGES.HARVEST_DATE_OUT_OF_RANGE);
+      toast.warning(MESSAGES.HARVEST_DATE_OUT_OF_RANGE);
       return;
     }
 
     if (!isUpdate) {
       if (!values.productHarvestHistory || values.productHarvestHistory.length === 0) {
-        toast.error(MESSAGES.REQUIRE_PRODUCT);
+        toast.warning(MESSAGES.REQUIRE_PRODUCT);
         return;
       }
 
       // Kiểm tra ít nhất 1 employee
       if (!values.addNewTask?.listEmployee || values.addNewTask.listEmployee.length === 0) {
-        toast.error(MESSAGES.REQUIRE_EMPLOYEE);
+        toast.warning(MESSAGES.REQUIRE_EMPLOYEE);
         return;
       }
 
       const currentDate = dayjs();
 
       if (!harvestDate || harvestDate.isBefore(currentDate, "day")) {
-        toast.error(MESSAGES.INVALID_HARVEST_DATE);
+        toast.warning(MESSAGES.INVALID_HARVEST_DATE);
         return;
       }
 
@@ -149,7 +149,7 @@ const HarvestModal = ({
         const endTime = dayjs(values.addNewTask?.timeRange?.[1], "HH:mm");
 
         if (!startTime || !endTime || startTime.isBefore(currentTime, "minute")) {
-          toast.error(MESSAGES.INVALID_START_TIME);
+          toast.warning(MESSAGES.INVALID_START_TIME);
           return;
         }
       }
@@ -158,7 +158,7 @@ const HarvestModal = ({
         (emp: AssignEmployee) => emp.isReporter === true,
       );
       if (!hasReporter) {
-        toast.error(MESSAGES.REQUIRE_REPORTER);
+        toast.warning(MESSAGES.REQUIRE_REPORTER);
         return;
       }
       // Kiểm tra danh sách sản phẩm có trùng nhau không
@@ -166,7 +166,7 @@ const HarvestModal = ({
       const productIds = productList.map((prod: any) => prod.masterTypeId);
       const uniqueProductIds = new Set(productIds);
       if (uniqueProductIds.size !== productIds.length) {
-        toast.error(MESSAGES.PRODUCT_DUPLICATE);
+        toast.warning(MESSAGES.PRODUCT_DUPLICATE);
         return;
       }
       // Kiểm tra danh sách nhân viên có trùng nhau không
@@ -174,7 +174,7 @@ const HarvestModal = ({
       const employeeIds = employeeList.map((emp: any) => emp.userId);
       const uniqueEmployeeIds = new Set(employeeIds);
       if (uniqueEmployeeIds.size !== employeeIds.length) {
-        toast.error(MESSAGES.EMPLOYEE_DUPLICATE);
+        toast.warning(MESSAGES.EMPLOYEE_DUPLICATE);
         return;
       }
     }

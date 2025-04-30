@@ -64,26 +64,26 @@ export const validatePolygonBeforeSave = (
   isUpdate: boolean,
 ) => {
   if (!currentPolygon) {
-    toast.error(isUpdate ? MESSAGES.DRAW_PLOT_UPDATE : MESSAGES.DRAW_PLOT);
+    toast.warning(isUpdate ? MESSAGES.DRAW_PLOT_UPDATE : MESSAGES.DRAW_PLOT);
     return false;
   }
   if (isOverlapping) {
-    toast.error(MESSAGES.OVERLAPPING_PLOT);
+    toast.warning(MESSAGES.OVERLAPPING_PLOT);
     return false;
   }
   const { minWidth, maxWidth, minLength, maxLength } = POLYGON_DIMENSION_LIMITS;
 
   if (width < minWidth || width > maxWidth) {
-    // toast.error(`Width must be between ${minWidth}m and ${maxWidth}m!`);
-    toast.error(`Plot dimensions must be within the allowed range!`);
+    // toast.warning(`Width must be between ${minWidth}m and ${maxWidth}m!`);
+    toast.warning(`Plot dimensions must be within the allowed range!`);
 
     return false;
   }
 
   // Kiểm tra length
   if (length < minLength || length > maxLength) {
-    // toast.error(`Length must be between ${minLength}m and ${maxLength}m!`);
-    toast.error(`Plot dimensions must be within the allowed range!`);
+    // toast.warning(`Length must be between ${minLength}m and ${maxLength}m!`);
+    toast.warning(`Plot dimensions must be within the allowed range!`);
     return false;
   }
 

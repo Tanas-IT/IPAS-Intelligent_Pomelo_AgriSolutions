@@ -19,7 +19,7 @@ const UntaggedImageCard: React.FC<UntaggedImageCardProps> = ({ report, tags, onT
 
   const handleAssignTag = async () => {
     if (!selectedTag || !report.image?.id) {
-      toast.error('Please select a tag to assign.', {
+      toast.warning('Please select a tag to assign.', {
         position: 'top-right',
         autoClose: 3000,
       });
@@ -41,7 +41,7 @@ const UntaggedImageCard: React.FC<UntaggedImageCardProps> = ({ report, tags, onT
     //     onTagAssigned();
     //   }
     // } catch (error) {
-    //   toast.error('Failed to assign tag. Please try again.', {
+    //   toast.warning('Failed to assign tag. Please try again.', {
     //     position: 'top-right',
     //     autoClose: 3000,
     //   });

@@ -46,7 +46,7 @@ function LegalDocument() {
         toast.success(result.message);
         await fetchFarmDocumentsData();
       } else {
-        toast.error(result.message);
+        toast.warning(result.message);
       }
     } finally {
       setIsLoading(false);
@@ -92,7 +92,7 @@ function LegalDocument() {
         toast.success(result.message);
         await fetchFarmDocumentsData();
       } else {
-        toast.error(result.message);
+        toast.warning(result.message);
       }
     } finally {
       setIsLoading(false);
@@ -109,7 +109,7 @@ function LegalDocument() {
         toast.success(result.message);
         await fetchFarmDocumentsData();
       } else {
-        toast.error(result.message);
+        toast.warning(result.message);
       }
     } finally {
       setIsLoading(false);
@@ -159,7 +159,7 @@ function LegalDocument() {
                     <div>No document uploaded</div>
                   )}
                 </Flex>
-                <Flex gap={14}>
+                <Flex gap={14} className={style.actionBtnsWrapper}>
                   <Icons.delete
                     className={style.iconEdit}
                     onClick={() => deleteConfirmModal.showModal({ docId: doc.legalDocumentId })}

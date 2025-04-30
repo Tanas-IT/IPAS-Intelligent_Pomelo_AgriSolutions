@@ -54,7 +54,7 @@ function CropDetail() {
       deleteConfirmModal.hideModal();
       navigate(PATHS.CROP.CROP_LIST, { state: { toastMessage } });
     } else {
-      toast.error(toastMessage);
+      toast.warning(toastMessage);
     }
   };
 

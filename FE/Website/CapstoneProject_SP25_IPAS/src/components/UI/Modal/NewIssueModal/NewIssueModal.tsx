@@ -144,13 +144,13 @@ const NewIssueModal = <T extends BaseIssueType>({
     const isImage = ["image/png", "image/jpeg", "image/jpg", "image/gif", "image/webp"].includes(
       file.type,
     );
-    if (!isImage) toast.error(MESSAGES.IMAGE_INVALID);
+    if (!isImage) toast.warning(MESSAGES.IMAGE_INVALID);
     return isImage ? false : Upload.LIST_IGNORE;
   };
 
   const beforeUploadVideo = (file: FileType) => {
     const isVideo = ["video/mp4", "video/webm", "video/ogg"].includes(file.type);
-    if (!isVideo) toast.error(MESSAGES.IMAGE_INVALID);
+    if (!isVideo) toast.warning(MESSAGES.IMAGE_INVALID);
     return isVideo ? false : Upload.LIST_IGNORE;
   };
 

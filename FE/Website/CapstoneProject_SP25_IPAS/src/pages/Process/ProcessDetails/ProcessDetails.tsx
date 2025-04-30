@@ -80,7 +80,7 @@ function ProcessDetails() {
   const [newTasks, setNewTasks] = useState<CustomTreeDataNode[]>([]); // lưu task mới tạo
   const [isEditing, setIsEditing] = useState(false);
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  const [processName, setProcessName] = useState(processDetail?.processName || '');
+  const [processName, setProcessName] = useState(processDetail?.processName || "");
   const farmId = Number(getFarmId());
   const { options: processTypeOptions } = useMasterTypeOptions(MASTER_TYPE.PROCESS, false);
 
@@ -117,7 +117,9 @@ function ProcessDetails() {
       form.setFieldsValue({
         ...data,
         masterTypeId: data.processMasterTypeModel ? data.processMasterTypeModel.masterTypeId : "",
-        growthStageId: data.processGrowthStageModel ? data.processGrowthStageModel.growthStageId : "",
+        growthStageId: data.processGrowthStageModel
+          ? data.processGrowthStageModel.growthStageId
+          : "",
         planTarget: data.planTargetInProcess,
         isActive: data.isActive,
       });
@@ -134,7 +136,7 @@ function ProcessDetails() {
       }
     } catch (error) {
       console.error("Failed to fetch process details", error);
-      toast.error("Failed to fetch process details. Please try again later.");
+      toast.warning("Failed to fetch process details. Please try again later.");
     } finally {
       setIsLoading(false);
     }
@@ -245,14 +247,14 @@ function ProcessDetails() {
     setTreeData(reorderedTreeData);
   };
 
-  const handleCancel = () => { };
+  const handleCancel = () => {};
 
   const handleCancelClick = () => {
     setPlans([...originalData.plans]);
     setTreeData([...originalData.treeData]);
     setIsEditing(false);
   };
-  const handleSaveNode = () => { };
+  const handleSaveNode = () => {};
 
   const handleClickAddPlan = (subProcessKey: number) => {
     setSelectedSubProcessId(subProcessKey);
@@ -324,8 +326,8 @@ function ProcessDetails() {
       const status = isNewSubProcess
         ? "add"
         : node.listPlan?.some((plan) => ["add", "update", "delete"].includes(plan.planStatus))
-          ? "update"
-          : node.status || "no_change";
+        ? "update"
+        : node.status || "no_change";
 
       const hasChangedPlan = node.listPlan?.some((plan) =>
         ["add", "update", "delete"].includes(plan.planStatus),
@@ -396,16 +398,16 @@ function ProcessDetails() {
     try {
       const res = await processService.updateFProcess(payload);
       if (res.statusCode === 200) {
-        await toast.success(res.message);
+        toast.success(res.message);
         setIsEditing(false);
         await fetchProcessDetails();
       } else {
-        toast.error(res.message);
+        toast.warning(res.message);
       }
       console.log("res update", res);
     } catch (error) {
       console.error("Error saving process:", error);
-      toast.error("Failed to save process.");
+      toast.warning("Failed to save process.");
     }
   };
   const convertDeletedNodesToList = (nodes: CustomTreeDataNode[]): any[] => {
@@ -469,7 +471,7 @@ function ProcessDetails() {
             ...node,
             status: "update", // Cập nhật node cha
             listPlan: node.listPlan?.map((plan) =>
-              plan.planId === planId ? { ...plan, planStatus: "delete" } : plan
+              plan.planId === planId ? { ...plan, planStatus: "delete" } : plan,
             ),
           };
         }
@@ -484,14 +486,18 @@ function ProcessDetails() {
     });
   }, []);
 
-  const handleDeletePlanInChildren = (nodes: CustomTreeDataNode[], planId: number, subProcessKey: string): CustomTreeDataNode[] => {
+  const handleDeletePlanInChildren = (
+    nodes: CustomTreeDataNode[],
+    planId: number,
+    subProcessKey: string,
+  ): CustomTreeDataNode[] => {
     return nodes.map((node) => {
       if (node.key === subProcessKey) {
         return {
           ...node,
           status: "update",
           listPlan: node.listPlan?.map((plan) =>
-            plan.planId === planId ? { ...plan, planStatus: "delete" } : plan
+            plan.planId === planId ? { ...plan, planStatus: "delete" } : plan,
           ),
         };
       }
@@ -504,7 +510,6 @@ function ProcessDetails() {
       return node;
     });
   };
-
 
   const handleEditSubProcess = (node: CustomTreeDataNode) => {
     setEditingNode(node);
@@ -527,7 +532,6 @@ function ProcessDetails() {
         node.status = "update";
       } else {
         console.log("ảo z");
-
       }
     }
     setTreeData(updatedData);
@@ -541,38 +545,34 @@ function ProcessDetails() {
         console.log("sắp xong r", node);
 
         const filteredPlans = node.listPlan?.filter(
-          (plan: PlanType) => plan.planStatus !== "delete"
+          (plan: PlanType) => plan.planStatus !== "delete",
         );
 
         const planNodes = filteredPlans?.length
           ? [
-            {
-              title: (
-                <div className={style.planList}>
-                  <strong className={style.planListTitle}>Plan List:</strong>
-                  {filteredPlans.map((plan: PlanType) => (
-                    <div key={plan.planId} className={style.planItem}>
-                      <span className={style.planName}>{plan.planName}</span>
-                      <Flex gap={10}>
-                        <Icons.edit
-                          color="blue"
-                          size={18}
-                          onClick={() => handleEditPlan(plan)}
-                        />
-                        <Icons.delete
-                          color="red"
-                          size={18}
-                          onClick={() => handleDeletePlann(plan.planId, node.key.toString())}
-                        />
-                      </Flex>
-                    </div>
-                  ))}
-                </div>
-              ),
-              key: `${node.key}-plans`,
-              isLeaf: true,
-            },
-          ]
+              {
+                title: (
+                  <div className={style.planList}>
+                    <strong className={style.planListTitle}>Plan List:</strong>
+                    {filteredPlans.map((plan: PlanType) => (
+                      <div key={plan.planId} className={style.planItem}>
+                        <span className={style.planName}>{plan.planName}</span>
+                        <Flex gap={10}>
+                          <Icons.edit color="blue" size={18} onClick={() => handleEditPlan(plan)} />
+                          <Icons.delete
+                            color="red"
+                            size={18}
+                            onClick={() => handleDeletePlann(plan.planId, node.key.toString())}
+                          />
+                        </Flex>
+                      </div>
+                    ))}
+                  </div>
+                ),
+                key: `${node.key}-plans`,
+                isLeaf: true,
+              },
+            ]
           : [];
 
         return {
@@ -909,10 +909,10 @@ function ProcessDetails() {
           initialValues={
             editingNode
               ? {
-                processName: editingNode.title,
-                growthStageId: editingNode.growthStageId,
-                masterTypeId: editingNode.masterTypeId,
-              }
+                  processName: editingNode.title,
+                  growthStageId: editingNode.growthStageId,
+                  masterTypeId: editingNode.masterTypeId,
+                }
               : undefined
           }
         />

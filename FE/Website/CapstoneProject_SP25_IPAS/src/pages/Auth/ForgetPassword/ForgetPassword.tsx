@@ -21,7 +21,7 @@ function ForgetPassword() {
       if (result.statusCode === 200) {
         navigate(PATHS.AUTH.FORGOT_PASSWORD_OTP, { state: { type: "reset", email: values.email } });
       } else {
-        toast.error(result.message);
+        toast.warning(result.message);
       }
     } catch (err) {
       console.error(err);

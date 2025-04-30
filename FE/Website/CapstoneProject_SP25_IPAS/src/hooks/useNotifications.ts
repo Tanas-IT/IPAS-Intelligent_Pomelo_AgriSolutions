@@ -50,8 +50,12 @@ const useNotifications = () => {
   useEffect(() => {
     if (!userId) return;
 
-    const ws = new WebSocket(`${import.meta.env.VITE_PUBLIC_WS_URL}?userId=${userId}`);
+    const isDevelopment = import.meta.env.VITE_API_DEVELOPMENT === "true";
+    const wsUrl = isDevelopment
+      ? import.meta.env.VITE_PUBLIC_WS_URL
+      : import.meta.env.VITE_PUBLIC_WS_DEPLOY_URL;
 
+    const ws = new WebSocket(`${wsUrl}?userId=${userId}`);
 
     ws.onopen = () => {
       console.log("Connected to WebSocket!");
@@ -62,13 +66,11 @@ const useNotifications = () => {
         const message = JSON.parse(event.data);
         console.log("Parsed Message:", message);
 
-
         fetchNotifications();
       } catch (error) {
         console.log("Error parse JSON:", error);
       }
     };
-
 
     ws.onclose = (event) => {
       // console.error("WebSocket disconnected:", event);
@@ -87,16 +89,16 @@ const useNotifications = () => {
 
   const markAsRead = async (notificationID: number) => {
     setNotifications((prev) =>
-      prev.map((n) => (n.notificationId === notificationID ? { ...n, isRead: true } : n))
+      prev.map((n) => (n.notificationId === notificationID ? { ...n, isRead: true } : n)),
     );
 
     try {
       await notificationService.markAsRead(userId, "once", notificationID);
     } catch (error) {
       console.error("Error marking notification as read", error);
-  
+
       setNotifications((prev) =>
-        prev.map((n) => (n.notificationId === notificationID ? { ...n, isRead: false } : n))
+        prev.map((n) => (n.notificationId === notificationID ? { ...n, isRead: false } : n)),
       );
     }
   };
@@ -108,7 +110,7 @@ const useNotifications = () => {
       await notificationService.markAsRead(userId);
     } catch (error) {
       console.error("Error marking notification as read", error);
-  
+
       setNotifications((prev) => prev.map((n) => ({ ...n, isRead: false })));
     }
   };

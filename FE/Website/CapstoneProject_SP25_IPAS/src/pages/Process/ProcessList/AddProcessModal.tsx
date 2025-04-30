@@ -113,7 +113,7 @@ const ProcessModal = ({ isOpen, onClose, onSave }: ProcessModalProps) => {
             onSave(payload);
             planForm.resetFields();
         } catch (error) {
-            toast.error(error instanceof Error ? error.message : "Something went wrong!");
+            toast.warning(error instanceof Error ? error.message : "Something went wrong!");
             console.error("Error creating process:", error);
         }
     };

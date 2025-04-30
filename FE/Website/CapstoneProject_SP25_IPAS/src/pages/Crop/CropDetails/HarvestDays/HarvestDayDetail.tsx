@@ -98,7 +98,7 @@ function HarvestDayDetail({ selectedHarvest, actionMenu }: HarvestDayDetailProps
       });
       resetData();
     } else {
-      toast.error(res.message);
+      toast.warning(res.message);
     }
   };
 

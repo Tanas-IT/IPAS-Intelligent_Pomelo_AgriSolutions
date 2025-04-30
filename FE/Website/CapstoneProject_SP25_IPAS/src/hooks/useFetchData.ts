@@ -188,7 +188,7 @@ export default useFetchData;
 //     // await loadData();
 //   }
 // } catch (error) {
-//   toast.error("Error fetching data");
+//   toast.warning("Error fetching data");
 //   setIsLoading(false);
 // } finally {
 

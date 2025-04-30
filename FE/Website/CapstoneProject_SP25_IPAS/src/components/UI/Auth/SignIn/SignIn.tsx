@@ -55,10 +55,8 @@ const SignIn: React.FC<Props> = ({ toggleForm, isSignUp, handleGoogleLoginSucces
         if (roleId === UserRolesStr.Expert)
           navigate(PATHS.EXPERT.REPORT_LIST, { state: { toastMessage } });
       } else {
-        toast.error(toastMessage);
+        toast.warning(toastMessage);
       }
-    } catch (error) {
-      console.error("Error submitting form:", error);
     } finally {
       setIsLoading(false);
     }

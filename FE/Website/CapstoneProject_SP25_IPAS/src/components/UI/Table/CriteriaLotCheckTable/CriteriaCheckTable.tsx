@@ -111,7 +111,7 @@ const CriteriaCheckTable: React.FC<CriteriaCheckTableProps> = ({
   return (
     <div className={style.criteriaTableWrapper}>
       <Table
-        className={style.criteriaTable}
+        className={`${style.criteriaTable} ${styles.customeTable2}`}
         columns={columns}
         dataSource={data}
         pagination={false}

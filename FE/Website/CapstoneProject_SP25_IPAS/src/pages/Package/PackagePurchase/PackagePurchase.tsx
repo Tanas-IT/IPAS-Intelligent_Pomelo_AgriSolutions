@@ -27,7 +27,7 @@ const PackagePurchase = () => {
             localStorage.setItem(LOCAL_STORAGE_KEYS.REFRESH_TOKEN, result.data.authenModel.refreshToken);
             navigate(PATHS.FARM_PICKER);
         } else {
-            toast.error(MESSAGES.ERROR_OCCURRED);
+            toast.warning(MESSAGES.ERROR_OCCURRED);
         }
     };
 

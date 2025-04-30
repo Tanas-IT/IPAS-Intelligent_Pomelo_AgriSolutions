@@ -28,7 +28,7 @@ export default function useTableUpdate<T>({
           await fetchData();
           onSuccess?.();
         } else {
-          toast.error(result.message);
+          toast.warning(result.message);
           onError?.();
         }
       } finally {

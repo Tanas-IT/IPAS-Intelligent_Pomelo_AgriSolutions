@@ -125,12 +125,12 @@ const MapNewLandPlot = forwardRef<MapLandPlotRef, MapLandPlotProps>(
 
     // const validatePolygonDimensions = (width: number, length: number): boolean => {
     //   if (width < MIN_WIDTH || width > MAX_WIDTH) {
-    //     toast.error(`Width must be between ${MIN_WIDTH} and ${MAX_WIDTH} meters!`);
+    //     toast.warning(`Width must be between ${MIN_WIDTH} and ${MAX_WIDTH} meters!`);
     //     return false;
     //   }
 
     //   if (length < MIN_LENGTH || length > MAX_LENGTH) {
-    //     toast.error(`Length must be between ${MIN_LENGTH} and ${MAX_LENGTH} meters!`);
+    //     toast.warning(`Length must be between ${MIN_LENGTH} and ${MAX_LENGTH} meters!`);
     //     return false;
     //   }
 

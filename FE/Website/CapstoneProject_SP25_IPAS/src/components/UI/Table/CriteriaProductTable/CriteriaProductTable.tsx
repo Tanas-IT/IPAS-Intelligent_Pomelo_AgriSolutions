@@ -1,12 +1,15 @@
 import { Table } from "antd";
 import style from "./CriteriaProductTable.module.scss";
 import { GetCriteria } from "@/payloads";
+import { useStyle } from "@/hooks";
 
 interface CriteriaProductTableProps {
   data: GetCriteria[];
 }
 
 const CriteriaProductTable: React.FC<CriteriaProductTableProps> = ({ data }) => {
+  const { styles } = useStyle();
+
   const columns = [
     {
       title: "Priority",
@@ -59,7 +62,7 @@ const CriteriaProductTable: React.FC<CriteriaProductTableProps> = ({ data }) => 
   return (
     <div className={style.criteriaTableWrapper}>
       <Table
-        className={style.criteriaTable}
+        className={`${style.criteriaTable} ${styles.customeTable2}`}
         columns={columns}
         dataSource={data}
         pagination={false}

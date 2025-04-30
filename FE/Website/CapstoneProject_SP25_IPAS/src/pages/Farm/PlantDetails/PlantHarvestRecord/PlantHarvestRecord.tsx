@@ -113,7 +113,7 @@ function PlantHarvestRecord() {
         toast.success(result.message);
         await handleResetData();
       } else {
-        toast.error(result.message);
+        toast.warning(result.message);
       }
     } finally {
       deleteConfirmModal.hideModal();
@@ -127,7 +127,7 @@ function PlantHarvestRecord() {
       formModal.hideModal();
       await handleResetData();
     } else {
-      toast.error(res.message);
+      toast.warning(res.message);
     }
   };
 

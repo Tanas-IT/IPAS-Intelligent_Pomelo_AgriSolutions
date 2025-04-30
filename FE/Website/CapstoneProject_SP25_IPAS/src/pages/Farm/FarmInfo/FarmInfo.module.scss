@@ -190,7 +190,7 @@
       text-align: center;
       margin-bottom: 24px;
     }
-  
+
     .summaryCard {
       margin-bottom: 24px;
       border-radius: 12px;
@@ -234,4 +234,72 @@
   }
 }
 
+@media (max-width: 768px) {
+  .container {
+    .header {
+      // flex-direction: column;
+      // align-items: center;
+      // text-align: center;
 
+      .logo {
+        width: 90px;
+        height: 90px;
+        top: -60px;
+      }
+
+      .farmInfo {
+        margin-left: 120px;
+
+        .ownerInfo {
+          flex-direction: column;
+          align-items: start;
+          .divider {
+            display: none;
+          }
+        }
+      }
+    }
+
+    .containerWrapper {
+      .contentWrapper {
+        .form {
+          .row {
+            flex-direction: column;
+            gap: 0px;
+          }
+        }
+        .formLogo {
+          width: 100%;
+          align-items: center;
+
+          .uploadWrapper {
+            width: 100%;
+          }
+        }
+
+        .formDocument {
+          flex-direction: column;
+          align-items: center;
+
+          .imageWrapper {
+            justify-content: center;
+          }
+        }
+      }
+    }
+
+    .actionBtnsWrapper {
+      width: 100%;
+      justify-content: end;
+      margin-top: 10px;
+    }
+
+    .packageContainer {
+      .summaryCard {
+        flex-direction: column;
+        gap: 12px;
+        text-align: center;
+      }
+    }
+  }
+}
