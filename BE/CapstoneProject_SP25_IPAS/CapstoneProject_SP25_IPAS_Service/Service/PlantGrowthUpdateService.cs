@@ -20,13 +20,13 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
         private readonly IConfiguration _configuration;
         private readonly TimeSpan _interval;
 
-        public PlantGrowthUpdateService(IServiceScopeFactory scopeFactory, ILogger<PlantGrowthUpdateService> logger, IConfiguration configuration, TimeSpan interval)
+        public PlantGrowthUpdateService(IServiceScopeFactory scopeFactory, ILogger<PlantGrowthUpdateService> logger, IConfiguration configuration)
         {
             _scopeFactory = scopeFactory;
+            _configuration = configuration;
             _logger = logger;
             int hours = _configuration.GetValue<int>("WorkerService:PlantGrowthUpdateService", 24);
             _interval = TimeSpan.FromHours(hours);
-            _configuration = configuration;
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)

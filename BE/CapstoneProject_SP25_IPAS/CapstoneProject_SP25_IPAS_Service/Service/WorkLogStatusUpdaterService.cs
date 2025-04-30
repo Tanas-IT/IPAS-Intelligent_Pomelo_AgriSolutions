@@ -17,7 +17,7 @@ public class WorkLogStatusUpdaterService : BackgroundService
     private readonly TimeSpan _interval;
     private readonly IConfiguration _configuration;
 
-    public WorkLogStatusUpdaterService(IServiceScopeFactory scopeFactory, ILogger<WorkLogStatusUpdaterService> logger, TimeSpan interval, IConfiguration configuration)
+    public WorkLogStatusUpdaterService(IServiceScopeFactory scopeFactory, ILogger<WorkLogStatusUpdaterService> logger, IConfiguration configuration)
     {
         _configuration = configuration;
         _scopeFactory = scopeFactory;
