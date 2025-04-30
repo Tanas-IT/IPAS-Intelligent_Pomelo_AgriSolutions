@@ -2086,12 +2086,8 @@ VALUES
 ('PlantLotCriteria', 'PlantLotEvaluation', 'PlantLot Evaluation', 'string', N'Tiêu chí dánh giá lô giống sau khi nhập vào'),
 
 ('ProductCriteria', 'Others', 'Others', 'string', 'Others'),
-('ProductCriteria','Product', 'Product', 'string',  N'Tiêu chí dánh giá sản phẩm'),
+('ProductCriteria','Product', 'Product', 'string',  N'Tiêu chí dánh giá sản phẩm');
 
-('GraftedConditionApply','GraftedCondition', 'Grafted Condition', 'string', N'Bộ tiêu chí dùng để dánh giá cành chiết'),
-('GraftedEvaluationApply','GraftedEvaluation', 'Grafted Evaluation', 'string', N'Bộ tiêu chí dùng để dánh giá Cây mẹ truớc khi chiết'),
-('PlantLotConditionApply','PlantLotCondition', 'PlantLot Condition', 'string', N'Tiêu chí dánh giá cành chiết'),
-('PlantLotEvaluationApply','PlantLotEvaluation', 'PlantLot Evaluation', 'string', N'Tiêu chí dánh giá lô giống sau khi nhập vào');
 
 -- Update ReferenceConfigId cho GraftedConditionApply
 UPDATE a
