@@ -781,7 +781,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 try
                 {
                     var checkFarmExist = await _unitOfWork.FarmRepository.GetByCondition(x => x.FarmId == createRequest.FarmId!.Value && x.IsDeleted == false);
-                    var checkUserExist = await _unitOfWork.UserRepository.GetByCondition(x => x.UserId == createRequest.UserId && x.IsDeleted == false);
+                    var checkUserExist = await _unitOfWork.UserRepository.GetByCondition(x => x.UserId == createRequest.UserId && x.IsDeleted == false && !x.Status.ToLower().Equals(UserStatusEnum.Banned.ToString().ToLower()));
                     var checkRoleExist = await _unitOfWork.RoleRepository.GetByCondition(x => x.RoleName!.ToLower().Equals(RoleEnum.EMPLOYEE.ToString().ToLower()) && x.IsSystem == true);
                     if (checkFarmExist == null || checkUserExist == null || checkRoleExist == null)
                         return new BusinessResult(Const.WARNING_VALUE_INVALID_CODE, Const.WARNING_VALUE_INVALID_MSG);

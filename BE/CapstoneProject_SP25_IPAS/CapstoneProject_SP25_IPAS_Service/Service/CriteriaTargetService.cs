@@ -556,7 +556,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 // Lấy danh sách tiêu chí hiện tại của đối tượng (Plant, GraftedPlant hoặc PlantLot)
                 var existingCriteria = await _unitOfWork.CriteriaTargetRepository.GetAllCriteriaOfTargetNoPaging(plantId: plantId, graftedPlantId: graftedId, plantLotId: plantLotId);
                 if (!existingCriteria.Any())
-                    return (false, $"You must apply criteriaSet before: {string.Join(", ", TargetsList)}");
+                    return (true, $"You must apply criteriaSet before: {string.Join(", ", TargetsList)}");
                 //var targetSplit = Util.SplitByComma(TargetsList);
                 existingCriteria = existingCriteria.Where(x => TargetsList.Contains(x.Criteria!.MasterType!.Target!) && x.IsPassed == false);
                 if (existingCriteria.Any())

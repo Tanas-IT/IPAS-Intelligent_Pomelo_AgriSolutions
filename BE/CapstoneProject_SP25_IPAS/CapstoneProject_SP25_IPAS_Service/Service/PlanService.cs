@@ -260,18 +260,18 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                             HashSet<int> inputPlantIDs = new HashSet<int>(plantTarget.PlantID ?? new List<int>());
 
                             // Nếu có LandPlotID, lấy tất cả LandRowID thuộc LandPlot đó
-                            if (plantTarget.LandPlotID.HasValue)
+                            if (plantTarget.LandPlotID.HasValue && (plantTarget.LandRowID == null || !plantTarget.LandRowID.Any()))
                             {
                                 var rowsInPlot = await _unitOfWork.LandRowRepository
                                     .GetRowsByLandPlotIdAsync(plantTarget.LandPlotID.Value);
                                 landRowIDs.AddRange(rowsInPlot);
                             }
-
-                            // Nếu có LandRowID từ input, thêm vào danh sách
-                            if (plantTarget.LandRowID != null)
+                            // Nếu truyền LandRowID, thì chỉ dùng LandRowID
+                            else if (plantTarget.LandRowID != null && plantTarget.LandRowID.Any())
                             {
                                 landRowIDs.AddRange(plantTarget.LandRowID);
                             }
+
 
                             // Xử lý danh sách không bị trùng LandRowID
                             landRowIDs = landRowIDs.Distinct().ToList();
