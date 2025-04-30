@@ -179,7 +179,7 @@ const CriteriaModel = ({
       masterTypeName: form.getFieldValue(masterTypeFormFields.masterTypeName),
       masterTypeDescription: form.getFieldValue(masterTypeFormFields.masterTypeDescription),
       isActive: checked,
-      target: form.getFieldValue(masterTypeFormFields.target),
+      target: form.getFieldValue(masterTypeFormFields.targetDisplay),
       criterias: processedCriteriaList as CriteriaRequest[],
     };
   };
