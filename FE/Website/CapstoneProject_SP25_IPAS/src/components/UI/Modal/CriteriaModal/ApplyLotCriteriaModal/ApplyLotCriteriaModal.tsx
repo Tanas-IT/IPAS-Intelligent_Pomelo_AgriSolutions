@@ -86,6 +86,8 @@ const ApplyCriteriaLotModal = ({
       }));
       setCriteriaOptions(formattedOptions);
       setIsDirty(true);
+    } else {
+      setCriteriaOptions([]);
     }
   };
 

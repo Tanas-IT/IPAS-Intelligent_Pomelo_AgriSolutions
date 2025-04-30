@@ -243,6 +243,7 @@ function HarvestDays() {
           selectedHarvest={selectedHarvest}
           actionMenu={
             <ActionMenuHarvest
+              isCropComplete={crop.status === CROP_STATUS.COMPLETED}
               onEdit={() => formModal.showModal(selectedHarvest)}
               onDelete={() =>
                 deleteConfirmModal.showModal({ ids: [selectedHarvest.harvestHistoryId] })
@@ -277,6 +278,7 @@ function HarvestDays() {
               notifyNoData="No days to display"
               renderAction={(harvest: GetHarvestDay) => (
                 <ActionMenuHarvest
+                  isCropComplete={crop.status === CROP_STATUS.COMPLETED}
                   onEdit={() => formModal.showModal(harvest)}
                   onDelete={() => deleteConfirmModal.showModal({ ids: [harvest.harvestHistoryId] })}
                   onOpenRecordModal={() => recordModal.showModal(harvest)}

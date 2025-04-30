@@ -89,6 +89,8 @@ const ApplyGraftedPlantCriteriaModal = ({
       }));
       setCriteriaOptions(formattedOptions);
       setIsDirty(true);
+    } else {
+      setCriteriaOptions([]);
     }
   };
 

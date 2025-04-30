@@ -6,6 +6,7 @@ import EditActions from "../EditActions/EditActions";
 import CustomButton from "../../Button/CustomButton";
 
 type SectionHeaderProps = {
+  isLoginOwner: boolean;
   title: string;
   subtitle: string;
   isEditing?: boolean;
@@ -16,6 +17,7 @@ type SectionHeaderProps = {
 };
 
 const SectionHeader: React.FC<SectionHeaderProps> = ({
+  isLoginOwner,
   title,
   subtitle,
   isEditing = false,
@@ -31,6 +33,7 @@ const SectionHeader: React.FC<SectionHeaderProps> = ({
       </Flex>
       <Flex>
         {isDisplayEdit &&
+          isLoginOwner &&
           (isEditing ? (
             <EditActions handleBtn1={handleCancel} handleBtn2={handleSave} />
           ) : (

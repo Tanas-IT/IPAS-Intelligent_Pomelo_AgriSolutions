@@ -2,7 +2,7 @@ import { Button, Flex, Form } from "antd";
 import { useEffect, useState } from "react";
 import { FormFieldModal, ModalForm } from "@/components";
 import { formatDateReq, formatTimeReq, getUserId, RulesManager } from "@/utils";
-import { harvestFormFields, MASTER_TYPE, MESSAGES, UserRole } from "@/constants";
+import { CROP_STATUS, harvestFormFields, MASTER_TYPE, MESSAGES, UserRole } from "@/constants";
 import { AssignEmployee, HarvestRequest, GetHarvestDay } from "@/payloads";
 import style from "./HarvestModal.module.scss";
 import { useMasterTypeOptions, useUserInFarmByRole } from "@/hooks";
@@ -26,14 +26,15 @@ const HarvestModal = ({
   harvestData,
   isLoadingAction,
 }: HarvestModalProps) => {
+  const { crop } = useCropStore();
+  if (!crop) return;
   const [form] = Form.useForm();
   const [modalSize, setModalSize] = useState<"large" | "largeXL">("largeXL");
   const isUpdate = harvestData !== undefined && Object.keys(harvestData).length > 0;
   const { options: productOptions } = useMasterTypeOptions(MASTER_TYPE.PRODUCT);
   const { options: employeeOptions } = useUserInFarmByRole([UserRole.Employee], true);
   const { setIsDirty } = useDirtyStore();
-  const { crop } = useCropStore();
-  if (!crop) return;
+  const isCropCompleted = crop.status === CROP_STATUS.COMPLETED;
 
   const resetForm = () => {
     setIsDirty(false);
@@ -197,12 +198,14 @@ const HarvestModal = ({
         <Flex gap={20}>
           <fieldset className={style.formSection}>
             <legend>Harvest Information</legend>
-            <FormFieldModal
-              type="date"
-              label="Harvest Date"
-              name={harvestFormFields.dateHarvest}
-              rules={RulesManager.getDateRules()}
-            />
+            {!isCropCompleted && (
+              <FormFieldModal
+                type="date"
+                label="Harvest Date"
+                name={harvestFormFields.dateHarvest}
+                rules={RulesManager.getDateRules()}
+              />
+            )}
 
             <FormFieldModal
               type="textarea"
@@ -338,7 +341,7 @@ const HarvestModal = ({
         )}
 
         {/* Update Task Section */}
-        {isUpdate && (
+        {isUpdate && !isCropCompleted && (
           <fieldset className={style.formSection}>
             <legend>Update Task</legend>
             <FormFieldModal
