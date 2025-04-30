@@ -191,6 +191,16 @@ const Sidebar: React.FC<SidebarProps> = ({ isDefault = false }) => {
       roles: [UserRolesStr.Owner, UserRolesStr.Manager],
     },
     {
+      key: "Farm Information",
+      label: "Farm Information",
+      icon: <Icons.farms />,
+      to: PATHS.FARM.FARM_INFO,
+      activePaths: [PATHS.FARM.FARM_INFO],
+      category: "Main",
+      isView: !isDefault,
+      roles: [UserRolesStr.Manager, UserRolesStr.Employee],
+    },
+    {
       key: "Crop Management",
       label: "Crop Management",
       icon: <Icons.seedling />,
