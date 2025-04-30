@@ -27,6 +27,6 @@ namespace CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.PackageRequest
         [MinLength(5, ErrorMessage = "Future name must from 1-100 digit")]
         public string FeatureName { get; set; }
 
-        public string FeatureDescription { get; set; }
+        public string? FeatureDescription { get; set; }
     }
 }
