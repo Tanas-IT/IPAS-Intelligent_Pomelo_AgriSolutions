@@ -243,6 +243,10 @@ export const isManager = () => {
   return getRoleId() === UserRolesStr.Manager;
 };
 
+export const isOwner = () => {
+  return getRoleId() === UserRolesStr.Owner;
+};
+
 export const getRoleName = (): string => {
   const roleId = Number(getRoleId());
   if (roleId === UserRole.Admin) {

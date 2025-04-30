@@ -6,7 +6,7 @@ import Overview from "./Overview";
 import LegalDocument from "./LegalDocument";
 import { useEffect, useState } from "react";
 import { GetFarmInfo } from "@/payloads";
-import { defaultLogoFarm, getDefaultFarm, getFarmId } from "@/utils";
+import { defaultLogoFarm, getDefaultFarm, getFarmId, isOwner } from "@/utils";
 import { farmService } from "@/services";
 import { LogoState } from "@/types";
 import { LoadingSkeleton } from "@/components";
@@ -17,6 +17,7 @@ function FarmInfo() {
   const [isLoading, setIsLoading] = useState(true);
   const [farmDetails, setFarmDetails] = useState<GetFarmInfo>(getDefaultFarm);
   const [logo, setLogo] = useState<LogoState>(defaultLogoFarm);
+  const isLoginOwner = isOwner();
 
   const fetchFarmData = async () => {
     try {
@@ -49,18 +50,22 @@ function FarmInfo() {
         <Overview farm={farmDetails} setFarm={setFarmDetails} logo={logo} setLogo={setLogo} />
       ),
     },
-    {
-      key: "2",
-      icon: <Icons.document className={style.iconTab} />,
-      label: <label className={style.titleTab}>Legal Documents</label>,
-      children: <LegalDocument />,
-    },
-    {
-      key: "3",
-      icon: <Icons.document className={style.iconTab} />,
-      label: <label className={style.titleTab}>Package Information</label>,
-      children: <PackageInfo farm={farmDetails} />,
-    },
+    ...(isLoginOwner
+      ? [
+          {
+            key: "2",
+            icon: <Icons.document className={style.iconTab} />,
+            label: <label className={style.titleTab}>Legal Documents</label>,
+            children: <LegalDocument />,
+          },
+          {
+            key: "3",
+            icon: <Icons.document className={style.iconTab} />,
+            label: <label className={style.titleTab}>Package Information</label>,
+            children: <PackageInfo farm={farmDetails} />,
+          },
+        ]
+      : []),
   ];
 
   return (
