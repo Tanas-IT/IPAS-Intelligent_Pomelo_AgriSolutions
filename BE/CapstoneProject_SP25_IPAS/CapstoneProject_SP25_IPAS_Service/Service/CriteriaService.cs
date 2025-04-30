@@ -56,7 +56,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     }
                     if (!string.IsNullOrEmpty(listUpdate.Target))
                     {
-                        if (!_masterTypeConfig.CriteriaTargets!.Any(target => target.Equals(listUpdate.Target, StringComparison.OrdinalIgnoreCase)) && masterType.TypeName!.ToLower().Equals("criteria"))
+                        var systemCriteriaTarget = await _unitOfWork.SystemConfigRepository.GetAllConfigsByGroupNameAsync(SystemConfigConst.CRITERIA_TARGET);
+                        if (!systemCriteriaTarget.Select(x => x.ConfigKey)!.Any(target => target.Equals(listUpdate.Target, StringComparison.OrdinalIgnoreCase)) && masterType.TypeName!.ToLower().Equals("criteria"))
                             return new BusinessResult(400, "Type name not suitable with system");
                         masterType.Target = listUpdate.Target;
                     }

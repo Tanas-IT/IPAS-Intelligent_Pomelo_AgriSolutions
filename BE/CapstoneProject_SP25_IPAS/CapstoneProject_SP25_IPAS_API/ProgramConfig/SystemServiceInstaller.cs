@@ -162,7 +162,7 @@ namespace CapstoneProject_SP25_IPAS_API.ProgramConfig
             services.AddHostedService<WorkLogStatusUpdaterService>();
             services.AddHostedService<PlantGrowthUpdateService>();
             services.AddHostedService<WeatherMonitoringService>();
-            
+
 
 
 
