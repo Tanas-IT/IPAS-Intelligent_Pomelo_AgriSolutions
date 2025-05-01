@@ -626,6 +626,19 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         Expression<Func<MasterType, bool>> filter = x => x.MasterTypeId == MasterTypeId && x.IsDefault == false && x.IsDeleted == false;
                         var checkExistMasterType = await _unitOfWork.MasterTypeRepository.GetByCondition(x => x.MasterTypeId == MasterTypeId);
                         // Kiểm tra xem MasterTypeId có đang được sử dụng ở các bảng khác không
+                        bool isCriteriaUsed = false;
+                        if (checkExistMasterType.TypeName.Equals(SystemConfigConst.CRITERIA_TARGET, StringComparison.OrdinalIgnoreCase))
+                        {
+
+                            var criteriaIds = (await _unitOfWork.CriteriaRepository
+                            .GetAllNoPaging(x => x.MasterTypeID == MasterTypeId && x.IsDeleted == false)).ToList()
+                            .Select(x => x.CriteriaId);
+
+                            // Kiểm tra xem có CriteriaTarget nào đang dùng các Criteria đó không
+                            isCriteriaUsed = criteriaIds.Count() > 0 &&
+                             await _unitOfWork.CriteriaTargetRepository.AnyAsync(ct => criteriaIds.Contains(ct.CriteriaID ?? 0));
+                        }
+
                         bool isUsed =
                          await _unitOfWork.ProductHarvestHistoryRepository.AnyAsync(x => x.MasterTypeId == MasterTypeId) ||
                          await _unitOfWork.PlantRepository.AnyAsync(x => x.MasterTypeId == MasterTypeId && x.IsDeleted == false) ||
@@ -633,14 +646,15 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                          await _unitOfWork.ProcessRepository.AnyAsync(x => x.MasterTypeId == MasterTypeId && x.IsDeleted == false) ||
                          await _unitOfWork.PlantLotRepository.AnyAsync(x => x.MasterTypeId == MasterTypeId && x.IsDeleted == false) ||
                          await _unitOfWork.SubProcessRepository.AnyAsync(x => x.MasterTypeId == MasterTypeId && x.IsDeleted == false) ||
-                         await _unitOfWork.CriteriaRepository.AnyAsync(x => x.MasterTypeID == MasterTypeId && x.IsDeleted == false) ||
+                         //await _unitOfWork.CriteriaRepository.AnyAsync(x => x.MasterTypeID == MasterTypeId && x.IsDeleted == false) ||
+                         isCriteriaUsed ||
                          await _unitOfWork.NotificationRepository.AnyAsync(x => x.MasterTypeId == MasterTypeId) ||
                          await _unitOfWork.Type_TypeRepository.AnyAsync(x => x.ProductId == MasterTypeId || x.CriteriaSetId == MasterTypeId);
 
                         if (isUsed)
                         {
                             await transaction.RollbackAsync();
-                            return new BusinessResult(400, $"MasterType '{checkExistMasterType.MasterTypeName}' is in use and cannot be deleted.", false);
+                            return new BusinessResult(400, $"MasterType '{checkExistMasterType.MasterTypeName}' is used and cannot be deleted.", false);
                         }
 
                         if (checkExistMasterType != null)

@@ -10,7 +10,7 @@ const useResponsive = () => {
   useEffect(() => {
     const handleResize = () => {
       const width = window.innerWidth;
-      console.log(`[useResponsive] Current width: ${width}px`); // ✅ Log ra màn hình hiện tại
+      // console.log(`[useResponsive] Current width: ${width}px`); // ✅ Log ra màn hình hiện tại
       if (width < BREAKPOINT) {
         setSidebarState(false); // Thu sidebar lại
         setCanExpand(false); // Không cho expand

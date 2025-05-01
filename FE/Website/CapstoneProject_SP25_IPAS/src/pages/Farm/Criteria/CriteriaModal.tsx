@@ -32,6 +32,8 @@ const CriteriaModel = ({
   const isUpdate = criteriaData !== undefined && Object.keys(criteriaData).length > 0;
   const { options: criteriaTargetOptions, loading } = useSystemConfigOptions(
     SYSTEM_CONFIG_GROUP.CRITERIA,
+    undefined,
+    true,
   );
 
   const { setIsDirty } = useDirtyStore();
@@ -216,7 +218,7 @@ const CriteriaModel = ({
           <FormFieldModal
             type="select"
             label="Target"
-            name={masterTypeFormFields.targetDisplay}
+            name={masterTypeFormFields.target}
             rules={RulesManager.getTargetRules()}
             isLoading={loading}
             options={criteriaTargetOptions}
