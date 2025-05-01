@@ -59,11 +59,11 @@ const EditWorklogModal: React.FC<EditWorklogModalProps> = ({
         if (response.statusCode === 200) {
           setEmployee(response.data);
         } else {
-          toast.error("Failed to fetch employees");
+          toast.warning("Failed to fetch employees");
         }
       } catch (error) {
         console.error("Error fetching employees:", error);
-        toast.error("Error fetching employees");
+        toast.warning("Error fetching employees");
       }
     };
 
@@ -95,11 +95,11 @@ const EditWorklogModal: React.FC<EditWorklogModalProps> = ({
             }
           }
         } else {
-          toast.error("Failed to fetch attendance list");
+          toast.warning("Failed to fetch attendance list");
         }
       } catch (error) {
         console.error("Error fetching attendance list:", error);
-        toast.error("Error fetching attendance list");
+        toast.warning("Error fetching attendance list");
       }
     };
 

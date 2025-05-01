@@ -32,6 +32,8 @@ const CriteriaModel = ({
   const isUpdate = criteriaData !== undefined && Object.keys(criteriaData).length > 0;
   const { options: criteriaTargetOptions, loading } = useSystemConfigOptions(
     SYSTEM_CONFIG_GROUP.CRITERIA,
+    undefined,
+    true,
   );
 
   const { setIsDirty } = useDirtyStore();
@@ -101,7 +103,7 @@ const CriteriaModel = ({
     const criteriaList: CriteriaRequest[] = form.getFieldValue("criteriaList") || [];
 
     if (criteriaList.length === 0) {
-      toast.error(MESSAGES.REQUIRED_VALUE);
+      toast.warning(MESSAGES.REQUIRED_VALUE);
       return false;
     }
 
@@ -109,7 +111,7 @@ const CriteriaModel = ({
     const uniquePriorities = [...new Set(priorities)];
 
     if (priorities.length !== uniquePriorities.length) {
-      toast.error(MESSAGES.PRIORITY_UNIQUE);
+      toast.warning(MESSAGES.PRIORITY_UNIQUE);
       return false;
     }
 
@@ -117,7 +119,7 @@ const CriteriaModel = ({
     const expectedPriorities = Array.from({ length: uniquePriorities.length }, (_, i) => i + 1);
 
     if (JSON.stringify(uniquePriorities) !== JSON.stringify(expectedPriorities)) {
-      toast.error(MESSAGES.PRIORITY_SEQUENTIAL);
+      toast.warning(MESSAGES.PRIORITY_SEQUENTIAL);
       return false;
     }
     setIsDirty(true);

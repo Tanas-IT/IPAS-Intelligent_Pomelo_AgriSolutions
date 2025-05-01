@@ -135,10 +135,10 @@ const ReportManagementScreen = () => {
     //   if (res.statusCode === 200) {
     //     toast.success('AI re-training has been successfully completed.');
     //   } else {
-    //     toast.error('An error occurred during re-training.');
+    //     toast.warning('An error occurred during re-training.');
     //   }
     // } catch (error) {
-    //   toast.error('An unexpected error occurred.');
+    //   toast.warning('An unexpected error occurred.');
     // } finally {
     //   setReTrainingLoading(false);
     // }
@@ -146,7 +146,7 @@ const ReportManagementScreen = () => {
       await new Promise((resolve) => setTimeout(resolve, 30000));
       toast.success("AI re-training has been successfully completed.");
     } catch (error) {
-      toast.error("An unexpected error occurred.");
+      toast.warning("An unexpected error occurred.");
     } finally {
       setReTrainingLoading(false);
     }

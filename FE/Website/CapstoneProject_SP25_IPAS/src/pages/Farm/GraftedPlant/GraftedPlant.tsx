@@ -150,7 +150,7 @@ function GraftedPlant() {
         criteriaModal.hideModal();
         toast.success(res.message);
       } else {
-        toast.error(res.message);
+        toast.warning(res.message);
       }
     } finally {
       setIsActionLoading(false);
@@ -168,7 +168,7 @@ function GraftedPlant() {
         markAsDeadModal.hideModal();
         await fetchData();
       } else {
-        toast.error(res.message);
+        toast.warning(res.message);
       }
     } finally {
       setIsActionLoading(false);
@@ -185,7 +185,7 @@ function GraftedPlant() {
         toast.success(res.message);
         await fetchData();
       } else {
-        toast.error(res.message);
+        toast.warning(res.message);
       }
     } finally {
       setIsActionLoading(false);
@@ -202,7 +202,7 @@ function GraftedPlant() {
         toast.success(res.message);
         await fetchData();
       } else {
-        toast.error(res.message);
+        toast.warning(res.message);
       }
     } finally {
       setIsActionLoading(false);
@@ -219,7 +219,7 @@ function GraftedPlant() {
         toast.success(res.message);
         await fetchData();
       } else {
-        toast.error(res.message);
+        toast.warning(res.message);
       }
     } finally {
       setIsActionLoading(false);

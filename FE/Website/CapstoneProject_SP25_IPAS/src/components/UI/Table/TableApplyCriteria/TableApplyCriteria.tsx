@@ -2,6 +2,7 @@ import { Table, InputNumber } from "antd";
 import style from "./TableApplyCriteria.module.scss";
 import { Icons } from "@/assets";
 import { ColumnsType } from "antd/es/table";
+import { useStyle } from "@/hooks";
 
 type TableApplyCriteriaProps = {
   dataSource: any[];
@@ -16,6 +17,8 @@ const TableApplyCriteria = ({
   handlePriorityChange,
   isValueCheck = true,
 }: TableApplyCriteriaProps) => {
+  const { styles } = useStyle();
+
   const columns = [
     {
       title: "#",
@@ -100,7 +103,7 @@ const TableApplyCriteria = ({
   return (
     <div className={style.criteriaTableWrapper}>
       <Table
-        className={style.criteriaTable}
+        className={`${style.criteriaTable} ${styles.customeTable2}`}
         dataSource={dataSource}
         columns={columns}
         rowKey="id"

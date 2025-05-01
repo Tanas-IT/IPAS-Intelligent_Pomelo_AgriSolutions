@@ -51,7 +51,7 @@ export default function useDelete(
           toast.success(result.message);
           onSuccess?.();
         } else {
-          toast.error(result.message);
+          toast.warning(result.message);
         }
       } finally {
         setIsLoading(false);

@@ -431,29 +431,29 @@ const AddPlan = () => {
       const adjustedStartDate = new Date(startDate.getTime() - startDate.getTimezoneOffset() * 60000);
       const adjustedEndDate = new Date(endDate.getTime() - endDate.getTimezoneOffset() * 60000);
 
-      const startTime = timeRange?.[0]?.toDate().toLocaleTimeString();
-      const endTime = timeRange?.[1]?.toDate().toLocaleTimeString();
-      if (frequency === "Weekly" && dayOfWeek.length === 0) {
-        toast.error("Please select at least one custom date for Weekly frequency.");
-        return;
-      }
+    const startTime = timeRange?.[0]?.toDate().toLocaleTimeString();
+    const endTime = timeRange?.[1]?.toDate().toLocaleTimeString();
+    if (frequency === "Weekly" && dayOfWeek.length === 0) {
+      toast.warning("Please select at least one custom date for Weekly frequency.");
+      return;
+    }
 
-      if (frequency === "Monthly" && dayOfMonth.length === 0) {
-        toast.error("Please select at least one day for Monthly frequency.");
-        return;
-      }
+    if (frequency === "Monthly" && dayOfMonth.length === 0) {
+      toast.warning("Please select at least one day for Monthly frequency.");
+      return;
+    }
 
-      if (assignorId === undefined) {
-        toast.error("Please select at least one employee.");
-        return;
-      }
+    if (assignorId === undefined) {
+      toast.warning("Please select at least one employee.");
+      return;
+    }
 
-      if (!selectedCrop && planTargetModel.length === 0 && targetType === "regular") {
-        toast.error("Please select at least one plan target.");
-        return;
-      }
-      const graftedPlantIDs = graftedPlant || [];
-      const plantLotIDs = plantLot || [];
+    if (!selectedCrop && planTargetModel.length === 0 && targetType === "regular") {
+      toast.warning("Please select at least one plan target.");
+      return;
+    }
+    const graftedPlantIDs = graftedPlant || [];
+    const plantLotIDs = plantLot || [];
 
       let formattedPlanTargetModel;
       // Format planTargetModel

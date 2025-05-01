@@ -99,7 +99,7 @@ function PlantGrowthHistory() {
         await handleResetData();
         if (isGrowthDetailView) setIsGrowthDetailView(false);
       } else {
-        toast.error(result.message);
+        toast.warning(result.message);
       }
     } finally {
       deleteConfirmModal.hideModal();

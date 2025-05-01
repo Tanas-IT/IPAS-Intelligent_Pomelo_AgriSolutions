@@ -98,7 +98,7 @@ const FormFieldModal: React.FC<FormFieldModalProps> = ({
   const handleUpload = (file: File) => {
     const isImage = file.type.startsWith("image/");
     if (!isImage) {
-      toast.error("Only image files (JPG, PNG, GIF, WEBP) are allowed!");
+      toast.warning("Only image files (JPG, PNG, GIF, WEBP) are allowed!");
       return Upload.LIST_IGNORE;
     }
     // Đọc file và cập nhật logo tạm thời

@@ -7,10 +7,12 @@
 
 .filterContent {
   @include shared.filterContent;
+}
+
+.filterContentMinW {
   min-width: 20vw;
 }
 
 .addEmployeeModal {
   width: 100%;
-  margin: 18px 0;
 }

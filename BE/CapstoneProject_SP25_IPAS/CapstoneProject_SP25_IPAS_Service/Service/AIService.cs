@@ -709,7 +709,7 @@ const generationConfig = {
                 var createTag = await trainingClient.CreateTagAsync(projectId, tagName);
                 if (createTag != null)
                 {
-                    return new BusinessResult(200, "Create tag for custom visiob success", createTag);
+                    return new BusinessResult(200, "Create tag success", createTag);
                 }
                 return new BusinessResult(404, "Create Tag failed");
             }

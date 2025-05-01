@@ -11,15 +11,23 @@ import { create } from "zustand";
 
 interface SidebarState {
   isExpanded: boolean;
+  canExpand: boolean;
   toggleSidebar: () => void;
   setSidebarState: (state: boolean) => void;
+  setCanExpand: (canExpand: boolean) => void;
 }
 
 // Tạo store Zustand
 export const useSidebarStore = create<SidebarState>((set) => ({
   isExpanded: true, // Giá trị mặc định của state
-  toggleSidebar: () => set((state) => ({ isExpanded: !state.isExpanded })),
+  canExpand: true,
+  toggleSidebar: () =>
+    set((state) => {
+      if (!state.canExpand) return state; // Nếu không được phép expand thì không toggle
+      return { isExpanded: !state.isExpanded };
+    }),
   setSidebarState: (state) => set({ isExpanded: state }), // Cập nhật trạng thái của sidebar
+  setCanExpand: (canExpand) => set({ canExpand }),
 }));
 
 interface UserState {

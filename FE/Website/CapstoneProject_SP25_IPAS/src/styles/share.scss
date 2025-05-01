@@ -16,12 +16,24 @@
       }
     }
   }
-
   .footerWrapper {
     margin-top: 4rem;
   }
   .active {
     font-weight: bold;
+  }
+}
+
+@media (max-width: 1400px) {
+  .contentWrapper {
+    .content {
+      margin: 12px 16px; // nhỏ margin lại khi màn nhỏ hơn 1400px
+      min-height: 70vh;
+    }
+  }
+
+  .footerWrapper {
+    margin-top: 2rem;
   }
 }
 
@@ -64,19 +76,54 @@
   }
 }
 
+@media (max-width: 1400px) {
+  .headerWrapper {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 16px;
+
+    .sectionLeft,
+    .sectionRight {
+      width: 100%;
+      justify-content: flex-start;
+      gap: 12px;
+    }
+  }
+
+  .table {
+    margin-top: 8px;
+    row-gap: 16px;
+  }
+}
+
 @mixin filterContent {
   width: 100%;
   padding: 10px;
   max-width: 35vw;
+
   .row {
     flex-direction: row;
     gap: 12px;
+
+    @media (max-width: 1400px) {
+      flex-direction: column; // Trên mobile: xếp dọc cho dễ đọc
+      gap: 8px;
+    }
   }
 
   input,
   label,
   span {
     font-size: 16px !important;
+
+    @media (max-width: 1400px) {
+      font-size: 14px !important; // Font size nhẹ hơn chút cho vừa mắt mobile
+    }
+  }
+
+  @media (max-width: 1400px) {
+    max-width: 90vw; // Cho mobile: filter popup rộng gần hết màn hình
+    padding: 8px; // Padding nhỏ hơn chút cho gọn
   }
 }
 
@@ -227,6 +274,20 @@
       }
     }
   }
+  @media (max-width: 1400px) {
+    padding: 8px 16px;
+    margin-top: 6px;
+
+    .containerWrapper {
+      .extraContent {
+        margin-right: 4vw;
+      }
+
+      .titleTab {
+        font-size: 14px;
+      }
+    }
+  }
 }
 
 @mixin contentDetailWrapper {
@@ -306,17 +367,47 @@
   }
 }
 
+@media (max-width: 1400px) {
+  .contentSectionBody {
+    flex-direction: column;
+    gap: 20px;
+    .col {
+      min-width: 28rem;
+    }
+  }
+
+  .descriptionSection {
+    width: 100%; // Chiếm toàn bộ chiều rộng
+    margin-top: 0; // Loại bỏ margin âm
+  }
+
+  .infoField {
+    gap: 2rem; // Giảm khoảng cách giữa các trường thông tin
+
+    &.infoFieldColumn {
+      gap: 0.5rem; // Điều chỉnh cho dạng cột
+    }
+  }
+
+  .fieldLabelWrapper {
+    min-width: 8rem; // Giảm độ rộng của label để phù hợp với màn hình nhỏ
+  }
+}
+
 @mixin contentSectionHeader {
   width: 100%;
   flex-direction: column;
   justify-content: flex-start;
+  overflow: auto;
 
   .contentSectionTitle {
     flex-direction: row;
     justify-content: space-between;
     align-items: center;
     gap: 3rem;
-
+    .actionBtns {
+      gap: 20px;
+    }
     .iconEdit {
       font-size: 20px;
       cursor: pointer;
@@ -358,6 +449,27 @@
   }
 }
 
+@media (max-width: 1400px) {
+  .contentSectionTitle {
+    font-size: 16px;
+    gap: 2rem;
+    .actionBtns {
+      flex-direction: column;
+    }
+    .contentSectionTitleLeft {
+      gap: 1rem;
+
+      .title {
+        font-size: 20px;
+      }
+      .statusTag {
+        padding: 3px 16px;
+        font-size: 12px;
+      }
+    }
+  }
+}
+
 @mixin criteriaCollapse {
   width: 100%;
   .headerWrapper {
@@ -392,6 +504,27 @@
     &:hover {
       opacity: 0.8;
     }
+  }
+}
+
+@media (max-width: 1024px) {
+  .headerWrapper {
+    min-width: 100%;
+    align-items: flex-start;
+  }
+
+  .panelTitle {
+    .completedCount {
+      font-size: 12px;
+    }
+
+    .statusTag {
+      margin-top: 8px;
+    }
+  }
+
+  .deleteIcon {
+    font-size: 14px;
   }
 }
 

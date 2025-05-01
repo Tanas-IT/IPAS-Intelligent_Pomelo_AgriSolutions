@@ -359,7 +359,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Mapping
                 //.ForMember(dest => dest.HarvestHistories, opt => opt.MapFrom(src => src.HarvestHistories))
                 //.ForMember(dest => dest.LandPlotCrops, opt => opt.MapFrom(src => src.LandPlotCrops))
                 .ForMember(dest => dest.NumberPlot, opt => opt.MapFrom(src => src.LandPlotCrops.Count()))
-                .ForMember(dest => dest.NumberHarvest, opt => opt.MapFrom(src => src.HarvestHistories.Count()))
+                .ForMember(dest => dest.NumberHarvest, opt => opt.MapFrom(src => src.HarvestHistories.Count(x => x.IsDeleted == false)))
                 .ReverseMap();
 
             CreateMap<LandPlotCrop, LandPlotCropModel>()

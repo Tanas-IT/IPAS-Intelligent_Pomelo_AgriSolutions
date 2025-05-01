@@ -33,7 +33,7 @@ const EmployeeFilter = ({ filters, updateFilters, onClear, onApply }: FilterProp
   };
 
   return (
-    <Flex className={style.filterContent}>
+    <Flex className={`${style.filterContent} ${style.filterContentMinW}`}>
       <Space direction="vertical" style={{ width: "100%" }}>
         <FormFieldFilter
           label="Role Names:"

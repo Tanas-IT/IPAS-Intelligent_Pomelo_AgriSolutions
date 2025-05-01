@@ -3,7 +3,7 @@ import { Divider, Flex, Form, Image, Upload } from "antd";
 import { Icons } from "@/assets";
 import { useEffect, useState } from "react";
 import { Province, District, GetFarmInfo, Ward, FarmRequest } from "@/payloads";
-import { formatDateAndTime, RulesManager } from "@/utils";
+import { formatDateAndTime, isOwner, RulesManager } from "@/utils";
 import { toast } from "react-toastify";
 import { farmService, thirdService } from "@/services";
 import { EditActions, InfoField, MapAddress, Section, SectionHeader } from "@/components";
@@ -49,6 +49,7 @@ const Overview: React.FC<OverviewProps> = ({ farm, setFarm, logo, setLogo }) => 
     markerPosition,
     setMarkerPosition,
   } = useAddressLocation(form, setFarm, farm.latitude, farm.longitude);
+  const isLoginOwner = isOwner();
 
   const handleEdit = async () => {
     try {
@@ -78,8 +79,6 @@ const Overview: React.FC<OverviewProps> = ({ farm, setFarm, logo, setLogo }) => 
         districtId: districtId ?? form.getFieldValue(farmFormFields.district),
         wardId: wardId ?? form.getFieldValue(farmFormFields.ward),
       });
-    } catch (error) {
-      console.error("Error fetching location data:", error);
     } finally {
       setIsLoading(false);
     }
@@ -144,7 +143,7 @@ const Overview: React.FC<OverviewProps> = ({ farm, setFarm, logo, setLogo }) => 
           });
           useFarmStore.getState().setFarmInfo(formValues.farmName, "");
         } else {
-          toast.error(result.message);
+          toast.warning(result.message);
         }
       }
 
@@ -162,7 +161,7 @@ const Overview: React.FC<OverviewProps> = ({ farm, setFarm, logo, setLogo }) => 
   const beforeUpload = (file: File) => {
     const isImage = file.type.startsWith("image/");
     if (!isImage) {
-      toast.error("Only image files (JPG, PNG, GIF, WEBP) are allowed!");
+      toast.warning("Only image files (JPG, PNG, GIF, WEBP) are allowed!");
       return Upload.LIST_IGNORE;
     }
 
@@ -191,8 +190,13 @@ const Overview: React.FC<OverviewProps> = ({ farm, setFarm, logo, setLogo }) => 
   return (
     <Flex className={style.contentWrapper}>
       <SectionHeader
+        isLoginOwner={isLoginOwner}
         title="Farm Information"
-        subtitle="Update your farm logo and details here"
+        subtitle={
+          isLoginOwner
+            ? "Update your farm logo and details here"
+            : "You can view farm information here"
+        }
         isEditing={isEditing}
         handleEdit={handleEdit}
         handleCancel={handleCancel}

@@ -21,7 +21,7 @@ const PaymentSuccess = () => {
       const transactionId = searchParams.get("transactionId");
   
       if (!orderId || !transactionId || !status) {
-        toast.error("Not found payment information!");
+        toast.warning("Not found payment information!");
         navigate("/");
         return;
       }
@@ -43,7 +43,7 @@ const PaymentSuccess = () => {
             useFarmStore.setState({ farmExpiredDate: result.data.expiredDate });
           }
         } catch (error) {
-          toast.error("Error when payment!");
+          toast.warning("Error when payment!");
           console.error("Payment processing error:", error);
         }
       }

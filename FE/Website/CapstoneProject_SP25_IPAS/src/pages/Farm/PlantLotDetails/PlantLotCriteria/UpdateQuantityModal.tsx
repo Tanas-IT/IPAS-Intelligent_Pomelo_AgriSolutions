@@ -62,7 +62,7 @@ const UpdateQuantityModal = ({
 
     if (target === CRITERIA_TARGETS["Plantlot Condition"]) {
       if (isAllConditionPassed && inputQuantity == 0) {
-        toast.error(`Quantity must be greater than 0 if condition is passed`);
+        toast.warning(`Quantity must be greater than 0 if condition is passed`);
         return;
       }
       const requiredSupplement = lot.previousQuantity - inputQuantity;
@@ -81,19 +81,19 @@ const UpdateQuantityModal = ({
       }
 
       if (supplementQuantity > requiredSupplement) {
-        toast.error(
+        toast.warning(
           `Supplement quantity is insufficient. Please add at least ${requiredSupplement}.`,
         );
         return;
       }
 
       if (inputQuantity > lot.previousQuantity) {
-        toast.error(MESSAGES.LOT_CRITERIA_CONDITION);
+        toast.warning(MESSAGES.LOT_CRITERIA_CONDITION);
         return;
       }
 
       // if (lot.inputQuantity && inputQuantity > lot.inputQuantity) {
-      //   toast.error(MESSAGES.LOT_CRITERIA_CONDITION_MAX);
+      //   toast.warning(MESSAGES.LOT_CRITERIA_CONDITION_MAX);
       //   return;
       // }
 
@@ -102,12 +102,12 @@ const UpdateQuantityModal = ({
 
     if (target === CRITERIA_TARGETS["Plantlot Evaluation"]) {
       if (lastQuantity > lot.inputQuantity) {
-        toast.error(MESSAGES.LOT_CRITERIA_EVALUATION);
+        toast.warning(MESSAGES.LOT_CRITERIA_EVALUATION);
         return;
       }
 
       // if (lot.lastQuantity && lastQuantity > lot.lastQuantity) {
-      //   toast.error(MESSAGES.LOT_CRITERIA_EVALUATION_MAX);
+      //   toast.warning(MESSAGES.LOT_CRITERIA_EVALUATION_MAX);
       //   return;
       // }
 

@@ -1,6 +1,7 @@
 ﻿using CapstoneProject_SP25_IPAS_BussinessObject.Entities;
 using CapstoneProject_SP25_IPAS_Common.Constants;
 using CapstoneProject_SP25_IPAS_Repository.UnitOfWork;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -16,11 +17,16 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
     {
         private readonly IServiceScopeFactory _scopeFactory;
         private readonly ILogger<PlantGrowthUpdateService> _logger;
+        private readonly IConfiguration _configuration;
+        private readonly TimeSpan _interval;
 
-        public PlantGrowthUpdateService(IServiceScopeFactory scopeFactory, ILogger<PlantGrowthUpdateService> logger)
+        public PlantGrowthUpdateService(IServiceScopeFactory scopeFactory, ILogger<PlantGrowthUpdateService> logger, IConfiguration configuration)
         {
             _scopeFactory = scopeFactory;
+            _configuration = configuration;
             _logger = logger;
+            int hours = _configuration.GetValue<int>("WorkerService:PlantGrowthUpdateService", 24);
+            _interval = TimeSpan.FromHours(hours);
         }
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
@@ -41,7 +47,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 }
             }
 
-            await Task.Delay(TimeSpan.FromDays(1), stoppingToken); // Kiểm tra mỗi ngày
+            await Task.Delay(_interval, stoppingToken); // Kiểm tra mỗi ngày
         }
 
 

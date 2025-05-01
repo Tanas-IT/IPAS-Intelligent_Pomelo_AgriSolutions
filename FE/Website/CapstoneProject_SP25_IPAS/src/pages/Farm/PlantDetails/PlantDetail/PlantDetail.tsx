@@ -57,7 +57,7 @@ function PlantDetail() {
       deleteConfirmModal.hideModal();
       navigate(PATHS.FARM.FARM_PLANT_LIST, { state: { toastMessage } });
     } else {
-      toast.error(toastMessage);
+      toast.warning(toastMessage);
     }
   };
 
@@ -128,7 +128,7 @@ function PlantDetail() {
       markAsDeadModal.hideModal();
       await fetchPlant();
     } else {
-      toast.error(res.message);
+      toast.warning(res.message);
     }
   };
 

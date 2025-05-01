@@ -36,27 +36,26 @@ const UserFilter = ({ filters, updateFilters, onClear, onApply }: FilterProps) =
   };
 
   return (
-    <Flex className={style.filterContent}>
+    <Flex className={`${style.filterContent} ${style.filterContentMinW}`}>
       <Space direction="vertical" style={{ width: "100%" }}>
-          <FormFieldFilter
-            label="Create Date:"
-            fieldType="date"
-            value={[filters.createDateFrom, filters.createDateTo]}
-            onChange={(dates) => {
-              updateFilters("createDateFrom", dates?.[0] ? dates[0].format("YYYY-MM-DD") : "");
-              updateFilters("createDateTo", dates?.[1] ? dates[1].format("YYYY-MM-DD") : "");
-            }}
-          />
-          <FormFieldFilter
-            label="DOB:"
-            fieldType="date"
-            value={[filters.dobFrom, filters.dobTo]}
-            onChange={(dates) => {
-              updateFilters("dobFrom", dates?.[0] ? dates[0].format("YYYY-MM-DD") : "");
-              updateFilters("dobTo", dates?.[1] ? dates[1].format("YYYY-MM-DD") : "");
-            }}
-          />
-       
+        <FormFieldFilter
+          label="Create Date:"
+          fieldType="date"
+          value={[filters.createDateFrom, filters.createDateTo]}
+          onChange={(dates) => {
+            updateFilters("createDateFrom", dates?.[0] ? dates[0].format("YYYY-MM-DD") : "");
+            updateFilters("createDateTo", dates?.[1] ? dates[1].format("YYYY-MM-DD") : "");
+          }}
+        />
+        <FormFieldFilter
+          label="DOB:"
+          fieldType="date"
+          value={[filters.dobFrom, filters.dobTo]}
+          onChange={(dates) => {
+            updateFilters("dobFrom", dates?.[0] ? dates[0].format("YYYY-MM-DD") : "");
+            updateFilters("dobTo", dates?.[1] ? dates[1].format("YYYY-MM-DD") : "");
+          }}
+        />
 
         <FormFieldFilter
           label="Roles:"

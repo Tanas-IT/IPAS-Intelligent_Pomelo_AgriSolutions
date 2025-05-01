@@ -420,7 +420,7 @@ const UpdatePlan = () => {
         const endTime = timeRange?.[1]?.toDate().toLocaleTimeString();
 
         // if (assignorId === undefined) {
-        //     toast.error("Assignor ID is required.");
+        //     toast.warning("Assignor ID is required.");
         //     return;
         // }
         console.log("planTargetModel", planTargetModel);
@@ -476,10 +476,10 @@ const UpdatePlan = () => {
                 toast.success(result.message);
                 navigate(PATHS.PLAN.PLAN_LIST);
             } else {
-                toast.error(result.message);
+                toast.warning(result.message);
             }
         } else {
-            toast.error("Plan ID is required for updating.");
+            toast.warning("Plan ID is required for updating.");
         }
     };
 

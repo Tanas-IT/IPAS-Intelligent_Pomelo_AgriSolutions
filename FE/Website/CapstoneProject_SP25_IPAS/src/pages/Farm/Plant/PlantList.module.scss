@@ -7,6 +7,9 @@
 
 .filterContent {
   @include shared.filterContent;
+}
+
+.filterContentMinW {
   min-width: 35vw;
 }
 

@@ -63,7 +63,7 @@ const PackageModal = ({ isOpen, onClose, onSave, isLoadingAction, pkgData }: Pac
 
     if (!isUpdate) {
       if (!values.packageDetails || values.packageDetails.length === 0) {
-        toast.error(MESSAGES.REQUIRE_PACKAGE_DETAIL);
+        toast.warning(MESSAGES.REQUIRE_PACKAGE_DETAIL);
         return;
       }
     }

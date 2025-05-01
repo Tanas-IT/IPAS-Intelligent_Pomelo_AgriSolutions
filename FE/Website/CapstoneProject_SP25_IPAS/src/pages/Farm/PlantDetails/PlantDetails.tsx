@@ -20,7 +20,6 @@ import {
 } from "@/pages";
 import { plantService } from "@/services";
 import { isEmployee } from "@/utils";
-const TabPane = Tabs.TabPane;
 
 function PlantDetails() {
   const navigate = useNavigate();

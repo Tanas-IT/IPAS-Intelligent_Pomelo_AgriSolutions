@@ -28,9 +28,9 @@ namespace CapstoneProject_SP25_IPAS_Common.Constants
         #endregion
 
         #region CONFIG MASTER TYPE
-        // Target for work
+        // Type name for work
         public const string WORK_TARGET = "Work";
-        // Target for criteria
+        // Type name for criteria
         public const string CRITERIA_TARGET = "Criteria";
         #endregion
 

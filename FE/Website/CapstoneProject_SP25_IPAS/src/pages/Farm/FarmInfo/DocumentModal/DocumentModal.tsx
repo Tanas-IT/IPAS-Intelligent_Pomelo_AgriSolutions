@@ -93,7 +93,7 @@ const DocumentModal = ({ isOpen, onClose, onSave, documentData }: DocumentModalP
     );
 
     if (!isImage) {
-      toast.error(MESSAGES.IMAGE_INVALID);
+      toast.warning(MESSAGES.IMAGE_INVALID);
     }
 
     return isImage ? false : Upload.LIST_IGNORE;

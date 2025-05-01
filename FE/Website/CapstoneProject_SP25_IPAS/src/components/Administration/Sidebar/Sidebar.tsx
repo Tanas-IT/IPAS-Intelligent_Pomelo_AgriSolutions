@@ -7,7 +7,7 @@ import "@/App.css";
 import { PATHS } from "@/routes";
 import { useFarmStore, useSidebarStore } from "@/stores";
 import { ActiveMenu, MenuItem } from "@/types";
-import { useLogout } from "@/hooks";
+import { useLogout, useResponsive } from "@/hooks";
 import { LOCAL_STORAGE_KEYS, MESSAGES, UserRolesStr } from "@/constants";
 import { toast } from "react-toastify";
 import { authService } from "@/services";
@@ -21,6 +21,7 @@ interface SidebarProps {
 }
 
 const Sidebar: React.FC<SidebarProps> = ({ isDefault = false }) => {
+  useResponsive();
   const navigate = useNavigate();
   const location = useLocation();
   const normalizedPathname = location.pathname.toLowerCase();
@@ -33,7 +34,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isDefault = false }) => {
   });
   const currentUserRole = getRoleId();
 
-  const { isExpanded, toggleSidebar } = useSidebarStore();
+  const { canExpand, isExpanded, toggleSidebar } = useSidebarStore();
 
   const handleNavigation = (to?: string) => {
     if (to) {
@@ -188,6 +189,16 @@ const Sidebar: React.FC<SidebarProps> = ({ isDefault = false }) => {
       category: "Main",
       isView: !isDefault,
       roles: [UserRolesStr.Owner, UserRolesStr.Manager],
+    },
+    {
+      key: "Farm Information",
+      label: "Farm Information",
+      icon: <Icons.farms />,
+      to: PATHS.FARM.FARM_INFO,
+      activePaths: [PATHS.FARM.FARM_INFO],
+      category: "Main",
+      isView: !isDefault,
+      roles: [UserRolesStr.Manager, UserRolesStr.Employee],
     },
     {
       key: "Crop Management",
@@ -711,14 +722,16 @@ const Sidebar: React.FC<SidebarProps> = ({ isDefault = false }) => {
             </Flex>
           )}
 
-          <Icons.arrowForward
-            className={style.arrowSidebar}
-            onClick={toggleSidebar}
-            style={{
-              transform: `rotate(${isExpanded ? 180 : 0}deg)`,
-              color: "#fff",
-            }}
-          />
+          {canExpand && (
+            <Icons.arrowForward
+              className={style.arrowSidebar}
+              onClick={toggleSidebar}
+              style={{
+                transform: `rotate(${isExpanded ? 180 : 0}deg)`,
+                color: "#fff",
+              }}
+            />
+          )}
         </Flex>
 
         {/* Main Menu */}

@@ -24,7 +24,7 @@
 //         localStorage.setItem(LOCAL_STORAGE_KEYS.REFRESH_TOKEN, result.data.authenModel.refreshToken);
 //         navigate(PATHS.FARM_PICKER);
 //       } else {
-//         toast.error(MESSAGES.ERROR_OCCURRED);
+//         toast.warning(MESSAGES.ERROR_OCCURRED);
 //       }
 //     };
 
@@ -77,7 +77,7 @@ const PaymentCancel = () => {
 
 
           if (updateResult.statusCode !== 200) {
-            toast.error("Failed to update order status");
+            toast.warning("Failed to update order status");
           }
         }
 
@@ -89,7 +89,7 @@ const PaymentCancel = () => {
         // return () => clearTimeout(timer);
       } catch (error) {
         console.error("Payment cancellation error:", error);
-        toast.error(MESSAGES.ERROR_OCCURRED);
+        toast.warning(MESSAGES.ERROR_OCCURRED);
       }
     };
 

@@ -36,7 +36,7 @@ const LotSectionHeader = ({
         setLot({ ...lot, isPassed: true });
         toast.success(`Lot ${lot.plantLotName} marked as Passed!`);
       } else {
-        toast.error(res.message);
+        toast.warning(res.message);
       }
     } finally {
       updateConfirmModal.hideModal();
@@ -51,7 +51,7 @@ const LotSectionHeader = ({
         toast.success(res.message);
         updateUsedConfirmModal.hideModal();
       } else {
-        toast.error(res.message);
+        toast.warning(res.message);
       }
     } finally {
       updateConfirmModal.hideModal();
@@ -97,7 +97,7 @@ const LotSectionHeader = ({
           </Flex>
         </Flex>
 
-        <Flex gap={20}>
+        <Flex className={style.actionBtns}>
           {onExport && (
             <CustomButton label="Export" icon={<Icons.download />} handleOnClick={onExport} />
           )}

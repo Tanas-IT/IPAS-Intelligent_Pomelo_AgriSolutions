@@ -16,7 +16,7 @@ function SecuritySettings() {
       const { oldPassword, newPassword, confirmPassword } = await form.validateFields();
 
       if (newPassword !== confirmPassword) {
-        toast.error("New passwords do not match!");
+        toast.warning("New passwords do not match!");
         return;
       }
 
@@ -27,7 +27,7 @@ function SecuritySettings() {
         toast.success(res.message);
         form.resetFields();
       } else {
-        toast.error(res.message);
+        toast.warning(res.message);
       }
     } finally {
       setIsLoading(false);

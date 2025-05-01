@@ -54,7 +54,7 @@ const GraftedPlantFilter = ({ filters, updateFilters, onClear, onApply }: Filter
   };
 
   return (
-    <Flex className={style.filterContent}>
+    <Flex className={`${style.filterContent} ${style.filterContentMinW}`}>
       <Space direction="vertical">
         <FormFieldFilter
           label="Separated Date:"

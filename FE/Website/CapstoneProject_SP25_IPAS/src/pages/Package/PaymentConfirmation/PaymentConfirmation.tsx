@@ -50,7 +50,7 @@ function PaymentConfirmation()  {
     //         if (result.statusCode === 200 && result.data.checkoutUrl) {
     //             window.location.href = result.data.checkoutUrl;
     //         } else {
-    //             toast.error(result.message);
+    //             toast.warning(result.message);
     //             console.error("Failed to create payment link:", result.message);
     //         }
     //     } catch (error) {
@@ -84,7 +84,7 @@ function PaymentConfirmation()  {
                     window.location.href = link.data.checkoutUrl;
                 }
             } else {
-                toast.error(result.message);
+                toast.warning(result.message);
                 console.error("Failed to create payment link:", result.message);
             }
         } catch (error) {

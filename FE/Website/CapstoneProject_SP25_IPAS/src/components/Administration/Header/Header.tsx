@@ -4,9 +4,8 @@ const { Text } = Typography;
 
 import style from "./Header.module.scss";
 import { getCurrentDate, getRoleName } from "@/utils";
-import { Icons, Images } from "@/assets";
+import { Icons } from "@/assets";
 import { useNavigate } from "react-router-dom";
-import { useLocalStorage } from "@/hooks";
 import { useSidebarStore, useUserStore } from "@/stores";
 import { SearchHeader } from "@/components";
 import Notification from "./Notification";

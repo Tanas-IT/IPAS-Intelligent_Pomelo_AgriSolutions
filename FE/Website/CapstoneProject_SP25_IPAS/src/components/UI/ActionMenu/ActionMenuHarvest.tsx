@@ -1,8 +1,10 @@
 import { FC } from "react";
 import { Icons } from "@/assets";
 import ActionMenu from "./ActionMenu/ActionMenu";
+import { ActionMenuItem } from "@/types";
 
 interface ActionMenuProps {
+  isCropComplete: boolean;
   onEdit: () => void;
   onDelete: () => void;
   onOpenRecordModal: () => void;
@@ -10,6 +12,7 @@ interface ActionMenuProps {
 }
 
 const ActionMenuHarvest: FC<ActionMenuProps> = ({
+  isCropComplete,
   onEdit,
   onDelete,
   onOpenRecordModal,
@@ -26,17 +29,21 @@ const ActionMenuHarvest: FC<ActionMenuProps> = ({
       label: "Delete Harvest",
       onClick: () => onDelete(),
     },
-    {
-      icon: <Icons.fileAdd />,
-      label: "Record Harvest",
-      onClick: () => onOpenRecordModal(),
-    },
-    {
-      icon: <Icons.upload />,
-      label: "Import Harvest",
-      onClick: onImport,
-    },
-  ];
+    !isCropComplete
+      ? {
+          icon: <Icons.fileAdd />,
+          label: "Record Harvest",
+          onClick: () => onOpenRecordModal(),
+        }
+      : null,
+    !isCropComplete
+      ? {
+          icon: <Icons.upload />,
+          label: "Import Harvest",
+          onClick: onImport,
+        }
+      : null,
+  ].filter(Boolean) as ActionMenuItem[];
 
   return (
     <>

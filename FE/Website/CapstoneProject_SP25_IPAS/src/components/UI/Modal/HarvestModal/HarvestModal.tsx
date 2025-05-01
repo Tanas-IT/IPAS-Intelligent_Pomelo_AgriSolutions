@@ -2,7 +2,7 @@ import { Button, Flex, Form } from "antd";
 import { useEffect, useState } from "react";
 import { FormFieldModal, ModalForm } from "@/components";
 import { formatDateReq, formatTimeReq, getUserId, RulesManager } from "@/utils";
-import { harvestFormFields, MASTER_TYPE, MESSAGES, UserRole } from "@/constants";
+import { CROP_STATUS, harvestFormFields, MASTER_TYPE, MESSAGES, UserRole } from "@/constants";
 import { AssignEmployee, HarvestRequest, GetHarvestDay } from "@/payloads";
 import style from "./HarvestModal.module.scss";
 import { useMasterTypeOptions, useUserInFarmByRole } from "@/hooks";
@@ -26,14 +26,15 @@ const HarvestModal = ({
   harvestData,
   isLoadingAction,
 }: HarvestModalProps) => {
+  const { crop } = useCropStore();
+  if (!crop) return;
   const [form] = Form.useForm();
   const [modalSize, setModalSize] = useState<"large" | "largeXL">("largeXL");
   const isUpdate = harvestData !== undefined && Object.keys(harvestData).length > 0;
   const { options: productOptions } = useMasterTypeOptions(MASTER_TYPE.PRODUCT);
   const { options: employeeOptions } = useUserInFarmByRole([UserRole.Employee], true);
   const { setIsDirty } = useDirtyStore();
-  const { crop } = useCropStore();
-  if (!crop) return;
+  const isCropCompleted = crop.status === CROP_STATUS.COMPLETED;
 
   const resetForm = () => {
     setIsDirty(false);
@@ -120,26 +121,26 @@ const HarvestModal = ({
     const endDate = dayjs(crop.endDate);
 
     if (!harvestDate.isBetween(startDate, endDate, "day", "[]")) {
-      toast.error(MESSAGES.HARVEST_DATE_OUT_OF_RANGE);
+      toast.warning(MESSAGES.HARVEST_DATE_OUT_OF_RANGE);
       return;
     }
 
     if (!isUpdate) {
       if (!values.productHarvestHistory || values.productHarvestHistory.length === 0) {
-        toast.error(MESSAGES.REQUIRE_PRODUCT);
+        toast.warning(MESSAGES.REQUIRE_PRODUCT);
         return;
       }
 
       // Kiểm tra ít nhất 1 employee
       if (!values.addNewTask?.listEmployee || values.addNewTask.listEmployee.length === 0) {
-        toast.error(MESSAGES.REQUIRE_EMPLOYEE);
+        toast.warning(MESSAGES.REQUIRE_EMPLOYEE);
         return;
       }
 
       const currentDate = dayjs();
 
       if (!harvestDate || harvestDate.isBefore(currentDate, "day")) {
-        toast.error(MESSAGES.INVALID_HARVEST_DATE);
+        toast.warning(MESSAGES.INVALID_HARVEST_DATE);
         return;
       }
 
@@ -149,7 +150,7 @@ const HarvestModal = ({
         const endTime = dayjs(values.addNewTask?.timeRange?.[1], "HH:mm");
 
         if (!startTime || !endTime || startTime.isBefore(currentTime, "minute")) {
-          toast.error(MESSAGES.INVALID_START_TIME);
+          toast.warning(MESSAGES.INVALID_START_TIME);
           return;
         }
       }
@@ -158,7 +159,7 @@ const HarvestModal = ({
         (emp: AssignEmployee) => emp.isReporter === true,
       );
       if (!hasReporter) {
-        toast.error(MESSAGES.REQUIRE_REPORTER);
+        toast.warning(MESSAGES.REQUIRE_REPORTER);
         return;
       }
       // Kiểm tra danh sách sản phẩm có trùng nhau không
@@ -166,7 +167,7 @@ const HarvestModal = ({
       const productIds = productList.map((prod: any) => prod.masterTypeId);
       const uniqueProductIds = new Set(productIds);
       if (uniqueProductIds.size !== productIds.length) {
-        toast.error(MESSAGES.PRODUCT_DUPLICATE);
+        toast.warning(MESSAGES.PRODUCT_DUPLICATE);
         return;
       }
       // Kiểm tra danh sách nhân viên có trùng nhau không
@@ -174,7 +175,7 @@ const HarvestModal = ({
       const employeeIds = employeeList.map((emp: any) => emp.userId);
       const uniqueEmployeeIds = new Set(employeeIds);
       if (uniqueEmployeeIds.size !== employeeIds.length) {
-        toast.error(MESSAGES.EMPLOYEE_DUPLICATE);
+        toast.warning(MESSAGES.EMPLOYEE_DUPLICATE);
         return;
       }
     }
@@ -197,12 +198,14 @@ const HarvestModal = ({
         <Flex gap={20}>
           <fieldset className={style.formSection}>
             <legend>Harvest Information</legend>
-            <FormFieldModal
-              type="date"
-              label="Harvest Date"
-              name={harvestFormFields.dateHarvest}
-              rules={RulesManager.getDateRules()}
-            />
+            {!isCropCompleted && (
+              <FormFieldModal
+                type="date"
+                label="Harvest Date"
+                name={harvestFormFields.dateHarvest}
+                rules={RulesManager.getDateRules()}
+              />
+            )}
 
             <FormFieldModal
               type="textarea"
@@ -338,7 +341,7 @@ const HarvestModal = ({
         )}
 
         {/* Update Task Section */}
-        {isUpdate && (
+        {isUpdate && !isCropCompleted && (
           <fieldset className={style.formSection}>
             <legend>Update Task</legend>
             <FormFieldModal

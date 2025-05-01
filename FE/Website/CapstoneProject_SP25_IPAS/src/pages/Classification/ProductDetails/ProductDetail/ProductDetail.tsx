@@ -58,7 +58,7 @@ function ProductDetail() {
       deleteConfirmModal.hideModal();
       navigate(PATHS.CLASSIFICATION.PRODUCT, { state: { toastMessage } });
     } else {
-      toast.error(toastMessage);
+      toast.warning(toastMessage);
     }
   };
 
@@ -125,7 +125,7 @@ function ProductDetail() {
       deleteCriteriaConfirmModal.hideModal();
       await fetchProduct();
     } else {
-      toast.error(res.message);
+      toast.warning(res.message);
     }
   };
 
@@ -146,7 +146,7 @@ function ProductDetail() {
         toast.success(res.message);
         await fetchProduct();
       } else {
-        toast.error(res.message);
+        toast.warning(res.message);
       }
     } finally {
       setIsLoading(false);
