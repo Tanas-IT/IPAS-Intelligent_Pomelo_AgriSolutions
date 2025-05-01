@@ -66,7 +66,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         StartDate = createProcessModel.StartDate,
                         EndDate = createProcessModel.EndDate
                     };
-                    
+
                     await _unitOfWork.ProcessRepository.Insert(newProcess);
                     if (createProcessModel.IsSample != null && createProcessModel.IsSample == true)
                     {
@@ -410,8 +410,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         MasterTypeId = createProcessModel.MasterTypeId,
                         ProcessName = createProcessModel.ProcessName,
                         IsActive = createProcessModel.IsActive,
-                        IsDeleted = createProcessModel.IsDeleted,
-                        Order = createProcessModel.Order,
+                        IsDeleted = false,
                     };
                     var listPlan = new List<string>
                                 {
@@ -477,8 +476,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             {
                 string includeProperties = "GrowthStage,Farm,MasterType,SubProcesses";
                 var deleteProcess = await _unitOfWork.ProcessRepository.GetByCondition(x => x.ProcessId == processId, includeProperties);
-               
-               
+
+
                 _unitOfWork.ProcessRepository.Delete(deleteProcess);
                 var result = await _unitOfWork.SaveAsync();
                 if (result > 0)
@@ -509,12 +508,12 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     {
                         if (checkExistProcess.StartDate <= TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, timeZone) || checkExistProcess.IsActive == true)
                         {
-                            if(checkExistProcess.Plans.Count > 0)
+                            if (checkExistProcess.Plans.Count > 0)
                             {
                                 throw new Exception("Process is running. Can not update");
                             }
                         }
-                        if(updateProcessModel.PlanTargetInProcess != null)
+                        if (updateProcessModel.PlanTargetInProcess != null)
                         {
                             checkExistProcess.PlanTargetInProcess = updateProcessModel.PlanTargetInProcess;
                         }
@@ -558,9 +557,9 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         {
                             checkExistProcess.Order = updateProcessModel.Order;
                         }
-                        
-                         _unitOfWork.ProcessRepository.Update(checkExistProcess);
-                       
+
+                        _unitOfWork.ProcessRepository.Update(checkExistProcess);
+
                         if (updateProcessModel.ListUpdateSubProcess != null)
                         {
                             Dictionary<int, int> idMapping = new Dictionary<int, int>();
@@ -602,7 +601,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                             CreateDate = DateTime.Now,
                                             UpdateDate = DateTime.Now,
                                             ProcessId = checkExistProcess.ProcessId,
-                                            Order =  subProcess.Order
+                                            Order = subProcess.Order
                                         };
                                         newSubProcess.ParentSubProcessId = realParentId;
 
@@ -720,7 +719,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                             {
                                                 subProcessUpdate.Order = subProcess.Order;
                                             }
-                                           
+
                                             _unitOfWork.SubProcessRepository.Update(subProcessUpdate);
                                             subProcessUpdate.UpdateDate = DateTime.Now;
 
@@ -750,7 +749,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                                             {
                                                                 newPlan.GrowthStagePlans.Add(new GrowthStagePlan { GrowthStageID = plan.GrowthStageId });
                                                             }
-                                                            
+
 
                                                         }
                                                         else if (plan.PlanStatus.ToLower().Equals("update"))
@@ -789,12 +788,12 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                                                     getUpdatePlanInDB.MasterTypeId = plan.MasterTypeId;
                                                                 }
                                                                 getUpdatePlanInDB.UpdateDate = DateTime.Now;
-                                                                _unitOfWork.PlanRepository.Update(getUpdatePlanInDB); 
+                                                                _unitOfWork.PlanRepository.Update(getUpdatePlanInDB);
                                                             }
                                                         }
                                                         else if (plan.PlanStatus.ToLower().Equals("delete"))
                                                         {
-                                                            if(getUpdatePlanInDB != null)
+                                                            if (getUpdatePlanInDB != null)
                                                             {
                                                                 getUpdatePlanInDB.IsDeleted = true;
                                                                 _unitOfWork.PlanRepository.Update(getUpdatePlanInDB);
@@ -809,14 +808,14 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                     {
 
                                         subProcessUpdate.IsDeleted = true;
-                                        if(subProcessUpdate.ChildSubProcesses != null && subProcessUpdate.ChildSubProcesses.Count > 0)
+                                        if (subProcessUpdate.ChildSubProcesses != null && subProcessUpdate.ChildSubProcesses.Count > 0)
                                         {
-                                            foreach(var deleteSubProcess in subProcessUpdate.ChildSubProcesses)
+                                            foreach (var deleteSubProcess in subProcessUpdate.ChildSubProcesses)
                                             {
                                                 deleteSubProcess.IsDeleted = true;
                                             }
                                         }
-                                         _unitOfWork.SubProcessRepository.Update(subProcessUpdate);
+                                        _unitOfWork.SubProcessRepository.Update(subProcessUpdate);
                                         if (subProcess.ListPlan != null && subProcess.ListPlan.Count > 0)
                                         {
                                             foreach (var plan in subProcess.ListPlan)
@@ -924,7 +923,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                                 newPlan.GrowthStagePlans.Add(new GrowthStagePlan() { GrowthStageID = updatePlan.GrowthStageId });
 
                                             }
-                                           
+
 
                                         }
                                         else if (updatePlan.PlanStatus.ToLower().Equals("update"))
@@ -969,7 +968,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                         else if (updatePlan.PlanStatus.ToLower().Equals("delete"))
                                         {
                                             getUpdatePlanInDB.IsDeleted = true;
-                                             _unitOfWork.PlanRepository.Update(getUpdatePlanInDB);
+                                            _unitOfWork.PlanRepository.Update(getUpdatePlanInDB);
                                         }
                                     }
                                 }
@@ -1090,7 +1089,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                             }
                         }
                         hasDeleted = true;
-                         _unitOfWork.ProcessRepository.Update(checkExistProcess);
+                        _unitOfWork.ProcessRepository.Update(checkExistProcess);
                     }
 
                     // Lưu thay đổi vào DB nếu có process nào được xóa
@@ -1169,18 +1168,147 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             try
             {
                 var getProcessByTypeName = await _unitOfWork.ProcessRepository.GetProcessByTypeName(farmId, typeName);
-                if(getProcessByTypeName != null && getProcessByTypeName.Any())
+                if (getProcessByTypeName != null && getProcessByTypeName.Any())
                 {
                     var result = _mapper.Map<List<ProcessModel>>(getProcessByTypeName);
                     return new BusinessResult(200, "Get Process By Type Name Success", result);
                 }
                 return new BusinessResult(404, "Does not have any process");
-               
+
             }
             catch (Exception ex)
             {
 
                 return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
+            }
+        }
+
+        public async Task<BusinessResult> CreateProcessWithAI(CreateManyProcessModel createManyProcessModel, int farmId)
+        {
+            using (var transaction = await _unitOfWork.BeginTransactionAsync())
+            {
+                try
+                {
+                    var newProcess = new Process()
+                    {
+                        ProcessCode = $"PRC{DateTime.Now:yyMMddHHmmssfff}",
+                        CreateDate = DateTime.Now,
+                        UpdateDate = DateTime.Now,
+                        FarmId = farmId,
+                        MasterTypeId = createManyProcessModel.MasterTypeId,
+                        ProcessName = createManyProcessModel.ProcessName,
+                        PlanTargetInProcess = createManyProcessModel.PlanTargetInProcess,
+                        IsDefault = false,
+                        IsSample = createManyProcessModel.IsSample,
+                        IsActive = createManyProcessModel.IsActive,
+                        IsDeleted = false,
+                    };
+
+                    await _unitOfWork.ProcessRepository.Insert(newProcess);
+                    await _unitOfWork.SaveAsync();
+                    var result = 0;
+                    if (createManyProcessModel.ListSubProcess != null)
+                    {
+                        Dictionary<int, int> idMapping = new Dictionary<int, int>();
+                        foreach (var subProcess in createManyProcessModel.ListSubProcess)
+                        {
+
+                            var newSubProcess = new SubProcess();
+                            int? realParentId = null;
+                            if (subProcess.ParentSubProcessId != null)
+                            {
+                                var parentExists = await _unitOfWork.SubProcessRepository
+                                    .GetByCondition(sp => sp.SubProcessID == subProcess.ParentSubProcessId);
+
+                                if (parentExists != null)
+                                {
+                                    realParentId = subProcess.ParentSubProcessId; // Gán trực tiếp nếu tồn tại
+                                }
+                                else if (idMapping.ContainsKey(subProcess.ParentSubProcessId.Value))
+                                {
+                                    realParentId = idMapping[subProcess.ParentSubProcessId.Value]; // Lấy từ ánh xạ nếu có
+                                }
+                            }
+
+                            // Chuyển đổi sang entity SubProcess
+                            newSubProcess = new SubProcess()
+                            {
+                                SubProcessCode = $"SPC{DateTime.Now:yyMMddHHmmssfff}",
+                                SubProcessName = subProcess.SubProcessName,
+                                IsDefault = true,
+                                IsActive = subProcess.IsActive,
+                                IsDeleted = false,
+                                CreateDate = DateTime.Now,
+                                UpdateDate = DateTime.Now,
+                                ProcessId = newProcess.ProcessId,
+                                Order = subProcess.Order
+                            };
+                            newSubProcess.ParentSubProcessId = realParentId;
+
+                            await _unitOfWork.SubProcessRepository.Insert(newSubProcess);
+                            result += await _unitOfWork.SaveAsync();
+                            idMapping[subProcess.SubProcessId.Value] = newSubProcess.SubProcessID;
+
+                            if (subProcess.ListPlan != null)
+                            {
+                                foreach (var plan in subProcess.ListPlan)
+                                {
+
+                                    var newPlan = new Plan()
+                                    {
+                                        PlanCode = $"PLAN{DateTime.Now:yyMMddHHmmssfff}",
+                                        PlanName = plan.PlanName,
+                                        PlanDetail = plan.PlanDetail,
+                                        Notes = plan.PlanNote,
+                                        IsSample = true,
+                                        FarmID = farmId,
+                                        SubProcessId = newSubProcess.SubProcessID,
+                                        IsDeleted = false
+                                    };
+                                    await _unitOfWork.PlanRepository.Insert(newPlan);
+                                }
+
+                            }
+
+                        }
+                        if (createManyProcessModel.ListPlan != null && createManyProcessModel.ListPlan.Count > 0)
+                        {
+                            foreach (var updatePlan in createManyProcessModel.ListPlan)
+                            {
+
+                                var newPlan = new Plan()
+                                {
+                                    PlanCode = $"PLAN{DateTime.Now:yyMMddHHmmssfff}",
+                                    PlanName = updatePlan.PlanName,
+                                    PlanDetail = updatePlan.PlanDetail,
+                                    Notes = updatePlan.PlanNote,
+                                    IsSample = true,
+                                    FarmID = farmId,
+                                    ProcessId = newProcess.ProcessId,
+                                    IsDeleted = false
+                                };
+                                await _unitOfWork.PlanRepository.Insert(newPlan);
+                            }
+                        }
+                    }
+                    var checkInsertProcess = await _unitOfWork.SaveAsync();
+                    if (result > 0 || checkInsertProcess > 0)
+                    {
+                        await transaction.CommitAsync();
+                        return new BusinessResult(Const.SUCCESS_CREATE_PROCESS_CODE, Const.SUCCESS_CREATE_PROCESS_MESSAGE, checkInsertProcess > 0);
+                    }
+                    else
+                    {
+                        return new BusinessResult(Const.FAIL_CREATE_PROCESS_CODE, Const.FAIL_CREATE_PROCESS_MESSAGE, false);
+                    }
+                   
+                    
+                }
+                catch (Exception ex)
+                {
+                    await transaction.RollbackAsync();
+                    return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
+                }
             }
         }
     }
