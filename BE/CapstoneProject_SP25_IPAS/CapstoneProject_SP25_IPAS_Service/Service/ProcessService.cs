@@ -181,7 +181,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 {
                     int validInt = 0;
                     var checkInt = int.TryParse(paginationParameter.Search, out validInt);
-                    DateTime validDate = DateTime.Now;
+                    DateTime validDate = DateTime.Now.Date;
                     bool validBool = false;
                     if (checkInt)
                     {
@@ -1039,7 +1039,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         {
                             foreach (var planInProcess in checkExistProcess.Plans)
                             {
-                                if (planInProcess.StartDate <= DateTime.Now)
+                                if (planInProcess.StartDate <= DateTime.Now.Date)
                                 {
                                     hasActivePlan = true;
                                     failedProcessNames.Add(checkExistProcess.ProcessName);
@@ -1053,7 +1053,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         {
                             foreach (var subProcess in checkExistProcess.SubProcesses)
                             {
-                                if (subProcess.StartDate <= DateTime.Now)
+                                if (subProcess.StartDate <= DateTime.Now.Date)
                                 {
                                     hasActivePlan = true;
                                 }
@@ -1061,7 +1061,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                 {
                                     foreach (var planInSub in subProcess.Plans)
                                     {
-                                        if (planInSub.StartDate <= DateTime.Now)
+                                        if (planInSub.StartDate <= DateTime.Now.Date)
                                         {
                                             hasActivePlan = true;
                                             failedProcessNames.Add(checkExistProcess.ProcessName);
