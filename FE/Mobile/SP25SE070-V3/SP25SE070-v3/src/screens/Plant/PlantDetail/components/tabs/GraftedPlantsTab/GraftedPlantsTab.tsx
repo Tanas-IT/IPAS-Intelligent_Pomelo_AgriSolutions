@@ -54,7 +54,7 @@ const GraftedPlantsTab: React.FC<{ plantId: number }> = ({ plantId }) => {
           setTotalPage(res.data.totalPage);
           setPageIndex(page + 1);
         } else {
-          console.error("Failed to fetch grafted plants:", res.message);
+          // console.error("Failed to fetch grafted plants:", res.message);
         }
       } finally {
         if (reset) setIsLoading(false);

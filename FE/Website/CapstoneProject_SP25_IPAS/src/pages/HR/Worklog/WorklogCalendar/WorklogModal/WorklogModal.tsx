@@ -9,6 +9,7 @@ import { planService, userService, worklogService } from "@/services";
 import { fetchUserInfoByRole, getFarmId, RulesManager } from "@/utils";
 import { Button, Flex, Form, Modal, Select } from "antd";
 import { useEffect, useState } from "react";
+import { toast } from "react-toastify";
 
 type WorklogModalProps = {
   isOpen: boolean;
@@ -64,9 +65,17 @@ const WorklogModal = ({ isOpen, onClose, onSave }: WorklogModalProps) => {
       };
 
       console.log("Payload:", payload);
-      onSave(payload);
+      const res = await worklogService.addWorklog(payload);
+      if (res.statusCode === 200) {
+            toast.success(res.message);
+            onSave(payload);
+            handleCancel();
+          } else {
+            toast.error(res.message);
+          }
+      
 
-      handleCancel();
+      
     } catch (error) {
       console.error("Validation failed:", error);
     }
@@ -101,7 +110,7 @@ const WorklogModal = ({ isOpen, onClose, onSave }: WorklogModalProps) => {
       const plans = await planService.getPlansForSelect(Number(getFarmId()));
       const formattedPlanOptions = plans.data.map((plan) => ({
         value: plan.id,
-        label: plan.name,
+        label: `${plan.name} (${plan.startDate.slice(0, 10)} → ${plan.endDate.slice(0, 10)})`,
       }));
       setPlanOptions(formattedPlanOptions);
     } catch (error) {
