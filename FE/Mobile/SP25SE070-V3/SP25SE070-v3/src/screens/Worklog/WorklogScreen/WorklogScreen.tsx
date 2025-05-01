@@ -183,7 +183,7 @@ export default function WorklogScreen() {
       setWorklogs(response);
       console.log("Data fetched successfully:", response);
     } catch (error) {
-      console.error("Error fetching worklogs:", error);
+      // console.error("Error fetching worklogs:", error);
       setError("Failed to fetch worklogs. Please try again.");
     } finally {
       setIsLoading(false);

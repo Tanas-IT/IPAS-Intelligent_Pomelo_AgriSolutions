@@ -36,7 +36,7 @@ const useNotifications = () => {
         setNotifications(response.data || []);
       }
     } catch (error: any) {
-      console.error("Fetch error:", error);
+      // console.error("Fetch error:", error);
       Toast.show({
         type: "error",
         text1: "error fethcing notifications",
@@ -88,7 +88,7 @@ const useNotifications = () => {
           //   message.content || 'You have a new message'
           // );
         } catch (error) {
-          console.error("Error parsing JSON:", error);
+          // console.error("Error parsing JSON:", error);
         }
       };
 

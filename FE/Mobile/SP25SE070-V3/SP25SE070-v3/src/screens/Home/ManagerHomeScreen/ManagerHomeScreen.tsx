@@ -98,7 +98,7 @@ const ManagerHomeScreen = () => {
           overdue: workStatusMap.Overdue,
         });
       } catch (error: any) {
-        console.error("Error fetching manager home:", error);
+        // console.error("Error fetching manager home:", error);
         Toast.show({
           type: "error",
           text1: "Error",

@@ -143,7 +143,7 @@ const AddNoteWorklogScreen: React.FC = () => {
         });
       }
     } catch (error) {
-      console.error("Error submitting worklog note:", error);
+      // console.error("Error submitting worklog note:", error);
       Toast.show({
         type: "error",
         text1: "An error occurred. Please try again.",

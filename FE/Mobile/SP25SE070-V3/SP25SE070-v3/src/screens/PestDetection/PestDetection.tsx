@@ -74,7 +74,7 @@ const PestDetectionScreen = () => {
       console.warn("File does not exist or size is undefined:", uri);
       return 0;
     } catch (error) {
-      console.error("Error getting file size:", error);
+      // console.error("Error getting file size:", error);
       return 0;
     }
   };
@@ -115,7 +115,7 @@ const PestDetectionScreen = () => {
         throw new Error("Failed to upload to Cloudinary");
       }
     } catch (error) {
-      console.error("Error uploading to Cloudinary:", error);
+      // console.error("Error uploading to Cloudinary:", error);
       throw error;
     }
   };
@@ -231,7 +231,7 @@ const PestDetectionScreen = () => {
         });
       }
     } catch (error) {
-      console.error("Error detecting pest:", error);
+      // console.error("Error detecting pest:", error);
       Toast.show({
         type: "error",
         text1: "Error",
@@ -266,7 +266,7 @@ const PestDetectionScreen = () => {
         });
       }
     } catch (error) {
-      console.error("Error submitting report:", error);
+      // console.error("Error submitting report:", error);
       Toast.show({
         type: "error",
         text1: "Error",

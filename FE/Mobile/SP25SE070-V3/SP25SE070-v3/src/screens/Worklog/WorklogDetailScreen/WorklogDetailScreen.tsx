@@ -56,7 +56,7 @@ const WorklogDetailScreen: React.FC<WorklogDetailScreenProps> = ({ route }) => {
       setWorklog(res);
       setLoading(false);
     } catch (error) {
-      console.error("Error fetching mock worklog detail:", error);
+      // console.error("Error fetching mock worklog detail:", error);
       setLoading(false);
     }
   };
@@ -140,7 +140,7 @@ const WorklogDetailScreen: React.FC<WorklogDetailScreenProps> = ({ route }) => {
                 });
               }
             } catch (error) {
-              console.error("Error redoing worklog:", error);
+              // console.error("Error redoing worklog:", error);
               Alert.alert(
                 "Error",
                 "Failed to redo worklog. Please try again."
@@ -189,7 +189,7 @@ const WorklogDetailScreen: React.FC<WorklogDetailScreenProps> = ({ route }) => {
                 prev ? { ...prev, status: "Cancelled" } : null
               );
             } catch (error) {
-              console.error("Error cancelling worklog:", error);
+              // console.error("Error cancelling worklog:", error);
               Alert.alert(
                 "Error",
                 "Failed to cancel worklog. Please try again."
@@ -264,7 +264,7 @@ const WorklogDetailScreen: React.FC<WorklogDetailScreenProps> = ({ route }) => {
                 });
               }
             } catch (error) {
-              console.error("Error marking worklog as complete:", error);
+              // console.error("Error marking worklog as complete:", error);
               Alert.alert(
                 "Error",
                 "Failed to mark worklog as completed. Please try again."

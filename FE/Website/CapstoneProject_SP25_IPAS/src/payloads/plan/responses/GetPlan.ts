@@ -117,6 +117,8 @@ export interface GetPlanSelect {
   id: number;
   code: string;
   name: string;
+  startDate: string;
+  endDate: string;
 }
 
 export interface Plan {
