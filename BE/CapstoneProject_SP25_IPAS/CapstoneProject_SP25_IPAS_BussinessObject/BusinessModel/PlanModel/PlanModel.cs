@@ -52,6 +52,7 @@ namespace CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.PlanModel
         public string? AssignorName { get; set; }
 
         public string? ProcessName { get; set; }
+        public string? SubProcessName { get; set; }
         public int? ProcessId { get; set; }
 
         public string? CropName { get; set; }
