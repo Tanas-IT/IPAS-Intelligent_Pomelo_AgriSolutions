@@ -247,14 +247,14 @@ function ProcessDetails() {
     setTreeData(reorderedTreeData);
   };
 
-  const handleCancel = () => {};
+  const handleCancel = () => { };
 
   const handleCancelClick = () => {
     setPlans([...originalData.plans]);
     setTreeData([...originalData.treeData]);
     setIsEditing(false);
   };
-  const handleSaveNode = () => {};
+  const handleSaveNode = () => { };
 
   const handleClickAddPlan = (subProcessKey: number) => {
     setSelectedSubProcessId(subProcessKey);
@@ -326,8 +326,8 @@ function ProcessDetails() {
       const status = isNewSubProcess
         ? "add"
         : node.listPlan?.some((plan) => ["add", "update", "delete"].includes(plan.planStatus))
-        ? "update"
-        : node.status || "no_change";
+          ? "update"
+          : node.status || "no_change";
 
       const hasChangedPlan = node.listPlan?.some((plan) =>
         ["add", "update", "delete"].includes(plan.planStatus),
@@ -550,13 +550,14 @@ function ProcessDetails() {
 
         const planNodes = filteredPlans?.length
           ? [
-              {
-                title: (
-                  <div className={style.planList}>
-                    <strong className={style.planListTitle}>Plan List:</strong>
-                    {filteredPlans.map((plan: PlanType) => (
-                      <div key={plan.planId} className={style.planItem}>
-                        <span className={style.planName}>{plan.planName}</span>
+            {
+              title: (
+                <div className={style.planList}>
+                  <strong className={style.planListTitle}>Plan List:</strong>
+                  {filteredPlans.map((plan: PlanType) => (
+                    <div key={plan.planId} className={style.planItem}>
+                      <span className={style.planName}>{plan.planName}</span>
+                      {isEditing && (
                         <Flex gap={10}>
                           <Icons.edit color="blue" size={18} onClick={() => handleEditPlan(plan)} />
                           <Icons.delete
@@ -565,14 +566,15 @@ function ProcessDetails() {
                             onClick={() => handleDeletePlann(plan.planId, node.key.toString())}
                           />
                         </Flex>
-                      </div>
-                    ))}
-                  </div>
-                ),
-                key: `${node.key}-plans`,
-                isLeaf: true,
-              },
-            ]
+                      )}
+                    </div>
+                  ))}
+                </div>
+              ),
+              key: `${node.key}-plans`,
+              isLeaf: true,
+            },
+          ]
           : [];
 
         return {
@@ -909,10 +911,10 @@ function ProcessDetails() {
           initialValues={
             editingNode
               ? {
-                  processName: editingNode.title,
-                  growthStageId: editingNode.growthStageId,
-                  masterTypeId: editingNode.masterTypeId,
-                }
+                processName: editingNode.title,
+                growthStageId: editingNode.growthStageId,
+                masterTypeId: editingNode.masterTypeId,
+              }
               : undefined
           }
         />
