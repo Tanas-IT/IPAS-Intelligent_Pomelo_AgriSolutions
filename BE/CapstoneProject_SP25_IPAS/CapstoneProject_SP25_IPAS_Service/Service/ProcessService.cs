@@ -181,7 +181,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
         {
             try
             {
-                Expression<Func<Process, bool>> filter = x => x.FarmId == farmId && x.IsDeleted == false;
+                Expression<Func<Process, bool>> filter = x => x.FarmId == farmId && x.IsDeleted == false && x.IsSample == false;
                 Func<IQueryable<Process>, IOrderedQueryable<Process>> orderBy = null!;
                 if (!string.IsNullOrEmpty(paginationParameter.Search))
                 {

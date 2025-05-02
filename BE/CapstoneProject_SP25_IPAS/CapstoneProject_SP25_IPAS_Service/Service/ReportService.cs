@@ -1212,17 +1212,16 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 var getAllPlantOfFarm = await _unitOfWork.PlantRepository.GetAllPlantByFarmId(farmId);
                 var total = getAllPlantOfFarm.Count;
 
-                var statusPercentage = new Dictionary<string, double>();
-                
-                if (total > 0)
-                {
-                    statusPercentage = getAllPlantOfFarm
-                        .GroupBy(p => p.HealthStatus ?? "Unknown") // nếu Status null thì gán "Unknown"
-                        .ToDictionary(
-                            g => g.Key,
-                            g => Math.Round((double)g.Count() / total * 100, 2)
-                        );
-                }
+                var statusOfPlant = new[] { "Minor Issues", "Healthy", "Serious Issues" };
+
+                var statusPercentage = statusOfPlant
+                             .Select(status => new
+                             {
+                                 HealthStatus = status,
+                                 Quantity = getAllPlantOfFarm
+                                     .Count(x => (x.HealthStatus ?? "Unknown") == (status ?? "Unknown"))
+                             }).ToList();
+
                 var getAllCrop = await _unitOfWork.CropRepository.GetAllCropByFarmId(farmId);
                 var totalYield = getAllCrop.Sum(x => x.ActualYield);
 
