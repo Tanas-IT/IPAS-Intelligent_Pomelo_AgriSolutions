@@ -2445,7 +2445,7 @@ VALUES
 -- 1. Insert Process: Quy trình mẫu chăm sóc cây bưởi bị sâu vẽ bùa
 -- =============================================
 INSERT INTO Process (ProcessCode, ProcessName, isDefault, isActive, isSample, CreateDate, IsDeleted, FarmID, MasterTypeID, PlanTargetInProcess)
-VALUES (N'PR001', N'Quy trình mẫu - Chăm sóc cây bưởi bị sâu vẽ bùa', 1, 1, 0, GETDATE(), 0, 1,15, 1);
+VALUES (N'PR001', N'Quy trình mẫu - Chăm sóc cây bưởi bị sâu vẽ bùa', 1, 1, 0, GETDATE(), 0, 1,12, 1);
 
 DECLARE @ProcessId INT = SCOPE_IDENTITY();
 
