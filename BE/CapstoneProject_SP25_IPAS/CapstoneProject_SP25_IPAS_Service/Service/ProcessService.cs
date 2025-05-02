@@ -172,7 +172,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 catch (Exception ex)
                 {
                     await transaction.RollbackAsync();
-                    return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
+                    return new BusinessResult(Const.ERROR_EXCEPTION, "Have an error when create process");
                 }
             }
         }
@@ -1313,7 +1313,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 catch (Exception ex)
                 {
                     await transaction.RollbackAsync();
-                    return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
+                    return new BusinessResult(Const.ERROR_EXCEPTION, "Have an error when create process");
                 }
             }
         }

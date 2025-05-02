@@ -13,7 +13,7 @@ namespace CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.ProcessModel
 
         public string? ProcessName { get; set; }
         public bool? IsActive { get; set; }
-        public bool? IsSample { get; set; }
+        public bool? IsSample { get; set; } = true;
         public int? MasterTypeId { get; set; }
         public int? PlanTargetInProcess { get; set; } // có 3 giá trị: 1 là LandPlot/Row/Plant, 2 là PlantLot, 3 là GraftedPlant
 
