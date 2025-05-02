@@ -483,5 +483,29 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
                 return BadRequest(response);
             }
         }
+        //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)},{nameof(RoleEnum.EMPLOYEE)}")]
+        [HttpGet(APIRoutes.AI.RecomendProcessAI, Name = "RecomendProcessAI")]
+        public async Task<IActionResult> RecomendProcessAI([FromQuery] ProcessRecomendRequest request)
+        {
+            try
+            {
+                if (string.IsNullOrWhiteSpace(request.processName))
+                {
+                    return BadRequest(new { Message = "process Name không được để trống." });
+                }
+                var result = await _aiService.RecomendProcessAI(request: request);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+
+                var response = new BaseResponse()
+                {
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    Message = ex.Message
+                };
+                return BadRequest(response);
+            }
+        }
     }
 }

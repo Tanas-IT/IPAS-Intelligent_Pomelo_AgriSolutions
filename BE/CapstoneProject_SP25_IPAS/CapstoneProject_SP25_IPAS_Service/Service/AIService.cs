@@ -43,6 +43,7 @@ using Azure;
 using CapstoneProject_SP25_IPAS_BussinessObject.Payloads.Request;
 using CapstoneProject_SP25_IPAS_Common.Upload;
 using Microsoft.EntityFrameworkCore.Metadata.Internal;
+using Org.BouncyCastle.Asn1.Crmf;
 
 namespace CapstoneProject_SP25_IPAS_Service.Service
 {
@@ -144,7 +145,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     }
                 }
                 promptBuilder.AppendLine($"Câu hỏi(Question is): {chatRequest.Question}");
-                var geminiApiResponse = await GetAnswerFromGeminiAsync(promptBuilder.ToString(), getFarmInfo, checkRoomExist.RoomId);
+                var geminiApiResponse = await GetAnswerFromGeminiAsync(promptBuilder.ToString(), getFarmInfo, checkRoomExist.RoomId, PromptOptionConst.ChatPromptContext);
                 var jsonCheck = Util.ExtractJson(geminiApiResponse!);
                 var newChatMessage = new ChatMessage()
                 {
@@ -298,7 +299,7 @@ const generationConfig = {
      responseMimeType: "text/plain",
    };
 */
-        private async Task<string> GetAnswerFromGeminiAsync(string question, Farm getFarmInfo, int roomId)
+        private async Task<string> GetAnswerFromGeminiAsync(string question, Farm? getFarmInfo, int? roomId, string? PromptSection)
         {
             try
             {
@@ -314,77 +315,23 @@ const generationConfig = {
                 };
 
                 // Tạo lịch sử hội thoại (history)
-                //         var history = new[]
-                //{
-                //     new InputContent
-                //     {
-                //         Role = "user",
-                //         Parts = "Bạn là chuyên gia trong lĩnh vực trồng và chăm sóc cây bưởi ..."
-                //     },
-                //     new InputContent
-                //     {
-                //         Role = "user",
-                //         Parts = "You are an expert in the field of planting and caring for grapefruit trees..."
-                //     },
-                //     new InputContent
-                //     {
-                //         Role = "user",
-                //         Parts = "Bạn là IPAS (Intelligent Pomelo AgriSolutions), một chuyên gia về cây bưởi..."
-                //     },
-                //      new InputContent
-                //     {
-                //         Role = "user",
-                //         Parts = "You are IPAS (Intelligent Pomelo AgriSolutions), a grapefruit expert..."
-                //     },
-                //     new InputContent
-                //     {
-                //         Role = "model",
-                //         Parts = $"Xin chào! Tôi là IPAS, chuyên gia về cây bưởi, tôi có thể giúp gì cho bạn... "
-                //     },
-                //     new InputContent
-                //     {
-                //         Role = "model",
-                //         Parts = $"Hello! I'm IPAS, grapefruit expert, how can I help you... "
-                //     },
-                //     new InputContent
-                //     {
-                //         Role = "model",
-                //         Parts = "Đã hiểu. Tôi là IPAS, tôi sẽ cung cấp lời khuyên chuyên môn cho..."
-                //     },
-                //      new InputContent
-                //     {
-                //         Role = "model",
-                //         Parts = "Got it. I'm IPAS, I'll provide professional advice for..."
-                //     },
-                //     new InputContent
-                //     {
-                //         Role = "model",
-                //         Parts = $"Dựa vào đặc tính đất đai của trang trại của bạn là {getFarmInfo.SoilType}, tôi có thể đưa ra lời khuyên như sau..."
-                //     },
-                //      new InputContent
-                //     {
-                //         Role = "model",
-                //         Parts = $"Based on your farm's soil characteristics {getFarmInfo.SoilType}, I can give you the following advice..."
-                //     },
-                //     new InputContent
-                //     {
-                //         Role = "user",
-                //         Parts = "Bạn chỉ được trả lời các câu hỏi liên quan đến cây bưởi. Nếu người dùng hỏi về chủ đề khác, hãy từ chối trả lời."
-                //     },
-                //     new InputContent
-                //     {
-                //         Role = "user",
-                //         Parts = "You may only answer questions related to pomelo trees. If a user asks about another topic, decline to answer."
-                //     }
-                // };
-                var promptSections = _config.GetSection("GeminiSettings:PromptContext").Get<List<GeminiPrompt>>() ?? new();
+                string promptSectionKey = PromptSection switch
+                {
+                    "ProcessPromptContext" => "GeminiSettings:ProcessPromptContext",
+                    "ChatPromptContext" => "GeminiSettings:ChatPromptContext",
+                    _ => "GeminiSettings:ChatPromptContext" // fallback mặc định
+                };
+
+                var promptSections = _config.GetSection(promptSectionKey).Get<List<GeminiPrompt>>() ?? new();
+
+                //var promptSections = _config.GetSection("GeminiSettings:ChatPromptContext").Get<List<GeminiPrompt>>() ?? new();
                 // Tạo lịch sử hội thoại (history)
                 var history = promptSections.Select(p => new InputContent
                 {
                     Role = p.Role,
-                    Parts = p.Parts.Replace("{soilType}", getFarmInfo.SoilType ?? "")
+                    Parts = p.Parts.Replace("{soilType}", getFarmInfo?.SoilType ?? "")
                 }).ToList();
-                if (roomId > 0)
+                if (roomId != null && roomId > 0)
                 {
                     var recentMessages = await _unitOfWork.ChatMessageRepository
                         .Get(m => m.RoomId == roomId && m.MessageContent != null, x => x.OrderByDescending(m => m.CreateDate), pageIndex: 1, pageSize: 10);
@@ -1192,6 +1139,37 @@ const generationConfig = {
             catch (Exception ex)
             {
                 return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
+            }
+        }
+
+        public async Task<BusinessResult> RecomendProcessAI(ProcessRecomendRequest request)
+        {
+            try
+            {
+                var promptBuilder = new StringBuilder();
+                var newResource = new List<Resource>();
+                promptBuilder.AppendLine($"Bạn cần tạo Process sau(Is Sample = {request.isSample.GetValueOrDefault()}): {request.processName}");
+                var geminiApiResponse = await GetAnswerFromGeminiAsync(promptBuilder.ToString(), null,null, PromptOptionConst.ProcessPromptContext);
+                var jsonCheck = Util.ExtractJson(geminiApiResponse!);
+                var AIResponse = new ProcessRecomendResponseModel();
+                try
+                {
+                    geminiApiResponse = Util.ExtractJson(geminiApiResponse);
+                    AIResponse = JsonConvert.DeserializeObject<ProcessRecomendResponseModel>(geminiApiResponse); 
+                }
+                catch
+                {
+                    return new BusinessResult(Const.ERROR_EXCEPTION, "AI response not correct format");
+                }
+                if (AIResponse != null)
+                {
+                    return new BusinessResult(Const.SUCCESS_ASK_AI_CODE, Const.SUCCESS_ASK_AI_MSG, AIResponse);
+                }
+                return new BusinessResult(Const.FAIL_ASK_AI_CODE, Const.FAIL_ASK_AI_MSG);
+            }
+            catch (Exception ex)
+            {
+                return new BusinessResult(Const.ERROR_EXCEPTION, Const.ERROR_MESSAGE, ex.Message);
             }
         }
     }
