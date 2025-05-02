@@ -290,11 +290,11 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             }
         }
 
-        [HttpPost(APIRoutes.Process.createProcessWithAI, Name = "createProcessWithAI")]
-        [HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)},{nameof(RoleEnum.EMPLOYEE)}")]
-        [CheckUserFarmAccess]
+        [HttpPost(APIRoutes.Process.createProcessWithSub, Name = "createProcessWithSub")]
+        //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)},{nameof(RoleEnum.EMPLOYEE)}")]
+        //[CheckUserFarmAccess]
         //[FarmExpired]
-        public async Task<IActionResult> createProcessWithAI(CreateManyProcessModel createManyProcessModel, int? farmId)
+        public async Task<IActionResult> createProcessWithSub(CreateManyProcessModel createManyProcessModel, int? farmId)
         {
             try
             {
@@ -302,7 +302,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
                 {
                     farmId = _jwtTokenService.GetFarmIdFromToken();
                 }
-                var result = await _processService.CreateProcessWithAI(createManyProcessModel, farmId!.Value);
+                var result = await _processService.CreateProcessWithSub(createManyProcessModel, farmId!.Value);
                 return Ok(result);
             }
             catch (Exception ex)
@@ -316,5 +316,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
                 return BadRequest(response);
             }
         }
+
+
     }
 }
