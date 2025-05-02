@@ -1,0 +1,214 @@
+$aiPrimary: #00a8cc;
+$aiSecondary: #6a4c93;
+$aiAccent: #ff6b6b;
+$aiBg: rgba(255, 255, 255, 0.9);
+$aiShadow: rgba(0, 168, 204, 0.2);
+
+.container {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 2rem;
+  padding: 2rem;
+  position: relative;
+  width: 700px;
+  background: transparent;
+  border: none;
+  overflow: visible;
+  z-index: 1;
+
+  &::before {
+    content: '';
+    position: absolute;
+    inset: -10px;
+    filter: url(#gooey);
+    border-radius: 43% 57% 50% 50% / 30% 30% 70% 70%;
+    animation: blobMove 15s linear infinite;
+    z-index: -1;
+    opacity: 0.9;
+  }
+
+  &::after {
+    content: '';
+    position: absolute;
+    inset: -3px;
+    background: rgba($aiPrimary, 0.1);
+    border-radius: 45% 55% 60% 40% / 40% 50% 50% 60%;
+    animation: blobMove2 20s linear infinite reverse;
+    z-index: -2;
+  }
+}
+
+.svgFilter {
+  position: absolute;
+  width: 0;
+  height: 0;
+  overflow: hidden;
+}
+
+@keyframes blobMove {
+  0%, 100% {
+    border-radius: 43% 57% 50% 50% / 30% 30% 70% 70%;
+    transform: translate(0, 0);
+  }
+  25% {
+    border-radius: 50% 50% 70% 30% / 50% 70% 30% 50%;
+    transform: translate(5px, 5px);
+  }
+  50% {
+    border-radius: 60% 40% 40% 60% / 70% 50% 50% 30%;
+    transform: translate(0, 5px);
+  }
+  75% {
+    border-radius: 70% 30% 50% 50% / 30% 50% 50% 70%;
+    transform: translate(-5px, 5px);
+  }
+}
+
+@keyframes blobMove2 {
+  0%, 100% {
+    border-radius: 60% 40% 30% 70% / 60% 30% 70% 40%;
+  }
+  50% {
+    border-radius: 40% 60% 70% 30% / 70% 30% 60% 40%;
+  }
+}
+
+.brain {
+  position: relative;
+  width: 120px;
+  height: 100px;
+}
+
+.lobe {
+  position: absolute;
+  width: 50px;
+  height: 80px;
+  background: linear-gradient(135deg, rgba($aiPrimary, 0.8), rgba($aiSecondary, 0.6));
+  border-radius: 50px;
+  filter: drop-shadow(0 0 10px rgba($aiPrimary, 0.4));
+
+  &.left {
+    left: 0;
+    top: 0;
+    animation: lobeFloat 3s ease-in-out infinite alternate;
+  }
+
+  &.right {
+    right: 0;
+    top: 0;
+    animation: lobeFloat 3s ease-in-out infinite alternate-reverse;
+  }
+}
+
+.core {
+  position: absolute;
+  width: 30px;
+  height: 30px;
+  background: linear-gradient(45deg, $aiAccent, lighten($aiAccent, 20%));
+  border-radius: 50%;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 2;
+  animation: corePulse 2s ease infinite;
+}
+
+.connection {
+  position: absolute;
+  width: 20px;
+  height: 4px;
+  background: rgba($aiAccent, 0.7);
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  z-index: 1;
+  animation: connectionFlow 2.5s linear infinite;
+}
+
+.pulse {
+  position: absolute;
+  width: 100%;
+  height: 100%;
+  border: 2px solid rgba($aiPrimary, 0.3);
+  border-radius: 60px;
+  top: 0;
+  left: 0;
+  animation: pulse 3s ease-out infinite;
+  opacity: 0;
+}
+
+.loadingText {
+  color: #2c3e50;
+  font-size: 1.2rem;
+  font-weight: 600;
+  text-align: center;
+  position: relative;
+  z-index: 2;
+}
+
+.ellipsis {
+  display: inline-block;
+  width: 40px;
+
+  span {
+    opacity: 0;
+    animation: ellipsisDot 1.5s infinite;
+
+    &:nth-child(1) { animation-delay: 0s; }
+    &:nth-child(2) { animation-delay: 0.3s; }
+    &:nth-child(3) { animation-delay: 0.6s; }
+  }
+}
+
+.progressBar {
+  width: 200px;
+  height: 6px;
+  background: rgba(white, 0.1);
+  border-radius: 3px;
+  overflow: hidden;
+  position: relative;
+  z-index: 2;
+}
+
+.progress {
+  height: 100%;
+  width: 0;
+  background: linear-gradient(90deg, $aiPrimary, $aiAccent);
+  animation: progressLoad 3s ease-in-out infinite;
+  border-radius: 3px;
+}
+
+@keyframes lobeFloat {
+  0% { transform: translateY(0); }
+  100% { transform: translateY(-15px); }
+}
+
+@keyframes corePulse {
+  0%, 100% { transform: translate(-50%, -50%) scale(1); }
+  50% { transform: translate(-50%, -50%) scale(1.2); }
+}
+
+@keyframes connectionFlow {
+  0% { width: 20px; opacity: 0.7; }
+  50% { width: 40px; opacity: 1; }
+  100% { width: 20px; opacity: 0.7; }
+}
+
+@keyframes pulse {
+  0% { transform: scale(0.8); opacity: 0.7; }
+  70% { transform: scale(1.3); opacity: 0; }
+  100% { opacity: 0; }
+}
+
+@keyframes ellipsisDot {
+  0%, 100% { opacity: 0; }
+  50% { opacity: 1; }
+}
+
+@keyframes progressLoad {
+  0% { width: 0; left: 0; }
+  50% { width: 100%; left: 0; }
+  100% { width: 0; left: 100%; }
+}

@@ -68,6 +68,7 @@ export const PATHS = {
   PROCESS: {
     PROCESS_LIST: "/processes",
     PROCESS_DETAIL: "/processes/:id",
+    AI_PROCESS_DETAIL: "/ai-process-details",
   },
 
   //Weather

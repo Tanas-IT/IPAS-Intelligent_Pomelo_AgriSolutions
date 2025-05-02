@@ -1,17 +1,16 @@
 import { Icons } from "@/assets";
 import style from "./ProcessList.module.scss";
 import { PlanType } from "@/payloads/process";
+import { AIPlanType } from "@/payloads/process/requests";
 
 type PlanListProps = {
-  plans: PlanType[];
+  plans: (PlanType | AIPlanType)[];
   onEdit: (plan: PlanType) => void;
   onDelete: (id: number) => void;
   isEditing: boolean;
 };
 
 const PlanList: React.FC<PlanListProps> = ({ plans, onEdit, onDelete, isEditing }) => {
-  console.log("plan trong PlanList", plans);
-  
   const filteredPlans = plans.filter((plan) => plan.planStatus !== "delete");
   return (
     <div>

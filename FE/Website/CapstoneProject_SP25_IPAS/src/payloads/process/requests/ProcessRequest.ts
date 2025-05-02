@@ -43,3 +43,65 @@ export interface UpdateProcessRequest {
   ListUpdateSubProcess: SubProcess[];
   ListPlan: ListPlan[];
 }
+
+export interface AIPlanType {
+  planId: number;
+  planName: string;
+  planDetail: string;
+  planNote: string;
+  growthStageId: number;
+  masterTypeId: number;
+  planStatus: string;
+}
+
+export interface AISubProcess {
+  subProcessId: number;
+  subProcessName: string;
+  parentSubProcessId?: number;
+  isActive: boolean;
+  order: number;
+  listPlan: AIPlanType[];
+}
+
+export interface AIGeneratedProcess {
+  processName: string;
+  isActive: boolean;
+  isSample: boolean;
+  masterTypeId: number;
+  planTargetInProcess: number;
+  listSubProcess: AISubProcess[];
+  listPlan: AIPlanType[];
+}
+
+export interface AIProcessResponse {
+  processDescription: string;
+  processGenerate: AIGeneratedProcess;
+  success: boolean;
+  message: string;
+}
+
+export interface AICreateProcessRequest {
+  farmId: number;
+  processName: string;
+  isActive: boolean;
+  isSample: boolean;
+  masterTypeId: number;
+  planTargetInProcess: number;
+  listSubProcess: {
+    subProcessId: number;
+    subProcessName: string;
+    parentSubProcessId?: number;
+    isActive: boolean;
+    order: number;
+    listPlan: {
+      planName: string;
+      planDetail: string;
+      planNote: string;
+    }[];
+  }[];
+  listPlan: {
+    planName: string;
+    planDetail: string;
+    planNote: string;
+  }[];
+}
