@@ -24,12 +24,6 @@ export const processColumns: TableColumn<GetProcessList>[] = [
     width: 150,
   },
   {
-    header: "Growth Stage",
-    field: "processGrowthStageModel",
-    accessor: (process) => <TableCell value={process?.processGrowthStageModel?.growthStageName}/>,
-    width: 150,
-  },
-  {
     header: "Type",
     field: "processMasterTypeModel",
     accessor: (process) =>  <TableCell value={process?.processMasterTypeModel?.masterTypeName}/>,
