@@ -12,10 +12,14 @@ import ActionMenuProcess from "@/components/UI/ActionMenu/ActionMenuProcess";
 import ProcessFilter from "./ProcessFilter";
 import TableTitle from "./TableTitle";
 import ProcessModal from "./AddProcessModal";
+import { useNavigate } from "react-router-dom";
+import AIGenerateModal from "./AIGenerateModal";
 
 
 function ProcessList() {
+  const navigate = useNavigate();
   const formModal = useModal<GetProcessList>();
+  const aiModal = useModal();
   const deleteConfirmModal = useModal<{ ids: number[]  }>();
   const [filters, setFilters] = useState({
     createDateFrom: "",
@@ -96,6 +100,11 @@ function ProcessList() {
         handlePageChange,
       },
     );
+
+    const handleAIGenerate = (processName: string, isSample: boolean) => {
+      navigate(`/ai-process-details`, { state: { processName, isSample } });
+      aiModal.hideModal();
+    };
   
 
   return (
@@ -112,6 +121,7 @@ function ProcessList() {
               filterContent={filterContent}
               addLabel="Add New Process"
               onAdd={() => formModal.showModal()}
+              onAIGenerate={() => aiModal.showModal()}
             />
           }
           handleSortClick={handleSortChange}
@@ -138,6 +148,11 @@ function ProcessList() {
         isOpen={formModal.modalState.visible}
         onClose={formModal.hideModal}
         onSave={handleAdd} />
+        <AIGenerateModal
+        isOpen={aiModal.modalState.visible}
+        onClose={aiModal.hideModal}
+        onGenerate={handleAIGenerate}
+      />
       <ConfirmModal
         visible={deleteConfirmModal.modalState.visible}
         onConfirm={() => handleDelete(deleteConfirmModal.modalState.data?.ids)}
