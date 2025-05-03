@@ -803,15 +803,19 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     {
                         foreach (var skill in createRequest.Skills)
                         {
-                            var newEmployeeSkill = new EmployeeSkill()
+                            if(skill.SkillID != null && skill.ScoreOfSkill != null)
                             {
-                                EmployeeID = checkUserExist.UserId,
-                                WorkTypeID = skill.SkillID,
-                                ScoreOfSkill = skill.ScoreOfSkill,
-                                FarmID = createRequest.FarmId!.Value,
-                            };
-                            //await _unitOfWork.EmployeeSkillRepository.Insert(newEmployeeSkill);
-                            newUserFarm.EmployeeSkills.Add(newEmployeeSkill);
+                                var newEmployeeSkill = new EmployeeSkill()
+                                {
+                                    EmployeeID = checkUserExist.UserId,
+                                    WorkTypeID = skill.SkillID,
+                                    ScoreOfSkill = skill.ScoreOfSkill,
+                                    FarmID = createRequest.FarmId!.Value,
+                                };
+                                //await _unitOfWork.EmployeeSkillRepository.Insert(newEmployeeSkill);
+                                newUserFarm.EmployeeSkills.Add(newEmployeeSkill);
+                            }
+                            
                         }
                     }
                     await _unitOfWork.UserFarmRepository.Insert(newUserFarm);

@@ -13,5 +13,6 @@ namespace CapstoneProject_SP25_IPAS_Repository.IRepository
         public Task<List<Process>> GetProcessByTypeName (int farmId, string typeName);
         public Task<Process> GetProcessByIdAsync(int processId);
         public Task<Process> GetProcessByIdForDetail(int processId);
+        public Task<Process> GetProcessByIdHasPlanAsync(int processId);
     }
 }

@@ -251,12 +251,13 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
 
         [HttpGet(APIRoutes.User.searchUserByEmail, Name = "searchUserByEmail")]
         [HybridAuthorize($"{nameof(RoleEnum.ADMIN)}, {nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)}")]
-        public async Task<IActionResult> searchUserByEmail([FromQuery] string? emailSearch)
+        public async Task<IActionResult> searchUserByEmail([FromQuery] string? emailSearch, [FromQuery] int? farmId)
         {
             try
             {
-
-                var result = await _userService.SearchByEmail(emailSearch);
+                if (!farmId.HasValue)
+                    farmId = _jwtTokenService.GetFarmIdFromToken() ?? 0;
+                var result = await _userService.SearchByEmail(emailSearch, farmId);
                 return Ok(result);
             }
             catch (Exception ex)
