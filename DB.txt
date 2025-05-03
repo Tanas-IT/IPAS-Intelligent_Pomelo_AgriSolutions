@@ -2621,13 +2621,13 @@ DECLARE @SubProcess2 INT = (SELECT TOP 1 SubProcessID FROM SubProcess WHERE SubP
 --DECLARE @SubProcess4 INT = (SELECT TOP 1 SubProcessID FROM SubProcess WHERE SubProcessCode = 'SP004' ORDER BY SubProcessID ASC);
 DECLARE @SubProcess5 INT = (SELECT TOP 1 SubProcessID FROM SubProcess WHERE SubProcessCode = 'SP005' ORDER BY SubProcessID ASC);
 
-INSERT INTO [Plan] (PlanCode, PlanName, PlanDetail, Notes, Status, CreateDate, StartDate, EndDate, IsActive, SubProcessID, FarmID, IsSample)
+INSERT INTO [Plan] (PlanCode, PlanName, PlanDetail, Notes, Status, CreateDate, StartDate, EndDate, IsActive, SubProcessID, FarmID, IsSample, AssignorID)
 VALUES
-(N'PL002', N'Initial survey', 'Survey the condition of grapefruit trees and collect data on suspected pests and diseases','Capture images, locations and use AI to help identify pests', N'Active', GETDATE(), NULL, NULL, 1, @SubProcess1, 1, 1),
-(N'PL003', N'Trim and clean', 'Prune to create canopy, remove diseased branches and clean the base of the tree', 'Make sure tools are clean, avoid spreading pathogens when pruning, and properly collect plant debris', N'Active', GETDATE(), NULL, NULL, 1, @SubProcess2, 1,1 ),
+(N'PL002', N'Initial survey', 'Survey the condition of grapefruit trees and collect data on suspected pests and diseases','Capture images, locations and use AI to help identify pests', N'Active', GETDATE(), NULL, NULL, 1, @SubProcess1, 1, 1,3),
+(N'PL003', N'Trim and clean', 'Prune to create canopy, remove diseased branches and clean the base of the tree', 'Make sure tools are clean, avoid spreading pathogens when pruning, and properly collect plant debris', N'Active', GETDATE(), NULL, NULL, 1, @SubProcess2, 1,1,3 ),
 --(N'PL004', N'Phun thuốc trị sâu vẽ bùa lần 1', N'Active', GETDATE(), NULL, NULL, 1, @SubProcess3, 1, 1 ),
 --(N'PL005', N'Theo dõi sau phun', N'Active', GETDATE(), NULL, NULL, 1, @SubProcess4, 1, 1),
-(N'PL006', N'Fertilizer restoration', 'Fertilize after harvest to help grapefruit trees regenerate nutrients and grow stably', 'Use organic fertilizer combined with NPK, apply into furrows 30-50cm from the base, avoid applying when it rains', N'Active', GETDATE(), NULL, NULL, 1, @SubProcess5, 1, 1);
+(N'PL006', N'Fertilizer restoration', 'Fertilize after harvest to help grapefruit trees regenerate nutrients and grow stably', 'Use organic fertilizer combined with NPK, apply into furrows 30-50cm from the base, avoid applying when it rains', N'Active', GETDATE(), NULL, NULL, 1, @SubProcess5, 1, 1,3);
 
 
 -- Declare variables
