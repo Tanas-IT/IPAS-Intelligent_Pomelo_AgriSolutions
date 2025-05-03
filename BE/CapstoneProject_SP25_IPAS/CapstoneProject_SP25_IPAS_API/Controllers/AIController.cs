@@ -366,19 +366,19 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
                 return BadRequest(response);
             }
         }
-        [HttpGet("set")]
-        public async Task<IActionResult> SetCache()
-        {
-            await _distributedCache.SetStringAsync("test_key", "Hello from Redis!");
-            return Ok("Set cache thành công!");
-        }
+        //[HttpGet("set")]
+        //public async Task<IActionResult> SetCache()
+        //{
+        //    await _distributedCache.SetStringAsync("test_key", "Hello from Redis!");
+        //    return Ok("Set cache thành công!");
+        //}
 
-        [HttpGet("get")]
-        public async Task<IActionResult> GetCache()
-        {
-            var value = await _distributedCache.GetStringAsync("test_key");
-            return Ok(!string.IsNullOrEmpty(value) ? value.ToString() : "Cache không tồn tại!");
-        }
+        //[HttpGet("get")]
+        //public async Task<IActionResult> GetCache()
+        //{
+        //    var value = await _distributedCache.GetStringAsync("test_key");
+        //    return Ok(!string.IsNullOrEmpty(value) ? value.ToString() : "Cache không tồn tại!");
+        //}
 
         [HttpGet(APIRoutes.AI.getAllRoom, Name = "getAllRoom")]
         public async Task<IActionResult> GetAllRoomAsync([FromQuery] GetAllRoomModel getAllRoomModel, int? farmId, int? userId)
