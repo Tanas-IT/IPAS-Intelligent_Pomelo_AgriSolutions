@@ -290,8 +290,17 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         return new BusinessResult(Const.WARNING_HARVEST_PRODUCT_OF_FARM_MUST_CREATE_BEFORE_CODE,
                                                   Const.WARNING_HARVEST_PRODUCT_OF_FARM_MUST_CREATE_BEFORE_MSG);
 
-                    //bool hasPlantId = createRequest.PlantId.HasValue;
-
+                    var roleInFarm = await _unitOfWork.UserFarmRepository.GetByCondition(x => x.UserId == createRequest.UserId);
+                    if (roleInFarm.RoleId == (int)RoleEnum.EMPLOYEE)
+                    {
+                        var employeeDo = await _unitOfWork.WorkLogRepository.GetByCondition(x => x.Schedule!.HarvestHistoryID == createRequest.HarvestHistoryId, includeProperties: "UserWorkLogs,Schedule");
+                        bool userCanRecord = employeeDo.UserWorkLogs.Where(x => x.IsDeleted == false && x.ReplaceUserId == null).Select(x => x.UserId).ToList().Contains(createRequest.UserId.Value);
+                        bool userCanRecordInReplace = employeeDo.UserWorkLogs.Where(x => x.IsDeleted == false && x.ReplaceUserId != null).Select(x => x.UserId).ToList().Contains(createRequest.UserId.Value);
+                        if (!userCanRecord || !userCanRecordInReplace)
+                        {
+                            return new BusinessResult(400, "You are not assigned to do this work, can not do this action.");
+                        }
+                    }
                     // 2. Kiểm tra xem sản phẩm đã tồn tại trong buổi thu hoạch chưa
                     Expression<Func<ProductHarvestHistory, bool>> checkExistingCondition = x =>
                         x.MasterTypeId == createRequest.MasterTypeId &&
