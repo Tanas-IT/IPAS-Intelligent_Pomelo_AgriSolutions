@@ -101,8 +101,8 @@ function ProcessList() {
       },
     );
 
-    const handleAIGenerate = (processName: string, isSample: boolean) => {
-      navigate(`/ai-process-details`, { state: { processName, isSample } });
+    const handleAIGenerate = (processName: string, isSample: boolean, masterTypeId: number, planTargetInProcess: number) => {
+      navigate(`/ai-process-details`, { state: { processName, isSample, masterTypeId, planTargetInProcess } });
       aiModal.hideModal();
     };
   

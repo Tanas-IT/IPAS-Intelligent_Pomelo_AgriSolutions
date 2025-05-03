@@ -63,7 +63,7 @@ function AIProcessDetails() {
   let tempIdCounter = -1;
   const navigate = useNavigate();
   const { state } = useLocation();
-  const { processName, isSample } = state || {};
+  const { processName, isSample, masterTypeId, planTargetInProcess } = state || {};
   const [treeData, setTreeData] = useState<CustomTreeDataNode[]>([]);
   const [editingKey, setEditingKey] = useState<string | null>(null);
   const [newTitle, setNewTitle] = useState<string>("");
@@ -97,14 +97,21 @@ function AIProcessDetails() {
   const [editingNode, setEditingNode] = useState<CustomTreeDataNode | null>(null);
 
   const fetchAIProcess = async () => {
-    if (!processName || isSample === undefined) {
-      toast.error("Missing process name or mode");
+    console.log("Fetching AI process with params:", processName, isSample, masterTypeId, planTargetInProcess);
+    
+    if (!processName || isSample === undefined || !masterTypeId || !planTargetInProcess) {
+      toast.error("Missing required parameters");
       setIsLoading(false);
       return;
     }
     try {
       setIsLoading(true);
-      const response = await processService.getAIRecommendedProcess(processName, isSample);
+      const response = await processService.getAIRecommendedProcess(
+        processName,
+        isSample,
+        masterTypeId,
+        planTargetInProcess
+      );
       console.log("AI process response:", response);
       
       const data = response.data;
