@@ -27,8 +27,6 @@ const LandRowFilter = ({ filters, updateFilters, onClear, onApply }: FilterProps
   const isFilterChanged = JSON.stringify(filters) !== JSON.stringify(prevFilters);
   const handleApply = () => {
     if (isFilterChanged) {
-      console.log(filters);
-
       onApply();
       setPrevFilters(filters);
     }

@@ -28,7 +28,6 @@ const ProcessFilter = ({ filters, updateFilters, onClear, onApply }: FilterProps
   const { styles } = useStyle();
   const { options: processTypeOptions } = useMasterTypeOptions(MASTER_TYPE.PROCESS, true);
   const { options: growthStageOptions } = useGrowthStageOptions(true);
-  console.log("filter", filters);
   
 
   const isFilterEmpty = !(

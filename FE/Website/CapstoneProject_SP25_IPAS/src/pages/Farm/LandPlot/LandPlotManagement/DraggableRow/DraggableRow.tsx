@@ -164,7 +164,7 @@ const DraggableRow: React.FC<DraggableRowProps> = ({
 
   return (
     <DndProvider backend={HTML5Backend}>
-      <div ref={containerRef}>
+      <div className={style.dragContainer} ref={containerRef}>
         <Flex className={style.rowHeader}>
           <Flex className={style.rowInfoContainer}>
             <span className={style.totalRowsLabel}>

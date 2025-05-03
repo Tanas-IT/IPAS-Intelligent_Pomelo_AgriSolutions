@@ -10,7 +10,6 @@ type PlanListProps = {
 };
 
 const PlanList: React.FC<PlanListProps> = ({ plans, onEdit, onDelete, isEditing }) => {
-  console.log("plan trong PlanList", plans);
   
   const filteredPlans = plans.filter((plan) => plan.planStatus !== "delete");
   return (

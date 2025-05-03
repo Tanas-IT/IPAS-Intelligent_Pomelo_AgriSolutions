@@ -25,7 +25,17 @@ const RowConfiguration: React.FC<RowConfigurationProps> = React.memo(
     };
 
     const handleClear = () => {
-      form.resetFields();
+      form.setFieldsValue({
+        [createPlotFormFields.rowLength]: undefined,
+        [createPlotFormFields.rowWidth]: undefined,
+        [createPlotFormFields.numberOfRows]: undefined,
+        [createPlotFormFields.rowSpacing]: undefined,
+        [createPlotFormFields.rowsPerLine]: undefined,
+        [createPlotFormFields.lineSpacing]: undefined,
+        [createPlotFormFields.rowOrientation]: undefined,
+        [createPlotFormFields.plantsPerRow]: undefined,
+        [createPlotFormFields.plantSpacing]: undefined,
+      });
       setIsDirty(false);
     };
 
@@ -40,19 +50,17 @@ const RowConfiguration: React.FC<RowConfigurationProps> = React.memo(
     return (
       <Flex className={style.rowConfigurationContainer}>
         <Flex className={style.plotInfoHeader}>
-          <label className={style.plotLabel}>Plot Name: </label>
-          <span className={style.plotName}>{plotName}</span>
-          {/* <span className={style.separator}>-------</span>
-        <span
-          className={`${style.orientationTag} ${isHorizontal ? style.horizontal : style.vertical}`}
-        >
-          {isHorizontal ? "Horizontal" : "Vertical"}
-        </span> */}
+          <Flex className={style.plotNameWrapper}>
+            <label className={style.plotLabel}>Plot Name: </label>
+            <span className={style.plotName}>{plotName}</span>
+          </Flex>
+
+          <Flex className={style.autoFillButtonContainer}>
+            <CustomButton label="Clear Data" handleOnClick={handleClear} />
+            <CustomButton label="Generate Sample Data" handleOnClick={handleAutoFill} />
+          </Flex>
         </Flex>
-        <Flex className={style.autoFillButtonContainer}>
-          <CustomButton label="Clear Data" handleOnClick={handleClear} />
-          <CustomButton label="Generate Sample Data" handleOnClick={handleAutoFill} />
-        </Flex>
+
         <Flex className={style.rowContentSection}>
           <Form form={form} className={style.formContainer}>
             <Flex className={style.formSection}>
@@ -171,6 +179,3 @@ const RowConfiguration: React.FC<RowConfigurationProps> = React.memo(
 );
 
 export default RowConfiguration;
-{
-  /* <div>Step 2: Add Rows (Coming Soon)</div>; */
-}

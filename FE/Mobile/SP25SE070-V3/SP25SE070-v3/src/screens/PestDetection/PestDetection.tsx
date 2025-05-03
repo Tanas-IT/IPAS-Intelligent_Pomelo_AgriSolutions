@@ -83,7 +83,6 @@ const PestDetectionScreen = () => {
     const MAX_FILE_SIZE = 4 * 1024 * 1024;
 
     const fileSize = file.size || (await getFileSize(file.uri));
-    console.log("File size:", fileSize, "bytes");
 
     const formData = new FormData();
     formData.append("file", {
@@ -100,14 +99,12 @@ const PestDetectionScreen = () => {
         body: formData,
       });
       const result = await response.json();
-      console.log("Upload result:", result);
       if (result.secure_url) {
         if (fileSize > MAX_FILE_SIZE) {
           const optimizedUrl = result.secure_url.replace(
             "/upload/",
             "/upload/w_1600,q_auto,f_auto,fl_lossy/"
           );
-          console.log("Optimized URL:", optimizedUrl);
           return optimizedUrl;
         }
         return result.secure_url;
@@ -202,10 +199,8 @@ const PestDetectionScreen = () => {
     setIsLoading(true);
 
     try {
-      console.log("payload img", selectedImageUrl);
 
       const response = await PestDetectionService.predictDiseaseByUrl(selectedImageUrl);
-      console.log("API response:", response);
 
       if (response.statusCode === 200) {
         setDetectionResults(
@@ -250,7 +245,6 @@ const PestDetectionScreen = () => {
   };
 
   const handleSubmitReport = async (data: PestReportRequest) => {
-    console.log("Report submitted:", data);
     try {
       const res = await PestDetectionService.createReport(data);
       if (res.statusCode === 200) {

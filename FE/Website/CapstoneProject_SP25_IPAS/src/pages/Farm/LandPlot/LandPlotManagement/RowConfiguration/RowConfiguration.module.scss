@@ -1,30 +1,51 @@
 @use "@/styles/variables.scss" as vars;
 
 .rowConfigurationContainer {
+  height: 100%;
   flex-direction: column;
+  overflow: auto;
+
   .plotInfoHeader {
-    justify-content: flex-start;
+    justify-content: space-between;
     align-items: center;
     gap: 12px;
     padding: 12px 16px;
     background-color: #f9f9f9;
     border-radius: 8px;
-    .plotLabel {
-      font-weight: 600;
-      color: vars.$color_role_name;
-      font-size: 18px;
-    }
-    .plotName {
-      font-weight: bold;
-      color: vars.$color_primary;
-      font-size: 18px;
-      background-color: vars.$color_second;
-      padding: 4px 8px;
-      border-radius: 4px;
+    margin-bottom: 16px;
+
+    .plotNameWrapper {
+      justify-content: center;
+      align-items: center;
+      gap: 12px;
+
+      .plotLabel {
+        font-weight: 600;
+        color: vars.$color_role_name;
+        font-size: 18px;
+      }
+
+      .plotName {
+        max-width: 54vw;
+        font-weight: bold;
+        color: vars.$color_primary;
+        font-size: 18px;
+        background-color: vars.$color_second;
+        padding: 4px 8px;
+        border-radius: 4px;
+        overflow: hidden;
+        white-space: nowrap;
+        text-overflow: ellipsis;
+      }
+      @media (max-width: 992px) {
+        .plotName {
+          max-width: 24vw;
+        }
+      }
     }
 
     .separator {
-      color: #a0aec0; /* Màu xám nhẹ cho dấu phân cách */
+      color: #a0aec0;
       font-size: 14px;
     }
 
@@ -34,49 +55,72 @@
       font-weight: 500;
       color: white;
       font-size: 18px;
+
       &.horizontal {
-        background-color: #38a169; /* Green for horizontal */
+        background-color: #38a169;
       }
 
       &.vertical {
-        background-color: #3182ce; /* Blue for vertical */
+        background-color: #3182ce;
       }
     }
   }
+
   .autoFillButtonContainer {
-    margin-top: 14px;
     justify-content: flex-end;
     gap: 20px;
+
+    @media (max-width: 992px) {
+      // flex-direction: column;
+      align-items: flex-end;
+      gap: 12px;
+    }
   }
+
   .rowContentSection {
     .formContainer {
       display: flex;
       width: 100%;
       flex-direction: column;
       gap: 20px;
+
       .formSection {
         flex-direction: column;
+
         .unitNote {
           color: #888;
           margin-bottom: 8px;
           font-style: italic;
         }
+
         .sectionLabel {
           font-weight: bold;
         }
+
         .setupSection {
           flex-direction: column;
           background-color: rgba(vars.$color_bg_main, 0.5);
           padding: 24px 16px;
           border-radius: 8px;
           gap: 24px;
+
           .row {
             flex-direction: row;
             justify-content: flex-start;
             gap: 2rem;
+
+            @media (max-width: 992px) {
+              flex-direction: column;
+              gap: 1rem;
+            }
           }
+
           .inputGroup {
             min-width: 22vw;
+
+            @media (max-width: 992px) {
+              min-width: 100%;
+            }
           }
         }
       }

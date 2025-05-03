@@ -318,8 +318,6 @@ function ProcessDetails() {
     nodes: CustomTreeDataNode[],
     parentId: number | null = null,
   ): any[] => {
-    console.log("nodes", nodes);
-
     return nodes.flatMap((node, index) => {
       const subProcessId = isNaN(Number(node.key)) ? tempIdCounter-- : Number(node.key);
       const isNewSubProcess = node.status === "add";
@@ -332,7 +330,6 @@ function ProcessDetails() {
       const hasChangedPlan = node.listPlan?.some((plan) =>
         ["add", "update", "delete"].includes(plan.planStatus),
       );
-      console.log("hasUpdatedPlan", hasChangedPlan);
 
       const subProcess = {
         SubProcessId: subProcessId,
@@ -362,8 +359,6 @@ function ProcessDetails() {
   };
 
   const handleSaveProcess = async () => {
-    console.log("Plans before mapping:", plans);
-
     const ListPlan: ListPlan[] = plans.map((plan) => ({
       PlanId: plan.planId || 0,
       PlanName: plan.planName,
@@ -393,8 +388,6 @@ function ProcessDetails() {
       ListPlan: ListPlan,
     };
 
-    console.log("Saving Payload without stringify:", payload);
-
     try {
       const res = await processService.updateFProcess(payload);
       if (res.statusCode === 200) {
@@ -404,10 +397,8 @@ function ProcessDetails() {
       } else {
         toast.warning(res.message);
       }
-      console.log("res update", res);
     } catch (error) {
       console.error("Error saving process:", error);
-      toast.warning("Failed to save process.");
     }
   };
   const convertDeletedNodesToList = (nodes: CustomTreeDataNode[]): any[] => {
@@ -518,20 +509,15 @@ function ProcessDetails() {
 
   const handleUpdateSubProcess = (values: any) => {
     const updatedData = [...treeData];
-    console.log("editingNode", editingNode);
-    console.log("values in handleUpdateSubProcess", values);
 
     const node = findNodeByKey(updatedData, String(editingNode!.key));
     if (node) {
       node.title = values.processName;
       node.growthStageId = values.growthStageId;
       node.masterTypeId = Number(values.masterTypeId);
-      console.log("node when update sub", node);
 
       if (node.status !== "add") {
         node.status = "update";
-      } else {
-        console.log("ảo z");
       }
     }
     setTreeData(updatedData);
@@ -542,8 +528,6 @@ function ProcessDetails() {
     return nodes
       .filter((node) => node.status !== "delete")
       .map((node) => {
-        console.log("sắp xong r", node);
-
         const filteredPlans = node.listPlan?.filter(
           (plan: PlanType) => plan.planStatus !== "delete",
         );
@@ -714,8 +698,6 @@ function ProcessDetails() {
       plans: [...plans],
     });
   };
-  // console.log("tree data", treeData);
-  console.log("tplansssss", plans);
   if (isLoading)
     return (
       <Flex justify="center" align="center" style={{ width: "100%" }}>

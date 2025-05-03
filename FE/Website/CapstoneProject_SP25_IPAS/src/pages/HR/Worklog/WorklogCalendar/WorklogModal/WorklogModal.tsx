@@ -63,7 +63,6 @@ const WorklogModal = ({ isOpen, onClose, onSave }: WorklogModalProps) => {
         masterTypeId: values.masterTypeId,
       };
 
-      console.log("Payload:", payload);
       onSave(payload);
 
       handleCancel();

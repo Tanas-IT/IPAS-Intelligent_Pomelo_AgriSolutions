@@ -81,7 +81,6 @@ const WorklogDetailScreen: React.FC<WorklogDetailScreenProps> = ({ route }) => {
         return isRejected;
       }
     ) || false;
-    console.log("Is user rejected:", isRejectedInEmployee || isRejectedInReporter);
     return isRejectedInEmployee || isRejectedInReporter;
   };
 
@@ -121,7 +120,6 @@ const WorklogDetailScreen: React.FC<WorklogDetailScreenProps> = ({ route }) => {
           text: "Yes",
           onPress: async () => {
             try {
-              console.log("Redoing worklog:", worklogId);
               const payload = {
                 workLogId: Number(worklogId),
                 userId: Number(userId),
@@ -166,7 +164,6 @@ const WorklogDetailScreen: React.FC<WorklogDetailScreenProps> = ({ route }) => {
           text: "Yes",
           onPress: async () => {
             try {
-              console.log("Cancelling worklog:", worklogId);
               const payload: CancelWorklogRequest = {
                 workLogId: Number(worklogId),
                 userId: Number(userId)
@@ -245,7 +242,6 @@ const WorklogDetailScreen: React.FC<WorklogDetailScreenProps> = ({ route }) => {
           text: "Yes",
           onPress: async () => {
             try {
-              console.log("Marking worklog as complete:", worklogId);
               const payload: UpdateStatusWorklogRequest = {
                 workLogId: Number(worklogId),
                 status: "Reviewing",

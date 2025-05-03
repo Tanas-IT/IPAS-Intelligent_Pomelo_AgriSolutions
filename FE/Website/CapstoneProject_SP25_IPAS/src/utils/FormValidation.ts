@@ -76,7 +76,6 @@ export const validatePolygonBeforeSave = (
   if (width < minWidth || width > maxWidth) {
     // toast.warning(`Width must be between ${minWidth}m and ${maxWidth}m!`);
     toast.warning(`Plot dimensions must be within the allowed range!`);
-
     return false;
   }
 

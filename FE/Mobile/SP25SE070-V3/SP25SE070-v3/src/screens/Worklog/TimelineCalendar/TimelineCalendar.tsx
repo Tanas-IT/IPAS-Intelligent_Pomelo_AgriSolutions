@@ -243,8 +243,7 @@ export const TimelineCalendar: React.FC<TimelineCalendarProps> = ({
     rightEdgeSpacing: 24,
     renderEvent,
   };
-  console.log("timelineProps", timelineProps);
-  console.log("timelineEvents", timelineEvents);
+
 
   return (
     <View style={styles.container}>

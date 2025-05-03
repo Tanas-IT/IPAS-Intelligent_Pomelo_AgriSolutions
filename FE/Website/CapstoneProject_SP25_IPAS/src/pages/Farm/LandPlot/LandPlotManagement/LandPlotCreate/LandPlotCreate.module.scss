@@ -3,7 +3,10 @@
 .container {
   flex-direction: column;
   gap: 8px;
+  height: 100%;
+  overflow: auto;
   .contentWrapper {
+    // flex-direction: column;
     gap: 20px;
     .formSection {
       min-width: 25vw;
@@ -29,6 +32,21 @@
         align-items: center;
         padding: 0 4rem;
         z-index: 99;
+      }
+    }
+    @media (max-width: 768px) {
+      flex-direction: column;
+
+      .formSection {
+        min-width: 100%;
+      }
+
+      .mapSection {
+        height: 300px;
+
+        .mapControls {
+          padding: 0 1rem;
+        }
       }
     }
   }

@@ -31,7 +31,7 @@ const EmployeeTable: React.FC<EmployeeTableProps> = ({
   isEditable,
   initialReporterId,
   tempReporterId,
-  worklog
+  worklog,
 }) => {
   const [replacingStates, setReplacingStates] = useState<{ [key: number]: number | null }>({});
   const [employee, setEmployee] = useState<EmployeeType[]>([]);
@@ -40,7 +40,10 @@ const EmployeeTable: React.FC<EmployeeTableProps> = ({
     const fetchEmployees = async () => {
       try {
         const farmId = getFarmId();
-        const response = await worklogService.getEmployeesByWorkSkill(Number(farmId), worklog?.masterTypeId);
+        const response = await worklogService.getEmployeesByWorkSkill(
+          Number(farmId),
+          worklog?.masterTypeId,
+        );
         if (response.statusCode === 200) {
           setEmployee(response.data);
         } else {
@@ -62,11 +65,11 @@ const EmployeeTable: React.FC<EmployeeTableProps> = ({
     setReplacingStates((prev) => {
       const newState = { ...prev, [replacedUserId]: replacementUserId };
       onUpdateReplacingStates(newState);
-      
+
       if (tempReporterId === replacedUserId) {
         onUpdateTempReporter(replacementUserId);
       }
-      
+
       return newState;
     });
   };
@@ -114,10 +117,10 @@ const EmployeeTable: React.FC<EmployeeTableProps> = ({
             status === "Received"
               ? "green"
               : status === "Replaced" || status === "BeReplaced"
-                ? "orange"
-                : status
-                  ? "red"
-                  : "gray"
+              ? "orange"
+              : status
+              ? "red"
+              : "gray"
           }
         >
           {status || "Not Yet"}
@@ -135,16 +138,16 @@ const EmployeeTable: React.FC<EmployeeTableProps> = ({
     {
       title: "Reporter",
       render: (_: any, record: GetUser) => {
-        console.log('[DEBUG]', {
-          currentUserId: record.userId,
-          tempReporterId,
-          isMatch: record.userId === tempReporterId,
-          typeCheck: {
-            userIdType: typeof record.userId,
-            reporterIdType: typeof tempReporterId
-          }
-        });
-        
+        // console.log('[DEBUG]', {
+        //   currentUserId: record.userId,
+        //   tempReporterId,
+        //   isMatch: record.userId === tempReporterId,
+        //   typeCheck: {
+        //     userIdType: typeof record.userId,
+        //     reporterIdType: typeof tempReporterId
+        //   }
+        // });
+
         return (
           <Radio
             checked={record.userId === tempReporterId}
@@ -160,14 +163,11 @@ const EmployeeTable: React.FC<EmployeeTableProps> = ({
       title: "Replacement",
       render: (_: any, record: GetUser) => {
         const isReplacing = replacingStates[record.userId] !== undefined;
-        console.log("isReplacing", isReplacing);
-        
+
         const availableReplacements = employee.filter(
-          (emp) =>
-            emp.userId !== record.userId &&
-            !employees.some((e) => e.userId === emp.userId)
+          (emp) => emp.userId !== record.userId && !employees.some((e) => e.userId === emp.userId),
         );
-    
+
         return isEditable ? (
           isReplacing ? (
             <Flex gap={8} align="center">
@@ -191,20 +191,18 @@ const EmployeeTable: React.FC<EmployeeTableProps> = ({
                   borderRadius: 8,
                   boxShadow: "0 6px 16px rgba(0, 0, 0, 0.1)",
                   padding: 8,
-                  width: 300
+                  width: 300,
                 }}
               >
                 {availableReplacements.map((emp) => (
-                  <Select.Option 
-                    key={emp.userId} 
-                    value={emp.userId}
-                    label={emp.fullName}
-                  >
-                    <div style={{
-                      display: "flex",
-                      flexDirection: "column",
-                      padding: "4px 0",
-                    }}>
+                  <Select.Option key={emp.userId} value={emp.userId} label={emp.fullName}>
+                    <div
+                      style={{
+                        display: "flex",
+                        flexDirection: "column",
+                        padding: "4px 0",
+                      }}
+                    >
                       <Flex align="center" gap={8}>
                         <img
                           src={emp.avatarURL}
@@ -214,23 +212,30 @@ const EmployeeTable: React.FC<EmployeeTableProps> = ({
                             height: 24,
                             borderRadius: "50%",
                             objectFit: "cover",
-                            border: "1px solid #f0f0f0"
+                            border: "1px solid #f0f0f0",
                           }}
                           crossOrigin="anonymous"
                         />
-                        <span style={{
-                          fontWeight: 500,
-                          color: "rgba(0, 0, 0, 0.88)"
-                        }}>
+                        <span
+                          style={{
+                            fontWeight: 500,
+                            color: "rgba(0, 0, 0, 0.88)",
+                          }}
+                        >
                           {emp.fullName}
                         </span>
                       </Flex>
-    
+
                       <Flex gap={4} wrap="wrap" style={{ marginTop: 6 }}>
                         {(emp as EmployeeWithSkills).skillWithScore?.slice(0, 3)?.map((skill) => (
                           <Tag
                             key={skill.skillName}
-                            icon={<Icons.score style={{ fontSize: 12, marginRight: "5px" }} color="gold" />}
+                            icon={
+                              <Icons.score
+                                style={{ fontSize: 12, marginRight: "5px" }}
+                                color="gold"
+                              />
+                            }
                             color="green"
                             style={{
                               margin: 0,
@@ -251,16 +256,10 @@ const EmployeeTable: React.FC<EmployeeTableProps> = ({
                   </Select.Option>
                 ))}
               </Select>
-              <Button
-                onClick={() => handleCancelReplace(record.userId)}
-                icon={<Icons.close />}
-              />
+              <Button onClick={() => handleCancelReplace(record.userId)} icon={<Icons.close />} />
             </Flex>
           ) : (
-            <Button 
-              onClick={() => handleStartReplace(record.userId)} 
-              disabled={!isEditable}
-            >
+            <Button onClick={() => handleStartReplace(record.userId)} disabled={!isEditable}>
               Replace
             </Button>
           )
@@ -268,7 +267,7 @@ const EmployeeTable: React.FC<EmployeeTableProps> = ({
           <Button disabled>Replace</Button>
         );
       },
-    }
+    },
   ];
 
   return <Table dataSource={employees} columns={columns} rowKey="userId" />;

@@ -1,5 +1,19 @@
 import React, { useEffect, useState } from "react";
-import { Layout, Typography, List, Row, Col, message, Card, Button, Segmented, Carousel, Divider, Dropdown, Menu } from "antd";
+import {
+  Layout,
+  Typography,
+  List,
+  Row,
+  Col,
+  message,
+  Card,
+  Button,
+  Segmented,
+  Carousel,
+  Divider,
+  Dropdown,
+  Menu,
+} from "antd";
 import { WiDaySunny, WiCloud, WiRain } from "react-icons/wi"; // Weather Icons
 import useWeatherStore from "@/stores/weatherStore";
 import style from "./Weather.module.scss";
@@ -7,12 +21,10 @@ import axios from "axios";
 import { Icons } from "@/assets";
 import Slider from "react-slick";
 import { useStyle } from "@/hooks";
-import { MoreOutlined } from '@ant-design/icons';
+import { MoreOutlined } from "@ant-design/icons";
 
 const { Sider } = Layout;
 const { Text, Title } = Typography;
-
-
 
 interface WeatherData {
   main: {
@@ -63,22 +75,12 @@ const getWeatherIcon = (weather: string) => {
 
 function SampleNextArrow(props: any) {
   const { className, style, onClick } = props;
-  return (
-    <div
-      className={`${className}`}
-      onClick={onClick}
-    />
-  );
+  return <div className={`${className}`} onClick={onClick} />;
 }
 
 function SamplePrevArrow(props: any) {
   const { className, style, onClick } = props;
-  return (
-    <div
-      className={`${className}`}
-      onClick={onClick}
-    />
-  );
+  return <div className={`${className}`} onClick={onClick} />;
 }
 
 const CustomSlide: React.FC<{ item: HourlyForecastItem }> = ({ item }) => (
@@ -101,7 +103,7 @@ const CustomSlide: React.FC<{ item: HourlyForecastItem }> = ({ item }) => (
 );
 
 const handleMenuClick = (e: any) => {
-  console.log('Menu clicked:', e);
+  console.log("Menu clicked:", e);
 };
 
 const menu = (
@@ -131,20 +133,19 @@ const WeeklySlide: React.FC<{ item: any }> = ({ item }) => (
   </div>
 );
 
-
 const RightSidebar: React.FC = () => {
   const { forecast, fetchWeather, place } = useWeatherStore();
   const [isToday, setIsToday] = useState<boolean>(true);
   const [weatherData, setWeatherData] = useState<WeatherData | null>(null);
   const [soilData, setSoilData] = useState<SoilData | null>(null);
   const [isLoading, setIsLoading] = useState<boolean>(true);
-  const [selectedView, setSelectedView] = useState<'Today' | 'Week'>('Today');
+  const [selectedView, setSelectedView] = useState<"Today" | "Week">("Today");
 
   const { styles } = useStyle();
 
-
-  const weatherApiKey = 'c01125b343b6934e4c8a22f0edc300b7'; // Điền API Key vào đây
-  const soilGridsApiUrl = 'https://rest.isric.org/soilgrids/v2.0/classification/query?lon=24&lat=24&number_classes=5';
+  const weatherApiKey = "c01125b343b6934e4c8a22f0edc300b7"; // Điền API Key vào đây
+  const soilGridsApiUrl =
+    "https://rest.isric.org/soilgrids/v2.0/classification/query?lon=24&lat=24&number_classes=5";
 
   const settings = {
     dots: false,
@@ -158,42 +159,37 @@ const RightSidebar: React.FC = () => {
   };
 
   const hourlyForecastData = [
-    { time: '12 AM', temp: 24, weather: 'Sunny', wind: 10 },
-    { time: '01 AM', temp: 23, weather: 'Clear', wind: 12 },
-    { time: '02 AM', temp: 22, weather: 'Clear', wind: 14 },
-    { time: '03 AM', temp: 21, weather: 'Cloudy', wind: 16 },
-    { time: '04 AM', temp: 21, weather: 'Cloudy', wind: 17 },
-    { time: '05 AM', temp: 23, weather: 'Sunny', wind: 18 },
-    { time: '06 AM', temp: 25, weather: 'Sunny', wind: 20 },
-    { time: '07 AM', temp: 26, weather: 'Sunny', wind: 22 },
-    { time: '08 AM', temp: 27, weather: 'Sunny', wind: 23 },
-    { time: '09 AM', temp: 28, weather: 'Clear', wind: 25 },
-    { time: '10 AM', temp: 29, weather: 'Clear', wind: 26 },
-    { time: '11 AM', temp: 30, weather: 'Sunny', wind: 27 },
-    { time: '12 PM', temp: 31, weather: 'Sunny', wind: 28 },
-    { time: '01 PM', temp: 32, weather: 'Clear', wind: 29 },
-    { time: '02 PM', temp: 33, weather: 'Sunny', wind: 30 },
-    { time: '03 PM', temp: 34, weather: 'Clear', wind: 31 },
-    { time: '04 PM', temp: 35, weather: 'Sunny', wind: 32 },
-    { time: '05 PM', temp: 36, weather: 'Sunny', wind: 33 },
-    { time: '06 PM', temp: 37, weather: 'Clear', wind: 34 },
-    { time: '07 PM', temp: 38, weather: 'Clear', wind: 35 },
-    { time: '08 PM', temp: 39, weather: 'Sunny', wind: 36 },
-    { time: '09 PM', temp: 40, weather: 'Clear', wind: 37 },
-    { time: '10 PM', temp: 41, weather: 'Sunny', wind: 38 },
-    { time: '11 PM', temp: 42, weather: 'Clear', wind: 39 },
+    { time: "12 AM", temp: 24, weather: "Sunny", wind: 10 },
+    { time: "01 AM", temp: 23, weather: "Clear", wind: 12 },
+    { time: "02 AM", temp: 22, weather: "Clear", wind: 14 },
+    { time: "03 AM", temp: 21, weather: "Cloudy", wind: 16 },
+    { time: "04 AM", temp: 21, weather: "Cloudy", wind: 17 },
+    { time: "05 AM", temp: 23, weather: "Sunny", wind: 18 },
+    { time: "06 AM", temp: 25, weather: "Sunny", wind: 20 },
+    { time: "07 AM", temp: 26, weather: "Sunny", wind: 22 },
+    { time: "08 AM", temp: 27, weather: "Sunny", wind: 23 },
+    { time: "09 AM", temp: 28, weather: "Clear", wind: 25 },
+    { time: "10 AM", temp: 29, weather: "Clear", wind: 26 },
+    { time: "11 AM", temp: 30, weather: "Sunny", wind: 27 },
+    { time: "12 PM", temp: 31, weather: "Sunny", wind: 28 },
+    { time: "01 PM", temp: 32, weather: "Clear", wind: 29 },
+    { time: "02 PM", temp: 33, weather: "Sunny", wind: 30 },
+    { time: "03 PM", temp: 34, weather: "Clear", wind: 31 },
+    { time: "04 PM", temp: 35, weather: "Sunny", wind: 32 },
+    { time: "05 PM", temp: 36, weather: "Sunny", wind: 33 },
+    { time: "06 PM", temp: 37, weather: "Clear", wind: 34 },
+    { time: "07 PM", temp: 38, weather: "Clear", wind: 35 },
+    { time: "08 PM", temp: 39, weather: "Sunny", wind: 36 },
+    { time: "09 PM", temp: 40, weather: "Clear", wind: 37 },
+    { time: "10 PM", temp: 41, weather: "Sunny", wind: 38 },
+    { time: "11 PM", temp: 42, weather: "Clear", wind: 39 },
   ];
 
   const farmAlertsData = [
-    { alert: 'Gió mạnh trên 20 km/h vào lúc 03:00 PM', level: 'high' },
-    { alert: 'Mưa dự báo 20mm vào ngày mai', level: 'medium' },
-    { alert: 'Sương mù dày đặc sáng mai', level: 'low' },
+    { alert: "Gió mạnh trên 20 km/h vào lúc 03:00 PM", level: "high" },
+    { alert: "Mưa dự báo 20mm vào ngày mai", level: "medium" },
+    { alert: "Sương mù dày đặc sáng mai", level: "low" },
   ];
-
-  console.log("forecast", forecast);
-  console.log("soildData", soilData);
-
-
 
   useEffect(() => {
     const fetchSoilData = async () => {
@@ -201,7 +197,7 @@ const RightSidebar: React.FC = () => {
         const soilResponse = await axios.get(soilGridsApiUrl);
         setSoilData(soilResponse.data);
       } catch (error) {
-        message.error('Không thể lấy dữ liệu đất.');
+        message.error("Không thể lấy dữ liệu đất.");
       }
     };
     fetchWeather(); // Lấy dữ liệu thời tiết khi load component
@@ -243,24 +239,23 @@ const RightSidebar: React.FC = () => {
     { day: "Sun", date: "Feb 4", temp: 29, weather: "Sunny" },
   ];
 
-
   return (
     <Sider className={style.rightSidebar} width={270}>
       {/* Segmented Button */}
-      <Row justify="space-between" align="middle" style={{ marginBottom: '10px' }}>
+      <Row justify="space-between" align="middle" style={{ marginBottom: "10px" }}>
         <Col span={12}>
           <Segmented
-            options={['Today', 'Week']}
+            options={["Today", "Week"]}
             value={selectedView}
             onChange={setSelectedView}
-            style={{ width: '100%' }}
+            style={{ width: "100%" }}
           />
         </Col>
       </Row>
 
       {/* Render data based on selection */}
-      {selectedView === 'Today' ? (
-        <div style={{ position: 'relative', width: '80%', marginLeft: "20px" }}>
+      {selectedView === "Today" ? (
+        <div style={{ position: "relative", width: "80%", marginLeft: "20px" }}>
           <Slider {...settings}>
             {hourlyForecastData.map((item, index) => (
               <CustomSlide key={index} item={item} />
@@ -268,7 +263,7 @@ const RightSidebar: React.FC = () => {
           </Slider>
         </div>
       ) : (
-        <div style={{ position: 'relative', width: '80%', marginLeft: "20px" }}>
+        <div style={{ position: "relative", width: "80%", marginLeft: "20px" }}>
           <Slider {...settings}>
             {weeklyForecastData.map((item, index) => (
               <WeeklySlide key={index} item={item} />
@@ -284,28 +279,39 @@ const RightSidebar: React.FC = () => {
         renderItem={(item) => (
           <List.Item
             style={{
-              backgroundColor: item.level === 'high' ? '#FFCCCC' : item.level === 'medium' ? '#FFF3CD' : '#D4EDDA',
-              borderRadius: '5px',
-              marginBottom: '10px',
-              padding: '10px',
+              backgroundColor:
+                item.level === "high" ? "#FFCCCC" : item.level === "medium" ? "#FFF3CD" : "#D4EDDA",
+              borderRadius: "5px",
+              marginBottom: "10px",
+              padding: "10px",
             }}
           >
             <Text
               style={{
-                fontSize: '13px',
-                fontWeight: 'bold',
-                color: item.level === 'high' ? '#FF0000' : item.level === 'medium' ? '#FF9900' : '#28A745',
+                fontSize: "13px",
+                fontWeight: "bold",
+                color:
+                  item.level === "high"
+                    ? "#FF0000"
+                    : item.level === "medium"
+                    ? "#FF9900"
+                    : "#28A745",
               }}
             >
               {item.alert}
             </Text>
-            <Dropdown overlay={menu} trigger={['click']}>
+            <Dropdown overlay={menu} trigger={["click"]}>
               <Button
                 type="link"
                 style={{
-                  float: 'right',
-                  fontSize: '14px',
-                  color: item.level === 'high' ? '#FF0000' : item.level === 'medium' ? '#FF9900' : '#28A745',
+                  float: "right",
+                  fontSize: "14px",
+                  color:
+                    item.level === "high"
+                      ? "#FF0000"
+                      : item.level === "medium"
+                      ? "#FF9900"
+                      : "#28A745",
                 }}
               >
                 <MoreOutlined />
@@ -321,6 +327,3 @@ const RightSidebar: React.FC = () => {
 };
 
 export default RightSidebar;
-
-
-

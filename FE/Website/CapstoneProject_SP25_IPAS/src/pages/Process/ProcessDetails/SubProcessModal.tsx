@@ -30,7 +30,6 @@ const SubProcessModal: React.FC<SubProcessModalProps> = ({
 
   const handleSave = () => {
     form.validateFields().then((values) => {
-      console.log("values in sub", values);
 
       onSave(values);
       form.resetFields();

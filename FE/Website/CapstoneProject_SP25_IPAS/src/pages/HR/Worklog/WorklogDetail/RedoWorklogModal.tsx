@@ -17,7 +17,12 @@ type RedoWorklogModalProps = {
   failedOrRedoWorkLogId: number;
 };
 
-const RedoWorklogModal = ({ isOpen, onClose, onSuccess, failedOrRedoWorkLogId }: RedoWorklogModalProps) => {
+const RedoWorklogModal = ({
+  isOpen,
+  onClose,
+  onSuccess,
+  failedOrRedoWorkLogId,
+}: RedoWorklogModalProps) => {
   const [form] = Form.useForm();
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [allEmployees, setAllEmployees] = useState<EmployeeWithSkills[]>([]);
@@ -67,8 +72,6 @@ const RedoWorklogModal = ({ isOpen, onClose, onSuccess, failedOrRedoWorkLogId }:
         newAssignorId: Number(getUserId()),
       };
 
-      console.log("Payload:", payload);
-
       const result = await worklogService.addRedoWorklog(payload);
 
       if (result.statusCode === 200) {
@@ -80,7 +83,6 @@ const RedoWorklogModal = ({ isOpen, onClose, onSuccess, failedOrRedoWorkLogId }:
       }
     } catch (error) {
       console.error("Validation failed:", error);
-      toast.warning("Failed to create redo worklog");
     }
   };
 
@@ -129,7 +131,7 @@ const RedoWorklogModal = ({ isOpen, onClose, onSuccess, failedOrRedoWorkLogId }:
 
   const formatSkills = (skills: { skillName: string; score: number }[]) => {
     return skills.length > 0
-      ? skills.map(skill => `${skill.skillName} (${skill.score})`).join(", ")
+      ? skills.map((skill) => `${skill.skillName} (${skill.score})`).join(", ")
       : "None";
   };
 
@@ -186,20 +188,24 @@ const RedoWorklogModal = ({ isOpen, onClose, onSuccess, failedOrRedoWorkLogId }:
           >
             {employee.map((emp) => (
               <Select.Option key={emp.userId} value={emp.userId} label={emp.fullName}>
-                <div style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 12,
-                  padding: "8px 12px",
-                  borderRadius: 8,
-                  transition: "all 0.2s",
-                }}>
-                  <div style={{
-                    position: "relative",
-                    width: 32,
-                    height: 32,
-                    flexShrink: 0
-                  }}>
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 12,
+                    padding: "8px 12px",
+                    borderRadius: 8,
+                    transition: "all 0.2s",
+                  }}
+                >
+                  <div
+                    style={{
+                      position: "relative",
+                      width: 32,
+                      height: 32,
+                      flexShrink: 0,
+                    }}
+                  >
                     <img
                       src={emp.avatarURL}
                       alt={emp.fullName}
@@ -208,65 +214,78 @@ const RedoWorklogModal = ({ isOpen, onClose, onSuccess, failedOrRedoWorkLogId }:
                         height: "100%",
                         borderRadius: "50%",
                         objectFit: "cover",
-                        border: "2px solid #e6f7ff"
+                        border: "2px solid #e6f7ff",
                       }}
                       crossOrigin="anonymous"
                     />
                   </div>
 
-                  <div style={{
-                    flex: 1,
-                    minWidth: 0
-                  }}>
-                    <div style={{
-                      fontWeight: 500,
-                      color: "rgba(0, 0, 0, 0.88)",
-                      whiteSpace: "nowrap",
-                      overflow: "hidden",
-                      textOverflow: "ellipsis"
-                    }}>
+                  <div
+                    style={{
+                      flex: 1,
+                      minWidth: 0,
+                    }}
+                  >
+                    <div
+                      style={{
+                        fontWeight: 500,
+                        color: "rgba(0, 0, 0, 0.88)",
+                        whiteSpace: "nowrap",
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                      }}
+                    >
                       {emp.fullName}
                     </div>
 
-                    <div style={{
-                      display: "flex",
-                      gap: 6,
-                      marginTop: 4,
-                      flexWrap: "wrap"
-                    }}>
-                      {emp.skillWithScore.slice(0, 3).map(skill => (
-                        <div key={skill.skillName} style={{
-                          display: "flex",
-                          alignItems: "center",
-                          background: skill.score >= 7 ? "#f6ffed" : "#fafafa",
-                          border: `1px solid ${skill.score >= 7 ? "#b7eb8f" : "#d9d9d9"}`,
-                          borderRadius: 4,
-                          padding: "2px 6px",
-                          fontSize: 12,
-                          lineHeight: 1
-                        }}>
+                    <div
+                      style={{
+                        display: "flex",
+                        gap: 6,
+                        marginTop: 4,
+                        flexWrap: "wrap",
+                      }}
+                    >
+                      {emp.skillWithScore.slice(0, 3).map((skill) => (
+                        <div
+                          key={skill.skillName}
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            background: skill.score >= 7 ? "#f6ffed" : "#fafafa",
+                            border: `1px solid ${skill.score >= 7 ? "#b7eb8f" : "#d9d9d9"}`,
+                            borderRadius: 4,
+                            padding: "2px 6px",
+                            fontSize: 12,
+                            lineHeight: 1,
+                          }}
+                        >
                           <Icons.grade
                             width={12}
                             height={12}
                             style={{
                               marginRight: 4,
-                              color: "yellow"
+                              color: "yellow",
                             }}
                           />
-                          <span style={{
-                            color: "rgba(0, 0, 0, 0.65)"
-                          }}>
+                          <span
+                            style={{
+                              color: "rgba(0, 0, 0, 0.65)",
+                            }}
+                          >
                             {skill.skillName} <strong>{skill.score}</strong>
                           </span>
                         </div>
                       ))}
                       {emp.skillWithScore.length > 3 && (
-                        <div style={{
-                          background: "#f0f0f0",
-                          borderRadius: 4,
-                          padding: "2px 6px",
-                          fontSize: 12
-                        }}>
+                        <div
+                          style={{
+                            background: "#f0f0f0",
+                            borderRadius: 4,
+                            padding: "2px 6px",
+                            fontSize: 12,
+                          }}
+                        >
                           +{emp.skillWithScore.length - 3}
                         </div>
                       )}

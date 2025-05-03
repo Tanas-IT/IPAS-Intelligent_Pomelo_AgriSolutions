@@ -1,18 +1,24 @@
-import React, { useEffect, useState } from 'react';
-import { View, ScrollView, TouchableOpacity, Dimensions, ActivityIndicator } from 'react-native';
-import { LinearGradient } from 'expo-linear-gradient';
-import { useNavigation } from '@react-navigation/native';
-import { PieChart } from 'react-native-chart-kit';
-import Toast from 'react-native-toast-message';
-import theme from '@/theme';
-import { ROUTE_NAMES } from '@/constants/RouteNames';
-import { RootStackNavigationProp } from '@/constants/Types';
-import WorkItem from '../components/WorkItem';
-import { styles } from './ManagerHomeScreen.styles';
-import { TextCustom } from '@/components';
-import { useAuthStore } from '@/store';
-import { dashboardService } from '@/services';
-import { UserRolesStr } from '@/constants';
+import React, { useEffect, useState } from "react";
+import {
+  View,
+  ScrollView,
+  TouchableOpacity,
+  Dimensions,
+  ActivityIndicator,
+} from "react-native";
+import { LinearGradient } from "expo-linear-gradient";
+import { useNavigation } from "@react-navigation/native";
+import { PieChart } from "react-native-chart-kit";
+import Toast from "react-native-toast-message";
+import theme from "@/theme";
+import { ROUTE_NAMES } from "@/constants/RouteNames";
+import { RootStackNavigationProp } from "@/constants/Types";
+import WorkItem from "../components/WorkItem";
+import { styles } from "./ManagerHomeScreen.styles";
+import { TextCustom } from "@/components";
+import { useAuthStore } from "@/store";
+import { dashboardService } from "@/services";
+import { UserRolesStr } from "@/constants";
 
 const { width: screenWidth } = Dimensions.get("window");
 
@@ -39,7 +45,7 @@ interface WorkOverview {
 
 const ManagerHomeScreen = () => {
   const { fullName, accessToken, roleId } = useAuthStore();
-  
+
   const navigation = useNavigation<RootStackNavigationProp>();
   const [warnings, setWarnings] = useState<Alert[]>([]);
   const [farmOverview, setFarmOverview] = useState<FarmOverview>({
@@ -61,7 +67,6 @@ const ManagerHomeScreen = () => {
       try {
         setLoading(true);
         const data = await dashboardService.getManagerHome(); // farmId=1
-        console.log("Manager home data:", data);
 
         // Ánh xạ warnings sang alerts
         setWarnings(
@@ -97,14 +102,10 @@ const ManagerHomeScreen = () => {
           needFeedback: workStatusMap.Reviewing,
           overdue: workStatusMap.Overdue,
         });
-      } catch (error: any) {
-        console.error("Error fetching manager home:", error);
-        Toast.show({
-          type: "error",
-          text1: "Error",
-          text2: error.message || "Failed to load manager home data",
-        });
       } finally {
+        // catch (error: any) {
+        //   console.error("Error fetching manager home:", error);
+        // }
         setLoading(false);
       }
     };

@@ -628,7 +628,6 @@ export const fetchTargetsByUnit = async (
       selectedGrowthStage,
       Number(getFarmId()),
     );
-    console.log("res trong fetchTargetsByUnit", response);
 
     const formattedData = response.map((item) => ({
       unit,
@@ -667,15 +666,12 @@ export const fetchTargetsByUnit = async (
             }))
           : [],
     }));
-    console.log("formattedData trong fetchTargetsByUnit", formattedData);
 
     setSelectedTargets((prev) => {
       const newSelectedTargets = [...prev];
       newSelectedTargets[index] = formattedData;
-      console.log("sau khi setSelectedTargets", newSelectedTargets);
       return newSelectedTargets;
     });
-    console.log("hình như k chạy đến đây");
   } catch (error) {
     console.error("Error fetching data:", error);
     throw error;
