@@ -2870,13 +2870,16 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
         {
             try
             {
+                var timeZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
+                var today = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, timeZone);
+                var vietnamTimeOfDay = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, timeZone).TimeOfDay;
                 var timeToTakeAttendance = await _unitOfWork.SystemConfigRepository
                                         .GetConfigValue(SystemConfigConst.TIME_TO_TAKE_ATTEDANCE.Trim(), (double)120);
                 var getWorkLog = await _unitOfWork.WorkLogRepository.GetByID(workLogId);
                 var workStart = getWorkLog.Date.Value.Date + getWorkLog.ActualStartTime.Value;
 
                 var minCheckIn = workStart.AddMinutes(-timeToTakeAttendance);
-                var result = DateTime.Now >= minCheckIn;
+                var result = today >= minCheckIn;
                 if (result)
                 {
                     return new BusinessResult(200, "Can check attendance", true);
@@ -2931,7 +2934,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 var timeZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
                 var today = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, timeZone).Date;
                 var vietnamTimeOfDay = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, timeZone).TimeOfDay;
-                if (addNewTaskModel.NewDateWork.Date == DateTime.Now.Date)
+                if (addNewTaskModel.NewDateWork.Date == today)
                 {
                     if (startTime <= vietnamTimeOfDay)
                     {

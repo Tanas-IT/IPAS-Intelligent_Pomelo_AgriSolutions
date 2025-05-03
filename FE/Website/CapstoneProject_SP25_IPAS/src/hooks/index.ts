@@ -22,6 +22,7 @@ export { default as useLandRowOptions } from "./useLandRowOptions";
 export { default as useNotifications } from "./useNotifications";
 export { default as useFormManager } from "./useFormManager";
 export { default as usePlanManager } from "./usePlanManager";
+export { default as useAIPlanManager } from "./useAIPlanManager";
 export { default as usePanZoom } from "./usePanZoom";
 export { default as useCriteriaOptions } from "./useCriteriaOptions";
 export { default as useFarmExpiration } from "./useFarmExpiration";

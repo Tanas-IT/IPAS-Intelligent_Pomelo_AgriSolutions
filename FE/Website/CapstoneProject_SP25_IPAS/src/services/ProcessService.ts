@@ -1,7 +1,7 @@
 import { axiosAuth } from "@/api";
 import { ApiResponse, GetData, GetPlant } from "@/payloads";
 import { GetProcess, GetProcessDetail, GetProcessList, GetProcessSelect } from "@/payloads/process";
-import { ProcessRequest, UpdateProcessRequest } from "@/payloads/process/requests/ProcessRequest";
+import { AICreateProcessRequest, AIProcessResponse, ProcessRequest, UpdateProcessRequest } from "@/payloads/process/requests/ProcessRequest";
 import { buildParams } from "@/utils";
 
 export const getProcesses = async (
@@ -152,3 +152,24 @@ export const getProcessOfFarmByMasterType = async (processIds: number[]) => {
     label: name,
   }));
 };
+
+  export const getAIRecommendedProcess = async (
+    processName: string,
+    isSample: boolean,
+  ): Promise<ApiResponse<AIProcessResponse>> => {
+    const encodedProcessName = encodeURIComponent(processName);
+    const res = await axiosAuth.axiosJsonRequest.get(
+      `/ai/proceess/recomend-with-ai?processName=${encodedProcessName}&isSample=${isSample}`,
+    );
+    return res.data as ApiResponse<AIProcessResponse>;
+  };
+
+  export const createProcessWithSub = async (
+    payload: AICreateProcessRequest,
+  ): Promise<ApiResponse<boolean>> => {
+    const res = await axiosAuth.axiosJsonRequest.post(
+      "/proceesses/create-with-sub",
+      payload,
+    );
+    return res.data as ApiResponse<boolean>;
+  };

@@ -53,7 +53,7 @@ const RecordYieldTab: React.FC = () => {
         );
         setAvailableHarvests(response.data);
       } catch (error) {
-        console.error("Fetch available harvests error:", error);
+        // console.error("Fetch available harvests error:", error);
       }
     };
     fetchHarvests();
@@ -83,7 +83,7 @@ const RecordYieldTab: React.FC = () => {
         setTotalPage(response.data.totalPage);
         setPage(pageNum);
       } catch (error: any) {
-        console.error("Fetch error:", error);
+        // console.error("Fetch error:", error);
         Toast.show({
           type: "error",
           text1: "Error",

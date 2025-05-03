@@ -13,12 +13,9 @@ namespace CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.ProcessModel
 
         public string? ProcessName { get; set; }
         public bool? IsActive { get; set; }
-        public bool? IsDeleted { get; set; }
+        public bool? IsSample { get; set; } = true;
         public int? MasterTypeId { get; set; }
-        public int? GrowthStageID { get; set; }
-        public int? Order { get; set; }
-        public DateTime? StartDate { get; set; }
-        public DateTime? EndDate { get; set; }
+        public int? PlanTargetInProcess { get; set; } // có 3 giá trị: 1 là LandPlot/Row/Plant, 2 là PlantLot, 3 là GraftedPlant
 
         // Chuỗi JSON chứa danh sách SubProcess (trong mỗi SubProcess có danh sách Plan)
         public List<SubProcessCreateManyModel>? ListSubProcess { get; set; }
@@ -27,20 +24,18 @@ namespace CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.ProcessModel
     }
     public class SubProcessCreateManyModel
     {
-        public string SubProcessName { get; set; }
-        public int ParentSubProcessId { get; set; }
-        public bool IsDefault { get; set; }
-        public bool IsActive { get; set; }
-        public int MasterTypeId { get; set; }
-        public List<PlanCreateManyModel> ListPlan { get; set; }
+        public int? SubProcessId { get; set; }
+        public string? SubProcessName { get; set; }
+        public int? ParentSubProcessId { get; set; }
+        public bool? IsActive { get; set; }
+        public int? Order { get; set; }
+        public List<PlanCreateManyModel>? ListPlan { get; set; }
     }
 
     public class PlanCreateManyModel
     {
-        public string PlanName { get; set; }
-        public string PlanDetail { get; set; }
-        public string PlanNote { get; set; }
-        public int GrowthStageId { get; set; }
-        public int MasterTypeId { get; set; }
+        public string? PlanName { get; set; }
+        public string? PlanDetail { get; set; }
+        public string? PlanNote { get; set; }
     }
 }

@@ -37,6 +37,7 @@ namespace CapstoneProject_SP25_IPAS_Service.IService
         public Task<BusinessResult> DeleteRoom(int roomId);
         public Task<BusinessResult> UpdateTagOfImage(string imageId, string tagId);
         public Task<BusinessResult> GetTagsWithPagin(PaginationParameter paginationParameter);
+        public Task<BusinessResult> RecomendProcessAI(ProcessRecomendRequest request);
 
     }
 }

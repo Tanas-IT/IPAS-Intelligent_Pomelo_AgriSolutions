@@ -302,6 +302,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Mapping
                 .ForMember(dest => dest.PlantNames, opt => opt.MapFrom(src =>
                                                             src.PlanTargets.Where(pt => pt.Plant != null).Select(pt => pt.Plant.PlantName).Distinct().ToList()))
                .ForMember(dest => dest.ProcessName, opt => opt.MapFrom(src => src.Process != null ? src.Process.ProcessName : (string?)null))
+               .ForMember(dest => dest.SubProcessName, opt => opt.MapFrom(src => src.SubProcess != null ? src.SubProcess.SubProcessName : (string?)null))
                .ForMember(dest => dest.CropName, opt => opt.MapFrom(src => src.Crop != null ? src.Crop.CropName : (string?)null))
               .ForMember(dest => dest.CropId, opt => opt.MapFrom(src => src.Crop != null ? src.Crop.CropId : (int?)null))
                .ForMember(dest => dest.ProcessId, opt => opt.MapFrom(src => src.Process != null ? src.Process.ProcessId : (int?)null))

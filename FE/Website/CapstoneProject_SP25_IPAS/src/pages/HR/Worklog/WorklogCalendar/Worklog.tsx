@@ -127,14 +127,16 @@ function Worklog() {
   }, [worklog]);
 
   const hadleAddWorklog = async (worklog: CreateWorklogRequest) => {
-    const res = await worklogService.addWorklog(worklog);
-    if (res.statusCode === 200) {
-      toast.success(res.message);
-      addModal.hideModal();
+    // const res = await worklogService.addWorklog(worklog);
+    // if (res.statusCode === 200) {
+    //   toast.success(res.message);
+    //   addModal.hideModal();
+    //   fetchData();
+    // } else {
+    //   toast.error(res.message);
+    // }
+    addModal.hideModal();
       fetchData();
-    } else {
-      toast.warning(res.message);
-    }
   }
   
 

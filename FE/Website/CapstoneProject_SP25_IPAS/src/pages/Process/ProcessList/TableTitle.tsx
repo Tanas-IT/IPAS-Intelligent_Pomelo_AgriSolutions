@@ -1,4 +1,4 @@
-import { Flex, Form, Input, Modal, Popover, Select } from "antd";
+import { Button, Flex, Form, Input, Modal, Popover, Select } from "antd";
 import { Searchbar, CustomButton, TagRender } from "@/components";
 import { Icons } from "@/assets";
 import style from "./ProcessList.module.scss";
@@ -8,6 +8,7 @@ type TableTitleProps = {
   filterLabel?: string;
   addLabel?: string;
   onAdd: () => void;
+  onAIGenerate?: () => void;
 };
 
 const TableTitle = ({
@@ -16,6 +17,7 @@ const TableTitle = ({
   filterLabel = "Filter",
   addLabel = "Add New",
   onAdd,
+  onAIGenerate
 }: TableTitleProps) => {
   return (
     <Flex className={style.headerWrapper}>
@@ -29,6 +31,13 @@ const TableTitle = ({
       </Flex>
       <Flex className={style.sectionRight}>
         <CustomButton label={addLabel} icon={<Icons.plus />} handleOnClick={onAdd} />
+          <Button
+            className={style.aiGenerateButton}
+            icon={<Icons.robot />}
+            onClick={onAIGenerate}
+          >
+            Generate with AI
+          </Button>
       </Flex>
     </Flex>
   );

@@ -1731,16 +1731,16 @@ WHERE UserID IS NULL;
 INSERT INTO [ipas].dbo.Process 
 (ProcessCode, ProcessName, isDefault, isActive, CreateDate, UpdateDate, IsDeleted, GrowthStageID, MasterTypeID, IsSample, FarmID)  
 VALUES
-(N'P006', N'Land preparation', 1, 1, '2024-02-06', NULL, 0, 1, 12, 0, 1), -- có plan mẫu
-(N'P007', N'Dry season tree care plan', 0, 1, '2024-02-07', '2024-02-15', 0, 2, 12, 0, 2), -- có plan mẫu
-(N'P008', N'Pruning', 1, 1, '2024-02-08', NULL, 0, 3, 12, 0, 1), -- có plan mẫu
-(N'P009', N'Soil moisture measurement', 0, 1, '2024-02-09', '2024-02-16', 0, 2, 12, 1, 3), -- tham khảo
-(N'P010', N'Post-harvest preservation', 0, 1, '2024-02-10', NULL, 0, NULL, 13, 1, 2), -- tham khảo
-(N'P011', N'Sowing new seeds', 1, 1, '2024-02-11', '2024-02-18', 0, 1, 12, 0, 3), -- có plan mẫu
-(N'P012', N'Drip irrigation', 0, 1, '2024-02-12', NULL, 0, 2, 12, 0, 1), -- có plan mẫu
-(N'P013', N'Organic fertilizer', 1, 1, '2024-02-13', '2024-02-20', 0, 3, 12, 0, 2), -- có plan mẫu
-(N'P014', N'Early Harvest', 0, 1, '2024-02-14', NULL, 0, NULL, 13, 1, 3), -- tham khảo
-(N'P015', N'Productivity Evaluation', 0, 1, '2024-02-15', '2024-02-22', 0, 2, 12, 1, 1); -- tham khảo
+(N'PR002', N'Quy trình chăm sóc cây bưởi bị bệnh do nhện đỏ', 1, 1, '2024-02-06', NULL, 0, NULL, 12, 0, 1), -- có plan mẫu
+(N'PR003', N'Quy trình chăm sóc cây bưởi bị bệnh sẹo', 0, 1, '2024-02-07', '2024-02-15', 0, NULL, 12, 0, 1), -- có plan mẫu
+(N'PR004', N'Quy trình chăm sóc cây bưởi bị rệp sáp', 1, 1, '2024-02-08', NULL, 0, NULL, 12, 0, 1), -- có plan mẫu
+(N'PR005', N'Đo độ ẩm đất', 0, 1, '2024-02-09', '2024-02-16', 0, NULL, 12, 1, 1), -- tham khảo
+(N'PR006', N'Bảo quản sau thu hoạch', 0, 1, '2024-02-10', NULL, 0, NULL, 13, 1, 2), -- tham khảo
+(N'PR007', N'Quy trình chăm sóc cây bưởi bị sâu đục thân', 1, 1, '2024-02-11', '2024-02-18', 0, NULL, 12, 0, 1), -- có plan mẫu
+(N'PR008', N'Quy trình chăm sóc cây bưởi bị vàng lá', 0, 1, '2024-02-12', NULL, 0, NULL, 12, 0, 1), -- có plan mẫu
+(N'PR009', N'Quy trình chăm sóc cây bưởi bị loét', 1, 1, '2024-02-13', '2024-02-20', 0, NULL, 12, 1, 1), -- tham khảo
+(N'PR010', N'Thu hoạch sớm', 0, 1, '2024-02-14', NULL, 0, NULL, 13, 1, 3), -- tham khảo
+(N'PR011', N'Chăm sóc cây bưởi mùa khô', 0, 1, '2024-02-15', '2024-02-22', 0, NULL, 12, 1, 1); -- tham khảo
 
 
 INSERT INTO ipas.dbo.Package (PackageCode, PackageName, PackagePrice, Duration, isActive, CreateDate, UpdateDate, Status)
@@ -1859,7 +1859,46 @@ VALUES
 ('SPC008', N'Pruning', NULL, 0, 1, N'Cut off unnecessary branches', '2025-04-14 09:00:00', '2025-04-14 09:00:00', '2025-04-21 07:00:00', '2025-04-21 09:00:00', 0, 3, 10, NULL, 2),
 ('SPC009', N'Harvesting phase 1', NULL, 0, 1, N'Conduct trial harvest', '2025-04-14 10:00:00', '2025-04-14 10:00:00', '2025-04-22 08:00:00', '2025-04-22 12:00:00', 0, 4, 10, NULL, 2),
 ('SPC010', N'Internal transportation', NULL, 0, 1, N'Transfer fruit from garden to warehouse', '2025-04-14 11:30:00', '2025-04-14 11:30:00', '2025-04-22 13:00:00', '2025-04-22 14:00:00', 0, 5, 10, NULL, 2),
-('SPC011', N'Cleaning and sorting', NULL, 0, 1, N'Clean fruit, classify before packing', '2025-04-14 12:00:00', '2025-04-14 12:00:00', '2025-04-22 15:00:00', '2025-04-22 18:00:00', 0, 6, 10, NULL, 2);
+('SPC011', N'Cleaning and sorting', NULL, 0, 1, N'Clean fruit, classify before packing', '2025-04-14 12:00:00', '2025-04-14 12:00:00', '2025-04-22 15:00:00', '2025-04-22 18:00:00', 0, 6, 10, NULL, 2),
+(N'SPC012', N'Chẩn đoán bệnh', NULL, 0, 1, N'Kiểm tra dấu hiệu của bệnh nhện đỏ trên lá và quả', GETDATE(), GETDATE(), NULL, NULL, 0, 1, 1, NULL, 1),
+(N'SPC013', N'Cắt tỉa lá bị bệnh', NULL, 0, 1, N'Loại bỏ lá và cành bị nhiễm bệnh để hạn chế lây lan', GETDATE(), GETDATE(), NULL, NULL, 0, 2, 1, NULL, 1),
+(N'SPC014', N'Phun thuốc đặc trị', NULL, 0, 1, N'Sử dụng thuốc trừ nhện đỏ đúng liều lượng', GETDATE(), GETDATE(), NULL, NULL, 0, 3, 
+ 1, NULL, 1),
+(N'SPC015', N'Theo dõi lại', NULL, 0, 1, N'Theo dõi tình trạng sau phun thuốc và đánh giá hiệu quả', GETDATE(), GETDATE(), NULL, NULL, 0, 4, 1, NULL, 1),
+('SPC016', N'Chẩn đoán bệnh sẹo', NULL, 0, 1, N'Phát hiện và đánh giá mức độ tổn thương do bệnh sẹo',
+ GETDATE(), GETDATE(), GETDATE(), GETDATE(), 0, 1, 2, NULL, 1),
+('SPC017', N'Xử lý vết bệnh', NULL, 0, 1, N'Cắt tỉa và làm sạch các vết bệnh sẹo',
+ GETDATE(), GETDATE(), GETDATE(), GETDATE(), 0, 2, 2, NULL, 1),
+('SPC018', N'Phun thuốc điều trị', NULL, 0, 1, N'Dùng thuốc gốc đồng hoặc Boocdo để kháng nấm gây bệnh',
+ GETDATE(), GETDATE(), GETDATE(), GETDATE(), 0, 3,
+ 2, NULL, 1),
+('SPC019', N'Kiểm tra rệp sáp', NULL, 0, 1, N'Quan sát các lá non, hoa, quả và cành để phát hiện rệp sáp',
+ GETDATE(), GETDATE(), GETDATE(), GETDATE(), 0, 1,
+ 3, NULL, 1),
+('SPC020', N'Vệ sinh cây và cắt tỉa', NULL, 0, 1, N'Loại bỏ lá/cành bị nhiễm nặng để hạn chế lây lan',
+ GETDATE(), GETDATE(), GETDATE(), GETDATE(), 0, 2,
+ 3, NULL, 1),
+('SPC021', N'Phun thuốc trị rệp sáp', NULL, 0, 1, N'Sử dụng thuốc như Movento 150OD hoặc dầu khoáng SK Enspray',
+ GETDATE(), GETDATE(), GETDATE(), GETDATE(), 0, 3,
+ 3, NULL, 1),
+('SPC022', N'Kiểm tra sâu đục thân', NULL, 0, 1, N'Quan sát thân cây, vỏ cây có lỗ tròn, mùn cưa, phân sâu',
+ GETDATE(), GETDATE(), GETDATE(), GETDATE(), 0, 1,
+ 6, NULL, 1),
+('SPC023', N'Loại bỏ thủ công sâu', NULL, 0, 1, N'Dùng que thép nhỏ chọc vào lỗ và gắp sâu ra ngoài',
+ GETDATE(), GETDATE(), GETDATE(), GETDATE(), 0, 2,
+ 6, NULL, 1),
+('SPC024', N'Bơm thuốc trị sâu đục thân', NULL, 0, 1, N'Sử dụng thuốc như Regent, Sherpa, hoặc Map Permethrin',
+ GETDATE(), GETDATE(), GETDATE(), GETDATE(), 0, 3,
+ 6, NULL, 1),
+('SPC025', N'Chẩn đoán nguyên nhân vàng lá', NULL, 0, 1, N'Xác định do thiếu dinh dưỡng, nấm, vi khuẩn, tuyến trùng hay sinh lý',
+ GETDATE(), GETDATE(), GETDATE(), GETDATE(), 0, 1,
+ 7, NULL, 1),
+('SPC026', N'Cải tạo đất và bổ sung phân', NULL, 0, 1, N'Bón phân hữu cơ hoai mục, phân lân, kali và vi sinh vật có lợi',
+ GETDATE(), GETDATE(), GETDATE(), GETDATE(), 0, 2,
+ 7, NULL, 1),
+('SPC027', N'Phun thuốc xử lý bệnh', NULL, 0, 1, N'Phun thuốc gốc đồng hoặc trừ tuyến trùng tùy nguyên nhân',
+ GETDATE(), GETDATE(), GETDATE(), GETDATE(), 0, 3,
+ 7, NULL, 1);
 
 INSERT INTO [dbo].[Plan] 
     ([Status], [PlanCode], [CreateDate], [StartDate], [EndDate], [UpdateDate], [isActive], [Notes], [PlanDetail], 
@@ -1887,7 +1926,120 @@ VALUES
     ('Not Started', 'PLN010', GETDATE(), '2025-12-01', '2025-12-10', GETDATE(), 0, 'Post-harvest processing', 'Detail 10', 
      'EmmaPurple', NULL, 'Processing Plan', 3, NULL, NULL, NULL, 9, NULL, 1, 18, 9, 1, 0, 'fbf70009-fb16-4930-a017-023210e8eca8'),
     ('Done', 'PLN011', GETDATE(), '2026-01-01', '2026-01-15', GETDATE(), 1, 'Greenhouse maintenance', 'Detail 11', 
-     'DanielOrange', NULL, 'Maintenance Plan', 3, NULL, NULL, NULL, 10, NULL, 0, 19, 10, 1, 0, 'b3ddaee6-18a3-4a0e-804c-940af15f8017');
+     'DanielOrange', NULL, 'Maintenance Plan', 3, NULL, NULL, NULL, 10, NULL, 0, 19, 10, 1, 0, 'b3ddaee6-18a3-4a0e-804c-940af15f8017'),
+('Not Started', 'PLN011', GETDATE(), '2025-05-01', '2025-05-01', GETDATE(), 1, 
+ N'Kiểm tra triệu chứng trên lá và quả', 
+ N'Xác định mức độ lây lan của bệnh nhện đỏ', 
+ 'NguyenVanB', NULL, N'Chẩn đoán bệnh', 3, NULL, 0.0, 0.0, 
+ NULL, NULL, 0, 18, 
+ (SELECT SubProcessID FROM SubProcess WHERE SubProcessCode = 'SPC012'), 
+ 1, 1, 'bc57edbf-b64e-404c-8a56-c40eac2ef7cd'),
+('Not Started', 'PLN012', GETDATE(), '2025-05-02', '2025-05-02', GETDATE(), 1, 
+ N'Tỉa bỏ cành lá bị vàng, xoăn, có mạng nhện', 
+ N'Giảm khả năng sinh sản và lây lan của nhện đỏ', 
+ 'NguyenVanC', NULL, N'Cắt tỉa lá bệnh', 3, NULL, 0.0, 0.0, 
+ NULL, NULL, 0, 17, 
+ (SELECT SubProcessID FROM SubProcess WHERE SubProcessCode = 'SPC013'), 
+ 1, 1, 'bc57edbf-b64e-404c-8a56-c40eac2ef7cd'),
+('Not Started', 'PLN013', GETDATE(), '2025-05-03', '2025-05-04', GETDATE(), 1, 
+ N'Phun thuốc trị nhện đỏ giai đoạn 1', 
+ N'Phun Vertimec theo liều 10ml/8L nước', 
+ 'NguyenVanA', NULL, N'Phun thuốc trị nhện đỏ', 3, 'Vertimec', 8.0, 5.0, 
+ NULL, NULL, 0, 16, 
+ (SELECT SubProcessID FROM SubProcess WHERE SubProcessCode = 'SPC014'), 
+ 1, 1, 'bc57edbf-b64e-404c-8a56-c40eac2ef7cd'),
+('Not Started', 'PLN014', GETDATE(), '2025-05-06', '2025-05-06', GETDATE(), 1, 
+ N'Kiểm tra kết quả sau 3 ngày phun thuốc', 
+ N'Theo dõi tỷ lệ lá mới bị nhiễm, hiệu quả trị bệnh', 
+ 'NguyenVanD', NULL, N'Theo dõi sau điều trị', 3, NULL, 0.0, 0.0, 
+ NULL, NULL, 0, 18, 
+ (SELECT SubProcessID FROM SubProcess WHERE SubProcessCode = 'SPC015'), 
+ 1, 1, 'bc57edbf-b64e-404c-8a56-c40eac2ef7cd'),
+('Not Started', 'PLN015', GETDATE(), '2025-05-01', '2025-05-01', GETDATE(), 1, 
+ N'Kiểm tra vỏ quả, lá và cành có dấu hiệu nứt nẻ, chai cứng', 
+ N'Đánh giá mức độ tổn thương và giai đoạn bệnh sẹo', 
+ 'NguyenVanE', NULL, N'Chẩn đoán bệnh sẹo', 3, NULL, 0.0, 0.0, 
+ NULL, NULL, 0, 18, 
+ (SELECT SubProcessID FROM SubProcess WHERE SubProcessCode = 'SPC016'), 
+ 1, 1, 'b74ca116-d337-4c2f-a090-d7c8f55e20c2'),
+('Not Started', 'PLN016', GETDATE(), '2025-05-02', '2025-05-02', GETDATE(), 1, 
+ N'Cắt bỏ cành bệnh, làm sạch vết sẹo', 
+ N'Dùng dao cạo sạch vết bệnh trên thân, sau đó rửa bằng nước vôi', 
+ 'NguyenVanF', NULL, N'Xử lý vết bệnh', 3, NULL, 0.0, 0.0, 
+ NULL, NULL, 0, 17, 
+ (SELECT SubProcessID FROM SubProcess WHERE SubProcessCode = 'SPC017'), 
+ 1, 1, 'b74ca116-d337-4c2f-a090-d7c8f55e20c2'),
+('Not Started', 'PLN017', GETDATE(), '2025-05-03', '2025-05-03', GETDATE(), 1, 
+ N'Phun thuốc gốc đồng hoặc thuốc trị nấm lên vùng bị bệnh', 
+ N'Sử dụng Copper-Zinc 25WP hoặc Boocdo liều lượng 10g/8L', 
+ 'NguyenVanG', NULL, N'Phun thuốc bệnh sẹo', 3, 'Copper-Zinc 25WP', 8.0, 5.0, 
+ NULL, NULL, 0, 45, 
+ (SELECT SubProcessID FROM SubProcess WHERE SubProcessCode = 'SPC018'), 
+ 1, 1, 'b74ca116-d337-4c2f-a090-d7c8f55e20c2'),
+('Not Started', 'PLN018', GETDATE(), '2025-05-01', '2025-05-01', GETDATE(), 1, 
+ N'Quan sát kỹ các đọt non, mặt dưới lá, cụm hoa', 
+ N'Ghi nhận tỷ lệ nhiễm và mật độ rệp sáp', 
+ 'NguyenVanI', NULL, N'Kiểm tra rệp sáp', 3, NULL, 0.0, 0.0, 
+ NULL, NULL, 0, 18, 
+ (SELECT SubProcessID FROM SubProcess WHERE SubProcessCode = 'SPC019'), 
+ 1, 1, '5d3bb12c-911b-4426-86cb-4d90fd48194a'),
+('Not Started', 'PLN019', GETDATE(), '2025-05-02', '2025-05-02', GETDATE(), 1, 
+ N'Loại bỏ những cành lá bị nhiễm nặng', 
+ N'Cắt tỉa sạch sẽ trước khi phun thuốc để tăng hiệu quả', 
+ 'NguyenVanJ', NULL, N'Vệ sinh và cắt tỉa', 3, NULL, 0.0, 0.0, 
+ NULL, NULL, 0, 17, 
+ (SELECT SubProcessID FROM SubProcess WHERE SubProcessCode = 'SPC020'), 
+ 1, 1, '5d3bb12c-911b-4426-86cb-4d90fd48194a'),
+('Not Started', 'PLN020', GETDATE(), '2025-05-03', '2025-05-03', GETDATE(), 1, 
+ N'Sử dụng thuốc trị rệp sáp như Movento 150OD', 
+ N'Pha 10ml thuốc/8L nước, phun đều toàn cây, tập trung vào nơi rệp xuất hiện', 
+ 'NguyenVanK', NULL, N'Phun thuốc rệp sáp', 3, 'Movento 150OD', 8.0, 5.0, 
+ NULL, NULL, 0, 16, 
+ (SELECT SubProcessID FROM SubProcess WHERE SubProcessCode = 'SPC021'), 
+ 1, 1, '5d3bb12c-911b-4426-86cb-4d90fd48194a'),
+('Not Started', 'PLN021', GETDATE(), '2025-05-02', '2025-05-02', GETDATE(), 1, 
+ N'Tìm kiếm dấu hiệu lỗ tròn, phân sâu quanh gốc', 
+ N'Ghi lại vị trí bị sâu, chuẩn bị dụng cụ xử lý', 
+ 'NguyenVanM', NULL, N'Kiểm tra sâu đục thân', 3, NULL, 0.0, 0.0, 
+ NULL, NULL, 0, 18, 
+ (SELECT SubProcessID FROM SubProcess WHERE SubProcessCode = 'SPC022'), 
+ 1, 1, 'd37eabbb-a876-400f-8661-22b84776d73a'),
+('Not Started', 'PLN022', GETDATE(), '2025-05-03', '2025-05-03', GETDATE(), 1, 
+ N'Sử dụng que thép nhỏ hoặc dây kẽm luồn sâu vào lỗ', 
+ N'Loại bỏ sâu thủ công, ghi nhận lỗ bị đục', 
+ 'NguyenVanN', NULL, N'Gắp sâu đục thân', 3, NULL, 0.0, 0.0, 
+ NULL, NULL, 0, 18, 
+ (SELECT SubProcessID FROM SubProcess WHERE SubProcessCode = 'SPC023'), 
+ 1, 1, 'd37eabbb-a876-400f-8661-22b84776d73a'),
+('Not Started', 'PLN023', GETDATE(), '2025-05-04', '2025-05-04', GETDATE(), 1, 
+ N'Dùng xi lanh hoặc ống tiêm bơm thuốc vào lỗ', 
+ N'Dùng thuốc Regent 800WG pha 1g/8L hoặc Sherpa 25EC', 
+ 'NguyenVanO', NULL, N'Bơm thuốc trị sâu', 3, 'Regent 800WG', 5.0, 2.0, 
+ NULL, NULL, 0, 45, 
+ (SELECT SubProcessID FROM SubProcess WHERE SubProcessCode = 'SPC024'), 
+ 1, 1, 'd37eabbb-a876-400f-8661-22b84776d73a'),
+('Not Started', 'PLN024', GETDATE(), '2025-05-02', '2025-05-02', GETDATE(), 1, 
+ N'Quan sát triệu chứng lá vàng để xác định nguyên nhân cụ thể', 
+ N'Phân biệt vàng lá do thiếu chất, bệnh hoặc tuyến trùng', 
+ 'NguyenThiA', NULL, N'Chẩn đoán vàng lá', 3, NULL, 0.0, 0.0, 
+ NULL, NULL, 0, 18, 
+ (SELECT SubProcessID FROM SubProcess WHERE SubProcessCode = 'SPC025'), 
+ 1, 1, 'ce78e5ba-89aa-4b03-9ce9-a6b3b7bdccc4'),
+('Not Started', 'PLN025', GETDATE(), '2025-05-03', '2025-05-03', GETDATE(), 1, 
+ N'Bón thêm phân hữu cơ và phân lân cho cây', 
+ N'Cải thiện pH đất và tăng cường hệ rễ cây', 
+ 'NguyenThiB', NULL, N'Bón phân phục hồi', 3, NULL, 30.0, 10.0, 
+ NULL, NULL, 0, 16, 
+ (SELECT SubProcessID FROM SubProcess WHERE SubProcessCode = 'SPC026'), 
+ 1, 1, 'ce78e5ba-89aa-4b03-9ce9-a6b3b7bdccc4'),
+('Not Started', 'PLN026', GETDATE(), '2025-05-04', '2025-05-04', GETDATE(), 1, 
+ N'Phun thuốc gốc đồng hoặc thuốc trị tuyến trùng nếu có', 
+ N'Tùy theo kết quả chẩn đoán nguyên nhân', 
+ 'NguyenThiC', NULL, N'Phun thuốc trị vàng lá', 3, 'Copper Hydroxide', 5.0, 2.0, 
+ NULL, NULL, 0, 45, 
+ (SELECT SubProcessID FROM SubProcess WHERE SubProcessCode = 'SPC027'), 
+ 1, 1, 'ce78e5ba-89aa-4b03-9ce9-a6b3b7bdccc4')
+;
 
 INSERT INTO [dbo].[CarePlanSchedule]
            ([DayOfWeek]
@@ -2445,7 +2597,7 @@ VALUES
 -- 1. Insert Process: Quy trình mẫu chăm sóc cây bưởi bị sâu vẽ bùa
 -- =============================================
 INSERT INTO Process (ProcessCode, ProcessName, isDefault, isActive, isSample, CreateDate, IsDeleted, FarmID, MasterTypeID, PlanTargetInProcess)
-VALUES (N'PR001', N'Quy trình mẫu - Chăm sóc cây bưởi bị sâu vẽ bùa', 1, 1, 0, GETDATE(), 0, 1,15, 1);
+VALUES (N'PR001', N'Quy trình chăm sóc cây bưởi bị sâu vẽ bùa', 1, 1, 0, GETDATE(), 0, 1,12, 1);
 
 DECLARE @ProcessId INT = SCOPE_IDENTITY();
 
@@ -2455,7 +2607,7 @@ DECLARE @ProcessId INT = SCOPE_IDENTITY();
 INSERT INTO SubProcess (SubProcessCode, SubProcessName, ProcessID, [Order], isDefault, isActive, CreateDate, IsDeleted, FarmID)
 VALUES 
 (N'SP001', N'Khảo sát và chẩn đoán sâu bệnh', @ProcessId, 1, 1, 1, GETDATE(), 0, 1),
-(N'SP002', N'Tỉa cành và vệ sinh vườn', @ProcessId, 2, 1, 1, GETDATE(), 0, 1),
+(N'SP002', N'Tỉa cành bị bệnh và vệ sinh vườn', @ProcessId, 2, 1, 1, GETDATE(), 0, 1),
 --(N'SP003', N'Phun thuốc trị sâu vẽ bùa', @ProcessId, 3, 1, 1, GETDATE(), 0, 1),
 --(N'SP004', N'Theo dõi và đánh giá hiệu quả', @ProcessId, 4, 1, 1, GETDATE(), 0, 1),
 (N'SP005', N'Bón phân hồi phục', @ProcessId, 3, 1, 1, GETDATE(), 0, 1);

@@ -208,6 +208,7 @@ namespace CapstoneProject_SP25_IPAS_API.Payload
             public const string getProcessDataOfProcess = Base + "/processes/{id}/processData";
             public const string getProcessesForSelect = Base + "/proceesses/get-for-select";
             public const string getProccessByTypeName = Base + "/proceesses/get-by-type-name";
+            public const string createProcessWithSub = Base + "/proceesses/create-with-sub";
         }
 
         public static class SubProcess
@@ -516,6 +517,8 @@ namespace CapstoneProject_SP25_IPAS_API.Payload
             public const string deleteRoom = prefix + "/delete-room";
             public const string updateTagOfImage = prefix + "/update-tag-of-image";
             public const string getAllTagsWithPagin = prefix + "/get-all-tags-with-pagin";
+            public const string RecomendProcessAI = prefix + "/proceess/recomend-with-ai";
+
         }
 
 

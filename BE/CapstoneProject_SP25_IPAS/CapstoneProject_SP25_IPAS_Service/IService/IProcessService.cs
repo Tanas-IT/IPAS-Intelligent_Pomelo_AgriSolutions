@@ -32,6 +32,8 @@ namespace CapstoneProject_SP25_IPAS_Service.IService
         public Task<BusinessResult> GetForSelect(int farmId, string? search, bool? isSample);
         public Task<BusinessResult> GetProcessByTypeName(int farmId, string typeName);
 
+        public Task<BusinessResult> CreateProcessWithSub(CreateManyProcessModel createManyProcessModel, int farmId);
+
 
     }
 }

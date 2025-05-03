@@ -396,6 +396,18 @@ export const generatePlanId = (existingIds: number[] = []) => {
   return newId;
 };
 
+export const generateAIPlanId = (existingIds: number[] = []) => {
+  const min = 1;
+  const max = 2147483647;
+
+  let newId;
+  do {
+    newId = Math.floor(Math.random() * (max - min + 1)) + min;
+  } while (existingIds.includes(newId));
+
+  return newId;
+};
+
 export const isPlantOverflowing = (
   plantSpacing: number,
   plantsPerRow: number,

@@ -9,6 +9,7 @@ import { planService, userService, worklogService } from "@/services";
 import { fetchUserInfoByRole, getFarmId, RulesManager } from "@/utils";
 import { Button, Flex, Form, Modal, Select } from "antd";
 import { useEffect, useState } from "react";
+import { toast } from "react-toastify";
 
 type WorklogModalProps = {
   isOpen: boolean;
@@ -43,31 +44,32 @@ const WorklogModal = ({ isOpen, onClose, onSave }: WorklogModalProps) => {
   };
 
   const handleAdd = async () => {
-    try {
-      const values = await form.validateFields();
-      const date = new Date(values.dateWork);
-      const dateWork = new Date(date.getTime() - date.getTimezoneOffset() * 60000);
-      const startTime = values.time?.[0]?.toDate().toLocaleTimeString();
-      const endTime = values.time?.[1]?.toDate().toLocaleTimeString();
+    const values = await form.validateFields();
+    const date = new Date(values.dateWork);
+    const dateWork = new Date(date.getTime() - date.getTimezoneOffset() * 60000);
+    const startTime = values.time?.[0]?.toDate().toLocaleTimeString();
+    const endTime = values.time?.[1]?.toDate().toLocaleTimeString();
 
-      const payload: CreateWorklogRequest = {
-        workLogName: values.worklogName,
-        dateWork: dateWork.toISOString(),
-        startTime: startTime,
-        endTime: endTime,
-        planId: values.planId,
-        listEmployee: selectedEmployees.map((employee) => ({
-          userId: employee.userId,
-          isReporter: employee.userId === selectedReporter,
-        })),
-        masterTypeId: values.masterTypeId,
-      };
+    const payload: CreateWorklogRequest = {
+      workLogName: values.worklogName,
+      dateWork: dateWork.toISOString(),
+      startTime: startTime,
+      endTime: endTime,
+      planId: values.planId,
+      listEmployee: selectedEmployees.map((employee) => ({
+        userId: employee.userId,
+        isReporter: employee.userId === selectedReporter,
+      })),
+      masterTypeId: values.masterTypeId,
+    };
 
+    const res = await worklogService.addWorklog(payload);
+    if (res.statusCode === 200) {
+      toast.success(res.message);
       onSave(payload);
-
       handleCancel();
-    } catch (error) {
-      console.error("Validation failed:", error);
+    } else {
+      toast.error(res.message);
     }
   };
 
@@ -82,7 +84,6 @@ const WorklogModal = ({ isOpen, onClose, onSave }: WorklogModalProps) => {
     }
     setIsModalOpen(true);
   };
-  
 
   const handleConfirmAssign = () => {
     setSelectedEmployees(employee.filter((m) => selectedIds.includes(Number(m.userId))));
@@ -100,7 +101,7 @@ const WorklogModal = ({ isOpen, onClose, onSave }: WorklogModalProps) => {
       const plans = await planService.getPlansForSelect(Number(getFarmId()));
       const formattedPlanOptions = plans.data.map((plan) => ({
         value: plan.id,
-        label: plan.name,
+        label: `${plan.name} (${plan.startDate.slice(0, 10)} → ${plan.endDate.slice(0, 10)})`,
       }));
       setPlanOptions(formattedPlanOptions);
     } catch (error) {
@@ -120,7 +121,7 @@ const WorklogModal = ({ isOpen, onClose, onSave }: WorklogModalProps) => {
   const fetchEmployees = async (masterTypeId: number) => {
     try {
       const response = await worklogService.getEmployeesByWorkSkill(Number(farmId), masterTypeId);
-      
+
       if (response.statusCode === 200) {
         setEmployee(response.data);
         setAllEmployees(response.data);
@@ -220,21 +221,25 @@ const WorklogModal = ({ isOpen, onClose, onSave }: WorklogModalProps) => {
           >
             {employee.map((emp) => (
               <Select.Option key={emp.userId} value={emp.userId} label={emp.fullName}>
-                <div style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: 12,
-                  padding: "8px 12px",
-                  borderRadius: 8,
-                  transition: "all 0.2s",
-                }}>
+                <div
+                  style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 12,
+                    padding: "8px 12px",
+                    borderRadius: 8,
+                    transition: "all 0.2s",
+                  }}
+                >
                   {/* Avatar */}
-                  <div style={{
-                    position: "relative",
-                    width: 32,
-                    height: 32,
-                    flexShrink: 0
-                  }}>
+                  <div
+                    style={{
+                      position: "relative",
+                      width: 32,
+                      height: 32,
+                      flexShrink: 0,
+                    }}
+                  >
                     <img
                       src={emp.avatarURL}
                       alt={emp.fullName}
@@ -243,65 +248,78 @@ const WorklogModal = ({ isOpen, onClose, onSave }: WorklogModalProps) => {
                         height: "100%",
                         borderRadius: "50%",
                         objectFit: "cover",
-                        border: "2px solid #e6f7ff"
+                        border: "2px solid #e6f7ff",
                       }}
                       crossOrigin="anonymous"
                     />
                   </div>
 
-                  <div style={{
-                    flex: 1,
-                    minWidth: 0
-                  }}>
-                    <div style={{
-                      fontWeight: 500,
-                      color: "rgba(0, 0, 0, 0.88)",
-                      whiteSpace: "nowrap",
-                      overflow: "hidden",
-                      textOverflow: "ellipsis"
-                    }}>
+                  <div
+                    style={{
+                      flex: 1,
+                      minWidth: 0,
+                    }}
+                  >
+                    <div
+                      style={{
+                        fontWeight: 500,
+                        color: "rgba(0, 0, 0, 0.88)",
+                        whiteSpace: "nowrap",
+                        overflow: "hidden",
+                        textOverflow: "ellipsis",
+                      }}
+                    >
                       {emp.fullName}
                     </div>
 
-                    <div style={{
-                      display: "flex",
-                      gap: 6,
-                      marginTop: 4,
-                      flexWrap: "wrap"
-                    }}>
-                      {emp.skillWithScore.slice(0, 3).map(skill => (
-                        <div key={skill.skillName} style={{
-                          display: "flex",
-                          alignItems: "center",
-                          background: skill.score >= 7 ? "#f6ffed" : "#fafafa",
-                          border: `1px solid ${skill.score >= 7 ? "#b7eb8f" : "#d9d9d9"}`,
-                          borderRadius: 4,
-                          padding: "2px 6px",
-                          fontSize: 12,
-                          lineHeight: 1
-                        }}>
+                    <div
+                      style={{
+                        display: "flex",
+                        gap: 6,
+                        marginTop: 4,
+                        flexWrap: "wrap",
+                      }}
+                    >
+                      {emp.skillWithScore.slice(0, 3).map((skill) => (
+                        <div
+                          key={skill.skillName}
+                          style={{
+                            display: "flex",
+                            alignItems: "center",
+                            background: skill.score >= 7 ? "#f6ffed" : "#fafafa",
+                            border: `1px solid ${skill.score >= 7 ? "#b7eb8f" : "#d9d9d9"}`,
+                            borderRadius: 4,
+                            padding: "2px 6px",
+                            fontSize: 12,
+                            lineHeight: 1,
+                          }}
+                        >
                           <Icons.grade
                             width={12}
                             height={12}
                             style={{
                               marginRight: 4,
-                              color: "yellow"
+                              color: "yellow",
                             }}
                           />
-                          <span style={{
-                            color: "rgba(0, 0, 0, 0.65)"
-                          }}>
+                          <span
+                            style={{
+                              color: "rgba(0, 0, 0, 0.65)",
+                            }}
+                          >
                             {skill.skillName} <strong>{skill.score}</strong>
                           </span>
                         </div>
                       ))}
                       {emp.skillWithScore.length > 3 && (
-                        <div style={{
-                          background: "#f0f0f0",
-                          borderRadius: 4,
-                          padding: "2px 6px",
-                          fontSize: 12
-                        }}>
+                        <div
+                          style={{
+                            background: "#f0f0f0",
+                            borderRadius: 4,
+                            padding: "2px 6px",
+                            fontSize: 12,
+                          }}
+                        >
                           +{emp.skillWithScore.length - 3}
                         </div>
                       )}

@@ -65,6 +65,7 @@ import {
   PaymentLayout,
 } from "@/layouts";
 import { PATHS } from "./Paths";
+import AIProcessDetails from "@/pages/Process/ProcessDetails/AIProcessDetails";
 
 interface RouteItem {
   path: string;
@@ -162,6 +163,7 @@ export const publicRoutes: RouteItem[] = [
   { path: PATHS.WEATHER.WEATHER, component: Weather, layout: ManagementLayout },
   { path: PATHS.PROCESS.PROCESS_LIST, component: ProcessList, layout: ManagementLayout },
   { path: PATHS.PROCESS.PROCESS_DETAIL, component: ProcessDetails, layout: ManagementLayout },
+  { path: PATHS.PROCESS.AI_PROCESS_DETAIL, component: AIProcessDetails, layout: ManagementLayout },
   { path: PATHS.PLAN.PLAN_LIST, component: PlanList, layout: ManagementLayout },
   { path: PATHS.PLAN.PLAN_DETAIL, component: PlanDetail, layout: ManagementLayout },
   { path: PATHS.PLAN.ADD_PLAN, component: AddPlan, layout: ManagementLayout },

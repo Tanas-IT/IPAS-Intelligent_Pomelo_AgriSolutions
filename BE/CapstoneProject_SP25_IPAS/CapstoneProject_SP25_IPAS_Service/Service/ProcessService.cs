@@ -1,9 +1,12 @@
 ﻿using AutoMapper;
 using CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel;
+using CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.AIModel;
 using CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.ProcessModel;
 using CapstoneProject_SP25_IPAS_BussinessObject.Entities;
+using CapstoneProject_SP25_IPAS_BussinessObject.Payloads.Request;
 using CapstoneProject_SP25_IPAS_BussinessObject.Validation;
 using CapstoneProject_SP25_IPAS_Common.Constants;
+using CapstoneProject_SP25_IPAS_Common.Upload;
 using CapstoneProject_SP25_IPAS_Common.Utils;
 using CapstoneProject_SP25_IPAS_Repository.UnitOfWork;
 using CapstoneProject_SP25_IPAS_Service.Base;
@@ -13,6 +16,7 @@ using CapstoneProject_SP25_IPAS_Service.Pagination;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Server.IISIntegration;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
 using Org.BouncyCastle.Asn1.Ocsp;
 using System;
@@ -26,6 +30,7 @@ using System.Linq.Expressions;
 using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
+using static Org.BouncyCastle.Math.EC.ECCurve;
 using Process = CapstoneProject_SP25_IPAS_BussinessObject.Entities.Process;
 
 namespace CapstoneProject_SP25_IPAS_Service.Service
@@ -35,12 +40,13 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
         private readonly IUnitOfWork _unitOfWork;
         private readonly ICloudinaryService _cloudinaryService;
         private readonly IMapper _mapper;
-
-        public ProcessService(IUnitOfWork unitOfWork, IMapper mapper, ICloudinaryService cloudinaryService)
+        private readonly IConfiguration _config;
+        public ProcessService(IUnitOfWork unitOfWork, IMapper mapper, ICloudinaryService cloudinaryService, IConfiguration config)
         {
             _unitOfWork = unitOfWork;
             _mapper = mapper;
             _cloudinaryService = cloudinaryService;
+            _config = config;
         }
 
         public async Task<BusinessResult> CreateProcess(CreateProcessModel createProcessModel, int? farmId)
@@ -66,7 +72,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         StartDate = createProcessModel.StartDate,
                         EndDate = createProcessModel.EndDate
                     };
-                    
+
                     await _unitOfWork.ProcessRepository.Insert(newProcess);
                     if (createProcessModel.IsSample != null && createProcessModel.IsSample == true)
                     {
@@ -166,7 +172,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 catch (Exception ex)
                 {
                     await transaction.RollbackAsync();
-                    return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
+                    return new BusinessResult(Const.ERROR_EXCEPTION, "Have an error when create process");
                 }
             }
         }
@@ -175,13 +181,13 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
         {
             try
             {
-                Expression<Func<Process, bool>> filter = x => x.FarmId == farmId && x.IsDeleted == false;
+                Expression<Func<Process, bool>> filter = x => x.FarmId == farmId && x.IsDeleted == false && x.IsSample == false;
                 Func<IQueryable<Process>, IOrderedQueryable<Process>> orderBy = null!;
                 if (!string.IsNullOrEmpty(paginationParameter.Search))
                 {
                     int validInt = 0;
                     var checkInt = int.TryParse(paginationParameter.Search, out validInt);
-                    DateTime validDate = DateTime.Now;
+                    DateTime validDate = DateTime.Now.Date;
                     bool validBool = false;
                     if (checkInt)
                     {
@@ -410,8 +416,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         MasterTypeId = createProcessModel.MasterTypeId,
                         ProcessName = createProcessModel.ProcessName,
                         IsActive = createProcessModel.IsActive,
-                        IsDeleted = createProcessModel.IsDeleted,
-                        Order = createProcessModel.Order,
+                        IsDeleted = false,
                     };
                     var listPlan = new List<string>
                                 {
@@ -477,8 +482,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             {
                 string includeProperties = "GrowthStage,Farm,MasterType,SubProcesses";
                 var deleteProcess = await _unitOfWork.ProcessRepository.GetByCondition(x => x.ProcessId == processId, includeProperties);
-               
-               
+
+
                 _unitOfWork.ProcessRepository.Delete(deleteProcess);
                 var result = await _unitOfWork.SaveAsync();
                 if (result > 0)
@@ -509,12 +514,12 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     {
                         if (checkExistProcess.StartDate <= TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, timeZone) || checkExistProcess.IsActive == true)
                         {
-                            if(checkExistProcess.Plans.Count > 0)
+                            if (checkExistProcess.Plans.Count > 0)
                             {
                                 throw new Exception("Process is running. Can not update");
                             }
                         }
-                        if(updateProcessModel.PlanTargetInProcess != null)
+                        if (updateProcessModel.PlanTargetInProcess != null)
                         {
                             checkExistProcess.PlanTargetInProcess = updateProcessModel.PlanTargetInProcess;
                         }
@@ -558,9 +563,9 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         {
                             checkExistProcess.Order = updateProcessModel.Order;
                         }
-                        
-                         _unitOfWork.ProcessRepository.Update(checkExistProcess);
-                       
+
+                        _unitOfWork.ProcessRepository.Update(checkExistProcess);
+
                         if (updateProcessModel.ListUpdateSubProcess != null)
                         {
                             Dictionary<int, int> idMapping = new Dictionary<int, int>();
@@ -602,7 +607,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                             CreateDate = DateTime.Now,
                                             UpdateDate = DateTime.Now,
                                             ProcessId = checkExistProcess.ProcessId,
-                                            Order =  subProcess.Order
+                                            Order = subProcess.Order
                                         };
                                         newSubProcess.ParentSubProcessId = realParentId;
 
@@ -720,7 +725,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                             {
                                                 subProcessUpdate.Order = subProcess.Order;
                                             }
-                                           
+
                                             _unitOfWork.SubProcessRepository.Update(subProcessUpdate);
                                             subProcessUpdate.UpdateDate = DateTime.Now;
 
@@ -750,7 +755,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                                             {
                                                                 newPlan.GrowthStagePlans.Add(new GrowthStagePlan { GrowthStageID = plan.GrowthStageId });
                                                             }
-                                                            
+
 
                                                         }
                                                         else if (plan.PlanStatus.ToLower().Equals("update"))
@@ -789,12 +794,12 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                                                     getUpdatePlanInDB.MasterTypeId = plan.MasterTypeId;
                                                                 }
                                                                 getUpdatePlanInDB.UpdateDate = DateTime.Now;
-                                                                _unitOfWork.PlanRepository.Update(getUpdatePlanInDB); 
+                                                                _unitOfWork.PlanRepository.Update(getUpdatePlanInDB);
                                                             }
                                                         }
                                                         else if (plan.PlanStatus.ToLower().Equals("delete"))
                                                         {
-                                                            if(getUpdatePlanInDB != null)
+                                                            if (getUpdatePlanInDB != null)
                                                             {
                                                                 getUpdatePlanInDB.IsDeleted = true;
                                                                 _unitOfWork.PlanRepository.Update(getUpdatePlanInDB);
@@ -809,14 +814,14 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                     {
 
                                         subProcessUpdate.IsDeleted = true;
-                                        if(subProcessUpdate.ChildSubProcesses != null && subProcessUpdate.ChildSubProcesses.Count > 0)
+                                        if (subProcessUpdate.ChildSubProcesses != null && subProcessUpdate.ChildSubProcesses.Count > 0)
                                         {
-                                            foreach(var deleteSubProcess in subProcessUpdate.ChildSubProcesses)
+                                            foreach (var deleteSubProcess in subProcessUpdate.ChildSubProcesses)
                                             {
                                                 deleteSubProcess.IsDeleted = true;
                                             }
                                         }
-                                         _unitOfWork.SubProcessRepository.Update(subProcessUpdate);
+                                        _unitOfWork.SubProcessRepository.Update(subProcessUpdate);
                                         if (subProcess.ListPlan != null && subProcess.ListPlan.Count > 0)
                                         {
                                             foreach (var plan in subProcess.ListPlan)
@@ -924,7 +929,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                                 newPlan.GrowthStagePlans.Add(new GrowthStagePlan() { GrowthStageID = updatePlan.GrowthStageId });
 
                                             }
-                                           
+
 
                                         }
                                         else if (updatePlan.PlanStatus.ToLower().Equals("update"))
@@ -969,7 +974,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                         else if (updatePlan.PlanStatus.ToLower().Equals("delete"))
                                         {
                                             getUpdatePlanInDB.IsDeleted = true;
-                                             _unitOfWork.PlanRepository.Update(getUpdatePlanInDB);
+                                            _unitOfWork.PlanRepository.Update(getUpdatePlanInDB);
                                         }
                                     }
                                 }
@@ -1040,7 +1045,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         {
                             foreach (var planInProcess in checkExistProcess.Plans)
                             {
-                                if (planInProcess.StartDate <= DateTime.Now)
+                                if (planInProcess.StartDate <= DateTime.Now.Date)
                                 {
                                     hasActivePlan = true;
                                     failedProcessNames.Add(checkExistProcess.ProcessName);
@@ -1054,7 +1059,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         {
                             foreach (var subProcess in checkExistProcess.SubProcesses)
                             {
-                                if (subProcess.StartDate <= DateTime.Now)
+                                if (subProcess.StartDate <= DateTime.Now.Date)
                                 {
                                     hasActivePlan = true;
                                 }
@@ -1062,7 +1067,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                 {
                                     foreach (var planInSub in subProcess.Plans)
                                     {
-                                        if (planInSub.StartDate <= DateTime.Now)
+                                        if (planInSub.StartDate <= DateTime.Now.Date)
                                         {
                                             hasActivePlan = true;
                                             failedProcessNames.Add(checkExistProcess.ProcessName);
@@ -1090,7 +1095,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                             }
                         }
                         hasDeleted = true;
-                         _unitOfWork.ProcessRepository.Update(checkExistProcess);
+                        _unitOfWork.ProcessRepository.Update(checkExistProcess);
                     }
 
                     // Lưu thay đổi vào DB nếu có process nào được xóa
@@ -1169,13 +1174,13 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             try
             {
                 var getProcessByTypeName = await _unitOfWork.ProcessRepository.GetProcessByTypeName(farmId, typeName);
-                if(getProcessByTypeName != null && getProcessByTypeName.Any())
+                if (getProcessByTypeName != null && getProcessByTypeName.Any())
                 {
                     var result = _mapper.Map<List<ProcessModel>>(getProcessByTypeName);
                     return new BusinessResult(200, "Get Process By Type Name Success", result);
                 }
                 return new BusinessResult(404, "Does not have any process");
-               
+
             }
             catch (Exception ex)
             {
@@ -1183,5 +1188,136 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
             }
         }
+
+        public async Task<BusinessResult> CreateProcessWithSub(CreateManyProcessModel createManyProcessModel, int farmId)
+        {
+            using (var transaction = await _unitOfWork.BeginTransactionAsync())
+            {
+                try
+                {
+                    var newProcess = new Process()
+                    {
+                        ProcessCode = $"PRC{DateTime.Now:yyMMddHHmmssfff}",
+                        CreateDate = DateTime.Now,
+                        UpdateDate = DateTime.Now,
+                        FarmId = farmId,
+                        MasterTypeId = createManyProcessModel.MasterTypeId,
+                        ProcessName = createManyProcessModel.ProcessName,
+                        PlanTargetInProcess = createManyProcessModel.PlanTargetInProcess,
+                        IsDefault = false,
+                        IsSample = createManyProcessModel.IsSample,
+                        IsActive = createManyProcessModel.IsActive,
+                        IsDeleted = false,
+                    };
+
+                    await _unitOfWork.ProcessRepository.Insert(newProcess);
+                    await _unitOfWork.SaveAsync();
+                    var result = 0;
+                    if (createManyProcessModel.ListSubProcess != null)
+                    {
+                        Dictionary<int, int> idMapping = new Dictionary<int, int>();
+                        foreach (var subProcess in createManyProcessModel.ListSubProcess)
+                        {
+
+                            var newSubProcess = new SubProcess();
+                            int? realParentId = null;
+                            if (subProcess.ParentSubProcessId != null)
+                            {
+                                var parentExists = await _unitOfWork.SubProcessRepository
+                                    .GetByCondition(sp => sp.SubProcessID == subProcess.ParentSubProcessId);
+
+                                if (parentExists != null)
+                                {
+                                    realParentId = subProcess.ParentSubProcessId; // Gán trực tiếp nếu tồn tại
+                                }
+                                else if (idMapping.ContainsKey(subProcess.ParentSubProcessId.Value))
+                                {
+                                    realParentId = idMapping[subProcess.ParentSubProcessId.Value]; // Lấy từ ánh xạ nếu có
+                                }
+                            }
+
+                            // Chuyển đổi sang entity SubProcess
+                            newSubProcess = new SubProcess()
+                            {
+                                SubProcessCode = $"SPC{DateTime.Now:yyMMddHHmmssfff}",
+                                SubProcessName = subProcess.SubProcessName,
+                                IsDefault = true,
+                                IsActive = subProcess.IsActive,
+                                IsDeleted = false,
+                                CreateDate = DateTime.Now,
+                                UpdateDate = DateTime.Now,
+                                ProcessId = newProcess.ProcessId,
+                                Order = subProcess.Order
+                            };
+                            newSubProcess.ParentSubProcessId = realParentId;
+
+                            await _unitOfWork.SubProcessRepository.Insert(newSubProcess);
+                            result += await _unitOfWork.SaveAsync();
+                            idMapping[subProcess.SubProcessId.Value] = newSubProcess.SubProcessID;
+
+                            if (subProcess.ListPlan != null)
+                            {
+                                foreach (var plan in subProcess.ListPlan)
+                                {
+
+                                    var newPlan = new Plan()
+                                    {
+                                        PlanCode = $"PLAN{DateTime.Now:yyMMddHHmmssfff}",
+                                        PlanName = plan.PlanName,
+                                        PlanDetail = plan.PlanDetail,
+                                        Notes = plan.PlanNote,
+                                        IsSample = true,
+                                        FarmID = farmId,
+                                        SubProcessId = newSubProcess.SubProcessID,
+                                        IsDeleted = false
+                                    };
+                                    await _unitOfWork.PlanRepository.Insert(newPlan);
+                                }
+
+                            }
+
+                        }
+                        if (createManyProcessModel.ListPlan != null && createManyProcessModel.ListPlan.Count > 0)
+                        {
+                            foreach (var updatePlan in createManyProcessModel.ListPlan)
+                            {
+
+                                var newPlan = new Plan()
+                                {
+                                    PlanCode = $"PLAN{DateTime.Now:yyMMddHHmmssfff}",
+                                    PlanName = updatePlan.PlanName,
+                                    PlanDetail = updatePlan.PlanDetail,
+                                    Notes = updatePlan.PlanNote,
+                                    IsSample = true,
+                                    FarmID = farmId,
+                                    ProcessId = newProcess.ProcessId,
+                                    IsDeleted = false
+                                };
+                                await _unitOfWork.PlanRepository.Insert(newPlan);
+                            }
+                        }
+                    }
+                    var checkInsertProcess = await _unitOfWork.SaveAsync();
+                    if (result > 0 || checkInsertProcess > 0)
+                    {
+                        await transaction.CommitAsync();
+                        return new BusinessResult(Const.SUCCESS_CREATE_PROCESS_CODE, Const.SUCCESS_CREATE_PROCESS_MESSAGE, checkInsertProcess > 0);
+                    }
+                    else
+                    {
+                        return new BusinessResult(Const.FAIL_CREATE_PROCESS_CODE, Const.FAIL_CREATE_PROCESS_MESSAGE, false);
+                    }
+                   
+                    
+                }
+                catch (Exception ex)
+                {
+                    await transaction.RollbackAsync();
+                    return new BusinessResult(Const.ERROR_EXCEPTION, "Have an error when create process");
+                }
+            }
+        }
+
+        
     }
 }
