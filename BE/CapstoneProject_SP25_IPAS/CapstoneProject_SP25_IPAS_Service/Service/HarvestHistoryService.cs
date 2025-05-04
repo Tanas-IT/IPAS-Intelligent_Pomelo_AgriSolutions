@@ -296,7 +296,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         var employeeDo = await _unitOfWork.WorkLogRepository.GetByCondition(x => x.Schedule!.HarvestHistoryID == createRequest.HarvestHistoryId, includeProperties: "UserWorkLogs,Schedule");
                         bool userCanRecord = employeeDo.UserWorkLogs.Where(x => x.IsDeleted == false && x.ReplaceUserId == null).Select(x => x.UserId).ToList().Contains(createRequest.UserId.Value);
                         bool userCanRecordInReplace = employeeDo.UserWorkLogs.Where(x => x.IsDeleted == false && x.ReplaceUserId != null).Select(x => x.UserId).ToList().Contains(createRequest.UserId.Value);
-                        if (!userCanRecord || !userCanRecordInReplace)
+                        if (!userCanRecord && !userCanRecordInReplace)
                         {
                             return new BusinessResult(400, "You are not assigned to do this work, can not do this action.");
                         }
@@ -353,13 +353,13 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         x.HarvestHistoryId == createRequest.HarvestHistoryId &&
                         plantIds.Contains(x.PlantId!.Value));
 
+                    int index = 1;
                     foreach (var plant in createRequest.plantHarvestRecords)
                     {
-                        int index = 1;
                         var canHarvest = await _unitOfWork.PlantRepository.CheckIfPlantCanBeInTargetAsync(plantId: plant.PlantId, ActFunctionGrStageEnum.Harvest.ToString());
                         if (canHarvest != true)
                             return new BusinessResult(400, $"Plant number {index} is not in suitable growth stage to harvest");
-                        var existingHarvest = existingHarvests.FirstOrDefault(x => x.PlantId == plant.PlantId);
+                        var existingHarvest = existingHarvests.FirstOrDefault(x => x.PlantId == plant.PlantId && x.UserID == createRequest.UserId);
                         if (existingHarvest != null)
                         {
                             existingHarvest.ActualQuantity += plant.Quantity;
@@ -506,7 +506,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             if (!historyTypes.Any())
                 return new BusinessResult(200, Const.WARNING_HARVEST_TYPE_HISTORY_EMPTY_MSG);
 
-            var mappedResult = _mapper.Map<IEnumerable<ProductHarvestHistoryModel>>(historyTypes);
+            var mappedResult = _mapper.Map<IEnumerable<PlantLogHarvestModel>>(historyTypes);
             return new BusinessResult(Const.SUCCESS_GET_HARVEST_TYPE_HISTORY_ALL_PAGINATION_CODE, Const.SUCCESS_GET_HARVEST_TYPE_HISTORY_ALL_PAGINATION_MSG, mappedResult);
         }
 

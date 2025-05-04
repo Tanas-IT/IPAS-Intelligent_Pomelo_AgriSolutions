@@ -1236,7 +1236,7 @@ VALUES
     (16,'MT016', 'Fertilizing', 'Work', 'Application of nutrients to enhance plant growth', '#D9E5DC', '#4A9C5D', NULL, 0, 1, GETDATE(), 0, 1, 1, 'Fertilizer', 30, 120),
     (17,'MT017', 'Pruning', 'Work', 'Trimming and shaping plants for better growth', '#E3D7B9', '#8D5B3D', NULL, 0, 1, GETDATE(), 0, 1, 0, 'Pruning-Shaping', 20, 90),
     (18,'MT018', 'Pest Control', 'Work', 'Managing and eliminating harmful pests', '#FFE5D9', '#F79C42', NULL, 0, 1, GETDATE(), 0, 1, 0, 'Pest Control', 30, 180),
-    (19,'MT019', 'Harvesting', 'Work', 'Collecting mature crops for use or sale', '#F2F2F2', '#4A4A4A', NULL, 0, 1, GETDATE(), 0, 1, 0, 'Others', 60, 240),
+    (19,'MT019', 'Harvesting', 'Work', 'Collecting mature crops for use or sale', '#F2F2F2', '#4A4A4A', NULL, 0, 1, GETDATE(), 1, NULL, 0, 'Harvesting', 60, 240),
     
 	(20,'MT020', 'Grafting Suitability', 'Criteria', 'Criteria to assess whether a tree is suitable for grafting', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1, NULL, 'GraftedCondition', NULL, NULL),
     (21,'MT021', 'Seedling Selection', 'Criteria', 'Standards for selecting high-quality seedlings for grafting', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1, NULL, 'GraftedCondition', NULL, NULL),
@@ -2194,6 +2194,7 @@ VALUES
 INSERT INTO SystemConfiguration (ConfigGroup, ConfigKey, ConfigValue, ValueType, Description)
 VALUES 
 ('Work','Watering', 'Watering', 'string', 'Watering'),
+('Work','Harvesting', 'Harvesting', 'string', 'Harvesting'),
 ('Work','Fertilizer', 'Fertilizer', 'string', 'Fertilizer'),
 ('Work','SprayingPesticides', 'Spraying Pesticides', 'string', 'Spraying Pesticides'),
 ('Work','PruningShaping', 'Pruning-Shaping', 'string', 'Pruning-Shaping'),

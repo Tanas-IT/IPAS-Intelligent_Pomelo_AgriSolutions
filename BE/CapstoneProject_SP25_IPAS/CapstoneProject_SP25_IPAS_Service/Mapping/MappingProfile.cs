@@ -427,7 +427,11 @@ namespace CapstoneProject_SP25_IPAS_Service.Mapping
                .ForMember(dest => dest.HarvestHistoryCode, opt => opt.MapFrom(src => src.HarvestHistory.HarvestHistoryCode))
               .ForMember(dest => dest.RecordBy, opt => opt.MapFrom(src => src.User.FullName))
               .ForMember(dest => dest.AvartarRecord, opt => opt.MapFrom(src => src.User.AvatarURL))
-
+                .ForMember(dest => dest.PlantIndex, opt => opt.MapFrom(src => src.Plant!.PlantIndex))
+               .ForMember(dest => dest.LandRowIndex, opt => opt.MapFrom(src => src.Plant.LandRow!.RowIndex))
+                .ForMember(dest => dest.LandRowCode, opt => opt.MapFrom(src => src.Plant.LandRow!.LandRowCode))
+                .ForMember(dest => dest.LantPlotName, opt => opt.MapFrom(src => src.Plant!.LandRow.LandPlot!.LandPlotName))
+                .ForMember(dest => dest.LantPlotCode, opt => opt.MapFrom(src => src.Plant!.LandRow.LandPlot!.LandPlotCode))
                .ReverseMap();
 
             CreateMap<Order, OrderModel>()
