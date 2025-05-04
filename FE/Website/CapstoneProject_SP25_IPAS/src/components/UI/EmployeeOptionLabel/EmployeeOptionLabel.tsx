@@ -24,7 +24,7 @@ const EmployeeOptionLabel: React.FC<EmployeeOptionLabelProps> = ({
 
       <div
         // className={styles.contentRow}
-        className={skillWithScore.length <= 3 ? styles.contentRow : styles.content}
+        className={skillWithScore.length <= 2 ? styles.contentRow : styles.content}
       >
         <div className={styles.name}>{fullName}</div>
 
@@ -40,7 +40,7 @@ const EmployeeOptionLabel: React.FC<EmployeeOptionLabelProps> = ({
                 >
                   <Icons.grade width={12} height={12} className={styles.skillIcon} />
                   <span className={styles.skillText}>
-                    {skill.skillName} <strong>{skill.score}</strong>
+                    {skill.skillName} - <strong>{skill.score}</strong>
                   </span>
                 </div>
               ))}

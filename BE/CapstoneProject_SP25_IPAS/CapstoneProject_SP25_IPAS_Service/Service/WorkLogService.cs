@@ -3288,7 +3288,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                              FullName = u.User.FullName,
                              AvatarURL = u.User.AvatarURL,
                              SkillWithScore = u.EmployeeSkills
-                                 .GroupBy(s => s.WorkType.Target ?? "Không xác định")
+                                 .GroupBy(s => s.WorkType.MasterTypeName ?? "Không xác định")
                                  .Select(g => new SkillScoreModel
                                  {
                                      SkillName = g.Key,
@@ -3324,7 +3324,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                              FullName = u.User.FullName,
                              AvatarURL = u.User.AvatarURL,
                              SkillWithScore = u.EmployeeSkills
-                                 .GroupBy(s => s.WorkType.Target ?? "Không xác định")
+                                 .GroupBy(s => s.WorkType.MasterTypeName ?? "Không xác định")
                                  .Select(g => new SkillScoreModel
                                  {
                                      SkillName = g.Key,

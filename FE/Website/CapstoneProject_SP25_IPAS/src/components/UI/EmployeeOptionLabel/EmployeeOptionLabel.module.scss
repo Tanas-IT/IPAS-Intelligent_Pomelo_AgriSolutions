@@ -30,7 +30,8 @@
 .contentRow {
   display: flex;
   flex-direction: row;
-  justify-content: center;
+  // justify-content: center;
+  align-items: center;
   gap: 8px;
 }
 
@@ -38,8 +39,6 @@
   font-weight: 500;
   color: rgba(0, 0, 0, 0.88);
   white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
 }
 
 .skills {

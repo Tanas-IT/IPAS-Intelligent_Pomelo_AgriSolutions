@@ -37,7 +37,6 @@ const HarvestModal = ({
   const isUpdate = harvestData !== undefined && Object.keys(harvestData).length > 0;
   const { options: productOptions } = useMasterTypeOptions(MASTER_TYPE.PRODUCT);
   const [employeeOptions, setEmployeeOptions] = useState<SelectOption[]>([]);
-  // const { options: employeeOptions } = useUserInFarmByRole([UserRole.Employee], true);
   const { setIsDirty } = useDirtyStore();
   const isCropCompleted = crop.status === CROP_STATUS.COMPLETED;
 
