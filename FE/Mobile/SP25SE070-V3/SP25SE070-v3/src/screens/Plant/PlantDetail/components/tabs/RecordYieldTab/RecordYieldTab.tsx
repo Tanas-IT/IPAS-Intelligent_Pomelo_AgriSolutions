@@ -263,7 +263,7 @@ const RecordYieldTab: React.FC = () => {
             <View style={styles.recordsContainer}>
               {item.records.map((record, recordIndex) => (
                 <TimelineItem
-                  key={record.harvestHistoryCode}
+                  key={record.productHarvestHistoryId}
                   index={recordIndex}
                   totalItems={item.records.length}
                   record={record}

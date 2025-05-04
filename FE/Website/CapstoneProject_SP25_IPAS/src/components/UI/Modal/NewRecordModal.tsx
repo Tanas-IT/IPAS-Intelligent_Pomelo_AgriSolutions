@@ -76,7 +76,7 @@ const NewRecordModal = ({ isOpen, onClose, onSave, isLoadingAction }: NewRecordM
 
   const harvestOptions = availableHarvests.map((h) => ({
     value: h.harvestHistoryId,
-    label: `${h.cropName} - ${formatDate(h.dateHarvest)}`,
+    label: `${h.cropName} - ${formatDate(h.dateHarvest)} - ${h.harvestHistoryCode}`,
   }));
 
   return (

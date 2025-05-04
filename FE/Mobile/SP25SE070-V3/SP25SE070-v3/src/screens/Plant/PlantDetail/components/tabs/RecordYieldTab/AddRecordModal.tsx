@@ -117,7 +117,9 @@ const AddRecordModal: React.FC<AddRecordModalProps> = ({
 
   const harvestOptions = availableHarvests.map((h) => ({
     id: h.harvestHistoryId,
-    code: `${h.cropName} - ${formatDate(h.dateHarvest)}`,
+    code: `${h.cropName} - ${formatDate(h.dateHarvest)} - ${
+      h.harvestHistoryCode
+    } `,
   }));
 
   return (
