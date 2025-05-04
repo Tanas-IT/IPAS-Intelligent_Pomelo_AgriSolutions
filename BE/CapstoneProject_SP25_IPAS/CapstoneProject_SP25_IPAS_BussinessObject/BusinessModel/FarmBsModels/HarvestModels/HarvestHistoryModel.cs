@@ -32,6 +32,9 @@ namespace CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.FarmBsModels.H
         public double? YieldHasRecord { get; set; }
 
         public int? NumberProduct { get; set; }
+        public string? AssignorName { get; set; }
+        public string? AvatarOfAssignor { get; set; }
+
         //public virtual Crop? Crop { get; set; }
         [JsonIgnore(Condition = JsonIgnoreCondition.WhenWritingNull)]
         public ICollection<ProductHarvestHistoryModel> ProductHarvestHistory { get; set; } = new List<ProductHarvestHistoryModel>();
