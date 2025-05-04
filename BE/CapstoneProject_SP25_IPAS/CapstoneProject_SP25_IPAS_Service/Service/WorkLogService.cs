@@ -447,12 +447,16 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 }
                 var result = _mapper.Map<WorkLogDetailModel>(getDetailWorkLog);
                 var assignorId = getDetailWorkLog?.Schedule?.CarePlan?.AssignorId;
-
-                User? getAssignor = null;
+                var assignorHarvestId = getDetailWorkLog?.Schedule?.HarvestHistory?.AssignorId;
+                User ? getAssignor = null;
                 if (assignorId != null)
                 {
                     getAssignor = await _unitOfWork.UserRepository
                         .GetByCondition(x => x.UserId == assignorId);
+                }
+                else
+                {
+                    getAssignor = await _unitOfWork.UserRepository.GetByCondition(x => x.UserId == assignorHarvestId);
                 }
                 if (getAssignor != null)
                 {
