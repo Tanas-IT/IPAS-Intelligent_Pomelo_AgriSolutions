@@ -695,25 +695,48 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     }
                     if(updateRequest.Skills != null)
                     {
+                        // Lấy toàn bộ kỹ năng hiện có của nhân viên trong farm đó
+                        var existingSkills = await _unitOfWork.EmployeeSkillRepository
+                            .GetEmployeeSkillByUserIdAndFarmId(updateRequest.UserId, updateRequest.FarmId.Value);
+
+                        // Lấy danh sách SkillID từ request
+                        var requestSkillIds = updateRequest.Skills.Select(x => x.SkillID).ToList();
+
+                        // Xử lý thêm mới hoặc cập nhật
                         foreach (var employeeSkill in updateRequest.Skills)
                         {
-                            var getEmployeeSkill = await _unitOfWork.EmployeeSkillRepository.GetByCondition(x => x.WorkTypeID == employeeSkill.SkillID && x.EmployeeID == updateRequest.UserId && x.FarmID == updateRequest.FarmId);
-                            if(getEmployeeSkill != null)
+                            var existingSkill = existingSkills.FirstOrDefault(x => x.WorkTypeID == employeeSkill.SkillID);
+                            if (existingSkill != null)
                             {
-                                getEmployeeSkill.ScoreOfSkill = employeeSkill.ScoreOfSkill;
-                                _unitOfWork.EmployeeSkillRepository.Update(getEmployeeSkill);
+                                // Cập nhật nếu đã tồn tại
+                                existingSkill.ScoreOfSkill = employeeSkill.ScoreOfSkill;
+                                _unitOfWork.EmployeeSkillRepository.Update(existingSkill);
                             }
                             else
                             {
-                                var newEmployeeSkill = new EmployeeSkill()
+                                if(employeeSkill.SkillID != null && employeeSkill.ScoreOfSkill != null)
                                 {
-                                    EmployeeID = userInfarm.UserId,
-                                    ScoreOfSkill = employeeSkill.ScoreOfSkill,
-                                    WorkTypeID = employeeSkill.SkillID,
-                                    FarmID = userInfarm.FarmId
-                                };
-                               await _unitOfWork.EmployeeSkillRepository.Insert(newEmployeeSkill);
+                                    // Thêm mới nếu chưa tồn tại
+                                    var newEmployeeSkill = new EmployeeSkill
+                                    {
+                                        EmployeeID = updateRequest.UserId,
+                                        ScoreOfSkill = employeeSkill.ScoreOfSkill,
+                                        WorkTypeID = employeeSkill.SkillID,
+                                        FarmID = updateRequest.FarmId
+                                    };
+                                    await _unitOfWork.EmployeeSkillRepository.Insert(newEmployeeSkill);
+                                }
                             }
+                        }
+
+                        // Xóa những kỹ năng không còn trong danh sách request
+                        var skillsToRemove = existingSkills
+                            .Where(x => !requestSkillIds.Contains(x.WorkTypeID))
+                            .ToList();
+
+                        foreach (var skillToRemove in skillsToRemove)
+                        {
+                            _unitOfWork.EmployeeSkillRepository.Delete(skillToRemove);
                         }
                     }
 
@@ -803,15 +826,19 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     {
                         foreach (var skill in createRequest.Skills)
                         {
-                            var newEmployeeSkill = new EmployeeSkill()
+                            if(skill.SkillID != null && skill.ScoreOfSkill != null)
                             {
-                                EmployeeID = checkUserExist.UserId,
-                                WorkTypeID = skill.SkillID,
-                                ScoreOfSkill = skill.ScoreOfSkill,
-                                FarmID = createRequest.FarmId!.Value,
-                            };
-                            //await _unitOfWork.EmployeeSkillRepository.Insert(newEmployeeSkill);
-                            newUserFarm.EmployeeSkills.Add(newEmployeeSkill);
+                                var newEmployeeSkill = new EmployeeSkill()
+                                {
+                                    EmployeeID = checkUserExist.UserId,
+                                    WorkTypeID = skill.SkillID,
+                                    ScoreOfSkill = skill.ScoreOfSkill,
+                                    FarmID = createRequest.FarmId!.Value,
+                                };
+                                //await _unitOfWork.EmployeeSkillRepository.Insert(newEmployeeSkill);
+                                newUserFarm.EmployeeSkills.Add(newEmployeeSkill);
+                            }
+                            
                         }
                     }
                     await _unitOfWork.UserFarmRepository.Insert(newUserFarm);

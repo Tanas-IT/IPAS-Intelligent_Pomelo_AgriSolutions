@@ -1,11 +1,11 @@
 import { Flex, Form, FormInstance } from "antd";
 import style from "./LandPlotCreate.module.scss";
 import { FormFieldModal, MapControls, MapNewLandPlot } from "@/components";
-import React, { useEffect, useState } from "react";
+import React, { useEffect } from "react";
 import { RulesManager } from "@/utils";
 import { GetLandPlot } from "@/payloads";
 import { PolygonInit } from "@/types";
-import { useMapStore, useVirtualPlotConfigStore } from "@/stores";
+import { useMapStore } from "@/stores";
 import { Icons } from "@/assets";
 import { createPlotFormFields, SYSTEM_CONFIG_GROUP } from "@/constants";
 import { useSystemConfigOptions } from "@/hooks";

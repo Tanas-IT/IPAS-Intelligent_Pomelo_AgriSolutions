@@ -659,7 +659,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             {
                 string key = $"{CacheKeyConst.WORKLOG}:{CacheKeyConst.FARM}:{farmId}";
 
-                Expression<Func<WorkLog, bool>> filter = x => x.IsDeleted == false && x.Schedule.IsDeleted == false && x.Schedule.CarePlan.FarmID == farmId;
+                Expression<Func<WorkLog, bool>> filter = x => x.IsDeleted == false && x.Schedule.IsDeleted == false && x.Schedule.FarmID == farmId;
 
                 // Bộ lọc theo ngày
                 if (scheduleFilter.FromDate.HasValue && scheduleFilter.ToDate.HasValue)
@@ -721,7 +721,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
                 // Lấy WorkLogs theo filter
                 var entities = await _unitOfWork.WorkLogRepository.GetWorkLog(filter);
-
+                
                 if (!entities.Any())
                 {
                     return new BusinessResult(200, Const.WARNING_NO_SCHEDULE_MSG, new List<ScheduleModel>());
@@ -3281,6 +3281,42 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             try
             {
                 var getEmployeeSkill = await _unitOfWork.EmployeeSkillRepository.GetListEmployeeByWorkTypeId(workTypeId ?? 0, farmId);
+                var result = getEmployeeSkill
+                         .Select(u => new EmployeeSkillModel
+                         {
+                             UserId = u.User.UserId,
+                             FullName = u.User.FullName,
+                             AvatarURL = u.User.AvatarURL,
+                             SkillWithScore = u.EmployeeSkills
+                                 .GroupBy(s => s.WorkType.Target ?? "Không xác định")
+                                 .Select(g => new SkillScoreModel
+                                 {
+                                     SkillName = g.Key,
+                                     Score = g.Select(s => (double?)s.ScoreOfSkill ?? 0).Average()
+                                 })
+                                 .OrderByDescending(skill => skill.Score)
+                                 .ToList()
+                         })
+                         .ToList();
+
+                if (getEmployeeSkill.Count() > 0)
+                {
+                    return new BusinessResult(200, "Filter Employee By Work Skill", result);
+                }
+                return new BusinessResult(404, "Do not have any employee");
+            }
+            catch (Exception ex)
+            {
+
+                return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
+            }
+        }
+
+        public async Task<BusinessResult> FilterEmployeeByTarget(string? target, int farmId)
+        {
+            try
+            {
+                var getEmployeeSkill = await _unitOfWork.EmployeeSkillRepository.GetListEmployeeByTarget(target, farmId);
                 var result = getEmployeeSkill
                          .Select(u => new EmployeeSkillModel
                          {

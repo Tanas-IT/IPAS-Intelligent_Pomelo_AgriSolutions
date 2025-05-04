@@ -2,15 +2,7 @@ import { ROUTE_NAMES } from "@/constants/RouteNames";
 import { RootStackNavigationProp } from "@/constants/Types";
 import { useNavigation } from "@react-navigation/native";
 import React, { useState } from "react";
-import {
-  Alert,
-  FlatList,
-  Image,
-  StyleSheet,
-  Text,
-  TouchableOpacity,
-  View,
-} from "react-native";
+import { FlatList, Image, TouchableOpacity, View } from "react-native";
 import {
   ExpandableCalendar,
   TimelineList as BaseTimelineList,
@@ -23,15 +15,9 @@ import { styles } from "./TimelineCalendar.styles";
 import theme from "@/theme";
 import { TextCustom } from "@/components";
 
-interface ExtendedTimelineProps extends TimelineProps {
-  renderEvent?: (
-    event: TimelineEventProps & { status?: string; avatars?: string[] }
-  ) => JSX.Element;
-}
-
 interface TimelineCalendarProps {
-  eventsByDate: { [key: string]: TimelineEventProps[] };
-  markedDates: { [key: string]: any };
+  eventsByDate: { [date: string]: TimelineEventProps[] };
+  markedDates: { [date: string]: any };
 }
 
 const statusStyles = {
@@ -60,18 +46,6 @@ const statusStyles = {
     textColor: "#1B5E20",
     borderColor: "#1B5E20",
   },
-};
-
-const SafeTimelineList = (props: any) => {
-  // tách key
-  const { key: _, ...safeTimelineProps } = props.timelineProps || {};
-
-  return (
-    <BaseTimelineList
-      {...props}
-      timelineProps={safeTimelineProps} // k chứa key
-    />
-  );
 };
 
 interface TimelineListSafeProps
@@ -104,74 +78,6 @@ export const TimelineCalendar: React.FC<TimelineCalendarProps> = ({
 
   const onDateChanged = (date: string) => {
     setCurrentDate(date);
-  };
-
-  const getEventsForTimeline = () => {
-    return Object.entries(eventsByDate).reduce((acc, [date, events]) => {
-      return [...acc, ...events];
-    }, [] as TimelineEventProps[]);
-  };
-
-  const createNewEvent: TimelineProps["onBackgroundLongPress"] = (
-    timeString,
-    timeObject
-  ) => {
-    const hourString = `${(timeObject.hour + 1).toString().padStart(2, "0")}`;
-    const minutesString = `${timeObject.minutes.toString().padStart(2, "0")}`;
-    const newEvent: TimelineEventProps = {
-      id: "draft",
-      start: `${timeString}`,
-      end: `${timeObject.date} ${hourString}:${minutesString}:00`,
-      title: "New Event",
-    };
-
-    if (timeObject.date) {
-      const updatedEvents = {
-        ...timelineEvents,
-        [timeObject.date]: timelineEvents[timeObject.date]
-          ? [...timelineEvents[timeObject.date], newEvent]
-          : [newEvent],
-      };
-      setTimelineEvents(updatedEvents);
-    }
-  };
-
-  const approveNewEvent: TimelineProps["onBackgroundLongPressOut"] = (
-    _timeString,
-    timeObject
-  ) => {
-    Alert.prompt("New Event", "Enter event title", [
-      {
-        text: "Cancel",
-        onPress: () => {
-          if (timeObject.date) {
-            const updatedEvents = {
-              ...timelineEvents,
-              [timeObject.date]: timelineEvents[timeObject.date].filter(
-                (e) => e.id !== "draft"
-              ),
-            };
-            setTimelineEvents(updatedEvents);
-          }
-        },
-      },
-      {
-        text: "Create",
-        onPress: (eventTitle) => {
-          if (timeObject.date) {
-            const updatedEvents = { ...timelineEvents };
-            const draftEvent = updatedEvents[timeObject.date].find(
-              (e) => e.id === "draft"
-            );
-            if (draftEvent) {
-              draftEvent.id = `${Date.now()}`;
-              draftEvent.title = eventTitle ?? "New Event";
-              setTimelineEvents(updatedEvents);
-            }
-          }
-        },
-      },
-    ]);
   };
 
   const renderEvent = (
@@ -243,8 +149,6 @@ export const TimelineCalendar: React.FC<TimelineCalendarProps> = ({
     rightEdgeSpacing: 24,
     renderEvent,
   };
-  console.log("timelineProps", timelineProps);
-  console.log("timelineEvents", timelineEvents);
 
   return (
     <View style={styles.container}>
@@ -266,7 +170,7 @@ export const TimelineCalendar: React.FC<TimelineCalendarProps> = ({
           }}
         />
         <TimelineListSafe
-          // timelineKey={`timeline-${currentDate}`}
+          timelineKey={`timeline-${currentDate}`}
           events={timelineEvents}
           showNowIndicator
           scrollToFirst

@@ -501,6 +501,79 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
         public async Task<BusinessResult> UpdateProcessInfo(UpdateProcessModel updateProcessModel)
         {
+
+            var checkProcessHasUsed = await _unitOfWork.ProcessRepository.GetProcessByIdHasPlanAsync(updateProcessModel.ProcessId);
+            var processFlag = false;
+
+            if (checkProcessHasUsed != null)
+            {
+                processFlag = checkProcessHasUsed.Plans.Any(p => p.IsSample == false) ||
+                              checkProcessHasUsed.SubProcesses.Any(sp =>
+                                  sp.Plans.Any(p => p.IsSample == false));
+
+                if (processFlag)
+                {
+                    var listPlanCreate = checkProcessHasUsed.Plans.Select(plan => new PlanCreateManyModel
+                    {
+                        PlanName = plan.PlanName,
+                        PlanDetail = plan.PlanDetail,
+                        PlanNote = plan.Notes,
+                    }).ToList();
+                    List<PlanCreateManyModel?>? listPlanUpdate = null;
+                    if(updateProcessModel.ListPlan != null)
+                    {
+                        listPlanUpdate = updateProcessModel.ListPlan.Select(planJson =>
+                        {
+                            var plan = JsonConvert.DeserializeObject<PlanCreateManyModel>(planJson);
+                            return plan;
+                        }).ToList();
+                    }
+                    var listSubProcess = checkProcessHasUsed.SubProcesses.Select(sp => new SubProcessCreateManyModel
+                    {
+                        SubProcessName = sp.SubProcessName,
+                        ParentSubProcessId = sp.ParentSubProcessId,
+                        IsActive = sp.IsActive,
+                        Order = sp.Order,
+                        ListPlan = sp.Plans.Select(plan => new PlanCreateManyModel
+                        {
+                            PlanName = plan.PlanName,
+                            PlanDetail = plan.PlanDetail,
+                            PlanNote = plan.Notes,
+                        }).ToList() 
+                    }).ToList();
+                    List<SubProcessCreateManyModel?>? subProcesses = null;
+                    if (updateProcessModel.ListUpdateSubProcess != null)
+                    {
+                        subProcesses = updateProcessModel.ListUpdateSubProcess.Select(subProcessJson =>
+                        {
+                            var subProcess = JsonConvert.DeserializeObject<SubProcessCreateManyModel>(subProcessJson);
+                            return subProcess;
+                        }).ToList();
+                    }
+                    var modifiedProcessName = updateProcessModel.ProcessName != null ? updateProcessModel.ProcessName : checkProcessHasUsed.ProcessName;
+                    var timeZoneForProcess = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
+                    var todayForProcess = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, timeZoneForProcess);
+                    var newProcessModified = new CreateManyProcessModel()
+                    {
+                        ProcessName = modifiedProcessName + " modifiled on " + $"{todayForProcess}",
+                        IsActive = updateProcessModel.IsActive != null ? updateProcessModel.IsActive : checkProcessHasUsed.IsActive,
+                        IsSample = checkProcessHasUsed.IsSample,
+                        ListPlan = updateProcessModel.ListPlan != null ? listPlanUpdate : listPlanCreate,
+                        ListSubProcess = updateProcessModel.ListUpdateSubProcess != null ? subProcesses : listSubProcess,
+                        MasterTypeId = updateProcessModel.MasterTypeId != null ? updateProcessModel.MasterTypeId : checkProcessHasUsed.MasterTypeId,
+                        PlanTargetInProcess = updateProcessModel.PlanTargetInProcess != null ? updateProcessModel.PlanTargetInProcess : checkProcessHasUsed.PlanTargetInProcess
+                    };
+                    var checkCreateModified = await CreateProcessWithSub(newProcessModified, checkProcessHasUsed.FarmId.Value);
+                    if (checkCreateModified.StatusCode == 200)
+                    {
+                        return new BusinessResult(200, "This process is already in use. As a result, a new process will be created. Please check the process management.", checkCreateModified.Data);
+                    }
+                    else
+                    {
+                        return new BusinessResult(400, "Update Process failed");
+                    }
+                }
+            }
             using (var transaction = await _unitOfWork.BeginTransactionAsync())
             {
                 try
@@ -519,6 +592,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                 throw new Exception("Process is running. Can not update");
                             }
                         }
+
                         if (updateProcessModel.PlanTargetInProcess != null)
                         {
                             checkExistProcess.PlanTargetInProcess = updateProcessModel.PlanTargetInProcess;
@@ -1307,8 +1381,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     {
                         return new BusinessResult(Const.FAIL_CREATE_PROCESS_CODE, Const.FAIL_CREATE_PROCESS_MESSAGE, false);
                     }
-                   
-                    
+
+
                 }
                 catch (Exception ex)
                 {
@@ -1318,6 +1392,6 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             }
         }
 
-        
+
     }
 }

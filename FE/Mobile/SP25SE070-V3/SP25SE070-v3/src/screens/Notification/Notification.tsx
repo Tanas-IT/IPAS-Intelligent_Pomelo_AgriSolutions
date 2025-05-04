@@ -33,7 +33,6 @@ const NotificationScreen = () => {
   const filteredNotifications =
     filter === "ALL" ? notifications : notifications.filter((n) => !n.isRead);
 
-  console.log("notifications", notifications);
 
   const groupAndSortNotifications = (notifs: GetNotification[]) => {
     // sort all notification từ mới đến cũ
@@ -68,7 +67,6 @@ const NotificationScreen = () => {
     if (!notification.isRead) {
       markAsRead(notification.notificationId);
     }
-    console.log(`Navigating to: ${notification.link}`);
   };
 
   const test = NotificationService.getNotificationByUser(Number(userId));

@@ -8,6 +8,7 @@ import { MAP_BOX_KEY } from "@/constants";
 import { GetLandPlot } from "@/payloads";
 import PopupContent from "./PopupContent";
 import MapMarker from "../MapMarker/MapMarker";
+import { useResponsive } from "antd-style";
 
 interface MapLandPlotProps {
   latitude: number;
@@ -36,6 +37,13 @@ const MapLandPlot: React.FC<MapLandPlotProps> = ({
   const DEFAULT_COORDINATES: [number, number] = [106.6825, 10.7626]; // TP. HCM
   const center: [number, number] =
     longitude && latitude ? ([longitude, latitude] as [number, number]) : DEFAULT_COORDINATES;
+
+  const sizeChange = useResponsive();
+  useEffect(() => {
+    setTimeout(() => {
+      window.dispatchEvent(new Event("resize")); // Trigger resize event
+    }, 300);
+  }, [sizeChange]);
 
   useEffect(() => {
     if (!mapContainer.current) return;
@@ -200,6 +208,7 @@ const MapLandPlot: React.FC<MapLandPlotProps> = ({
       if (attributionControl) attributionControl.remove();
       if (attributionButton) attributionButton.remove();
     });
+
     mapRef.current = map;
     return () => map.remove();
   }, [latitude, longitude, highlightedPlots]);

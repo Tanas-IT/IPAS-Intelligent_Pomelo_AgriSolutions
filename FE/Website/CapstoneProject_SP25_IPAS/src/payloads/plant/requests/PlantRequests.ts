@@ -1,3 +1,4 @@
+import { plantHarvestRecords } from "@/payloads/harvest";
 import { FileResource } from "@/types";
 
 export interface PlantRequest {
@@ -20,4 +21,11 @@ export interface PlantGrowthHistoryRequest {
   issueName: string;
   content: string;
   resources: File[] | FileResource[];
+}
+
+export interface CreateHarvestRecordRequest {
+  masterTypeId: number;
+  harvestHistoryId: number;
+  userId: number;
+  plantHarvestRecords: plantHarvestRecords[];
 }

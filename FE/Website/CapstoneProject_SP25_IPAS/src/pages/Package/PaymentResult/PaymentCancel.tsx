@@ -73,8 +73,6 @@ const PaymentCancel = () => {
             status: "CANCELLED",
             transactionId: transactionId || "",
           });
-          console.log("Update result:", updateResult);
-
 
           if (updateResult.statusCode !== 200) {
             toast.warning("Failed to update order status");
@@ -101,7 +99,10 @@ const PaymentCancel = () => {
       const result = await authService.refreshTokenOutFarm();
       if (result.statusCode === 200) {
         localStorage.setItem(LOCAL_STORAGE_KEYS.ACCESS_TOKEN, result.data.authenModel.accessToken);
-        localStorage.setItem(LOCAL_STORAGE_KEYS.REFRESH_TOKEN, result.data.authenModel.refreshToken);
+        localStorage.setItem(
+          LOCAL_STORAGE_KEYS.REFRESH_TOKEN,
+          result.data.authenModel.refreshToken,
+        );
         navigate(PATHS.FARM_PICKER);
       } else {
         navigate(PATHS.AUTH.LANDING);
@@ -126,14 +127,8 @@ const PaymentCancel = () => {
               ? `Order #${orderId} was cancelled. You will be redirected in 5 seconds...`
               : "The payment process was cancelled. You will be redirected in 5 seconds..."
           }
-
           extra={[
-            <Button
-              type="primary"
-              key="home"
-              onClick={handleManualBack}
-              loading={!orderId}
-            >
+            <Button type="primary" key="home" onClick={handleManualBack} loading={!orderId}>
               Back Home
             </Button>,
           ]}

@@ -1,5 +1,19 @@
 import useWeatherStore from "@/stores/weatherStore";
-import { Button, Input, Spin, Alert, Typography, Layout, Flex, Row, Col, Card, Tooltip, Segmented, List } from "antd";
+import {
+  Button,
+  Input,
+  Spin,
+  Alert,
+  Typography,
+  Layout,
+  Flex,
+  Row,
+  Col,
+  Card,
+  Tooltip,
+  Segmented,
+  List,
+} from "antd";
 import { AppstoreOutlined, BarsOutlined, SearchOutlined } from "@ant-design/icons";
 import { useEffect, useState } from "react";
 import Sider from "antd/es/layout/Sider";
@@ -15,7 +29,16 @@ const { Title, Text } = Typography;
 function Weather() {
   type ViewMode = "temp" | "wind" | "rain";
   const [viewMode, setViewMode] = useState<ViewMode>("temp");
-  const { weather, isLoading, error, place, setPlace, fetchWeather, isSearchVisible, toggleSearch } = useWeatherStore((state) => state);
+  const {
+    weather,
+    isLoading,
+    error,
+    place,
+    setPlace,
+    fetchWeather,
+    isSearchVisible,
+    toggleSearch,
+  } = useWeatherStore((state) => state);
 
   const [searchValue, setSearchValue] = useState<string>("");
   const { styles } = useStyle();
@@ -33,26 +56,28 @@ function Weather() {
   const handleSegmentChange = (value: string) => {
     setViewMode(value.toLowerCase() as ViewMode);
   };
-  
+
   const weatherImages = {
     Clouds: Images.cloudy,
     Clear: Images.sunny,
     Rain: Images.rainy,
     Snow: Images.snowy,
     Haze: Images.cloudy,
-    Mist: Images.cloudy
-  }
+    Mist: Images.cloudy,
+  };
 
-  const weatherImage = weather?.weather ? weatherImages[weather.weather[0]?.main as keyof typeof weatherImages] : Images.cloudy;
+  const weatherImage = weather?.weather
+    ? weatherImages[weather.weather[0]?.main as keyof typeof weatherImages]
+    : Images.cloudy;
 
   const backgroundImages = {
-    Clear: 'linear-gradient(to right, #f3b07c, #fcd283)',
-    Clouds: 'linear-gradient(to right, #57d6d4, #7leeec)',
-    Rain: 'linear-gradient(to right, #5bc8fb, #80eaff)',
-    Snow: 'linear-gradient(to right, #aff2ff, #fff)',
-    Haze: 'linear-gradient(to right, #57d6d4, #7leeec)',
-    Mist: 'linear-gradient(to right, #57d6d4, #7leeec)',
-  }
+    Clear: "linear-gradient(to right, #f3b07c, #fcd283)",
+    Clouds: "linear-gradient(to right, #57d6d4, #7leeec)",
+    Rain: "linear-gradient(to right, #5bc8fb, #80eaff)",
+    Snow: "linear-gradient(to right, #aff2ff, #fff)",
+    Haze: "linear-gradient(to right, #57d6d4, #7leeec)",
+    Mist: "linear-gradient(to right, #57d6d4, #7leeec)",
+  };
 
   const iconWeathers = {
     Clear: Icons.wind,
@@ -61,12 +86,11 @@ function Weather() {
     Snow: Icons.wind,
     Haze: Icons.wind,
     Mist: Icons.wind,
-  }
+  };
 
-  const backgroundImage = weather?.weather ? backgroundImages[weather.weather[0]?.main as keyof typeof backgroundImages] : 'linear-gradient(to right, #f3b07c, #fcd283)';
-
-  console.log("Weather", weather);
-  console.log("Background", backgroundImage);
+  const backgroundImage = weather?.weather
+    ? backgroundImages[weather.weather[0]?.main as keyof typeof backgroundImages]
+    : "linear-gradient(to right, #f3b07c, #fcd283)";
 
   const data = [
     { icon: "🌥", temp: "20", wind: "10", rain: "5", time: "Morning" },
@@ -74,7 +98,6 @@ function Weather() {
     { icon: "🌥", temp: "28", wind: "12", rain: "7", time: "Evening" },
     { icon: "🌥", temp: "22", wind: "8", rain: "15", time: "Night" },
   ];
-  
 
   return (
     <Layout className={style.container}>
@@ -112,7 +135,10 @@ function Weather() {
                 </div>
               </Flex>
             </div>
-            <div className={style.card} style={{ backgroundImage: `url(${Images.airQuality})`, color: "white" }}>
+            <div
+              className={style.card}
+              style={{ backgroundImage: `url(${Images.airQuality})`, color: "white" }}
+            >
               <Row>
                 <Col span={3}>
                   <div className={style.weatherIcon}>
@@ -121,14 +147,15 @@ function Weather() {
                 </Col>
                 <Col span={21}>
                   <Flex gap="2px" vertical={true} color="white">
-                    <Text strong style={{ color: "#ffffff" }}>Air Quality</Text>
+                    <Text strong style={{ color: "#ffffff" }}>
+                      Air Quality
+                    </Text>
                     <Text style={{ color: "#ffffff" }}>Main pollution: PM 2.5</Text>
                   </Flex>
                 </Col>
               </Row>
               <h3 className={style.mainValue}>390</h3>
               <p>West Wind</p>
-
             </div>
           </Flex>
           <Flex style={{ flex: 3 }}>
@@ -146,7 +173,12 @@ function Weather() {
                   ]}
                   onChange={handleSegmentChange}
                   className={`${styles.customSegment}`}
-                  style={{ display: "flex", justifyContent: "center", alignItems: "center", backgroundColor: "#D3F0E5" }}
+                  style={{
+                    display: "flex",
+                    justifyContent: "center",
+                    alignItems: "center",
+                    backgroundColor: "#D3F0E5",
+                  }}
                 />
               </div>
               <Row gutter={16} className={style.rowContainer}>
@@ -183,7 +215,8 @@ function Weather() {
                       <Text strong className={style.temp} style={{ whiteSpace: "nowrap" }}>
                         {viewMode === "temp" ? (
                           <>
-                            {item[viewMode]}<span style={{ fontSize: "14px" }}>°</span>
+                            {item[viewMode]}
+                            <span style={{ fontSize: "14px" }}>°</span>
                           </>
                         ) : (
                           <>
@@ -199,13 +232,13 @@ function Weather() {
                       <br />
                       <br />
                       <br />
-                      <Text className={style.time} style={{ whiteSpace: "nowrap" }}>{item.time}</Text>
+                      <Text className={style.time} style={{ whiteSpace: "nowrap" }}>
+                        {item.time}
+                      </Text>
                     </Card>
                   </Col>
                 ))}
               </Row>
-
-
             </div>
             <div
               className={style.boyImageContainer}
@@ -222,12 +255,10 @@ function Weather() {
                 <p>Rainny</p>
               </div>
             </div>
-
-
           </Flex>
         </Flex>
       </Content>
-        <RightSidebar />
+      <RightSidebar />
     </Layout>
   );
 }

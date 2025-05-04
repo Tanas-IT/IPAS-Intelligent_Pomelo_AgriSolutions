@@ -251,7 +251,8 @@ function GraftedPlant() {
             <TableTitle
               onSearch={handleSearch}
               filterContent={filterContent}
-              noAdd={isEmployee()}
+              // noAdd={isEmployee()}
+              noAdd
               onExport={handleExport}
             />
           }

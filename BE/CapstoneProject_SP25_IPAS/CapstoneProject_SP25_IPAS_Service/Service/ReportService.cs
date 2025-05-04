@@ -389,7 +389,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                                         })
                                                         .ToList()
                                     })
-                                    .ToList();
+                                    .OrderByDescending(x => x.Year).ToList();
             return result;
         }
 

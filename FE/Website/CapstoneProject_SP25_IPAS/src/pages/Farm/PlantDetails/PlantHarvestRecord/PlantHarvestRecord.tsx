@@ -2,6 +2,7 @@ import {
   ActionMenuRecord,
   ConfirmModal,
   LoadingSkeleton,
+  NewRecordModal,
   PlantSectionHeader,
   TimelineFilter,
   UpdateProductHarvestModal,
@@ -12,7 +13,7 @@ import style from "./PlantHarvestRecord.module.scss";
 import { useEffect, useState } from "react";
 import { Dayjs } from "dayjs";
 import { formatDate, formatDayMonthAndTime } from "@/utils";
-import { GetPlantRecord, UpdateProductHarvestRequest } from "@/payloads";
+import { CreateHarvestRecordRequest, GetPlantRecord, UpdateProductHarvestRequest } from "@/payloads";
 import {
   DEFAULT_RECORDS_IN_DETAIL,
   MASTER_TYPE,
@@ -45,6 +46,7 @@ function PlantHarvestRecord() {
   const [totalIssues, setTotalIssues] = useState(0);
   const [currentPage, setCurrentPage] = useState(1);
   const deleteConfirmModal = useModal<{ id: number }>();
+  const newRecordModal = useModal();
   const formModal = useModal<{ id: number; quantity: number }>();
   const { options, loading } = useSystemConfigOptions(
     SYSTEM_CONFIG_GROUP.VALIDATION_VARIABLE,
@@ -131,10 +133,21 @@ function PlantHarvestRecord() {
     }
   };
 
+  const handleCreatePlantHarvestRecord = async (values: CreateHarvestRecordRequest) => {
+    const res = await plantService.createPlantHarvestRecord(values);
+    if (res.statusCode === 200) {
+      toast.success(res.message);
+      newRecordModal.hideModal();
+      await handleResetData();
+    } else {
+      toast.warning(res.message);
+    }
+  };
+
   if (isFirstLoad) return <LoadingSkeleton rows={10} />;
   return (
     <Flex className={style.contentDetailWrapper}>
-      <PlantSectionHeader />
+      <PlantSectionHeader onAddNewRecord={newRecordModal.showModal} />
       <Divider className={style.divider} />
       <Flex className={style.contentSectionBody} vertical>
         <Flex gap={20}>
@@ -251,7 +264,12 @@ function PlantHarvestRecord() {
           </Flex>
         )}
       </Flex>
-
+      <NewRecordModal
+        isOpen={newRecordModal.modalState.visible}
+        onClose={newRecordModal.hideModal}
+        onSave={handleCreatePlantHarvestRecord}
+        isLoadingAction={false}
+      />
       <UpdateProductHarvestModal
         isPlant
         isOpen={formModal.modalState.visible}

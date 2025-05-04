@@ -90,16 +90,22 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
             return listEmployee.Count;
         }
 
-        public async Task<List<User>> SearchByEmail(string searchEmail)
+        public async Task<List<User>> SearchByEmail(string searchEmail, int? farmId)
         {
+            var userIdsInFarm = await _context.UserFarms
+                                   .Where(x => x.FarmId == farmId)
+                                   .Select(x => x.UserId)
+                                   .ToListAsync();
+
             var result = await _context.Users
-                                        .Where(x => x.Email!.ToLower().StartsWith(searchEmail.ToLower())
-                                        && x.IsDeleted != true
-                                        && x.Status!.ToLower().Equals(UserStatusEnum.Active.ToString().ToLower())
-                                        && x.RoleId == (int)RoleEnum.USER)
-                                        .Take(5)
-                                        .OrderByDescending(x => x.UserId)
-                                        .ToListAsync();
+                                     .Where(x => !userIdsInFarm.Contains(x.UserId)
+                                         && x.Email!.ToLower().StartsWith(searchEmail.ToLower())
+                                         && x.IsDeleted != true
+                                         && x.Status!.ToLower() == UserStatusEnum.Active.ToString().ToLower()
+                                         && x.RoleId == (int)RoleEnum.USER)
+                                     .OrderByDescending(x => x.UserId)
+                                     .Take(5)
+                                     .ToListAsync();
             return result;
         }
     }

@@ -1,11 +1,4 @@
-import React, {
-  forwardRef,
-  useEffect,
-  useImperativeHandle,
-  useMemo,
-  useRef,
-  useState,
-} from "react";
+import { forwardRef, useEffect, useImperativeHandle, useMemo, useRef } from "react";
 import style from "./MapNewLandPlot.module.scss";
 import mapboxgl from "mapbox-gl";
 import MapboxDraw, {
@@ -23,7 +16,7 @@ import { GetLandPlot } from "@/payloads";
 import MapMarker from "../MapMarker/MapMarker";
 import { PolygonInit } from "@/types";
 import { useMapStore } from "@/stores";
-import { toast } from "react-toastify";
+import { useResponsive } from "antd-style";
 
 interface MapLandPlotProps {
   latitude: number;
@@ -59,6 +52,13 @@ const MapNewLandPlot = forwardRef<MapLandPlotRef, MapLandPlotProps>(
       () => landPlots.filter((landPlot) => landPlot.landPlotId !== selectedPlot?.landPlotId),
       [landPlots, selectedPlot],
     );
+
+    const sizeChange = useResponsive();
+    useEffect(() => {
+      setTimeout(() => {
+        window.dispatchEvent(new Event("resize")); // Trigger resize event
+      }, 300);
+    }, [sizeChange]);
 
     const DEFAULT_COORDINATES: [number, number] = [106.6825, 10.7626]; // TP. HCM
     const center: [number, number] =

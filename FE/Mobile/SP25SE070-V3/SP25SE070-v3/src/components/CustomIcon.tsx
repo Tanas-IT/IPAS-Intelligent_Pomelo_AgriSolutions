@@ -1,12 +1,18 @@
 import React from "react";
-import { Ionicons, MaterialCommunityIcons, AntDesign, FontAwesome, MaterialIcons } from "@expo/vector-icons";
+import {
+  Ionicons,
+  MaterialCommunityIcons,
+  AntDesign,
+  FontAwesome,
+  MaterialIcons,
+} from "@expo/vector-icons";
 
 const ICON_TYPES = {
   Ionicons,
   MaterialCommunityIcons,
   AntDesign,
   FontAwesome,
-  MaterialIcons
+  MaterialIcons,
 } as const;
 
 type IconType = keyof typeof ICON_TYPES;

@@ -6,6 +6,7 @@ import { ActionMenuProduct } from "@/components";
 import { useModal } from "@/hooks";
 import { MASTER_TYPE } from "@/constants";
 import { GetMasterTypeDetail } from "@/payloads";
+import { isEmployee } from "@/utils";
 
 const ProductSectionHeader = ({
   product,
@@ -19,6 +20,7 @@ const ProductSectionHeader = ({
   criteriaModal?: ReturnType<typeof useModal<{ id: number }>>;
 }) => {
   if (!product || (product && product.typeName !== MASTER_TYPE.PRODUCT)) return;
+  const isEmployeeIn = isEmployee();
 
   return (
     <Flex className={style.contentSectionHeader}>
@@ -32,14 +34,15 @@ const ProductSectionHeader = ({
             {product.isActive ? "Active" : "Inactive"}
           </Tag>
         </Flex>
-
-        <Flex>
-          <ActionMenuProduct
-            onEdit={() => formModal?.showModal(product)}
-            onDelete={() => deleteConfirmModal?.showModal({ id: product.masterTypeId })}
-            onApplyCriteria={() => criteriaModal?.showModal({ id: product.masterTypeId })}
-          />
-        </Flex>
+        {!isEmployeeIn && (
+          <Flex>
+            <ActionMenuProduct
+              onEdit={() => formModal?.showModal(product)}
+              onDelete={() => deleteConfirmModal?.showModal({ id: product.masterTypeId })}
+              onApplyCriteria={() => criteriaModal?.showModal({ id: product.masterTypeId })}
+            />
+          </Flex>
+        )}
       </Flex>
       <label className={style.subTitle}>Code: {product.masterTypeCode}</label>
     </Flex>

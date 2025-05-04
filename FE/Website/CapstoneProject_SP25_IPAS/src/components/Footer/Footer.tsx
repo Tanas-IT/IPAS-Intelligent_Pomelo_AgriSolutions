@@ -1,78 +1,31 @@
-// import style from "./Footer.module.scss";
-// import logo from "@/assets/images/logo 1.png";
-
-// function Footer() {
-//   return (
-//     <footer className={style.footer}>
-//       <div className={style.container}>
-//         <div className={style.brand}>
-//           <div className={style.logoContainer}>
-//             <img src={logo} alt="IPAS Logo" className={style.logo} />
-//             <h2>IPAS</h2>
-//           </div>
-//           <p>A cutting-edge platform designed to revolutionize farm management through AI-powered tools and automation. IPAS helps pomelo farmers optimize care, increase productivity, and make data-driven decisions.</p>
-
-//         </div>
-//         <div className={style.links}>
-//           <h4>About</h4>
-//           <ul>
-//             <li><a href="#">Company</a></li>
-//             <li><a href="#">About</a></li>
-//             <li><a href="#">Contact</a></li>
-//           </ul>
-//         </div>
-//         <div className={style.payment}>
-//           <h4>Payment</h4>
-//           <img src="/payment-icons.png" alt="Payment Options" />
-//         </div>
-//         <div className={style.address}>
-//           <h4>Our Address</h4>
-//           <p>FPT University, Ho Chi Minh Campus</p>
-//         </div>
-//       </div>
-//       <div className={style.copyright}>
-//         <p>Copyright © 2025 IPAS, All Rights Reserved.</p>
-//         <p><a href="#">Terms & Conditions</a> | <a href="#">Privacy Policy</a></p>
-//       </div>
-//     </footer>
-
-//   );
-// }
-
-// export default Footer;
-
 import React from "react";
 import { Layout, Row, Col, Typography, Space, Button, Input } from "antd";
 import { FacebookOutlined, TwitterOutlined, InstagramOutlined } from "@ant-design/icons";
 import logo from "@/assets/images/resources/logo 1.png";
+import style from "./Footer.module.scss";
 
 const { Title, Text } = Typography;
 
 interface FooterProps {
   isManagement?: boolean;
 }
+
 const Footer: React.FC<FooterProps> = ({ isManagement = false }) => {
   return (
-    <Layout.Footer
-      style={
-        !isManagement
-          ? { backgroundColor: "#ffffff", padding: "40px 100px", color: "#333" }
-          : { backgroundColor: "#ffffff", padding: "40px 30px", color: "#333" }
-      }
-    >
+    <Layout.Footer className={`${style.footer} ${isManagement ? style.management : ""}`}>
       <Row gutter={[20, 20]} align="middle">
         <Col span={8}>
-          <div style={{ display: "flex", alignItems: "center", gap: "20px" }}>
-            <img src={logo} alt="logo" style={{ width: "60px", height: "auto" }} />
+          <div className={style.footerTop}>
+            <img src={logo} alt="logo" className={style.footerLogo} />
             <div style={{ display: "flex", gap: "12px", alignItems: "center" }}>
-              <Title level={3} style={{ margin: 0 }}>
+              <Title level={3} className={style.footerTitle}>
                 IPAS - Intelligent Pomelo AgriSolutions
               </Title>
             </div>
           </div>
         </Col>
         <Col span={16}>
-          <Text style={{ fontSize: "1.3rem", textAlign: "left", color: "#404A3D" }}>
+          <Text className={style.footerDesc}>
             Professional & modern, a theme designed to help your business stand out from the rest.
           </Text>
         </Col>

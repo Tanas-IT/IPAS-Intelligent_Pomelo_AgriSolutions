@@ -27,7 +27,6 @@ const WorklogFilter = ({ filters, updateFilters, onClear, onApply }: FilterProps
   const { options: growthStageOptions } = useGrowthStageOptions(true);
   const listRole = [5, 4];
   const { options } = useUserInFarmByRole(listRole);
-  console.log(options);
 
   const isFilterEmpty = !(
     localFilters.workDateFrom ||

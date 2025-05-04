@@ -92,6 +92,7 @@ export { default as PlantModal } from "@/components/UI/Modal/PlantModal/PlantMod
 export { default as LotModal } from "@/components/UI/Modal/LotModal";
 export { default as CropModal } from "@/components/UI/Modal/CropModal";
 export { default as HarvestModal } from "@/components/UI/Modal/HarvestModal/HarvestModal";
+export { default as NewRecordModal } from "@/components/UI/Modal/NewRecordModal";
 export { default as MasterTypesModal } from "@/components/UI/Modal/MasterTypeModal";
 export { default as GraftedPlantModal } from "@/components/UI/Modal/GraftedPlantModal";
 export { default as NewIssueModal } from "@/components/UI/Modal/NewIssueModal/NewIssueModal";

@@ -64,7 +64,6 @@ const FarmModal = ({ isOpen, onClose, onSave, farmData, isLoadingAction }: FarmM
 
   const handleOk = async () => {
     await form.validateFields();
-    // console.log(getFormData());
     onSave(getFormData());
   };
 

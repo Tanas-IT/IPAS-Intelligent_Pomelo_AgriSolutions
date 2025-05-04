@@ -189,7 +189,6 @@ const CriteriaModel = ({
   const handleOk = async () => {
     await form.validateFields();
     if (!isCriteriaListValid()) return;
-    // console.log(getFormData());
     onSave(getFormData());
   };
 

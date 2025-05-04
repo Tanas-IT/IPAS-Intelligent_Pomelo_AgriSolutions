@@ -58,17 +58,17 @@ const useNotifications = () => {
     const ws = new WebSocket(`${wsUrl}?userId=${userId}`);
 
     ws.onopen = () => {
-      console.log("Connected to WebSocket!");
+      // console.log("Connected to WebSocket!");
     };
 
     ws.onmessage = (event) => {
       try {
         const message = JSON.parse(event.data);
-        console.log("Parsed Message:", message);
+        // console.log("Parsed Message:", message);
 
         fetchNotifications();
       } catch (error) {
-        console.log("Error parse JSON:", error);
+        // console.log("Error parse JSON:", error);
       }
     };
 

@@ -692,7 +692,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         orderBy = !string.IsNullOrEmpty(paginationParameter.Direction)
                                     ? (paginationParameter.Direction.ToLower().Equals("desc")
                                    ? x => x.OrderByDescending(x => x.PlanId)
-                                   : x => x.OrderBy(x => x.PlanId)) : x => x.OrderBy(x => x.PlanId);
+                                   : x => x.OrderByDescending(x => x.PlanId)) : x => x.OrderByDescending(x => x.PlanId);
                         break;
                     case "plancode":
                         orderBy = !string.IsNullOrEmpty(paginationParameter.Direction)
@@ -777,7 +777,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         orderBy = !string.IsNullOrEmpty(paginationParameter.Direction)
                                     ? (paginationParameter.Direction.ToLower().Equals("desc")
                                    ? x => x.OrderByDescending(x => x.CreateDate)
-                                   : x => x.OrderBy(x => x.CreateDate)) : x => x.OrderBy(x => x.CreateDate);
+                                   : x => x.OrderByDescending(x => x.CreateDate)) : x => x.OrderByDescending(x => x.CreateDate);
                         break;
                     case "updatedate":
                         orderBy = !string.IsNullOrEmpty(paginationParameter.Direction)

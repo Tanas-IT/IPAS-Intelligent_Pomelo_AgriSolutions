@@ -1463,11 +1463,11 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             }
         }
 
-        public async Task<BusinessResult> SearchByEmail(string? searchEmail)
+        public async Task<BusinessResult> SearchByEmail(string? searchEmail, int? farmId)
         {
             if (string.IsNullOrEmpty(searchEmail))
                 return new BusinessResult(200, "No resource found");
-            var getUser = await _unitOfWork.UserRepository.SearchByEmail(searchEmail);
+            var getUser = await _unitOfWork.UserRepository.SearchByEmail(searchEmail, farmId);
             if (getUser != null)
             {
                 var result = _mapper.Map<IEnumerable<UserModel>>(getUser);

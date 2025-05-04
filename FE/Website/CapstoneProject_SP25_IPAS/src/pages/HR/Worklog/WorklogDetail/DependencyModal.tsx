@@ -18,15 +18,12 @@ const DependencyModal: React.FC<DependencyModalProps> = ({ isOpen, onClose, work
       setLoading(true);
       try {
         const response = await worklogService.getDependencyWorklog(worklogId);
-        console.log('Response:', response);
 
         if (response.statusCode === 200) {
           setPlans(response.data || []);
         } else {
           console.error('Failed to fetch dependencies:', response.message);
         }
-      } catch (error) {
-        console.error('Error fetching dependencies:', error);
       } finally {
         setLoading(false);
       }

@@ -12,12 +12,10 @@ import { useTheme } from "native-base";
 
 import { LinearGradient } from "expo-linear-gradient";
 import theme from "@/theme";
-import { CustomIcon, TextCustom } from "@/components";
-import { avt } from "@/assets/images";
+import { AvatarImage, CustomIcon, TextCustom } from "@/components";
 import { getRoleId, getRoleName, getUserId } from "@/utils";
-import { MESSAGES, UserRole } from "@/constants";
+import { MESSAGES, UserRole, ROUTE_NAMES } from "@/constants";
 import { useAuthStore } from "@/store";
-import { ROUTE_NAMES } from "@/constants";
 import { AuthService } from "@/services";
 import Toast from "react-native-toast-message";
 import { useLogout } from "@/hooks";
@@ -41,9 +39,9 @@ export default function CustomDrawerContent(
             screen: ROUTE_NAMES.FARM.FARM_PICKER,
           },
           {
-            label: "Notifications",
-            icon: "bell",
-            screen: ROUTE_NAMES.NOTIFICATION,
+            label: "Home",
+            icon: "home",
+            screen: ROUTE_NAMES.MAIN.MAIN_TABS,
           },
         ]
       : []),
@@ -84,11 +82,7 @@ export default function CustomDrawerContent(
       >
         <View style={styles.userContainer}>
           <View style={styles.avatarContainer}>
-            {avatarUrl ? (
-              <Image source={{ uri: avatarUrl }} style={styles.avatar} />
-            ) : (
-              <CustomIcon name="user" size={32} color="#FFF" type="AntDesign" />
-            )}
+            <AvatarImage uri={avatarUrl} style={styles.avatar} />
           </View>
           <View style={styles.userInfo}>
             <TextCustom style={styles.userName}>{fullName}</TextCustom>

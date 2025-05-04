@@ -19,6 +19,11 @@
 .btn {
   @extend .baseBtn;
   background-color: vars.$color_yellow_main !important;
+  // @media (max-width: 992px) {
+  //   height: 30px;
+  //   padding: 0 10px;
+  //   font-size: 14px !important;
+  // }
 }
 
 .btnModal {

@@ -1,43 +1,66 @@
 @use "@/styles/share.scss" as shared;
 @use "@/styles/variables.scss" as vars;
 
-.draggableRowContainer {
-  position: relative;
-  flex-direction: column;
-  padding: 4rem 0;
-  border: 1px dashed #228b22; // Viền đậm
-  border-radius: 12px;
-  margin: auto;
-  justify-content: center;
-  align-items: center;
-  width: 100%;
+.dragContainer {
   height: 80vh;
-  overflow: hidden;
-}
-.rowHeader {
-  justify-content: space-between;
-  align-items: center;
-  .rowInfoContainer {
+  overflow: auto;
+  .draggableRowContainer {
+    position: relative;
+    flex-direction: column;
+    padding: 4rem 0;
+    border: 1px dashed #228b22; // Viền đậm
+    border-radius: 12px;
+    margin: auto;
+    justify-content: center;
     align-items: center;
-    gap: 12px;
-    .divider {
-      min-width: 20px;
-      background-color: black;
-    }
-    .totalRowsLabel,
-    .rowOrientationLabel {
-      font-size: 18px;
-      white-space: nowrap;
-    }
+    width: 100%;
+    height: 80vh;
+    margin-bottom: 16px;
+    overflow: hidden;
   }
+  .rowHeader {
+    justify-content: space-between;
+    align-items: center;
+    .rowInfoContainer {
+      align-items: center;
+      gap: 12px;
+      .divider {
+        min-width: 20px;
+        background-color: black;
+      }
+      .totalRowsLabel,
+      .rowOrientationLabel {
+        font-size: 18px;
+        white-space: nowrap;
+      }
+    }
 
-  .zoomControls {
-    justify-content: flex-end;
-    margin-bottom: 12px;
-    gap: 20px;
+    .zoomControls {
+      justify-content: flex-end;
+      margin-bottom: 12px;
+      gap: 20px;
+    }
   }
 }
 
-.cancelBtn {
-  @include shared.cancelBtn;
+@media (max-width: 992px) {
+  .dragContainer {
+    .rowHeader {
+      flex-direction: column;
+      align-items: flex-start;
+
+      .zoomControls {
+        justify-content: center;
+        width: 100%;
+      }
+      .rowInfoContainer {
+        justify-content: center;
+        width: 100%;
+
+        .divider {
+          max-width: 20px;
+        }
+      }
+    }
+  }
 }

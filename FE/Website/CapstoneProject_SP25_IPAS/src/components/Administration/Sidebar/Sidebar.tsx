@@ -147,6 +147,20 @@ const Sidebar: React.FC<SidebarProps> = ({ isDefault = false }) => {
       roles: [UserRolesStr.Employee],
     },
     {
+      key: "Product Management",
+      label: "Product Management",
+      icon: <Icons.category />,
+      category: "Main",
+      to: PATHS.CLASSIFICATION.PRODUCT,
+      activePaths: [
+        PATHS.CLASSIFICATION.PRODUCT,
+        PATHS.CLASSIFICATION.PRODUCT_DETAIL,
+        PATHS.CLASSIFICATION.PRODUCT_DETAIL_FROM_CROP,
+      ],
+      isView: !isDefault,
+      roles: [UserRolesStr.Employee],
+    },
+    {
       key: "Plants",
       label: "Plant Management",
       icon: <Icons.plantFill />,

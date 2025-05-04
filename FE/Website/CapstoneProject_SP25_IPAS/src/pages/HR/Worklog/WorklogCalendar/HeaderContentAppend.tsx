@@ -44,23 +44,22 @@ const HeaderContentAppend: React.FC<HeaderContentAppendProps> = ({ filterContent
     <Flex gap={10}>
       <Popover zIndex={999} content={filterContent} trigger="click" placement="bottomRight">
         <>
-          <CustomButton label="Filter" icon={<Icons.filter />} handleOnClick={() => { }} />
+          <CustomButton label="Filter" icon={<Icons.filter />} />
         </>
       </Popover>
       <Popover zIndex={999} content={legendContent} trigger="click" placement="bottomRight">
         <>
-        <CustomButton label="Show Legend" icon={<Icons.info />} handleOnClick={() => { console.log("bấm");
-        }} />
+          <CustomButton label="Show Legend" icon={<Icons.info />} />
         </>
       </Popover>
       <CustomButton
         label="Add New Worklog"
         icon={<Icons.plus />}
         handleOnClick={() => addModal.showModal()}
-      // handleOnClick={() => navigate(PATHS.PLAN.ADD_PLAN)}
+        // handleOnClick={() => navigate(PATHS.PLAN.ADD_PLAN)}
       />
     </Flex>
-  )
-}
+  );
+};
 
 export default HeaderContentAppend;
