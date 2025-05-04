@@ -104,3 +104,5 @@ export { default as UserModal } from "@/components/UI/Modal/UserModal";
 export { default as ImageCustom } from "@/components/UI/ImageCustom";
 export { default as BarChart } from "@/components/UI/Dashboard/BarChart/BarChart";
 export { default as LineChart } from "@/components/UI/Dashboard/LineChart/LineChart";
+export { default as EmployeeOptionLabel } from "@/components/UI/EmployeeOptionLabel/EmployeeOptionLabel";
+

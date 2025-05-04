@@ -137,6 +137,7 @@ export const WORK_TARGETS = {
   "Pruning-Shaping": "Pruning-Shaping",
   Weeding: "Weeding",
   "Pest Control": "Pest Control",
+  Harvesting: "Harvesting",
   Others: "Others",
 };
 
