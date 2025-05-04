@@ -61,7 +61,7 @@ const formatWorkLogsToEvents = (workLogs: GetWorklog[]) => {
 
     const startTimeRaw = log.startTime || "00:00";
     const endTimeRaw = log.endTime || "00:00";
-    
+
     const startTime = startTimeRaw.substring(0, 5);
     const endTime = endTimeRaw.substring(0, 5);
 
