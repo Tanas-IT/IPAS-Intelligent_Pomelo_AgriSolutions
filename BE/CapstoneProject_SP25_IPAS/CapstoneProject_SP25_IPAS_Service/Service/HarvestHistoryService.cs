@@ -54,7 +54,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         // Cập nhật crop neu no la ngay dau tien trong mua
                         _unitOfWork.CropRepository.Update(cropExist);
                     }
-                    if (createRequest.DateHarvest < DateTime.Now)
+                    if (createRequest.DateHarvest.Value.Date < DateTime.Now.Date)
                         return new BusinessResult(Const.WARNING_HARVEST_DATE_IN_PAST_CODE, Const.WARNING_HARVEST_DATE_IN_PAST_MSG);
                     if (createRequest.DateHarvest < cropExist.StartDate || createRequest.DateHarvest > cropExist.EndDate)
                         return new BusinessResult(400, "Harvest date is out of crop");

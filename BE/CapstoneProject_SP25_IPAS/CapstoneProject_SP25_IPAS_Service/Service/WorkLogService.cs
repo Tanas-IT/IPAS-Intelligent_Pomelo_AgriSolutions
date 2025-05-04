@@ -63,7 +63,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             //{
             try
             {
-                if (addNewTaskModel.DateWork <= DateTime.Now)
+                if (addNewTaskModel.DateWork.Value.Date < DateTime.Now.Date)
                 {
                     throw new Exception("Date Work must be greater than or equal now");
                 }
