@@ -58,10 +58,14 @@ const formatWorkLogsToEvents = (workLogs: GetWorklog[]) => {
 
   workLogs.forEach((log) => {
     const date = log.date.split("T")[0];
-    const time = `${log.startTime.substring(0, 5)} - ${log.endTime.substring(
-      0,
-      5
-    )}`;
+
+    const startTimeRaw = log.startTime || "00:00";
+    const endTimeRaw = log.endTime || "00:00";
+
+    const startTime = startTimeRaw.substring(0, 5);
+    const endTime = endTimeRaw.substring(0, 5);
+
+    const time = `${startTime} - ${endTime}`;
     const avatars = log.users.map((user) => user.avatarURL);
 
     events.push({
@@ -78,8 +82,8 @@ const formatWorkLogsToEvents = (workLogs: GetWorklog[]) => {
     }
     timelineEvents[date].push({
       id: log.workLogId.toString(),
-      start: `${date} ${log.startTime.substring(0, 5)}:00`,
-      end: `${date} ${log.endTime.substring(0, 5)}:00`,
+      start: `${date} ${startTime}:00`,
+      end: `${date} ${endTime}:00`,
       title: log.workLogName,
       // color: '#4ca784',
       status: log.status,

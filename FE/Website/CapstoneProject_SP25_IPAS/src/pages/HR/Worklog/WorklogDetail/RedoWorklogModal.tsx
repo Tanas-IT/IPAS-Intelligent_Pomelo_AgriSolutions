@@ -121,7 +121,6 @@ const RedoWorklogModal = ({
       }
     } catch (error) {
       console.error("Error fetching employees:", error);
-      toast.warning("Error fetching employees");
     }
   };
 

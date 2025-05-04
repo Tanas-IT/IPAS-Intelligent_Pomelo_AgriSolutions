@@ -2224,7 +2224,7 @@ VALUES
 ('ValidationVariable', 'GrowthExponent', '1.4', 'int', 'Growth Exponent'),
 ('ValidationVariable', 'InitialBranchingCoefficient', '5', 'int', 'Initial Branching Coefficient'),
 ('ValidationVariable', 'MinTime', '1', 'double', 'Minimum Time'),
-('ValidationVariable', 'MaxTime', '35', 'double', 'Maximum Time'),
+('ValidationVariable', 'MaxTime', '3600', 'double', 'Maximum Time'),
 ('ValidationVariable', 'MaximumGraftingLimit', '100', 'int', 'Maximum Grafting Limit');
 
 
