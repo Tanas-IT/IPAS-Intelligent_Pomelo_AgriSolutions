@@ -68,6 +68,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                             ? createRequest.ProductHarvestHistory.Where(x => x.SellPrice.HasValue).Sum(x => x.SellPrice!.Value)
                                             : null,
                         CropId = cropExist.CropId,
+                        AssignorId = createRequest.AssignorId,
                         IsDeleted = false,
                     };
 

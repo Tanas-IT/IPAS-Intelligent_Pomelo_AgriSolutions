@@ -19,8 +19,10 @@ public partial class HarvestHistory
     public bool? IsDeleted { get; set; }
 
     public int? CropId { get; set; }
+    public int? AssignorId { get; set; }
 
     public virtual Crop? Crop { get; set; }
+    public virtual User? User { get; set; }
 
     public virtual ICollection<ProductHarvestHistory> ProductHarvestHistories { get; set; } = new List<ProductHarvestHistory>();
 

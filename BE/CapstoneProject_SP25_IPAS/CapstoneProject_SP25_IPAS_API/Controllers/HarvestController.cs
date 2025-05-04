@@ -129,8 +129,14 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
         [HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)}")]
         [CheckUserFarmAccess]
         //[FarmExpired]
-        public async Task<IActionResult> CreateHarvestAsync([FromBody] CreateHarvestHistoryRequest harvestCreateRequest)
+        public async Task<IActionResult> CreateHarvestAsync([FromBody] CreateHarvestHistoryRequest harvestCreateRequest, [FromQuery] int? userId)
         {
+            if (!userId.HasValue)
+                userId = _jwtTokenService.GetUserIdFromToken();
+            if(harvestCreateRequest.AssignorId == null)
+            {
+                harvestCreateRequest.AssignorId = userId;
+            }
             var result = await _harvestHistoryService.createHarvestHistory(harvestCreateRequest);
             return Ok(result);
         }
