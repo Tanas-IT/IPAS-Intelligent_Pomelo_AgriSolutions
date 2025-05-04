@@ -43,7 +43,6 @@ export const LoginScreen = () => {
   const onSubmit = async (data: FormData) => {
     setIsLoading(true);
     try {
-      
       const res = await AuthService.login(data);
 
       if (res.statusCode === 200) {
@@ -172,7 +171,7 @@ export const LoginScreen = () => {
                       onBlur={onBlur}
                       secureTextEntry={!showPassword}
                       style={styles.input}
-                      outlineStyle={styles.inputOutline}
+                      contentStyle={styles.inputOutline}
                       left={
                         <TextInput.Icon
                           icon="lock"

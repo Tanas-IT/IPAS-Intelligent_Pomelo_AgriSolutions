@@ -1,6 +1,9 @@
-import React from 'react';
-import { TextInput as PaperTextInput, TextInputProps as PaperTextInputProps } from 'react-native-paper';
-import { StyleProp, StyleSheet, TextStyle } from 'react-native';
+import React from "react";
+import {
+  TextInput as PaperTextInput,
+  TextInputProps as PaperTextInputProps,
+} from "react-native-paper";
+import { StyleProp, StyleSheet, TextStyle } from "react-native";
 
 interface CustomTextInputProps extends PaperTextInputProps {
   fontFamily?: string;
@@ -8,13 +11,12 @@ interface CustomTextInputProps extends PaperTextInputProps {
 }
 
 const CustomTextInput: React.FC<CustomTextInputProps> = ({
-  fontFamily = 'BalsamiqSans-Regular',
+  fontFamily = "BalsamiqSans-Regular",
   style,
   inputStyle,
   theme,
   ...props
 }) => {
-
   return (
     <PaperTextInput
       {...props}
@@ -26,10 +28,10 @@ const CustomTextInput: React.FC<CustomTextInputProps> = ({
 
 const styles = StyleSheet.create({
   defaultStyle: {
-    backgroundColor: 'transparent',
+    backgroundColor: "transparent",
   },
   contentStyle: {
-    fontFamily: 'BalsamiqSans-Regular',
+    fontFamily: "BalsamiqSans-Regular",
   },
 });
 

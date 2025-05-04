@@ -257,11 +257,11 @@ const WorklogDetailScreen: React.FC<WorklogDetailScreenProps> = ({ route }) => {
                 });
               }
             } catch (error) {
-              // console.error("Error marking worklog as complete:", error);
-              Alert.alert(
-                "Error",
-                "Failed to mark worklog as completed. Please try again."
-              );
+              console.error("Error marking worklog as complete:", error);
+              // Alert.alert(
+              //   "Error",
+              //   "Failed to mark worklog as completed. Please try again."
+              // );
             }
           },
         },
@@ -390,10 +390,6 @@ const WorklogDetailScreen: React.FC<WorklogDetailScreenProps> = ({ route }) => {
         <TextCustom style={styles.sectionTitle}>Assign Information</TextCustom>
         <View style={styles.assignCard}>
           <View style={styles.userCard}>
-            {/* <Image
-              source={{ uri: worklog.assignorAvatarURL }}
-              style={styles.avatar}
-            /> */}
             <View style={styles.userInfo}>
               <AvatarImage
                 uri={worklog.assignorAvatarURL}
@@ -501,17 +497,18 @@ const WorklogDetailScreen: React.FC<WorklogDetailScreenProps> = ({ route }) => {
           <View style={styles.userList}>
             <TextCustom style={styles.listTitle}>Replacement:</TextCustom>
             <ScrollView horizontal showsHorizontalScrollIndicator={false}>
-              {worklog.replacementEmployee.map((replacement, index) => (
-                <View key={index} style={styles.userItemHorizontal}>
-                  <Image
-                    source={{ uri: replacement.avatar }}
-                    style={styles.avatarSmall}
-                  />
-                  <TextCustom style={styles.userNameSmallHorizontal}>
-                    {replacement.replaceUserFullName}
-                  </TextCustom>
-                </View>
-              ))}
+              {worklog.replacementEmployee?.length > 0 &&
+                worklog.replacementEmployee.map((replacement, index) => (
+                  <View key={index} style={styles.userItemHorizontal}>
+                    <Image
+                      source={{ uri: replacement.avatar }}
+                      style={styles.avatarSmall}
+                    />
+                    <TextCustom style={styles.userNameSmallHorizontal}>
+                      {replacement.replaceUserFullName}
+                    </TextCustom>
+                  </View>
+                ))}
             </ScrollView>
           </View>
         </View>
@@ -544,7 +541,7 @@ const WorklogDetailScreen: React.FC<WorklogDetailScreenProps> = ({ route }) => {
             />
             <TextCustom style={styles.detailLabel}>Process</TextCustom>
             <TextCustom style={styles.detailValue}>
-              {worklog.processName}
+              {worklog.processName ?? "N/A"}
             </TextCustom>
           </View>
 
@@ -557,7 +554,7 @@ const WorklogDetailScreen: React.FC<WorklogDetailScreenProps> = ({ route }) => {
             />
             <TextCustom style={styles.detailLabel}>Plan</TextCustom>
             <TextCustom style={styles.detailValue}>
-              {worklog.planName}
+              {worklog.planName ?? "N/A"}
             </TextCustom>
           </View>
           <View style={styles.detailItem}>
@@ -569,7 +566,7 @@ const WorklogDetailScreen: React.FC<WorklogDetailScreenProps> = ({ route }) => {
             />
             <TextCustom style={styles.detailLabel}>Type</TextCustom>
             <TextCustom style={styles.detailValue}>
-              {worklog.masterTypeName}
+              {worklog.masterTypeName ?? "N/A"}
             </TextCustom>
           </View>
 
@@ -582,7 +579,9 @@ const WorklogDetailScreen: React.FC<WorklogDetailScreenProps> = ({ route }) => {
             />
             <TextCustom style={styles.detailLabel}>Growth Stage</TextCustom>
             <TextCustom style={styles.detailValue}>
-              {worklog.listGrowthStageName.join(", ")}
+              {worklog?.listGrowthStageName?.length
+                ? worklog.listGrowthStageName.join(", ")
+                : "N/A"}
             </TextCustom>
           </View>
           <View style={styles.detailItem}>
@@ -594,7 +593,7 @@ const WorklogDetailScreen: React.FC<WorklogDetailScreenProps> = ({ route }) => {
             />
             <TextCustom style={styles.detailLabel}>Lot</TextCustom>
             <TextCustom style={styles.detailValue}>
-              {worklog.planTargetModels[0]?.landPlotName}
+              {worklog?.planTargetModels?.[0]?.landPlotName ?? "N/A"}
             </TextCustom>
           </View>
           <View style={styles.detailItem}>
