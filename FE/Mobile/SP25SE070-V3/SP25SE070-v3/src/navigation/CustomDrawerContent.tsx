@@ -161,7 +161,7 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
     paddingVertical: 20,
-    marginTop: 50,
+    marginTop: Platform.OS === "ios" ? 50 : 20,
   },
   avatarContainer: {
     width: 60,
@@ -243,7 +243,7 @@ const styles = StyleSheet.create({
     padding: 20,
     borderTopWidth: 1,
     borderTopColor: "#E5E7EB",
-    marginBottom: 30,
+    marginBottom: Platform.OS === "ios" ? 30 : 10,
   },
   footerTitle: {
     fontSize: 14,
