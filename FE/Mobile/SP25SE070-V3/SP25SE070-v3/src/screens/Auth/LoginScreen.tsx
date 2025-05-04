@@ -43,6 +43,7 @@ export const LoginScreen = () => {
   const onSubmit = async (data: FormData) => {
     setIsLoading(true);
     try {
+      
       const res = await AuthService.login(data);
 
       if (res.statusCode === 200) {

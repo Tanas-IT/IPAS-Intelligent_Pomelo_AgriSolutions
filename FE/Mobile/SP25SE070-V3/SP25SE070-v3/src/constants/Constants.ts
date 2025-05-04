@@ -15,7 +15,14 @@ export const HEALTH_STATUS = {
   MINOR_ISSUE: "Minor Issues",
   SERIOUS_ISSUE: "Serious Issues",
   DEAD: "Dead",
-} as const;
+} ;
+
+export const healthStatusColors: Record<string, string> = {
+  Healthy: "#4CAF50", // Xanh lá cây (tươi, dễ nhìn hơn "green")
+  "Minor Issues": "#FF9800", // Cam (dễ phân biệt)
+  "Serious Issues": "#F44336", // Đỏ (nổi bật)
+  Dead: "#9E9E9E", // Xám trung tính
+};
 
 export const GRAFTED_STATUS = {
   HEALTHY: "Healthy",
@@ -73,6 +80,6 @@ export const SYSTEM_CONFIG_KEY = {
 };
 
 export const GENDER_OPTIONS = [
-  { value: 'male', label: 'Male' },
-  { value: 'female', label: 'Female' },
+  { value: "male", label: "Male" },
+  { value: "female", label: "Female" },
 ];

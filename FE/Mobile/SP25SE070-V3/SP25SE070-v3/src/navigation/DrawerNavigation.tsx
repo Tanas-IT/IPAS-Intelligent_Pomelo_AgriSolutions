@@ -4,8 +4,7 @@ import {
   DrawerContentComponentProps,
 } from "@react-navigation/drawer";
 import MainTabs from "./MainTabs";
-import FarmPickerScreen from "@/screens/FarmPicker/FarmPickerScreen";
-import ProfileScreen from "@/screens/Profile/ProfileScreen";
+import { FarmPickerScreen, ProfileScreen } from "@/screens";
 import { Notification } from "./components/Notification";
 import { useNavigation } from "@react-navigation/native";
 import theme from "@/theme";
@@ -23,10 +22,7 @@ const Drawer = createDrawerNavigator<DrawerParamList>();
 
 export default function DrawerNavigation() {
   const navigation = useNavigation<RootStackNavigationProp>();
-  const {
-      notifications,
-      unreadCount
-    } = useNotifications();
+  const { notifications, unreadCount } = useNotifications();
   const { roleId } = useAuthStore();
   const isUser = roleId === UserRole.User.toString();
   return (

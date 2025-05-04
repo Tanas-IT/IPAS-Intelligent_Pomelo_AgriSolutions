@@ -377,8 +377,6 @@ function ProcessDetails() {
     return result;
   };
   const handleSaveProcess = async () => {
-    console.log("Plans before mapping:", plans);
-
     const ListPlan: ListPlan[] = plans.map((plan) => ({
       PlanId: plan.planId || 0,
       PlanName: plan.planName,
@@ -408,8 +406,6 @@ function ProcessDetails() {
       ListPlan: ListPlan,
     };
 
-    console.log("Saving Payload without stringify:", payload);
-
     try {
       const res = await processService.updateFProcess(payload);
       if (res.statusCode === 200) {
@@ -419,10 +415,8 @@ function ProcessDetails() {
       } else {
         toast.warning(res.message);
       }
-      console.log("res update", res);
     } catch (error) {
       console.error("Error saving process:", error);
-      toast.warning("Failed to save process.");
     }
   };
   const convertDeletedNodesToList = (nodes: CustomTreeDataNode[]): any[] => {

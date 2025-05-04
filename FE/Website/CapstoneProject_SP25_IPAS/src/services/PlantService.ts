@@ -2,6 +2,8 @@ import { axiosAuth } from "@/api";
 import { GROWTH_ACTIONS } from "@/constants";
 import {
   ApiResponse,
+  AvailableHarvest,
+  CreateHarvestRecordRequest,
   GetData,
   GetPlant,
   GetPlantDetail,
@@ -282,4 +284,20 @@ export const exportPlants = async (
   const filename = extractFilenameFromHeader(res.headers["content-disposition"]);
 
   return { blob: res.data, filename };
+};
+
+export const getAvailableHarvestsForPlant = async (
+  plantId: number,
+): Promise<ApiResponse<AvailableHarvest[]>> => {
+  const res = await axiosAuth.axiosJsonRequest.get(
+    `harvests/plants/can-harvert?PlantId=${plantId}`,
+  );
+  return res.data as ApiResponse<AvailableHarvest[]>;
+};
+
+export const createPlantHarvestRecord = async (
+  data: CreateHarvestRecordRequest,
+): Promise<ApiResponse<null>> => {
+  const res = await axiosAuth.axiosJsonRequest.post("harvests/plants/record", data);
+  return res.data as ApiResponse<null>;
 };

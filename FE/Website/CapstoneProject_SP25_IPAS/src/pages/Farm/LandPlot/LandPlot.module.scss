@@ -155,7 +155,7 @@
   }
 
   .popupContainer {
-    width: 80vw;
+    width: 50vw;
   }
 
   .colorGuidContainer {
@@ -163,22 +163,6 @@
       .row {
         .landPlotColor {
           width: 8vw;
-        }
-      }
-    }
-  }
-}
-
-@media (max-width: 576px) {
-  .popupContainer {
-    width: 90vw;
-  }
-
-  .colorGuidContainer {
-    .contentWrapper {
-      .row {
-        .landPlotColor {
-          width: 10vw;
         }
       }
     }

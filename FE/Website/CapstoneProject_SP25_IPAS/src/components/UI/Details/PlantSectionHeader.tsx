@@ -15,6 +15,7 @@ const PlantSectionHeader = ({
   onApplyCriteria,
   onCreateGraftedBranch,
   onAddNewIssue,
+  onAddNewRecord,
   onExport,
 }: {
   formModal?: ReturnType<typeof useModal<GetPlantDetail>>;
@@ -23,6 +24,7 @@ const PlantSectionHeader = ({
   onApplyCriteria?: () => void;
   onCreateGraftedBranch?: () => void;
   onAddNewIssue?: () => void;
+  onAddNewRecord?: () => void;
   onExport?: () => void;
 }) => {
   const { plant } = usePlantStore();
@@ -73,6 +75,13 @@ const PlantSectionHeader = ({
               label="Add New Issue"
               icon={<Icons.plus />}
               handleOnClick={onAddNewIssue}
+            />
+          )}
+          {onAddNewRecord && !plant.isDead && (
+            <CustomButton
+              label="Add New Record"
+              icon={<Icons.plus />}
+              handleOnClick={onAddNewRecord}
             />
           )}
           {onApplyCriteria && !plant.isDead && (

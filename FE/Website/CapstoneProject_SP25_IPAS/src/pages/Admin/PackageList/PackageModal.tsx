@@ -67,7 +67,6 @@ const PackageModal = ({ isOpen, onClose, onSave, isLoadingAction, pkgData }: Pac
         return;
       }
     }
-    // console.log(getFormData());
     onSave(getFormData());
   };
 

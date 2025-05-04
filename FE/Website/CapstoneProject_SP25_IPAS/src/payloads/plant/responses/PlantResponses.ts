@@ -97,3 +97,30 @@ export interface GetPlantRecord {
   productName: string;
   cropName: string;
 }
+
+export interface ProductHarvest {
+  productHarvestHistoryId: number;
+  masterTypeId: number;
+  unit: string;
+  sellPrice: number;
+  costPrice: number;
+  quantityNeed?: number;
+  actualQuantity?: number;
+  recordDate?: string;
+  harvestHistoryId: number;
+  productName: string;
+  harvestHistoryCode: string;
+  plantLogHarvest: any[];
+}
+
+export interface AvailableHarvest {
+  harvestHistoryId: number;
+  harvestHistoryCode: string;
+  dateHarvest: string;
+  harvestHistoryNote?: string;
+  totalPrice?: number;
+  cropId: number;
+  cropName: string;
+  yieldHasRecord: number;
+  productHarvestHistory: ProductHarvest[];
+}

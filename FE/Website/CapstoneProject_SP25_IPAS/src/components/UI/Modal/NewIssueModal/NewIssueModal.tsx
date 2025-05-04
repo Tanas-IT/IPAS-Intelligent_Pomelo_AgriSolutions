@@ -57,7 +57,6 @@ const NewIssueModal = <T extends BaseIssueType>({
   useEffect(() => {
     resetForm();
     if (isOpen && data) {
-      console.log(data);
       form.setFieldsValue({
         [plantGrowthHistoryFormFields.issueName]: data.issueName,
         [plantGrowthHistoryFormFields.content]: data.content,
@@ -134,7 +133,6 @@ const NewIssueModal = <T extends BaseIssueType>({
 
   const handleOk = async () => {
     await form.validateFields();
-    // console.log(getFormData());
     onSave(getFormData());
   };
 

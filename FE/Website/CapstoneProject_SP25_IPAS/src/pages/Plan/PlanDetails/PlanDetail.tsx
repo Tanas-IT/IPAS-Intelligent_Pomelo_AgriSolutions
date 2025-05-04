@@ -108,7 +108,6 @@ function PlanDetail() {
         { label: "Process Name", value: res?.processName || "None", icon: Icons.process },
         { label: "Type", value: res?.masterTypeName || "None", icon: Icons.category, isTag: true },
       ]);
-      console.log("res", res);
 
       setPlanDetail(res);
     } catch (error) {
@@ -122,7 +121,6 @@ function PlanDetail() {
   const fetchProcessTree = async () => {
     try {
       const response = await planService.getProcessByPlanId(Number(id), Number(getFarmId()));
-      console.log("tree", response);
 
       if (response.statusCode === 200) {
         setProcessTree(response.data);
@@ -233,9 +231,9 @@ function PlanDetail() {
 
   const handleNodeClick = useCallback((node: PlanNodes | SubProcessNodes) => {
     if ("subProcessID" in node) {
-      console.log("SubProcess clicked:", node);
+      // console.log("SubProcess clicked:", node);
     } else {
-      console.log("Plan clicked:", node);
+      // console.log("Plan clicked:", node);
     }
   }, []);
 

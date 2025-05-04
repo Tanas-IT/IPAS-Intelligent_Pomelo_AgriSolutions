@@ -368,29 +368,35 @@
 }
 
 @media (max-width: 1400px) {
-  .contentSectionBody {
-    flex-direction: column;
-    gap: 20px;
-    .col {
-      min-width: 28rem;
+  .contentDetailWrapper {
+    .contentSectionBody {
+      flex-direction: column;
+      gap: 20px;
+      .col {
+        min-width: 28rem;
+      }
+    }
+
+    .descriptionSection {
+      width: 100%; // Chiếm toàn bộ chiều rộng
+      margin-top: 0; // Loại bỏ margin âm
+    }
+
+    .fieldLabelWrapper {
+      min-width: 8rem; // Giảm độ rộng của label để phù hợp với màn hình nhỏ
     }
   }
+}
 
-  .descriptionSection {
-    width: 100%; // Chiếm toàn bộ chiều rộng
-    margin-top: 0; // Loại bỏ margin âm
-  }
+@media (max-width: 768px) {
+  .contentDetailWrapper {
+    .infoField {
+      gap: 1rem !important;
 
-  .infoField {
-    gap: 2rem; // Giảm khoảng cách giữa các trường thông tin
-
-    &.infoFieldColumn {
-      gap: 0.5rem; // Điều chỉnh cho dạng cột
+      &.infoFieldColumn {
+        gap: 0.5rem; // Điều chỉnh cho dạng cột
+      }
     }
-  }
-
-  .fieldLabelWrapper {
-    min-width: 8rem; // Giảm độ rộng của label để phù hợp với màn hình nhỏ
   }
 }
 
@@ -398,7 +404,6 @@
   width: 100%;
   flex-direction: column;
   justify-content: flex-start;
-  overflow: auto;
 
   .contentSectionTitle {
     flex-direction: row;
@@ -449,22 +454,26 @@
   }
 }
 
-@media (max-width: 1400px) {
-  .contentSectionTitle {
-    font-size: 16px;
-    gap: 2rem;
-    .actionBtns {
-      flex-direction: column;
-    }
-    .contentSectionTitleLeft {
-      gap: 1rem;
-
-      .title {
-        font-size: 20px;
+@media (max-width: 1024px) {
+  .contentSectionHeader {
+    overflow: auto;
+    .contentSectionTitle {
+      font-size: 16px;
+      gap: 2rem;
+      .actionBtns {
+        flex-direction: column;
       }
-      .statusTag {
-        padding: 3px 16px;
-        font-size: 12px;
+      .contentSectionTitleLeft {
+        gap: 1rem;
+
+        .title {
+          min-width: 18vw;
+          font-size: 18px;
+        }
+        .statusTag {
+          padding: 3px 14px !important;
+          font-size: 12px;
+        }
       }
     }
   }
@@ -507,24 +516,24 @@
   }
 }
 
-@media (max-width: 1024px) {
-  .headerWrapper {
-    min-width: 100%;
-    align-items: flex-start;
-  }
-
-  .panelTitle {
-    .completedCount {
-      font-size: 12px;
+@media (max-width: 1400px) {
+  .criteriaCollapse {
+    .headerWrapper {
+      align-items: flex-start !important;
+      gap: 10px !important;
+      min-width: 80%;
     }
 
-    .statusTag {
-      margin-top: 8px;
+    .panelTitle {
+      max-width: 60vw;
+      .completedCount {
+        font-size: 12px;
+      }
     }
-  }
 
-  .deleteIcon {
-    font-size: 14px;
+    .deleteIcon {
+      font-size: 14px;
+    }
   }
 }
 

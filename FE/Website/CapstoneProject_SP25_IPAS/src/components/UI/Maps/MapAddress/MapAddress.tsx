@@ -3,10 +3,10 @@ import style from "./MapAddress.module.scss";
 import mapboxgl from "mapbox-gl";
 import "mapbox-gl/dist/mapbox-gl.css";
 import { createRoot } from "react-dom/client";
-import { Icons } from "@/assets";
 import { MAP_BOX_KEY } from "@/constants";
 import { CoordsState } from "@/types";
 import MapMarker from "../MapMarker/MapMarker";
+import { useResponsive } from "antd-style";
 
 interface MapAddressProps {
   latitude: number;
@@ -23,6 +23,13 @@ const MapAddress: React.FC<MapAddressProps> = ({
 }) => {
   const mapContainer = useRef<HTMLDivElement | null>(null);
   const markerRef = useRef<mapboxgl.Marker | null>(null); // Lưu trữ marker
+
+  const sizeChange = useResponsive();
+  useEffect(() => {
+    setTimeout(() => {
+      window.dispatchEvent(new Event("resize")); // Trigger resize event
+    }, 300);
+  }, [sizeChange]);
 
   const DEFAULT_COORDINATES: [number, number] = [106.6825, 10.7626]; // TP. HCM
   const center: [number, number] =

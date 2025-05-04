@@ -26,29 +26,21 @@ const AttendanceModal: React.FC<AttendanceModalProps> = ({
   attendanceStatus,
   onAttendanceChange,
   onSave,
-  isTakeAttendance
+  isTakeAttendance,
 }) => {
-  console.log("attendanceStatus", attendanceStatus);
   const [list, setList] = useState<GetAttendanceList[]>([]);
   console.log("list", list);
-  
+
   const fetchListAttendance = async () => {
-    try {
-      const result = await worklogService.getAttendanceList(worklogId);
-      console.log("result", result);
-      
-      if (result.statusCode === 200) {
-        setList(result.data);
-      }
-    } catch (error) {
-      console.error("Error fetching attendance list:", error);
-    }
-  }
+    const result = await worklogService.getAttendanceList(worklogId);
+
+    if (result.statusCode === 200) setList(result.data);
+  };
   useEffect(() => {
     if (visible) {
-    fetchListAttendance();
+      fetchListAttendance();
     }
-  }, [visible])
+  }, [visible]);
 
   // const combinedEmployees = [
   //   ...reporter.map((rep) => ({
@@ -62,7 +54,6 @@ const AttendanceModal: React.FC<AttendanceModalProps> = ({
   //     statusOfUserWorkLog: attendanceStatus[emp.userId] || null,
   //   })),
   // ];
-  // console.log("999", combinedEmployees);
 
   return (
     <Modal
@@ -71,14 +62,21 @@ const AttendanceModal: React.FC<AttendanceModalProps> = ({
       onCancel={onClose}
       footer={
         isTakeAttendance
-          ? [<Button key="cancel" onClick={onClose}>Cancel</Button>]
+          ? [
+              <Button key="cancel" onClick={onClose}>
+                Cancel
+              </Button>,
+            ]
           : [
-            <Button key="cancel" onClick={onClose}>Cancel</Button>,
-            <Button key="save" type="primary" onClick={onSave}>Save</Button>
-          ]
+              <Button key="cancel" onClick={onClose}>
+                Cancel
+              </Button>,
+              <Button key="save" type="primary" onClick={onSave}>
+                Save
+              </Button>,
+            ]
       }
     >
-
       <List
         dataSource={list}
         renderItem={(employee) => (
@@ -102,7 +100,6 @@ const AttendanceModal: React.FC<AttendanceModalProps> = ({
                   list.find((item) => item.userId === employee.userId)?.statusOfUser ??
                   null
                 }
-                
                 onChange={(e) => onAttendanceChange(employee.userId, e.target.value)}
               >
                 <Radio value="Received">Present</Radio>

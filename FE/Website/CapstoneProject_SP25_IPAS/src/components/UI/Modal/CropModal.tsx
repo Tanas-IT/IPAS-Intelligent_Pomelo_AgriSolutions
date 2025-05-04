@@ -78,8 +78,6 @@ const CropModal = ({ isOpen, onClose, onSave, cropData, isLoadingAction }: CropM
       onClose={() => onClose(getFormData(), isUpdate)}
       onSave={async () => {
         await form.validateFields();
-        // console.log(getFormData());
-
         onSave(getFormData());
       }}
       isUpdate={isUpdate}

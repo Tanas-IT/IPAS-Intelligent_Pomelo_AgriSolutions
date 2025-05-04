@@ -46,7 +46,6 @@ const TagModal = ({ isOpen, onClose, onSave, tagData, isLoadingAction }: TagModa
 
   const handleOk = async () => {
     await form.validateFields();
-    console.log(getFormData());
     onSave(getFormData());
   };
 

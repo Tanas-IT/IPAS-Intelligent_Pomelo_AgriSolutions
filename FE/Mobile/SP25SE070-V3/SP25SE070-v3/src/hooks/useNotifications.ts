@@ -74,13 +74,12 @@ const useNotifications = () => {
       const ws = new WebSocket(`${wsUrl}?userId=${userId}`);
 
       ws.onopen = () => {
-        console.log("Connected to WebSocket!");
+        // console.log("Connected to WebSocket!");
       };
 
       ws.onmessage = async (event) => {
         try {
           const message = JSON.parse(event.data);
-          console.log("Parsed Message:", message);
           await fetchNotifications();
 
           // await PushNotificationService.displayNotification(

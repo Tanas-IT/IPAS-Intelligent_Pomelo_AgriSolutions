@@ -9,12 +9,15 @@ interface DaySelectorProps {
   type: "monthly" | "weekly";
 }
 
-const DaySelector: React.FC<DaySelectorProps> = ({ onSelectDays, onSave, selectedDays = [], type }) => {
+const DaySelector: React.FC<DaySelectorProps> = ({
+  onSelectDays,
+  onSave,
+  selectedDays = [],
+  type,
+}) => {
   const [selected, setSelected] = useState<number[]>(selectedDays);
   const [isEditing, setIsEditing] = useState(false);
   const [initialSelectedDays, setInitialSelectedDays] = useState<number[]>(selectedDays);
-  console.log("selectedDaysdfgrg", selectedDays);
-  
 
   useEffect(() => {
     setSelected(selectedDays);
@@ -49,9 +52,10 @@ const DaySelector: React.FC<DaySelectorProps> = ({ onSelectDays, onSave, selecte
     setIsEditing(true);
   };
 
-  const days = type === "weekly" 
-    ? ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
-    : [...Array(31)].map((_, index) => (index + 1).toString());
+  const days =
+    type === "weekly"
+      ? ["Mon", "Tue", "Wed", "Thu", "Fri", "Sat", "Sun"]
+      : [...Array(31)].map((_, index) => (index + 1).toString());
 
   return (
     <div className={style.daySelectorContainer}>
@@ -72,21 +76,21 @@ const DaySelector: React.FC<DaySelectorProps> = ({ onSelectDays, onSave, selecte
         })}
       </div>
       {isEditing ? (
-      <div style={{ marginTop: 16, display: "flex", justifyContent: "flex-end" }}>
-        <Button type="primary" onClick={handleSave} style={{ marginRight: 8 }}>
-          Save
-        </Button>
-        <Button type="default" onClick={handleCancel}>
-          Cancel
-        </Button>
-      </div>
-    ) : (
-      <div style={{ marginTop: 16, display: "flex", justifyContent: "flex-end" }}>
-      <Button onClick={handleEdit} style={{ marginTop: 16 }}>
-        Edit
-      </Button>
-      </div>
-    )}
+        <div style={{ marginTop: 16, display: "flex", justifyContent: "flex-end" }}>
+          <Button type="primary" onClick={handleSave} style={{ marginRight: 8 }}>
+            Save
+          </Button>
+          <Button type="default" onClick={handleCancel}>
+            Cancel
+          </Button>
+        </div>
+      ) : (
+        <div style={{ marginTop: 16, display: "flex", justifyContent: "flex-end" }}>
+          <Button onClick={handleEdit} style={{ marginTop: 16 }}>
+            Edit
+          </Button>
+        </div>
+      )}
     </div>
   );
 };

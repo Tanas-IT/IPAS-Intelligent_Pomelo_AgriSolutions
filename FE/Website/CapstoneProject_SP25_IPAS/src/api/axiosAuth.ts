@@ -8,7 +8,7 @@ const API_PORT = import.meta.env.VITE_API_PORT;
 const API_DEVELOPMENT = import.meta.env.VITE_API_DEVELOPMENT;
 const API_DEPLOY = import.meta.env.VITE_API_DEPLOY;
 
-const BASE_URL = API_DEVELOPMENT === "true" ? `${API_HOST}:${API_PORT}/ipas` : `${API_DEPLOY}`;
+const BASE_URL = API_DEVELOPMENT == "true" ? `${API_HOST}:${API_PORT}/ipas` : `${API_DEPLOY}`;
 
 const createAxiosInstance = (contentType: string): AxiosInstance => {
   const instance = axios.create({

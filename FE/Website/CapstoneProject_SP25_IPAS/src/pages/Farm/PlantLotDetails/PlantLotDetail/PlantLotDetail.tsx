@@ -11,22 +11,25 @@ import {
 } from "@/components";
 import { useEffect, useState } from "react";
 import { formatDate, formatDayMonth } from "@/utils";
-import { plantLotService } from "@/services";
-import { GetPlantLotDetail, PlantLotRequest } from "@/payloads";
-import { LOT_TYPE, ROUTES } from "@/constants";
+import { graftedPlantService, plantLotService } from "@/services";
+import { GetGraftedPlant, GetPlantLotDetail, PlantLotRequest } from "@/payloads";
+import { DEFAULT_ROWS_PER_PAGE, healthStatusColors, LOT_TYPE, ROUTES } from "@/constants";
 import { usePlantLotStore } from "@/stores";
 import { useModal, useStyle, useTableUpdate } from "@/hooks";
 import { toast } from "react-toastify";
 import { PATHS } from "@/routes";
 
 function PlantLotDetail() {
+  const { lot, setLot, shouldRefetch } = usePlantLotStore();
   const { styles } = useStyle();
   const navigate = useNavigate();
   const location = useLocation();
   const pathnames = location.pathname.split("/");
   const lotId = pathnames[pathnames.length - 2];
-  const { lot, setLot, shouldRefetch } = usePlantLotStore();
   const [isLoading, setIsLoading] = useState<boolean>(true);
+  const [graftedPlants, setGraftedPlants] = useState<GetGraftedPlant[]>([]);
+  const [graftedTotal, setGraftedTotal] = useState<number>(0);
+  const [graftedPage, setGraftedPage] = useState<number>(1);
   const formModal = useModal<GetPlantLotDetail>();
   const deleteConfirmModal = useModal<{ id: number }>();
   const updateConfirmModal = useModal<{ updatedLot: PlantLotRequest }>();
@@ -44,9 +47,28 @@ function PlantLotDetail() {
     }
   };
 
+  const fetchGraftedPlants = async () => {
+    const res = await graftedPlantService.getGraftedPlants(
+      graftedPage,
+      DEFAULT_ROWS_PER_PAGE,
+      undefined,
+      undefined,
+      undefined,
+      { PlantLotIds: Number(lotId) }, // truyền thêm lotId nếu backend hỗ trợ lọc
+    );
+    setGraftedPlants(res.list);
+    setGraftedTotal(res.totalRecord);
+  };
+
   useEffect(() => {
     fetchPlantLot();
   }, [lotId, shouldRefetch]);
+
+  useEffect(() => {
+    if (lot?.isFromGrafted) {
+      fetchGraftedPlants();
+    }
+  }, [lot?.isFromGrafted, graftedPage]);
 
   const handleDelete = async (id: number | undefined) => {
     const res = await plantLotService.deleteLots([id] as number[]);
@@ -240,6 +262,82 @@ function PlantLotDetail() {
                 },
               ]}
               pagination={false}
+              onRow={(record) => ({
+                onClick: () =>
+                  navigate(ROUTES.FARM_PLANT_LOT_ADDITIONAL(Number(lotId), record.plantLotId)),
+                style: { cursor: "pointer" },
+              })}
+            />
+          </div>
+        </>
+      )}
+
+      {lot?.isFromGrafted && graftedPlants.length > 0 && (
+        <>
+          <Divider className={style.divider} />
+          <h3 className={style.sectionTitle}>Grafted Plant List</h3>
+          <div className={style.additionalTableWrapper}>
+            <Table
+              className={`${style.additionalTable} ${styles.customeTable2}`}
+              dataSource={graftedPlants}
+              rowKey="graftedPlantId"
+              columns={[
+                {
+                  title: "Code",
+                  dataIndex: "graftedPlantCode",
+                  key: "graftedPlantCode",
+                  width: 200,
+                },
+                {
+                  title: "Grafted Name",
+                  dataIndex: "graftedPlantName",
+                  key: "graftedPlantName",
+                  width: 200,
+                },
+                {
+                  title: "Grafted Date",
+                  dataIndex: "graftedDate",
+                  key: "graftedDate",
+                  render: (date: string) => (date ? formatDate(date) : "N/A"),
+                },
+                {
+                  title: "Separated Date",
+                  dataIndex: "separatedDate",
+                  key: "separatedDate",
+                  render: (date: string) => (date ? formatDate(date) : "N/A"),
+                },
+                {
+                  title: "Status",
+                  dataIndex: "status",
+                  key: "status",
+                  render: (statusText: string) => (
+                    <Tag color={healthStatusColors[statusText] || "default"}>
+                      {statusText || "Unknown"}
+                    </Tag>
+                  ),
+                },
+
+                {
+                  title: "Mother Plant",
+                  dataIndex: "plantName",
+                  key: "plantName",
+                },
+                {
+                  title: "Note",
+                  dataIndex: "note",
+                  key: "note",
+                  render: (note: string) => (note ? note : "N/A"),
+                  width: 220,
+                },
+              ]}
+              pagination={{
+                current: graftedPage,
+                pageSize: DEFAULT_ROWS_PER_PAGE,
+                total: graftedTotal,
+                onChange: (page) => {
+                  setGraftedPage(page);
+                },
+              }}
               onRow={(record) => ({
                 onClick: () =>
                   navigate(ROUTES.FARM_PLANT_LOT_ADDITIONAL(Number(lotId), record.plantLotId)),

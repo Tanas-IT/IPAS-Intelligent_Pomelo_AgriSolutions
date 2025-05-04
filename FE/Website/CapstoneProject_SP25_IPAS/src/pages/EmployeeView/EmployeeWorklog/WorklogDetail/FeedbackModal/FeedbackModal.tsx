@@ -32,9 +32,8 @@ const FeedbackModal = ({ isOpen, onClose, onSave, worklogId, managerId }: Feedba
       worklogId,
       status: values.status,
       reason: values.reason,
-    }
-    console.log(payload);
-    
+    };
+
     const result = await feedbackService.createFeedback(payload);
     if (result.statusCode === 200) {
       toast.success(result.message);

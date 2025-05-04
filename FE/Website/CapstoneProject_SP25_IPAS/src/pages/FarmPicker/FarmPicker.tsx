@@ -85,13 +85,10 @@ function FarmPicker() {
   };
 
   // const handleCreateNewFarm = async () => {
-  //   console.log("ủaaaaaaaaaa");
 
   //   try {
   //     const farmExpiredDate = useFarmStore.getState().farmExpiredDate;
   //     const isExpired = farmExpiredDate ? new Date(farmExpiredDate) < new Date() : true;
-  //     console.log("farmExpiredDateeeeee", farmExpiredDate);
-  //     console.log("isExpired", isExpired);
 
   //     if (isExpired) {
   //       toast.warning(

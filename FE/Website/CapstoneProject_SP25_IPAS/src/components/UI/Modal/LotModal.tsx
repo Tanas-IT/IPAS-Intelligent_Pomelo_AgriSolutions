@@ -64,7 +64,6 @@ const LotModal = ({ isOpen, onClose, onSave, lotData, isLoadingAction }: LotModa
 
   const handleOk = async () => {
     await form.validateFields();
-    // console.log(getFormData());
     onSave(getFormData());
   };
 

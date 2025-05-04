@@ -21,7 +21,7 @@ import {
   useHasChanges,
 } from "@/hooks";
 import { useEffect, useState } from "react";
-import { DEFAULT_MASTER_TYPE_FILTERS, getOptions } from "@/utils";
+import { DEFAULT_MASTER_TYPE_FILTERS, getOptions, isEmployee } from "@/utils";
 import { masterTypeService, productService } from "@/services";
 import { FilterMasterTypeState } from "@/types";
 import { CRITERIA_TARGETS, MASTER_TYPE, ROUTES } from "@/constants";
@@ -40,6 +40,7 @@ function Product() {
   const criteriaModal = useModal<{ id: number }>();
   const cancelConfirmModal = useModal();
   const { isDirty } = useDirtyStore();
+  const isEmployeeIn = isEmployee();
 
   const { filters, updateFilters, applyFilters, clearFilters } = useFilters<FilterMasterTypeState>(
     DEFAULT_MASTER_TYPE_FILTERS,
@@ -181,6 +182,7 @@ function Product() {
               filterContent={filterContent}
               addLabel="Add New Product"
               onAdd={() => formModal.showModal()}
+              noAdd={isEmployeeIn}
             />
           }
           isOnRowEvent={true}
@@ -196,6 +198,7 @@ function Product() {
           notifyNoData="No product to display"
           renderAction={(product: GetMasterType) => (
             <ActionMenuProduct
+              id={product.masterTypeId}
               onEdit={() => formModal.showModal(product)}
               onDelete={() => deleteConfirmModal.showModal({ ids: [product.masterTypeId] })}
               onApplyCriteria={() =>
