@@ -432,6 +432,11 @@ public partial class IpasContext : DbContext
                 .HasForeignKey(d => d.CropId)
                 .OnDelete(DeleteBehavior.SetNull)
                 .HasConstraintName("HarvestHistory_Crop_FK");
+
+            entity.HasOne(d => d.User).WithMany(p => p.HarvestHistories)
+              .HasForeignKey(d => d.AssignorId)
+              .OnDelete(DeleteBehavior.Cascade)
+              .HasConstraintName("FK_HarvestHistory_User");
         });
 
         modelBuilder.Entity<ProductHarvestHistory>(entity =>

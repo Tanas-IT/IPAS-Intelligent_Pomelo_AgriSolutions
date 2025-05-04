@@ -258,9 +258,11 @@ CREATE TABLE ipas.dbo.HarvestHistory (
 	TotalPrice float NULL,
 	HarvestStatus nvarchar(50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 	CropID int NULL,
+        AssignorId int NULL,
         IsDeleted bit NULL DEFAULT 0,
 	CONSTRAINT PK__HarvestH__F15734AD189BFCA2 PRIMARY KEY (HarvestHistoryID),
-	CONSTRAINT HarvestHistory_Crop_FK FOREIGN KEY (CropID) REFERENCES ipas.dbo.Crop(CropID) ON DELETE SET NULL
+	CONSTRAINT HarvestHistory_Crop_FK FOREIGN KEY (CropID) REFERENCES ipas.dbo.Crop(CropID) ON DELETE SET NULL,
+	CONSTRAINT HarvestHistory_Assignor_FK FOREIGN KEY (AssignorId) REFERENCES ipas.dbo.[User](UserID) 
 );
 
 
@@ -814,7 +816,9 @@ CREATE TABLE ipas.dbo.[Plan] (
 	CONSTRAINT FK_Plan_Process FOREIGN KEY (ProcessID) REFERENCES IPAS.dbo.Process(ProcessID) ON DELETE CASCADE,
 	CONSTRAINT Plan_Farm_FK FOREIGN KEY (FarmID) REFERENCES IPAS.dbo.Farm(FarmID),
 	CONSTRAINT Plan_MasterType_FK FOREIGN KEY (MasterTypeID) REFERENCES IPAS.dbo.MasterType(MasterTypeID) ON DELETE SET NULL,
-	CONSTRAINT Plan_SubProcess_FK FOREIGN KEY (SubProcessID) REFERENCES IPAS.dbo.SubProcess(SubProcessID)
+	CONSTRAINT Plan_SubProcess_FK FOREIGN KEY (SubProcessID) REFERENCES IPAS.dbo.SubProcess(SubProcessID),
+	CONSTRAINT Plan_Assignor_FK FOREIGN KEY (AssignorID) REFERENCES IPAS.dbo.[User](UserID)
+
 );
 
 -- ipas.dbo.RefreshToken definition
@@ -2884,29 +2888,29 @@ END
 CLOSE SubProcessCursor;
 DEALLOCATE SubProcessCursor;
 
-GO
-DECLARE @i INT = 1;
+
+DECLARE @k INT = 1;
 DECLARE @HarvestHistoryID INT;
-DECLARE @ScheduleID INT;
-DECLARE @WorkLogID INT;
-DECLARE @UserID3 INT, @UserID4 INT;
+DECLARE @ScheduleID2 INT;
+DECLARE @WorkLogID2 INT;
+DECLARE @UserID6 INT, @UserID7 INT;
 DECLARE @MasterTypeID INT;
 
 -- Lấy 2 UserID có RoleId = 5
-SELECT TOP 1 @UserID3 = UserID FROM [ipas].dbo.UserFarm WHERE RoleId = 5;
-SELECT TOP 1 @UserID4 = UserID FROM [ipas].dbo.UserFarm WHERE RoleId = 5 AND UserID <> @UserID3;
+SELECT TOP 1 @UserID6 = UserID FROM [ipas].dbo.UserFarm WHERE RoleId = 5;
+SELECT TOP 1 @UserID7 = UserID FROM [ipas].dbo.UserFarm WHERE RoleId = 5 AND UserID <> @UserID6;
 
-WHILE @i <= 10
+WHILE @k <= 10
 BEGIN
     DECLARE @CropID INT = 9 ;
-    DECLARE @Code NVARCHAR(10) = 'HH' + RIGHT('00' + CAST(100 + @i AS NVARCHAR),3);
+    DECLARE @Code NVARCHAR(10) = 'HH' + RIGHT('00' + CAST(100 + @k AS NVARCHAR),3);
     DECLARE @DaysAgo INT = 1 + ABS(CHECKSUM(NEWID())) % 30; -- random từ 1-30 ngày trước
     DECLARE @HarvestDate DATETIME = DATEADD(DAY, -@DaysAgo, GETDATE());
 
     INSERT INTO [ipas].dbo.HarvestHistory 
         (HarvestHistoryCode, DateHarvest, HarvestHistoryNote, TotalPrice, HarvestStatus, CropID)
     VALUES 
-        (@Code, @HarvestDate, 'Auto generated harvest ' + CAST(@i AS NVARCHAR), 10000 + @i * 1000, 'Completed', @CropID);
+        (@Code, @HarvestDate, 'Auto generated harvest ' + CAST(@k AS NVARCHAR), 10000 + @k * 1000, 'Completed', @CropID);
 
     SET @HarvestHistoryID = SCOPE_IDENTITY();
 
@@ -2942,21 +2946,21 @@ BEGIN
     INSERT INTO ipas.dbo.CarePlanSchedule (DayOfWeek, Status, StartTime, EndTime, HarvestHistoryID, FarmID)
     VALUES (DATENAME(WEEKDAY, @HarvestDate), 'Completed', '08:00:00', '12:00:00', @HarvestHistoryID, 1);
 
-    SET @ScheduleID = SCOPE_IDENTITY();
+    SET @ScheduleID2 = SCOPE_IDENTITY();
 
     -- Thêm WorkLog
-    INSERT INTO ipas.dbo.WorkLog (WorkLogCode, WorkLogName, Status, [Date], ScheduleID)
-    VALUES ('WL' + CAST(@HarvestHistoryID AS NVARCHAR), 'Auto WorkLog ' + CAST(@i AS NVARCHAR), 'Completed', @HarvestDate, @ScheduleID);
+    INSERT INTO ipas.dbo.WorkLog (WorkLogCode, WorkLogName, Status, [Date], ScheduleID, ActualStartTime, ActualEndTime)
+    VALUES ('WL' + CAST(@HarvestHistoryID AS NVARCHAR), 'Auto WorkLog ' + CAST(@k AS NVARCHAR), 'Completed', @HarvestDate, @ScheduleID2, '22:30:00', '23:30:00');
 
-    SET @WorkLogID = SCOPE_IDENTITY();
+    SET @WorkLogID2 = SCOPE_IDENTITY();
 
     -- Thêm UserWorkLog
     INSERT INTO [ipas].dbo.UserWorkLog (WorkLogID, UserID, IsReporter, CreateDate)
     VALUES 
-    (@WorkLogID, @UserID3, 1, @HarvestDate),
-    (@WorkLogID, @UserID4, 0, @HarvestDate);
+    (@WorkLogID2, @UserID6, 1, @HarvestDate),
+    (@WorkLogID2, @UserID7, 0, @HarvestDate);
 
-    SET @i = @i +1;
+    SET @k = @k +1;
 END
 UPDATE ipas.dbo.ProductHarvestHistory
 SET UserID = 1, RecordDate = GETDATE()
