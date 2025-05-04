@@ -183,8 +183,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 case "reportid":
                     orderBy = !string.IsNullOrEmpty(getAllReportOfUserModel.Direction)
                                 ? (getAllReportOfUserModel.Direction.ToLower().Equals("desc")
-                               ? x => x.OrderByDescending(x => x.ReportID)
-                               : x => x.OrderBy(x => x.ReportID)) : x => x.OrderByDescending(x => x.ReportID);
+                               ? x => x.OrderBy(x => x.ReportID)
+                               : x => x.OrderByDescending(x => x.ReportID)) : x => x.OrderByDescending(x => x.ReportID);
                     break;
                 case "reportcode":
                     orderBy = !string.IsNullOrEmpty(getAllReportOfUserModel.Direction)
@@ -284,8 +284,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 case "reportid":
                     orderBy = !string.IsNullOrEmpty(paginationParameter.Direction)
                                 ? (paginationParameter.Direction.ToLower().Equals("desc")
-                               ? x => x.OrderByDescending(x => x.ReportID)
-                               : x => x.OrderBy(x => x.ReportID)) : x => x.OrderByDescending(x => x.ReportID);
+                               ? x => x.OrderBy(x => x.ReportID)
+                               : x => x.OrderByDescending(x => x.ReportID)) : x => x.OrderByDescending(x => x.ReportID);
                     break;
                 case "reportcode":
                     orderBy = !string.IsNullOrEmpty(paginationParameter.Direction)
