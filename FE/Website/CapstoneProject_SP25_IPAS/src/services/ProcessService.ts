@@ -113,7 +113,6 @@ export const updateFProcess = async (
   }
 
   if (payload.ListPlan && payload.ListPlan.length > 0) {
-    console.log("payload.ListPlan", payload.ListPlan);
 
     payload.ListPlan.forEach((plan, index) => {
       formData.append(
@@ -130,7 +129,6 @@ export const updateFProcess = async (
       );
     });
   }
-  console.log("form data", formData.getAll("ListPlan"));
 
   const res = await axiosAuth.axiosMultipartForm.put("processes/update-process-info", formData);
   const apiResponse = res.data as ApiResponse<Object>;

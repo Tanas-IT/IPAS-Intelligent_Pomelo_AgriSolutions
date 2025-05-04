@@ -42,6 +42,15 @@
   }
 }
 
+@media (max-width: 768px) {
+  .infoFieldDetail {
+    gap: 1rem;
+    .fieldValue {
+      max-width: 47vw;
+    }
+  }
+}
+
 .contentSectionHeader {
   @include shared.contentSectionHeader;
   .passedTag {

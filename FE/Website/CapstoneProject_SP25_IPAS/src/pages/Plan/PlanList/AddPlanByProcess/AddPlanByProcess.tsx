@@ -413,7 +413,6 @@ const AddPlanByProcess = () => {
       return false;
     }
     const [startDate, endDate] = dateRange;
-    console.log("daterange", dateRange);
 
     const validDays = days.filter((day) => {
       const isValid = isDayInRange(day, startDate, endDate, type);
@@ -846,8 +845,6 @@ const AddPlanByProcess = () => {
         };
       });
 
-      console.log("Payload to submit:", payload);
-
       const response = await planService.createManyPlans(payload, Number(getFarmId()));
       if (response.statusCode === 200) {
         toast.success(response.message);
@@ -1117,9 +1114,6 @@ const AddPlanByProcess = () => {
                 setIsDaySelectorSaved(false);
               }}
               onFinishFailed={(errorInfo) => {
-                console.log("Form validation failed:", errorInfo);
-                console.log("frequency", frequency);
-
                 Modal.error({
                   title: "Validation Failed",
                   content: "Please fill in all required fields correctly.",

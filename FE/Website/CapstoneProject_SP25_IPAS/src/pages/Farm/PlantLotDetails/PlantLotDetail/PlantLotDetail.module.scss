@@ -6,8 +6,7 @@
 }
 
 .additionalTableWrapper {
-  max-height: 25rem;
-  overflow: auto;
+  width: 100%;
   .additionalTable {
     th {
       background: vars.$color_second !important;

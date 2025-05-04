@@ -2,20 +2,32 @@
 
 .container {
   flex-direction: column;
+
   .sectionHeader {
+    width: 100%;
+    white-space: nowrap;
     justify-content: space-between;
     align-items: center;
   }
+
   .contentWrapper {
     width: 100%;
     flex-direction: column;
     justify-content: space-between;
     margin-top: 12px;
     gap: 18px;
+
     .row {
       flex-direction: row;
       gap: 32px;
+
+      // 📱 Responsive cho mobile
+      @media (max-width: 768px) {
+        flex-direction: column;
+        gap: 16px;
+      }
     }
+
     .sectionContainer {
       width: 100%;
       flex-direction: column;
@@ -23,23 +35,36 @@
       background-color: vars.$color_bg_detail;
       border-radius: 16px;
     }
+
     .sectionLeft {
       @extend .sectionContainer;
       min-width: 50vw;
+
+      @media (max-width: 768px) {
+        min-width: 100%;
+      }
     }
+
     .sectionRight {
       @extend .sectionContainer;
+
+      @media (max-width: 768px) {
+        min-width: 100%;
+      }
     }
+
     .farmTitle {
       font-size: 16px;
       font-weight: bold;
       color: #333;
       margin-bottom: 10px;
     }
+
     .mapNotice {
       font-size: 12px;
       color: vars.$color_selected;
       text-align: center;
+
       .icon {
         color: red;
       }
@@ -50,6 +75,10 @@
       flex-direction: column;
       justify-content: center;
       align-items: flex-end;
+
+      @media (max-width: 768px) {
+        align-items: center;
+      }
     }
   }
 }

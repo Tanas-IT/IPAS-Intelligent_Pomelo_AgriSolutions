@@ -1,4 +1,4 @@
-import { useFetchData, useFilters, useModal, useTableDelete } from "@/hooks";
+import { useFetchData, useFilters, useHasChanges, useModal, useTableDelete } from "@/hooks";
 import style from "./EmployeeList.module.scss";
 import { AddUserFarmRequest, GetEmployee, Skill } from "@/payloads";
 import { employeeService } from "@/services";
@@ -56,51 +56,69 @@ function EmployeeList() {
   useEffect(() => {
     fetchData();
   }, [currentPage, rowsPerPage, sortField, sortDirection, searchValue]);
-console.log("data", data);
 
-const handleUpdateEmployee = async (
-  userId: number,
-  newRole?: string,
-  isActive?: boolean,
-  skills?: Skill[]
-) => {
-  try {
-    setIsUpdateLoading(true);
-    const farmId = Number(getFarmId());
-    const request: AddUserFarmRequest = {
-      farmId,
-      userId,
-      roleName: newRole ?? ROLE.EMPLOYEE,
-      isActive: isActive ?? true,
-      skills: skills ?? [],
-    };
-    console.log("ré update", request);
-    
+  const areSkillsChanged = (oldSkills: Skill[], newSkills: Skill[]) => {
+    if (!oldSkills.length && !newSkills.length) return false; // cả 2 đều rỗng
 
-    const res = await employeeService.updateEmployee(request);
-    console.log("res update", res);
-    
-    if (res.statusCode === 200) {
-      if (newRole) {
-        toast.success(`User role updated to ${newRole}`);
-      } else if (isActive !== undefined) {
-        toast.success(`User has been ${isActive ? "activated" : "deactivated"}`);
-      } else if (skills) {
-        toast.success("Employee skills updated successfully");
-        editSkillsModal.hideModal();
+    const sortedOld = [...oldSkills].sort((a, b) => a.skillID - b.skillID);
+    const sortedNew = [...newSkills].sort((a, b) => a.skillID - b.skillID);
+
+    return JSON.stringify(sortedOld) !== JSON.stringify(sortedNew);
+  };
+
+  const handleUpdateEmployee = async (
+    userId: number,
+    newRole?: string,
+    isActive?: boolean,
+    skills?: Skill[],
+  ) => {
+    try {
+      const farmId = Number(getFarmId());
+      const employee = data.find((emp) => emp.userId === userId);
+      if (!employee) return;
+
+      const oldSkills: Skill[] = (employee.skills || []).map((s) => ({
+        skillID: s.skillID,
+        scoreOfSkill: s.scoreOfSkill,
+      }));
+
+      const newSkills = skills ?? [];
+
+      if (!areSkillsChanged(oldSkills, newSkills)) {
+        editSkillsModal.hideModal(); // Không thay đổi, đóng form
+        return;
       }
-      await fetchData();
-    } else {
-      toast.warning(res.message || "Failed to update employee");
-    }
-  } catch (error) {
-    toast.warning("An error occurred while updating the employee");
-  } finally {
-    setIsUpdateLoading(false);
-  }
-};
 
-  const handleAdd = async (userId: number, skills: Skill[]) => {
+      setIsUpdateLoading(true);
+      const request: AddUserFarmRequest = {
+        farmId,
+        userId,
+        roleName: newRole ?? ROLE.EMPLOYEE,
+        isActive: isActive ?? true,
+        skills: skills ?? [],
+      };
+
+      const res = await employeeService.updateEmployee(request);
+
+      if (res.statusCode === 200) {
+        if (newRole) {
+          toast.success(`User role updated to ${newRole}`);
+        } else if (isActive !== undefined) {
+          toast.success(`User has been ${isActive ? "activated" : "deactivated"}`);
+        } else if (skills) {
+          toast.success("Employee skills updated successfully");
+          editSkillsModal.hideModal();
+        }
+        await fetchData();
+      } else {
+        toast.warning(res.message || "Failed to update employee");
+      }
+    } finally {
+      setIsUpdateLoading(false);
+    }
+  };
+
+  const handleAdd = async (userId: number, skills?: Skill[]) => {
     try {
       setIsAddLoading(true);
       const farmId = Number(getFarmId());
@@ -109,7 +127,7 @@ const handleUpdateEmployee = async (
         userId,
         roleName: ROLE.EMPLOYEE,
         isActive: true,
-        skills
+        skills,
       };
 
       const res = await employeeService.addNewUserInFarm(request);
@@ -211,7 +229,7 @@ const handleUpdateEmployee = async (
               editSkillsModal.modalState.data?.employee.userId ?? 0,
               undefined,
               undefined,
-              skills
+              skills,
             )
           }
           initialSkills={editSkillsModal.modalState.data?.employee.skills ?? []}

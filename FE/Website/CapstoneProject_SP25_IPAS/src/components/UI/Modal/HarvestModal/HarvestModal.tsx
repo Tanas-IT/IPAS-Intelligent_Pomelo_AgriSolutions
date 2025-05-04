@@ -180,7 +180,6 @@ const HarvestModal = ({
       }
     }
 
-    // console.log(getFormData());
     onSave(getFormData());
   };
 

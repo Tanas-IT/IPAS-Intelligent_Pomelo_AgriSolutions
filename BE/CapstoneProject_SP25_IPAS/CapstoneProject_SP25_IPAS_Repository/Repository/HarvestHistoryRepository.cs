@@ -162,6 +162,7 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
             var historys = await _context.ProductHarvestHistories
                 .Include(x => x.HarvestHistory)
                 .Include(x => x.Product)
+                .Include(x => x.User)
                 .Include(x => x.Plant)
                 .ThenInclude(x => x.LandRow)
                 .ThenInclude(x => x.LandPlot)

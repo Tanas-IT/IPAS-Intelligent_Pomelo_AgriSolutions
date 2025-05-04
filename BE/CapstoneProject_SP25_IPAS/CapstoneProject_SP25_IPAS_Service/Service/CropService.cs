@@ -47,7 +47,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 {
                     if (!cropCreateRequest.FarmId.HasValue || cropCreateRequest.FarmId <= 0)
                         return new BusinessResult(Const.WARNING_GET_LANDPLOT_NOT_EXIST_CODE, Const.WARNING_GET_LANDPLOT_NOT_EXIST_MSG);
-                    if (cropCreateRequest.StartDate <= DateTime.Now)
+                    if (cropCreateRequest.StartDate < DateTime.Now)
                         return new BusinessResult(Const.WARNING_CREATE_CROP_INVALID_YEAR_VALUE_CODE, Const.WARNING_CREATE_CROP_INVALID_YEAR_VALUE_MSG);
                     //if (cropCreateRequest.EndDate <= DateTime.Now)
                     //    return new BusinessResult(Const.WARNING_CREATE_CROP_INVALID_YEAR_VALUE_CODE, Const.WARNING_CREATE_CROP_INVALID_YEAR_VALUE_MSG);
@@ -82,24 +82,27 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     foreach (var landplotId in cropCreateRequest.LandPlotId)
                     {
                         var existLandplot = await _unitOfWork.LandPlotRepository.GetByID(landplotId);
-                        var checkLandPlotInCurCrop = await _unitOfWork.LandPlotCropRepository.GetByCondition(x =>
-                                                                        x.LandPlotId == landplotId
-                                                                        && x.CropID != crop.CropId
-                                                                        && x.Crop.StartDate <= cropCreateRequest.StartDate
-                                                                        && x.Crop.EndDate >= cropCreateRequest.EndDate, "Crop");
-                        // check thua do co vao mua do chua - khong cho nam trong 2 mua long voi nhau
-                        if (checkLandPlotInCurCrop != null)
-                            return new BusinessResult(400, $"Plot '{existLandplot.LandPlotName}' is in crop '{checkLandPlotInCurCrop.Crop.CropName}' at time {checkLandPlotInCurCrop.Crop.StartDate.Value.Date.ToString("dd/MM/yyyy")}-{checkLandPlotInCurCrop.Crop.EndDate.Value.Date.ToString("dd/MM/yyyy")}");
+                        if (existLandplot == null)
+                            continue; // Bỏ qua nếu không tìm thấy thửa đất (hoặc có thể return lỗi, tùy bạn)
 
-                        if (existLandplot != null)
+                        var overlappingCrop = await _unitOfWork.LandPlotCropRepository.GetByCondition(x =>
+                            x.LandPlotId == landplotId
+                            && x.CropID != crop.CropId
+                            && x.Crop.StartDate <= cropCreateRequest.EndDate
+                            && cropCreateRequest.StartDate <= x.Crop.EndDate, "Crop");
+
+                        if (overlappingCrop != null)
                         {
-                            var landPlotCrop = new LandPlotCrop
-                            {
-                                LandPlotId = landplotId,
-                            };
-
-                            crop.LandPlotCrops.Add(landPlotCrop);
+                            var msg = $"Plot '{existLandplot.LandPlotName}' is in crop '{overlappingCrop.Crop.CropName}' during {overlappingCrop.Crop.StartDate.Value:dd/MM/yyyy} - {overlappingCrop.Crop.EndDate.Value:dd/MM/yyyy}";
+                            return new BusinessResult(400, msg);
                         }
+
+                        var landPlotCrop = new LandPlotCrop
+                        {
+                            LandPlotId = landplotId,
+                        };
+
+                        crop.LandPlotCrops.Add(landPlotCrop);
                     }
                     await _unitOfWork.CropRepository.Insert(crop);
                     int result = await _unitOfWork.SaveAsync();

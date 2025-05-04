@@ -27,7 +27,6 @@ export const updatePackage = async (pkg: PackageRequest): Promise<ApiResponse<Ge
         : { packageDetailId, featureName, featureDescription };
     }),
   };
-  console.log(payload);
 
   const res = await axiosAuth.axiosJsonRequest.put("packages", payload);
   const apiResponse = res.data as ApiResponse<GetPackage>;

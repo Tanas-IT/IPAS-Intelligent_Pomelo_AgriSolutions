@@ -1,22 +1,25 @@
 import React from "react";
 import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-import { View, Text, TouchableOpacity, StyleSheet, ActivityIndicator } from "react-native";
-import { MaterialCommunityIcons } from "@expo/vector-icons";
-import WorklogScreen from "@/screens/Worklog/WorklogScreen/WorklogScreen";
-import ScanScreen from "@/screens/Scan/ScanScreen";
-import { MainTabParamList } from "../constants/Types";
-import AIScreen from "@/screens/AI/AI";
-import PestDetectionScreen from "@/screens/PestDetection/PestDetection";
+import {
+  View,
+  TouchableOpacity,
+  StyleSheet,
+  ActivityIndicator,
+} from "react-native";
+import { MainTabParamList, UserRolesStr } from "@/constants";
 import { HeaderBackButton } from "@react-navigation/elements";
 import { DrawerActions } from "@react-navigation/native";
-import EmployeeHomeScreen from "@/screens/Home/EmployeeHomeScreen/EmployeeHomeScreen";
 import theme from "@/theme";
-import SplashScreen from "@/screens/PestDetection/SplashScreen/SplashScreen";
-import ManagerHomeScreen from "@/screens/Home/ManagerHomeScreen/ManagerHomeScreen";
 import { CustomIcon } from "@/components";
 import { useAuthStore } from "@/store";
-import { UserRolesStr } from "@/constants";
-import { ReportResponseScreen } from "@/screens";
+import {
+  EmployeeHomeScreen,
+  ManagerHomeScreen,
+  ReportResponseScreen,
+  SplashScreen,
+  WorklogScreen,
+  ScanScreen,
+} from "@/screens";
 
 const Tab = createBottomTabNavigator<MainTabParamList>();
 
@@ -24,13 +27,13 @@ export default function MainTabs() {
   const { roleId } = useAuthStore();
   if (!roleId || roleId === UserRolesStr.User.toString()) {
     return (
-      <View style={{ flex: 1, justifyContent: 'center', alignItems: 'center' }}>
+      <View style={{ flex: 1, justifyContent: "center", alignItems: "center" }}>
         <ActivityIndicator />
       </View>
     );
   }
   const isEmployee = roleId === UserRolesStr.Employee;
-  
+
   return (
     <Tab.Navigator
       screenOptions={({ route, navigation }) => ({
@@ -68,8 +71,8 @@ export default function MainTabs() {
               type: "MaterialCommunityIcons",
             },
             ChatAI: {
-              name: focused ? "chatbubbles" : "chatbubbles-outline",
-              type: "Ionicons",
+              name: focused ? "message-text" : "message-text",
+              type: "MaterialCommunityIcons",
             },
             SplashScreen: {
               name: focused ? "bug" : "bug-outline",

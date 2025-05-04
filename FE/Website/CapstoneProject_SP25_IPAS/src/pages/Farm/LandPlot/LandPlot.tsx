@@ -40,8 +40,6 @@ function LandPlot() {
     try {
       setIsLoading(true);
       const result = await landPlotService.getLandPlots();
-      console.log(result);
-      
       if (result.statusCode === 200) setLandPlots(result.data);
     } finally {
       setIsLoading(false);
@@ -111,7 +109,6 @@ function LandPlot() {
 
   return (
     <Flex className={style.container}>
-      {/* <SectionTitle title="Plant Management" totalRecords={10} /> */}
       <div className={style.mapWrapper}>
         <MapLandPlot
           longitude={landPlots.longitude}

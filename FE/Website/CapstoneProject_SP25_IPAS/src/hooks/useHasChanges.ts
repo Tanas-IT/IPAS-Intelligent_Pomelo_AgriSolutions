@@ -14,10 +14,7 @@ function useHasChanges<T extends Record<string | number, any>>(data: T[]) {
         // Xử lý cho update
         const oldData = data.find((item) => item[keyField] === newData[keyField]);
 
-        if (!oldData) return false;
-        // console.log(oldData);
-        // console.log(newData);
-
+        if (!oldData) return false;;
         return Object.keys(newData).some((key) => {
           const typedKey = key as keyof T;
           if (ignoredKeys?.includes(typedKey)) return false;

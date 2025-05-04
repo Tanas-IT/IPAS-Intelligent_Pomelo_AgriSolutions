@@ -339,12 +339,10 @@ const AddNewPlotDrawer: React.FC<AddNewPlotDrawerProps> = ({
       onClose();
     }
   };
-
   useEffect(() => {
     if (isSimulateUpdate && plotSimulate) {
       form.setFieldsValue({
         landRowCode: plotSimulate.landPlotCode,
-        // isHorizontal: plotSimulate.isRowHorizontal,
         rowOrientation: plotSimulate.isRowHorizontal ? "Horizontal" : "Vertical",
         rowSpacing: plotSimulate.rowSpacing,
         rowsPerLine: plotSimulate.rowPerLine,
@@ -352,11 +350,6 @@ const AddNewPlotDrawer: React.FC<AddNewPlotDrawerProps> = ({
       });
       setRowsData(plotSimulate.landRows);
       setCurrentStep(2);
-    }
-    if (isOpen) {
-      setTimeout(() => {
-        window.dispatchEvent(new Event("resize")); // Trigger resize event
-      }, 300); // Delay để chờ Drawer render xong
     }
   }, [isOpen, isSimulateUpdate, plotSimulate]);
 

@@ -14,7 +14,10 @@ import { LinearGradient } from "expo-linear-gradient";
 import { Controller, useForm } from "react-hook-form";
 import { yupResolver } from "@hookform/resolvers/yup";
 import { ResourceItem, WorklogNoteFormData } from "@/types/worklog";
-import { addNoteWorklogSchema, worklogNoteSchemas } from "@/validations/noteWorklogSchema";
+import {
+  addNoteWorklogSchema,
+  worklogNoteSchemas,
+} from "@/validations/noteWorklogSchema";
 import { styles } from "./AddNoteWorklogScreen.styles";
 import theme from "@/theme";
 import { CustomIcon, TextCustom } from "@/components";
@@ -45,12 +48,12 @@ const AddNoteWorklogScreen: React.FC = () => {
     defaultValues:
       isEditMode && initialData
         ? {
-          note: initialData.note || "",
-          issue: initialData.issue || "",
-          userId: initialData.userId || 1,
-          workLogId: initialData.workLogId,
-          resources: initialData.resources || [],
-        }
+            note: initialData.note || "",
+            issue: initialData.issue || "",
+            userId: initialData.userId || 1,
+            workLogId: initialData.workLogId,
+            resources: initialData.resources || [],
+          }
         : {
             note: "",
             issue: "",
@@ -119,21 +122,16 @@ const AddNoteWorklogScreen: React.FC = () => {
       issue: data.issue || "",
       resources: data.resources || [],
     };
-    console.log("add worklog note", payload);
-    
 
     try {
-      console.log(
-        isEditMode ? "Updating Worklog Note:" : "Adding Worklog Note:",
-        payload
-      );
       const res = await worklogService.addWorklogNote(payload);
-      console.log("kìiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiiii", res);
-      
+
       if (res.statusCode === 200) {
         Toast.show({
           type: "success",
-          text1: isEditMode ? "Note updated successfully" : "Note added successfully",
+          text1: isEditMode
+            ? "Note updated successfully"
+            : "Note added successfully",
         });
         navigation.goBack();
       } else {

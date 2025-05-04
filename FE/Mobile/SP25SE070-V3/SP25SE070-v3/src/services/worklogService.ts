@@ -97,7 +97,6 @@ export const addWorklogNote = async (
       );
     });
   }
-  console.log("payload add wl note", formData);
 
   const res = await axiosAuth.axiosMultipartForm.post(
     `/work-log/take-note`,

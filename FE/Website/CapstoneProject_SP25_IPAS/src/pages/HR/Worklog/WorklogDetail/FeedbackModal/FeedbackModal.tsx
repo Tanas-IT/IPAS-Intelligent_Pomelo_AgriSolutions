@@ -33,7 +33,6 @@ const FeedbackModal = ({
   const [statusOptions, setStatusOptions] = useState<{ value: string; label: string }[]>([]); // Lưu danh sách từ API
   const [loadingStatuses, setLoadingStatuses] = useState<boolean>(false); // Trạng thái loading khi fetch
   const isUpdate = feedbackData !== undefined && Object.keys(feedbackData).length > 0;
-console.log("fb", feedbackData);
 
   // Fetch status options từ API khi modal mở
   useEffect(() => {

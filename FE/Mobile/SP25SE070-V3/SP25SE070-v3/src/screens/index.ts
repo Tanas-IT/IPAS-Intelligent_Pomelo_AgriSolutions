@@ -1,5 +1,8 @@
 export { default as EmployeeHomeScreen } from "./Home/EmployeeHomeScreen/EmployeeHomeScreen";
+export { default as ManagerHomeScreen } from "./Home/ManagerHomeScreen/ManagerHomeScreen";
 export { default as LoginScreen } from "@/screens/Auth/LoginScreen";
+export { default as FarmPickerScreen } from "@/screens/FarmPicker/FarmPickerScreen";
+export { default as ProfileScreen } from "@/screens/Profile/ProfileScreen";
 export { default as PlantDetailScreen } from "@/screens/Plant/PlantDetail/PlantDetailScreen";
 export { default as NoteFormScreen } from "@/screens/Plant/PlantDetail/NoteFormScreen/NoteFormScreen";
 export { default as WorklogDetailScreen } from "@/screens/Worklog/WorklogDetailScreen/WorklogDetailScreen";
@@ -9,3 +12,6 @@ export { default as PestDetectionScreen } from "@/screens/PestDetection/PestDete
 export { default as ReportResponseScreen } from "@/screens/ReportResponse/ReportResponseScreen";
 export { default as GraftedPlantDetail } from "@/screens/GraftedPlant/GraftedPlantDetail/GraftedPlantDetail";
 export { default as GraftedNoteScreen } from "@/screens/GraftedPlant/GraftedPlantDetail/tabs/GrowthHistoryTab/GraftedNoteScreen";
+export { default as SplashScreen } from "@/screens/PestDetection/SplashScreen/SplashScreen";
+export { default as WorklogScreen } from "@/screens/Worklog/WorklogScreen/WorklogScreen";
+export { default as ScanScreen } from "@/screens/Scan/ScanScreen";

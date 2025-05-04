@@ -107,7 +107,6 @@ const ProcessModal = ({ isOpen, onClose, onSave }: ProcessModalProps) => {
                 IsSample: isSample,
                 PlanTargetInProcess: values.planTarget
             };
-            console.log("payload", payload);
             
 
             onSave(payload);

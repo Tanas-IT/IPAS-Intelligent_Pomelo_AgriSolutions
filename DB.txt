@@ -1236,7 +1236,7 @@ VALUES
     (16,'MT016', 'Fertilizing', 'Work', 'Application of nutrients to enhance plant growth', '#D9E5DC', '#4A9C5D', NULL, 0, 1, GETDATE(), 0, 1, 1, 'Fertilizer', 30, 120),
     (17,'MT017', 'Pruning', 'Work', 'Trimming and shaping plants for better growth', '#E3D7B9', '#8D5B3D', NULL, 0, 1, GETDATE(), 0, 1, 0, 'Pruning-Shaping', 20, 90),
     (18,'MT018', 'Pest Control', 'Work', 'Managing and eliminating harmful pests', '#FFE5D9', '#F79C42', NULL, 0, 1, GETDATE(), 0, 1, 0, 'Pest Control', 30, 180),
-    (19,'MT019', 'Harvesting', 'Work', 'Collecting mature crops for use or sale', '#F2F2F2', '#4A4A4A', NULL, 0, 1, GETDATE(), 0, 1, 0, 'Others', 60, 240),
+    (19,'MT019', 'Harvesting', 'Work', 'Collecting mature crops for use or sale', '#F2F2F2', '#4A4A4A', NULL, 0, 1, GETDATE(), 1, NULL, 0, 'Harvesting', 60, 240),
     
 	(20,'MT020', 'Grafting Suitability', 'Criteria', 'Criteria to assess whether a tree is suitable for grafting', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1, NULL, 'GraftedCondition', NULL, NULL),
     (21,'MT021', 'Seedling Selection', 'Criteria', 'Standards for selecting high-quality seedlings for grafting', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1, NULL, 'GraftedCondition', NULL, NULL),
@@ -1531,14 +1531,14 @@ VALUES
 INSERT INTO [ipas].dbo.Plant 
 (PlantCode, PlantName, PlantIndex, HealthStatus, CreateDate, UpdateDate, PlantingDate, PlantReferenceID, Description, MasterTypeID, ImageURL, LandRowID, GrowthStageID, FarmID) 
 VALUES
-('P001', 'Green Skin Pomelo A', 1, 'Minor Issues', '2024-02-01', '2024-02-05', '2023-01-25', NULL, 'Green Skin Pomelo - Type A', 9, 'https://example.com/pomeloA.jpg', 1, 3, 1),
-('P002', 'Green Skin Pomelo B', 2, 'Healthy', '2024-02-02', '2024-02-06', '2023-01-20', NULL, 'Green Skin Pomelo - Type B', 9, 'https://example.com/pomeloB.jpg', 1, 2, 1),
-('P003', 'Green Skin Pomelo C', 3, 'Healthy', '2024-02-03', '2024-02-07', '2023-01-18', NULL, 'Green Skin Pomelo - Type C', 9, 'https://example.com/pomeloC.jpg', 1, 3, 1),
-('P004', 'Green Skin Pomelo D', 4, 'Minor Issues', '2024-02-04', '2024-02-08', '2023-01-15', NULL, 'Green Skin Pomelo - Type D', 9, 'https://example.com/pomeloD.jpg', 1, 4, 1),
-('P005', 'Green Skin Pomelo E', 5, 'Healthy', '2024-02-05', '2024-02-09', '2023-01-10', NULL, 'Green Skin Pomelo - Type E', 9, 'https://example.com/pomeloE.jpg', 1, 5, 1),
-('P006', 'Green Skin Pomelo F', 1, 'Minor Issues', '2024-02-06', '2024-02-10', '2023-01-08', NULL, 'Green Skin Pomelo - Type F', 9, 'https://example.com/pomeloF.jpg', 2, 1, 1),
-('P007', 'Green Skin Pomelo G', 2, 'Healthy', '2024-02-07', '2024-02-11', '2023-01-05', NULL, 'Green Skin Pomelo - Type G', 9, 'https://example.com/pomeloG.jpg', 2, 1, 1),
-('P008', 'Green Skin Pomelo H', 3, 'Healthy', '2024-02-08', '2024-02-12', '2023-01-02', NULL, 'Green Skin Pomelo - Type H', 9, 'https://example.com/pomeloH.jpg', 2, 2, 1),
+('P001', 'Green Skin Pomelo A', 1, 'Minor Issues', '2024-02-01', '2024-02-05', '2024-01-25', NULL, 'Green Skin Pomelo - Type A', 9, 'https://example.com/pomeloA.jpg', 1, 1, 1),
+('P002', 'Green Skin Pomelo B', 2, 'Healthy', '2024-02-02', '2024-02-06', '2024-01-20', NULL, 'Green Skin Pomelo - Type B', 9, 'https://example.com/pomeloB.jpg', 1, 2, 1),
+('P003', 'Green Skin Pomelo C', 3, 'Healthy', '2024-02-03', '2024-02-07', '2024-01-18', NULL, 'Green Skin Pomelo - Type C', 9, 'https://example.com/pomeloC.jpg', 1, 3, 1),
+('P004', 'Green Skin Pomelo D', 4, 'Minor Issues', '2024-02-04', '2024-02-08', '2024-01-15', NULL, 'Green Skin Pomelo - Type D', 9, 'https://example.com/pomeloD.jpg', 1, 4, 1),
+('P005', 'Green Skin Pomelo E', 5, 'Healthy', '2024-02-05', '2024-02-09', '2024-01-10', NULL, 'Green Skin Pomelo - Type E', 9, 'https://example.com/pomeloE.jpg', 1, 5, 1),
+('P006', 'Green Skin Pomelo F', 1, 'Minor Issues', '2024-02-06', '2024-02-10', '2024-01-08', NULL, 'Green Skin Pomelo - Type F', 9, 'https://example.com/pomeloF.jpg', 2, 1, 1),
+('P007', 'Green Skin Pomelo G', 2, 'Healthy', '2024-02-07', '2024-02-11', '2024-01-05', NULL, 'Green Skin Pomelo - Type G', 9, 'https://example.com/pomeloG.jpg', 2, 1, 1),
+('P008', 'Green Skin Pomelo H', 3, 'Healthy', '2024-02-08', '2024-02-12', '2024-01-02', NULL, 'Green Skin Pomelo - Type H', 9, 'https://example.com/pomeloH.jpg', 2, 2, 1),
 ('P009', 'Green Skin Pomelo I', 4, 'Healthy', '2020-2-1', '2020-2-1', '2020-2-1', NULL, 'Green Skin Pomelo - Type I', 9, 'https://example.com/pomeloI.jpg', 2, 3, 1),
 ('P010', 'Green Skin Pomelo J', 5, 'Healthy', '2020-2-11', '2020-2-1', '2020-2-1', NULL, 'Green Skin Pomelo - Type J', 9, 'https://example.com/pomeloJ.jpg', 2, 4, 1);
 
@@ -2194,6 +2194,7 @@ VALUES
 INSERT INTO SystemConfiguration (ConfigGroup, ConfigKey, ConfigValue, ValueType, Description)
 VALUES 
 ('Work','Watering', 'Watering', 'string', 'Watering'),
+('Work','Harvesting', 'Harvesting', 'string', 'Harvesting'),
 ('Work','Fertilizer', 'Fertilizer', 'string', 'Fertilizer'),
 ('Work','SprayingPesticides', 'Spraying Pesticides', 'string', 'Spraying Pesticides'),
 ('Work','PruningShaping', 'Pruning-Shaping', 'string', 'Pruning-Shaping'),

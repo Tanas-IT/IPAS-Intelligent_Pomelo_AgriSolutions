@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import {
   View,
   Text,
-  StyleSheet,
   ScrollView,
   Image,
   TouchableOpacity,
@@ -21,12 +20,12 @@ import {
   StatusType,
   UpdateStatusWorklogRequest,
   WorklogDetail,
-  WorklogNoteFormData,
 } from "@/types/worklog";
 import Toast from "react-native-toast-message";
 import theme from "@/theme";
 import { styles } from "./WorklogDetailScreen.styles";
 import {
+  AvatarImage,
   BackButton,
   CustomIcon,
   NoteDetailModal,
@@ -37,6 +36,7 @@ import { worklogService } from "@/services";
 import { useAuthStore } from "@/store";
 import FeedbackSection from "../FeedbackSection/FeedbackSection";
 import { UserRole } from "@/constants";
+import { formatDateAndTime } from "@/utils";
 
 const WorklogDetailScreen: React.FC<WorklogDetailScreenProps> = ({ route }) => {
   const { worklogId } = route.params;
@@ -65,30 +65,29 @@ const WorklogDetailScreen: React.FC<WorklogDetailScreenProps> = ({ route }) => {
   }, [worklogId]);
 
   const isUserRejected = () => {
-    const isRejectedInEmployee = worklog?.listEmployee.some(
-      (employee) => {
+    const isRejectedInEmployee =
+      worklog?.listEmployee.some((employee) => {
         const isRejected =
           employee.userId === Number(userId) &&
           employee.statusOfUserWorkLog?.toLowerCase() === "rejected";
         return isRejected;
-      }
-    ) || false;
-    const isRejectedInReporter = worklog?.reporter.some(
-      (reporter) => {
+      }) || false;
+    const isRejectedInReporter =
+      worklog?.reporter.some((reporter) => {
         const isRejected =
           reporter.userId === Number(userId) &&
           reporter.statusOfUserWorkLog?.toLowerCase() === "rejected";
         return isRejected;
-      }
-    ) || false;
-    console.log("Is user rejected:", isRejectedInEmployee || isRejectedInReporter);
+      }) || false;
     return isRejectedInEmployee || isRejectedInReporter;
   };
 
   const isUserReporter = () => {
-    return worklog?.reporter.some(
-      (reporter) => reporter.userId === Number(userId)
-    ) || false;
+    return (
+      worklog?.reporter.some(
+        (reporter) => reporter.userId === Number(userId)
+      ) || false
+    );
   };
 
   const canRedoWorklog = () => {
@@ -121,7 +120,6 @@ const WorklogDetailScreen: React.FC<WorklogDetailScreenProps> = ({ route }) => {
           text: "Yes",
           onPress: async () => {
             try {
-              console.log("Redoing worklog:", worklogId);
               const payload = {
                 workLogId: Number(worklogId),
                 userId: Number(userId),
@@ -141,10 +139,7 @@ const WorklogDetailScreen: React.FC<WorklogDetailScreenProps> = ({ route }) => {
               }
             } catch (error) {
               // console.error("Error redoing worklog:", error);
-              Alert.alert(
-                "Error",
-                "Failed to redo worklog. Please try again."
-              );
+              Alert.alert("Error", "Failed to redo worklog. Please try again.");
             }
           },
         },
@@ -166,11 +161,10 @@ const WorklogDetailScreen: React.FC<WorklogDetailScreenProps> = ({ route }) => {
           text: "Yes",
           onPress: async () => {
             try {
-              console.log("Cancelling worklog:", worklogId);
               const payload: CancelWorklogRequest = {
                 workLogId: Number(worklogId),
-                userId: Number(userId)
-              }
+                userId: Number(userId),
+              };
               const res = await worklogService.cancelWorklog(payload);
               if (res.statusCode === 200) {
                 Toast.show({
@@ -245,7 +239,6 @@ const WorklogDetailScreen: React.FC<WorklogDetailScreenProps> = ({ route }) => {
           text: "Yes",
           onPress: async () => {
             try {
-              console.log("Marking worklog as complete:", worklogId);
               const payload: UpdateStatusWorklogRequest = {
                 workLogId: Number(worklogId),
                 status: "Reviewing",
@@ -300,10 +293,15 @@ const WorklogDetailScreen: React.FC<WorklogDetailScreenProps> = ({ route }) => {
           </TextCustom>
           <StatusBadge status={worklog.status as StatusType} />
         </View>
-        {![UserRole.Owner.toString(), UserRole.Manager.toString()].includes(roleId!) && (
+        {![UserRole.Owner.toString(), UserRole.Manager.toString()].includes(
+          roleId!
+        ) && (
           <>
             {!isUserRejected() && worklog.status === "Not Started" ? (
-              <TouchableOpacity onPress={handleCancelWorklog} style={styles.delBtn}>
+              <TouchableOpacity
+                onPress={handleCancelWorklog}
+                style={styles.delBtn}
+              >
                 <CustomIcon
                   name="cancel"
                   size={24}
@@ -312,7 +310,10 @@ const WorklogDetailScreen: React.FC<WorklogDetailScreenProps> = ({ route }) => {
                 />
               </TouchableOpacity>
             ) : canRedoWorklog() ? (
-              <TouchableOpacity onPress={handleRedoWorklog} style={styles.delBtn}>
+              <TouchableOpacity
+                onPress={handleRedoWorklog}
+                style={styles.delBtn}
+              >
                 <CustomIcon
                   name="restore"
                   size={24}
@@ -351,59 +352,77 @@ const WorklogDetailScreen: React.FC<WorklogDetailScreenProps> = ({ route }) => {
         </View>
       </View>
 
-      {isUserReporter() && worklog.status === "In Progress" && ![UserRole.Owner.toString(), UserRole.Manager.toString()].includes(roleId!) && (
-        <TouchableOpacity
-          style={[
-            styles.markAsCompleted,
-          ]}
-          onPress={() => handleMarkAsComplete()}
-          disabled={worklog.status.toLowerCase() === "reviewing"}
-        >
-          <CustomIcon
-            name="checkmark"
-            type="Ionicons"
-            size={20}
-            color={
-              worklog.status.toLowerCase() === "reviewing"
-                ? theme.colors.gray
-                : theme.colors.secondary
-            }
-          />
-          <TextCustom
-            style={[
-              styles.markAsCompletedText,
-              worklog.status.toLowerCase() === "reviewing" && { color: theme.colors.gray },
-            ]}
+      {isUserReporter() &&
+        worklog.status === "In Progress" &&
+        ![UserRole.Owner.toString(), UserRole.Manager.toString()].includes(
+          roleId!
+        ) && (
+          <TouchableOpacity
+            style={[styles.markAsCompleted]}
+            onPress={() => handleMarkAsComplete()}
+            disabled={worklog.status.toLowerCase() === "reviewing"}
           >
-            Mark As Completed
-          </TextCustom>
-        </TouchableOpacity>
-      )}
+            <CustomIcon
+              name="checkmark"
+              type="Ionicons"
+              size={20}
+              color={
+                worklog.status.toLowerCase() === "reviewing"
+                  ? theme.colors.gray
+                  : theme.colors.secondary
+              }
+            />
+            <TextCustom
+              style={[
+                styles.markAsCompletedText,
+                worklog.status.toLowerCase() === "reviewing" && {
+                  color: theme.colors.gray,
+                },
+              ]}
+            >
+              Mark As Completed
+            </TextCustom>
+          </TouchableOpacity>
+        )}
 
       {/* Assign Information */}
       <View style={styles.section}>
         <TextCustom style={styles.sectionTitle}>Assign Information</TextCustom>
         <View style={styles.assignCard}>
           <View style={styles.userCard}>
-            <Image
+            {/* <Image
               source={{ uri: worklog.assignorAvatarURL }}
               style={styles.avatar}
-            />
+            /> */}
             <View style={styles.userInfo}>
-              <View style={{ flexDirection: "row", gap: 7 }}>
-                <Image
-                  source={{ uri: worklog.assignorAvatarURL }}
-                  style={[
-                    styles.avatarSmall,
-                  ]}
-                />
-                <TextCustom style={styles.userRole}>
-                  created this plan
+              <AvatarImage
+                uri={worklog.assignorAvatarURL}
+                style={styles.avatarSmall}
+                iconSize={20}
+              />
+              <View
+                style={{
+                  flexDirection: "column",
+                }}
+              >
+                <View
+                  style={{
+                    flexDirection: "row",
+                    gap: 7,
+                  }}
+                >
+                  <TextCustom style={styles.userRole}>
+                    {worklog.assignorName}
+                  </TextCustom>
+                  <TextCustom style={styles.userRole}>
+                    created this plan
+                  </TextCustom>
+                </View>
+
+                <TextCustom style={styles.userDate}>
+                  {formatDateAndTime(worklog.date)}
                 </TextCustom>
               </View>
-              <TextCustom style={styles.userDate}>
-                {new Date(worklog.date).toLocaleDateString("vi-VN")}
-              </TextCustom>
             </View>
           </View>
 
@@ -439,7 +458,7 @@ const WorklogDetailScreen: React.FC<WorklogDetailScreenProps> = ({ route }) => {
                       {employee.fullName}
                     </TextCustom>
                   </View>
-                )
+                );
               })}
             </ScrollView>
           </View>
@@ -452,20 +471,23 @@ const WorklogDetailScreen: React.FC<WorklogDetailScreenProps> = ({ route }) => {
                 <View
                   style={[
                     styles.userItemHorizontal,
-                    worklog.reporter[0].userId === Number(userId) && styles.highlightedUser,
+                    worklog.reporter[0].userId === Number(userId) &&
+                      styles.highlightedUser,
                   ]}
                 >
                   <Image
                     source={{ uri: worklog.reporter[0].avatarURL }}
                     style={[
                       styles.avatarSmall,
-                      worklog.reporter[0].userId === Number(userId) && styles.avatarHighlighted,
+                      worklog.reporter[0].userId === Number(userId) &&
+                        styles.avatarHighlighted,
                     ]}
                   />
                   <TextCustom
                     style={[
                       styles.userNameSmallHorizontal,
-                      worklog.reporter[0].userId === Number(userId) && styles.userNameHighlighted,
+                      worklog.reporter[0].userId === Number(userId) &&
+                        styles.userNameHighlighted,
                     ]}
                   >
                     {worklog.reporter[0].fullName}
@@ -474,7 +496,6 @@ const WorklogDetailScreen: React.FC<WorklogDetailScreenProps> = ({ route }) => {
               )}
             </ScrollView>
           </View>
-
 
           {/* Replacement */}
           <View style={styles.userList}>
@@ -513,7 +534,6 @@ const WorklogDetailScreen: React.FC<WorklogDetailScreenProps> = ({ route }) => {
                 ? worklog.listGrowthStageName.join(", ")
                 : "N/A"}
             </TextCustom>
-
           </View>
           <View style={styles.detailItem}>
             <CustomIcon
@@ -596,23 +616,22 @@ const WorklogDetailScreen: React.FC<WorklogDetailScreenProps> = ({ route }) => {
       <View style={styles.section}>
         <View style={styles.timelineHeader}>
           <TextCustom style={styles.sectionTitle}>Timeline Notes</TextCustom>
-          {
-            ![UserRole.Owner.toString(), UserRole.Manager.toString()].includes(roleId!) && (
-              <TouchableOpacity
-                style={styles.addNoteButton}
-                onPress={handleAddNote}
-              >
-                <CustomIcon
-                  name="plus"
-                  size={20}
-                  color="#fff"
-                  type="MaterialCommunityIcons"
-                />
-                <TextCustom style={styles.addNoteText}>Add Note</TextCustom>
-              </TouchableOpacity>
-            )
-          }
-
+          {![UserRole.Owner.toString(), UserRole.Manager.toString()].includes(
+            roleId!
+          ) && (
+            <TouchableOpacity
+              style={styles.addNoteButton}
+              onPress={handleAddNote}
+            >
+              <CustomIcon
+                name="plus"
+                size={20}
+                color="#fff"
+                type="MaterialCommunityIcons"
+              />
+              <TextCustom style={styles.addNoteText}>Add Note</TextCustom>
+            </TouchableOpacity>
+          )}
         </View>
         {worklog.listNoteOfWorkLog.length > 0 ? (
           worklog.listNoteOfWorkLog.map((note, index) => (

@@ -1,24 +1,13 @@
-import { GetWorklog, User } from "@/types/worklog";
+import { GetWorklog } from "@/types/worklog";
 import React, { useEffect, useRef, useState } from "react";
 import {
   View,
-  Text,
-  StyleSheet,
   FlatList,
   Image,
-  SafeAreaView,
-  ScrollView,
   Animated,
   TouchableOpacity,
 } from "react-native";
-import {
-  Agenda,
-  DateData,
-  AgendaEntry,
-  AgendaSchedule,
-  TimelineEventProps,
-  Calendar,
-} from "react-native-calendars";
+import { Calendar } from "react-native-calendars";
 import { TimelineCalendar } from "../TimelineCalendar/TimelineCalendar";
 import { styles } from "./WorklogScreen.styles";
 import { PanGestureHandler, State } from "react-native-gesture-handler";
@@ -28,7 +17,6 @@ import { RootStackNavigationProp } from "@/constants/Types";
 import { ROUTE_NAMES } from "@/constants/RouteNames";
 import { SegmentedControl, TextCustom } from "@/components";
 import { worklogService } from "@/services";
-import { getUserId } from "@/utils";
 import { useAuthStore } from "@/store";
 import { UserRole } from "@/constants";
 
@@ -112,7 +100,9 @@ export default function WorklogScreen() {
   const [error, setError] = useState<string | null>(null);
   const [selectedView, setSelectedView] = useState("Agenda");
   const [events, setEvents] = useState<AgendaEvent[]>([]);
-  const [timelineEvents, setTimelineEvents] = useState<{ [key: string]: CustomEventt[] }>({});
+  const [timelineEvents, setTimelineEvents] = useState<{
+    [key: string]: CustomEventt[];
+  }>({});
   const [eventDates, setEventDates] = useState<string[]>([]);
   // const { events, timelineEvents, eventDates } = formatWorkLogsToEvents(data);
   const [selectedDate, setSelectedDate] = useState<string>(
@@ -127,8 +117,9 @@ export default function WorklogScreen() {
   const navigation = useNavigation<RootStackNavigationProp>();
 
   useEffect(() => {
-    const { events, timelineEvents, eventDates } = formatWorkLogsToEvents(worklogs);
-    
+    const { events, timelineEvents, eventDates } =
+      formatWorkLogsToEvents(worklogs);
+
     setEvents(events);
     setTimelineEvents(timelineEvents);
     setEventDates(eventDates);
@@ -137,7 +128,6 @@ export default function WorklogScreen() {
       setSelectedDate(eventDates[0]);
     }
   }, [worklogs]);
-  
 
   const getWeekRange = (selectedDate: string) => {
     const date = new Date(selectedDate);
@@ -171,17 +161,19 @@ export default function WorklogScreen() {
   const fetchData = async () => {
     setIsLoading(true);
     setError(null);
-    
+
     try {
       // const response = await worklogService.getWorklogByUserId(Number(userId));
       let response;
-      if (roleId === UserRole.Owner.toString() || roleId === UserRole.Manager.toString()) {
+      if (
+        roleId === UserRole.Owner.toString() ||
+        roleId === UserRole.Manager.toString()
+      ) {
         response = await worklogService.getWorklog(filters);
       } else {
         response = await worklogService.getWorklogByUserId(Number(userId));
       }
       setWorklogs(response);
-      console.log("Data fetched successfully:", response);
     } catch (error) {
       // console.error("Error fetching worklogs:", error);
       setError("Failed to fetch worklogs. Please try again.");
@@ -293,9 +285,8 @@ export default function WorklogScreen() {
   };
 
   const renderDayItem = ({ item: date }: { item: string }) => {
-    
     const eventsForDate = events.filter((event) => event.date === date);
-    
+
     return (
       <View style={{ marginBottom: 20 }}>
         <View style={styles.dateContainer}>
@@ -411,7 +402,7 @@ export default function WorklogScreen() {
                             style={[
                               styles.weekDateText,
                               date === selectedDate &&
-                              styles.selectedWeekDateText,
+                                styles.selectedWeekDateText,
                             ]}
                           >
                             {new Date(date).getDate()}

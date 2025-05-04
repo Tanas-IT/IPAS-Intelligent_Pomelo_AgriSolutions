@@ -59,8 +59,6 @@ function Dashboard() {
       setLoading((prev) => ({ ...prev, plant: true, harvest: true }));
       const res = await dashboardService.getDashboardData();
       setData(res);
-    } catch (error) {
-      console.log("error", error);
     } finally {
       setLoading((prev) => ({ ...prev, plant: false, harvest: false }));
     }
@@ -94,8 +92,8 @@ function Dashboard() {
     if (compareData && compareResultRef.current) {
       setTimeout(() => {
         compareResultRef.current?.scrollIntoView({
-          behavior: 'smooth',
-          block: 'nearest'
+          behavior: "smooth",
+          block: "nearest",
         });
       }, 100);
     }

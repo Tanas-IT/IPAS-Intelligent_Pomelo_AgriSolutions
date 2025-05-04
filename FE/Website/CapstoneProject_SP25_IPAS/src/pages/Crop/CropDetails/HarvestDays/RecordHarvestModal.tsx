@@ -151,7 +151,6 @@ const RecordHarvestModal = ({
       toast.warning(`Duplicate plants found: ${duplicatePlants.join(", ")}`);
       return;
     }
-    // console.log(getFormData());
     onSave(getFormData());
   };
 

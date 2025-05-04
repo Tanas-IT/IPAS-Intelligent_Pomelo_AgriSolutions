@@ -51,7 +51,6 @@ const columns = [
 
 const PlanTargetTable: React.FC<PlanTargetTableProps> = ({ data }) => {
   const { styles } = useStyle();
-  console.log("dataaa", data);
   return (
     <div>
       <h3 className={style.planTargetTitle}>Plan Target</h3>

@@ -73,7 +73,6 @@ const UpdateProductHarvestModal = ({
 
   const handleOk = async () => {
     await form.validateFields();
-    console.log(getFormData());
     onSave(getFormData());
   };
 

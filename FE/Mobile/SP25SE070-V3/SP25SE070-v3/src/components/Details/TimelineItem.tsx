@@ -2,7 +2,7 @@ import { SYSTEM_CONFIG_GROUP, SYSTEM_CONFIG_KEY } from "@/constants";
 import { useModifyPermission, useSystemConfigOptions } from "@/hooks";
 import { GetPlantGrowthHistory } from "@/payloads";
 import { View } from "native-base";
-import { CustomIcon, TextCustom } from "@/components";
+import { AvatarImage, CustomIcon, TextCustom } from "@/components";
 import { formatDateAndTime } from "@/utils";
 import { TouchableOpacity, Image } from "react-native";
 import { styles } from "./Details.styles";
@@ -52,9 +52,10 @@ export const TimelineItem = <T extends BaseHistory>({
       <View style={styles.timelineContent}>
         <View style={styles.timelineHeader}>
           <View style={styles.timelineDateContainer}>
-            <Image
-              source={{ uri: history.noteTakerAvatar }}
+            <AvatarImage
+              uri={history.noteTakerAvatar}
               style={styles.avatar}
+              iconSize={20}
             />
             <View style={{ flexDirection: "column" }}>
               <View style={{ flexDirection: "row", gap: 10 }}>
