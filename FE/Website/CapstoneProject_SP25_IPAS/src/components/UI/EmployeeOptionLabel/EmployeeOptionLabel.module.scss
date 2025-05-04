@@ -1,0 +1,99 @@
+.container {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  padding: 8px 12px;
+  border-radius: 8px;
+  transition: all 0.2s;
+}
+
+.avatarWrapper {
+  position: relative;
+  width: 32px;
+  height: 32px;
+  flex-shrink: 0;
+}
+
+.avatar {
+  width: 100%;
+  height: 100%;
+  border-radius: 50%;
+  object-fit: cover;
+  border: 2px solid #e6f7ff;
+}
+
+.content {
+  flex: 1;
+  min-width: 0;
+}
+
+.contentRow {
+  display: flex;
+  flex-direction: row;
+  justify-content: center;
+  gap: 8px;
+}
+
+.name {
+  font-weight: 500;
+  color: rgba(0, 0, 0, 0.88);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.skills {
+  display: flex;
+  gap: 6px;
+  flex-wrap: wrap;
+}
+
+.skillItem {
+  display: flex;
+  align-items: center;
+  border-radius: 4px;
+  padding: 2px 6px;
+  font-size: 12px;
+  line-height: 1;
+}
+
+.skillIcon {
+  margin-right: 4px;
+  color: #faad14;
+}
+
+.high {
+  background: #f6ffed;
+  border: 1px solid #b7eb8f;
+}
+
+.low {
+  background: #fafafa;
+  border: 1px solid #d9d9d9;
+}
+
+.skillText {
+  color: rgba(0, 0, 0, 0.65);
+}
+
+.moreSkills {
+  background: #f0f0f0;
+  border-radius: 4px;
+  padding: 2px 6px;
+  font-size: 12px;
+}
+
+.noSkills {
+  font-size: 12px;
+  color: #999;
+}
+
+.tooltipContent {
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+:global(.ant-tooltip-inner) {
+  padding: 10px 12px;
+}
