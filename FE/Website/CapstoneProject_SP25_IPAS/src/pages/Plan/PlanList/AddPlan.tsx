@@ -816,7 +816,7 @@ const AddPlan = () => {
             onOk={() => setShowWorkTypeWarning(false)}
             onCancel={() => setShowWorkTypeWarning(false)}
           >
-            <p>Please select a plan before assigning employees.</p>
+            <p>Please select type of work before assigning employees.</p>
           </Modal>
           {errorMessage && <div style={{ color: "red", marginTop: 8 }}>{errorMessage}</div>}
           <Modal
