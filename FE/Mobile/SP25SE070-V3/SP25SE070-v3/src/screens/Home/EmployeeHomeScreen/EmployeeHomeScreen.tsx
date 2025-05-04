@@ -9,7 +9,7 @@ import {
   Platform,
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
-import { LineChart, BarChart } from "react-native-chart-kit";
+import { LineChart } from "react-native-chart-kit";
 import Toast from "react-native-toast-message";
 import { TextCustom, CustomIcon, StatusBadge } from "@/components";
 import theme from "@/theme";
@@ -18,6 +18,7 @@ import { StatBox } from "../components/StatBox";
 import { reportService } from "@/services";
 import { useAuthStore } from "@/store";
 import { Image } from "native-base";
+import { ActivityIndicator } from "react-native-paper";
 
 const { width, height } = Dimensions.get("window");
 
@@ -75,6 +76,13 @@ const EmployeeHomeScreen = () => {
     fetchData();
   }, []);
 
+  if (loading) {
+    return (
+      <View style={styles.loadingContainer}>
+        <ActivityIndicator size="small" color="#064944" />
+      </View>
+    );
+  }
   const renderTodaysTasks = () => {
     if (!todaysTasks.length) {
       return (
@@ -339,6 +347,12 @@ const EmployeeHomeScreen = () => {
 };
 
 const styles = StyleSheet.create({
+  loadingContainer: {
+    flex: 1,
+    justifyContent: "center",
+    alignItems: "center",
+    backgroundColor: "#fffcee", // nếu bạn muốn có màu nền
+  },
   container: {
     flex: 1,
     backgroundColor: "#fffcee",
@@ -540,6 +554,7 @@ const styles = StyleSheet.create({
   },
   statsSection: {
     marginHorizontal: 16,
+    marginTop: Platform.OS === "ios" ? 0 : 160,
     marginBottom: 16,
   },
   statsRow: {

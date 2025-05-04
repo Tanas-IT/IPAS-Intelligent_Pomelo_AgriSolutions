@@ -7,6 +7,7 @@ import {
   Animated,
   Image,
   Dimensions,
+  Platform,
 } from "react-native";
 import { useNavigation } from "@react-navigation/native";
 import theme from "@/theme";
@@ -132,6 +133,7 @@ const stylesSplash = StyleSheet.create({
     justifyContent: "center",
     alignItems: "center",
     backgroundColor: "#0A1A2A",
+    marginBottom: Platform.OS === "ios" ? 0 : 40,
   },
   backgroundGradient: {
     position: "absolute",

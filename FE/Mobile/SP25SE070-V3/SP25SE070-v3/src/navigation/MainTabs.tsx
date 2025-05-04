@@ -5,6 +5,7 @@ import {
   TouchableOpacity,
   StyleSheet,
   ActivityIndicator,
+  Platform,
 } from "react-native";
 import { MainTabParamList, UserRolesStr } from "@/constants";
 import { HeaderBackButton } from "@react-navigation/elements";
@@ -166,7 +167,7 @@ export default function MainTabs() {
 const styles = StyleSheet.create({
   tabBar: {
     backgroundColor: "white",
-    height: 90,
+    height: Platform.OS === "ios" ? 90 : 65,
     borderTopLeftRadius: 20,
     borderTopRightRadius: 20,
     position: "absolute",
