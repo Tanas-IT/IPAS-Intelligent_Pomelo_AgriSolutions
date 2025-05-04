@@ -659,7 +659,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             {
                 string key = $"{CacheKeyConst.WORKLOG}:{CacheKeyConst.FARM}:{farmId}";
 
-                Expression<Func<WorkLog, bool>> filter = x => x.IsDeleted == false && x.Schedule.IsDeleted == false && x.Schedule.CarePlan.FarmID == farmId;
+                Expression<Func<WorkLog, bool>> filter = x => x.IsDeleted == false && x.Schedule.IsDeleted == false && x.Schedule.FarmID == farmId;
 
                 // Bộ lọc theo ngày
                 if (scheduleFilter.FromDate.HasValue && scheduleFilter.ToDate.HasValue)
@@ -721,7 +721,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
                 // Lấy WorkLogs theo filter
                 var entities = await _unitOfWork.WorkLogRepository.GetWorkLog(filter);
-
+                
                 if (!entities.Any())
                 {
                     return new BusinessResult(200, Const.WARNING_NO_SCHEDULE_MSG, new List<ScheduleModel>());

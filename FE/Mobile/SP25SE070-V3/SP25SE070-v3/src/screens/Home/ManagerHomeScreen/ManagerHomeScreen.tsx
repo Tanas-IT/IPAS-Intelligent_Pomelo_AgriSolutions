@@ -9,7 +9,6 @@ import {
 import { LinearGradient } from "expo-linear-gradient";
 import { useNavigation } from "@react-navigation/native";
 import { PieChart } from "react-native-chart-kit";
-import Toast from "react-native-toast-message";
 import theme from "@/theme";
 import { ROUTE_NAMES } from "@/constants/RouteNames";
 import { RootStackNavigationProp } from "@/constants/Types";
@@ -18,7 +17,8 @@ import { styles } from "./ManagerHomeScreen.styles";
 import { TextCustom } from "@/components";
 import { useAuthStore } from "@/store";
 import { dashboardService } from "@/services";
-import { UserRolesStr } from "@/constants";
+import { StatusPercentage } from "@/types/dashboard";
+import { HEALTH_STATUS, healthStatusColors } from "@/constants";
 
 const { width: screenWidth } = Dimensions.get("window");
 
@@ -32,8 +32,6 @@ interface Alert {
 interface FarmOverview {
   totalPlants: string;
   totalYield: string;
-  healthyTrees: number;
-  diseasedTrees: number;
 }
 
 interface WorkOverview {
@@ -43,16 +41,21 @@ interface WorkOverview {
   overdue: number;
 }
 
-const ManagerHomeScreen = () => {
-  const { fullName, accessToken, roleId } = useAuthStore();
+interface StatusChartItem {
+  name: string;
+  population: number;
+  color: string;
+  legendFontColor: string;
+  legendFontSize: number;
+}
 
+const ManagerHomeScreen = () => {
+  const { fullName } = useAuthStore();
   const navigation = useNavigation<RootStackNavigationProp>();
   const [warnings, setWarnings] = useState<Alert[]>([]);
   const [farmOverview, setFarmOverview] = useState<FarmOverview>({
     totalPlants: "0",
     totalYield: "0 kg",
-    healthyTrees: 0,
-    diseasedTrees: 0,
   });
   const [workOverview, setWorkOverview] = useState<WorkOverview>({
     rejected: 0,
@@ -60,6 +63,7 @@ const ManagerHomeScreen = () => {
     needFeedback: 0,
     overdue: 0,
   });
+  const [statusChartData, setStatusChartData] = useState<StatusChartItem[]>([]);
   const [loading, setLoading] = useState<boolean>(true);
 
   useEffect(() => {
@@ -82,8 +86,6 @@ const ManagerHomeScreen = () => {
         setFarmOverview({
           totalPlants: data.farmOverview.totalPlants.toLocaleString(),
           totalYield: `${data.farmOverview.totalYield.toLocaleString()} kg`,
-          healthyTrees: data.farmOverview.normalPercentage,
-          diseasedTrees: data.farmOverview.deadPercentage,
         });
 
         // Ánh xạ workOverview
@@ -102,6 +104,35 @@ const ManagerHomeScreen = () => {
           needFeedback: workStatusMap.Reviewing,
           overdue: workStatusMap.Overdue,
         });
+
+        const healthStatusOrder = [
+          HEALTH_STATUS.HEALTHY,
+          HEALTH_STATUS.MINOR_ISSUE,
+          HEALTH_STATUS.SERIOUS_ISSUE,
+          HEALTH_STATUS.DEAD,
+        ];
+
+        const sortedStatusPercentage = [
+          ...data.farmOverview.statusPercentage,
+        ].sort(
+          (a, b) =>
+            healthStatusOrder.indexOf(
+              a.healthStatus as keyof typeof HEALTH_STATUS
+            ) -
+            healthStatusOrder.indexOf(
+              b.healthStatus as keyof typeof HEALTH_STATUS
+            )
+        );
+
+        setStatusChartData(
+          sortedStatusPercentage.map((item) => ({
+            name: item.healthStatus,
+            population: item.quantity,
+            color: healthStatusColors[item.healthStatus],
+            legendFontColor: "#FFFFFF",
+            legendFontSize: 14,
+          }))
+        );
       } finally {
         // catch (error: any) {
         //   console.error("Error fetching manager home:", error);
@@ -186,22 +217,7 @@ const ManagerHomeScreen = () => {
               </View>
               <View style={styles.chartContainer}>
                 <PieChart
-                  data={[
-                    {
-                      name: "Healthy",
-                      population: farmOverview.healthyTrees,
-                      color: theme.colors.btnYellow,
-                      legendFontColor: "#FFFFFF",
-                      legendFontSize: 14,
-                    },
-                    {
-                      name: "Unhealthy",
-                      population: farmOverview.diseasedTrees,
-                      color: "#FF6F61",
-                      legendFontColor: "#FFFFFF",
-                      legendFontSize: 14,
-                    },
-                  ]}
+                  data={statusChartData}
                   width={screenWidth - 40}
                   height={200}
                   chartConfig={{
@@ -212,7 +228,7 @@ const ManagerHomeScreen = () => {
                   }}
                   accessor="population"
                   backgroundColor="transparent"
-                  paddingLeft="15"
+                  paddingLeft="4"
                   absolute
                 />
               </View>

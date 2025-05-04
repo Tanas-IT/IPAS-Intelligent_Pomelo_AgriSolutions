@@ -19,5 +19,5 @@ export interface AddUserFarmRequest {
   userId: number;
   roleName: string;
   isActive: boolean;
-  skills: Skill[];
+  skills?: Skill[];
 }

@@ -63,7 +63,7 @@ function AIProcessDetails() {
   let tempIdCounter = -1;
   const navigate = useNavigate();
   const { state } = useLocation();
-  const { processName, isSample } = state || {};
+  const { processName, isSample, masterTypeId, planTargetInProcess } = state || {};
   const [treeData, setTreeData] = useState<CustomTreeDataNode[]>([]);
   const [editingKey, setEditingKey] = useState<string | null>(null);
   const [newTitle, setNewTitle] = useState<string>("");
@@ -97,14 +97,19 @@ function AIProcessDetails() {
   const [editingNode, setEditingNode] = useState<CustomTreeDataNode | null>(null);
 
   const fetchAIProcess = async () => {
-    if (!processName || isSample === undefined) {
-      toast.error("Missing process name or mode");
+    if (!processName || isSample === undefined || !masterTypeId || !planTargetInProcess) {
+      toast.error("Missing required parameters");
       setIsLoading(false);
       return;
     }
     try {
       setIsLoading(true);
-      const response = await processService.getAIRecommendedProcess(processName, isSample);
+      const response = await processService.getAIRecommendedProcess(
+        processName,
+        isSample,
+        masterTypeId,
+        planTargetInProcess
+      );
       console.log("AI process response:", response);
       
       const data = response.data;
@@ -131,7 +136,6 @@ function AIProcessDetails() {
       setIsLoading(false);
     }
   };
-  console.log("Tree data:", treeData);
   
   useEffect(() => {
     const fetchData = async () => {
@@ -278,8 +282,6 @@ function AIProcessDetails() {
   };
 
   const handleAddPlanInSub = (subProcessKey: number, newPlan: AIPlanType) => {
-    console.log("Adding plan to sub-process:", subProcessKey, newPlan);
-    console.log("Tree data before update:", treeData);
 
     setTreeData((prevTree) => {
       let updatedTree = [...prevTree];
@@ -323,7 +325,6 @@ function AIProcessDetails() {
         updatedTree = updateTree(updatedTree);
       }
 
-      console.log("Tree data after update:", updatedTree);
       return updatedTree;
     });
     setIsAddPlanModalOpen(false);
@@ -333,15 +334,21 @@ function AIProcessDetails() {
     nodes: CustomTreeDataNode[],
     parentId: number | null = null,
   ): any[] => {
-    const existingIds = nodes
-      .flatMap((node) => [
-        Number(node.key),
-        ...(node.children?.map((child) => Number(child.key)) || []),
-      ])
-      .filter((id) => !isNaN(id));
-    let tempIdCounter = Math.min(...existingIds, -1) - 1;
+    const flattenAndSort = (nodes: CustomTreeDataNode[]): CustomTreeDataNode[] => {
+      let allNodes: CustomTreeDataNode[] = [];
+      nodes.forEach((node) => {
+        allNodes.push(node);
+        if (node.children) {
+          allNodes = allNodes.concat(flattenAndSort(node.children));
+        }
+      });
+      return allNodes.sort((a, b) => (a.order || 0) - (b.order || 0));
+    };
 
-    return nodes.flatMap((node, index) => {
+    const sortedNodes = flattenAndSort(nodes);
+    let tempIdCounter = Math.min(...sortedNodes.map(n => Number(n.key)), -1) - 1;
+
+    return sortedNodes.flatMap((node, index) => {
       const subProcessId = isNaN(Number(node.key)) ? tempIdCounter-- : Number(node.key);
       const isNewSubProcess = node.status === "add";
       const status = isNewSubProcess
@@ -369,7 +376,6 @@ function AIProcessDetails() {
       return [subProcess, ...convertTreeToList(node.children || [], subProcessId)];
     });
   };
-
   const handleSaveProcess = async () => {
     const ListPlan = plans.map((plan) => ({
       planId: plan.planId,
@@ -393,7 +399,6 @@ function AIProcessDetails() {
       listPlan: ListPlan,
     };
     console.log("Payload for saving process:", payload);
-    
 
     try {
       const res = await processService.createProcessWithSub(payload);
@@ -404,7 +409,6 @@ function AIProcessDetails() {
         toast.warning(res.message);
       }
     } catch (error) {
-      console.error("Error saving AI process:", error);
       toast.warning("Failed to save AI process.");
     }
   };
@@ -456,14 +460,9 @@ function AIProcessDetails() {
     });
   };
 
-  const handleEditPlanInSub = useCallback((subProcessKey: string, plan: AIPlanType) => {
-    setTreeData((prevTree) => updatePlanInSubProcess(prevTree, subProcessKey, plan));
-  }, []);
-
   const handleDeletePlann = useCallback((planId: number, subProcessKey: string) => {
-    console.log("Deleting plan:", planId, "from subProcessKey:", subProcessKey);
     if (planId === undefined || isNaN(planId)) {
-      console.error("Invalid planId, cannot delete plan");
+      console.log("Invalid planId, cannot delete plan");
       return;
     }
     setTreeData((prevTree) => {
@@ -493,7 +492,6 @@ function AIProcessDetails() {
         });
       };
       const updatedTree = updateTree(prevTree);
-      console.log("Tree data after delete:", updatedTree);
       return updatedTree;
     });
   }, []);

@@ -1236,7 +1236,7 @@ VALUES
     (16,'MT016', 'Fertilizing', 'Work', 'Application of nutrients to enhance plant growth', '#D9E5DC', '#4A9C5D', NULL, 0, 1, GETDATE(), 0, 1, 1, 'Fertilizer', 30, 120),
     (17,'MT017', 'Pruning', 'Work', 'Trimming and shaping plants for better growth', '#E3D7B9', '#8D5B3D', NULL, 0, 1, GETDATE(), 0, 1, 0, 'Pruning-Shaping', 20, 90),
     (18,'MT018', 'Pest Control', 'Work', 'Managing and eliminating harmful pests', '#FFE5D9', '#F79C42', NULL, 0, 1, GETDATE(), 0, 1, 0, 'Pest Control', 30, 180),
-    (19,'MT019', 'Harvesting', 'Work', 'Collecting mature crops for use or sale', '#F2F2F2', '#4A4A4A', NULL, 0, 1, GETDATE(), 0, 1, 0, 'Others', 60, 240),
+    (19,'MT019', 'Harvesting', 'Work', 'Collecting mature crops for use or sale', '#F2F2F2', '#4A4A4A', NULL, 0, 1, GETDATE(), 1, NULL, 0, 'Harvesting', 60, 240),
     
 	(20,'MT020', 'Grafting Suitability', 'Criteria', 'Criteria to assess whether a tree is suitable for grafting', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1, NULL, 'GraftedCondition', NULL, NULL),
     (21,'MT021', 'Seedling Selection', 'Criteria', 'Standards for selecting high-quality seedlings for grafting', NULL, NULL, NULL, 0, 1, GETDATE(), 0, 1, NULL, 'GraftedCondition', NULL, NULL),
@@ -1481,8 +1481,8 @@ INSERT INTO ipas.dbo.LandPlot (
     LineSpacing, NumberOfRows, TargetMarket
 ) 
 VALUES 
-    ('LP001', 'Plot A', 500.5, 500, 10, 10, 0.5, 'Loamy', '2024-01-01', '2024-02-01', 'Active', 'Good for vegetables', 1, 0, 0, 1, 10, 'Local Market'),
-    ('LP002', 'Plot B', 300.2, 300, 10, 10, 0.5, 'Sandy', '2024-01-05', '2024-02-10', 'Active', 'Best for root crops', 1, 0, 0, 1, 10, 'Export');
+    ('LP001', 'Plot A', 1500.5, 50, 30, 10, 0.5, 'Loamy', '2024-01-01', '2024-02-01', 'Active', 'Good for vegetables', 1, 0, 0, 1, 10, 'Local Market'),
+    ('LP002', 'Plot B', 900.2, 30, 30, 10, 0.5, 'Sandy', '2024-01-05', '2024-02-10', 'Active', 'Best for root crops', 1, 0, 0, 1, 10, 'Export');
 
 
 INSERT INTO ipas.dbo.LandPlotCoordination (LandPlotCoordinationCode, Longitude, Latitude, LandPlotID)  
@@ -1503,27 +1503,28 @@ VALUES
 INSERT INTO [ipas].dbo.LandRow 
 ( LandRowCode, RowIndex, TreeAmount, Distance, [Length], Width, Direction, CreateDate, UpdateDate, Status, Description, LandPlotID) 
 VALUES
-( 'LR001', 1, 5, 10, 210, 50, 'Vertical', '2024-01-01', '2024-01-05', 'Active', 'Row for tomatoes', 1),
-( 'LR002', 2, 5, 10, 210, 50, 'Vertical', '2024-01-02', '2024-01-06', 'Active', 'Row for lettuce', 1),
-( 'LR003', 3, 5, 10, 210, 50, 'Vertical', '2024-01-03', '2024-01-07', 'Active', 'Row for carrots', 1),
-( 'LR004', 4, 5, 10, 210, 50, 'Vertical', '2024-01-01', '2024-01-05', 'Active', 'Row for tomatoes', 1),
-( 'LR005', 5, 5, 10, 210, 50, 'Vertical', '2024-01-02', '2024-01-06', 'Active', 'Row for lettuce', 1),
-( 'LR006', 6, 5, 10, 210, 50, 'Vertical', '2024-01-03', '2024-01-07', 'Active', 'Row for carrots', 1),
-( 'LR007', 7, 5, 10, 210, 50, 'Vertical', '2024-01-01', '2024-01-05', 'Active', 'Row for tomatoes', 1),
-( 'LR008', 8, 5, 10, 210, 50, 'Vertical', '2024-01-02', '2024-01-06', 'Active', 'Row for lettuce', 1),
-( 'LR009', 9, 5, 10, 210, 50, 'Vertical', '2024-01-03', '2024-01-07', 'Active', 'Row for carrots', 1),
-( 'LR010', 10, 5, 10, 210, 50, 'Vertical', '2024-01-03', '2024-01-07', 'Active', 'Row for carrots', 1),
+( 'LR001', 1, 5, 0.5, 30, 5, 'Vertical', '2024-01-01', '2024-01-05', 'Active', 'Row for tomatoes', 1),
+( 'LR002', 2, 5, 0.5, 30, 5, 'Vertical', '2024-01-02', '2024-01-06', 'Active', 'Row for lettuce', 1),
+( 'LR003', 3, 5, 0.5, 30, 5, 'Vertical', '2024-01-03', '2024-01-07', 'Active', 'Row for carrots', 1),
+( 'LR004', 4, 5, 0.5, 30, 5, 'Vertical', '2024-01-01', '2024-01-05', 'Active', 'Row for tomatoes', 1),
+( 'LR005', 5, 5, 0.5, 30, 5, 'Vertical', '2024-01-02', '2024-01-06', 'Active', 'Row for lettuce', 1),
+( 'LR006', 6, 5, 0.5, 30, 5, 'Vertical', '2024-01-03', '2024-01-07', 'Active', 'Row for carrots', 1),
+( 'LR007', 7, 5, 0.5, 30, 5, 'Vertical', '2024-01-01', '2024-01-05', 'Active', 'Row for tomatoes', 1),
+( 'LR008', 8, 5, 0.5, 30, 5, 'Vertical', '2024-01-02', '2024-01-06', 'Active', 'Row for lettuce', 1),
+( 'LR009', 9, 5, 0.5, 30, 5, 'Vertical', '2024-01-03', '2024-01-07', 'Active', 'Row for carrots', 1),
+( 'LR010', 10, 5, 0.5, 30, 5, 'Vertical', '2024-01-03', '2024-01-07', 'Active', 'Row for carrots', 1),
 
-( 'LR011', 1, 5, 10, 210, 50, 'Vertical', '2024-01-01', '2024-01-05', 'Active', 'Row for tomatoes', 2),
-( 'LR012', 2, 5, 10, 210, 50, 'Vertical', '2024-01-02', '2024-01-06', 'Active', 'Row for lettuce', 2),
-( 'LR013', 3, 5, 10, 210, 50, 'Vertical', '2024-01-03', '2024-01-07', 'Active', 'Row for carrots', 2),
-( 'LR014', 4, 5, 10, 210, 50, 'Vertical', '2024-01-01', '2024-01-05', 'Active', 'Row for tomatoes', 2),
-( 'LR015', 5, 5, 10, 210, 50, 'Vertical', '2024-01-02', '2024-01-06', 'Active', 'Row for lettuce', 2),
-( 'LR016', 6, 5, 10, 210, 50, 'Vertical', '2024-01-03', '2024-01-07', 'Active', 'Row for carrots', 2),
-( 'LR017', 7, 5, 10, 210, 50, 'Vertical', '2024-01-01', '2024-01-05', 'Active', 'Row for tomatoes', 2),
-( 'LR018', 8, 5, 10, 210, 50, 'Vertical', '2024-01-02', '2024-01-06', 'Active', 'Row for lettuce', 2),
-( 'LR019', 9, 5, 10, 210, 50, 'Vertical', '2024-01-03', '2024-01-07', 'Active', 'Row for carrots', 2),
-( 'LR020', 10, 5, 10, 210, 50, 'Vertical', '2024-01-03', '2024-01-07', 'Active', 'Row for carrots', 2);
+( 'LR011', 1, 5, 0.5, 30, 3, 'Vertical', '2024-01-01', '2024-01-05', 'Active', 'Row for tomatoes', 2),
+( 'LR012', 2, 5, 0.5, 30, 3, 'Vertical', '2024-01-02', '2024-01-06', 'Active', 'Row for lettuce', 2),
+( 'LR013', 3, 5, 0.5, 30, 3, 'Vertical', '2024-01-03', '2024-01-07', 'Active', 'Row for carrots', 2),
+( 'LR014', 4, 5, 0.5, 30, 3, 'Vertical', '2024-01-01', '2024-01-05', 'Active', 'Row for tomatoes', 2),
+( 'LR015', 5, 5, 0.5, 30, 3, 'Vertical', '2024-01-02', '2024-01-06', 'Active', 'Row for lettuce', 2),
+( 'LR016', 6, 5, 0.5, 30, 3, 'Vertical', '2024-01-03', '2024-01-07', 'Active', 'Row for carrots', 2),
+( 'LR017', 7, 5, 0.5, 30, 3, 'Vertical', '2024-01-01', '2024-01-05', 'Active', 'Row for tomatoes', 2),
+( 'LR018', 8, 5, 0.5, 30, 3, 'Vertical', '2024-01-02', '2024-01-06', 'Active', 'Row for lettuce', 2),
+( 'LR019', 9, 5, 0.5, 30, 3, 'Vertical', '2024-01-03', '2024-01-07', 'Active', 'Row for carrots', 2),
+( 'LR020', 10, 5, 0.5, 30, 3, 'Vertical', '2024-01-03', '2024-01-07', 'Active', 'Row for carrots', 2);
+
 
 
 
@@ -1540,6 +1541,43 @@ VALUES
 ('P008', 'Green Skin Pomelo H', 3, 'Healthy', '2024-02-08', '2024-02-12', '2024-01-02', NULL, 'Green Skin Pomelo - Type H', 9, 'https://example.com/pomeloH.jpg', 2, 2, 1),
 ('P009', 'Green Skin Pomelo I', 4, 'Healthy', '2020-2-1', '2020-2-1', '2020-2-1', NULL, 'Green Skin Pomelo - Type I', 9, 'https://example.com/pomeloI.jpg', 2, 3, 1),
 ('P010', 'Green Skin Pomelo J', 5, 'Healthy', '2020-2-11', '2020-2-1', '2020-2-1', NULL, 'Green Skin Pomelo - Type J', 9, 'https://example.com/pomeloJ.jpg', 2, 4, 1);
+
+-- Fake thêm 30 cây cho LandPlotID = 1 (LandRowID 1–10)
+INSERT INTO [ipas].dbo.Plant 
+(PlantCode, PlantName, PlantIndex, HealthStatus, CreateDate, UpdateDate, PlantingDate, PlantReferenceID, Description, MasterTypeID, ImageURL, LandRowID, GrowthStageID, FarmID) 
+VALUES
+('P011', 'Green Skin Pomelo K', 1, 'Healthy', '2024-03-01', '2024-03-05', '2024-02-25', NULL, 'Green Skin Pomelo - Type K', 9, 'https://example.com/pomeloK.jpg', 3, 2, 1),
+('P012', 'Green Skin Pomelo L', 2, 'Healthy', '2024-03-02', '2024-03-06', '2024-02-24', NULL, 'Green Skin Pomelo - Type L', 9, 'https://example.com/pomeloL.jpg', 3, 2, 1),
+('P013', 'Green Skin Pomelo M', 3, 'Minor Issues', '2024-03-03', '2024-03-07', '2024-02-23', NULL, 'Green Skin Pomelo - Type M', 9, 'https://example.com/pomeloM.jpg', 3, 2, 1),
+('P014', 'Green Skin Pomelo N', 4, 'Healthy', '2024-03-04', '2024-03-08', '2024-02-22', NULL, 'Green Skin Pomelo - Type N', 9, 'https://example.com/pomeloN.jpg', 3, 2, 1),
+('P015', 'Green Skin Pomelo O', 5, 'Healthy', '2024-03-05', '2024-03-09', '2024-02-21', NULL, 'Green Skin Pomelo - Type O', 9, 'https://example.com/pomeloO.jpg', 3, 2, 1),
+('P016', 'Green Skin Pomelo P', 1, 'Minor Issues', '2024-03-06', '2024-03-10', '2024-02-20', NULL, 'Green Skin Pomelo - Type P', 9, 'https://example.com/pomeloP.jpg', 4, 2, 1),
+('P017', 'Green Skin Pomelo Q', 2, 'Healthy', '2024-03-07', '2024-03-11', '2024-02-19', NULL, 'Green Skin Pomelo - Type Q', 9, 'https://example.com/pomeloQ.jpg', 4, 2, 1),
+('P018', 'Green Skin Pomelo R', 3, 'Healthy', '2024-03-08', '2024-03-12', '2024-02-18', NULL, 'Green Skin Pomelo - Type R', 9, 'https://example.com/pomeloR.jpg', 4, 2, 1),
+('P019', 'Green Skin Pomelo S', 4, 'Healthy', '2024-03-09', '2024-03-13', '2024-02-17', NULL, 'Green Skin Pomelo - Type S', 9, 'https://example.com/pomeloS.jpg', 4, 2, 1),
+('P020', 'Green Skin Pomelo T', 5, 'Healthy', '2024-03-10', '2024-03-14', '2024-02-16', NULL, 'Green Skin Pomelo - Type T', 9, 'https://example.com/pomeloT.jpg', 4,2, 1),
+
+('P021', 'Green Skin Pomelo U', 1, 'Healthy', '2024-03-11', '2024-03-15', '2024-02-15', NULL, 'Green Skin Pomelo - Type U', 9, 'https://example.com/pomeloU.jpg', 5, 2,1),
+('P022', 'Green Skin Pomelo V', 2, 'Healthy', '2024-03-12', '2024-03-16', '2024-02-14', NULL, 'Green Skin Pomelo - Type V', 9, 'https://example.com/pomeloV.jpg', 5,2,1),
+('P023', 'Green Skin Pomelo W',3, 'Minor Issues','2024-03-13','2024-03-17','2024-02-13',NULL,'Green Skin Pomelo - Type W',9,'https://example.com/pomeloW.jpg',5,2,1),
+('P024', 'Green Skin Pomelo X',4, 'Healthy', '2024-03-14','2024-03-18','2024-02-12',NULL,'Green Skin Pomelo - Type X',9,'https://example.com/pomeloX.jpg',5,2,1),
+('P025', 'Green Skin Pomelo Y',5, 'Healthy', '2024-03-15','2024-03-19','2024-02-11',NULL,'Green Skin Pomelo - Type Y',9,'https://example.com/pomeloY.jpg',5,2,1),
+('P026', 'Green Skin Pomelo Z',1, 'Minor Issues','2024-03-16','2024-03-20','2024-02-10',NULL,'Green Skin Pomelo - Type Z',9,'https://example.com/pomeloZ.jpg',6,2,1),
+('P027', 'Green Skin Pomelo AA',2,'Healthy','2024-03-17','2024-03-21','2024-02-09',NULL,'Green Skin Pomelo - Type AA',9,'https://example.com/pomeloAA.jpg',6,2,1),
+('P028', 'Green Skin Pomelo AB',3,'Healthy','2024-03-18','2024-03-22','2024-02-08',NULL,'Green Skin Pomelo - Type AB',9,'https://example.com/pomeloAB.jpg',6,2,1),
+('P029', 'Green Skin Pomelo AC',4,'Healthy','2024-03-19','2024-03-23','2024-02-07',NULL,'Green Skin Pomelo - Type AC',9,'https://example.com/pomeloAC.jpg',6,2,1),
+('P030', 'Green Skin Pomelo AD',5,'Healthy','2024-03-20','2024-03-24','2024-02-06',NULL,'Green Skin Pomelo - Type AD',9,'https://example.com/pomeloAD.jpg',6,2,1),
+
+('P031', 'Green Skin Pomelo AE',1,'Healthy','2024-03-21','2024-03-25','2024-02-05',NULL,'Green Skin Pomelo - Type AE',9,'https://example.com/pomeloAE.jpg',7,1,1),
+('P032', 'Green Skin Pomelo AF',2,'Healthy','2024-03-22','2024-03-26','2024-02-04',NULL,'Green Skin Pomelo - Type AF',9,'https://example.com/pomeloAF.jpg',7,1,1),
+('P033', 'Green Skin Pomelo AG',3,'Minor Issues','2024-03-23','2024-03-27','2024-02-03',NULL,'Green Skin Pomelo - Type AG',9,'https://example.com/pomeloAG.jpg',7,1,1),
+('P034', 'Green Skin Pomelo AH',4,'Healthy','2024-03-24','2024-03-28','2024-02-02',NULL,'Green Skin Pomelo - Type AH',9,'https://example.com/pomeloAH.jpg',7,1,1),
+('P035', 'Green Skin Pomelo AI',5,'Healthy','2024-03-25','2024-03-29','2024-02-01',NULL,'Green Skin Pomelo - Type AI',9,'https://example.com/pomeloAI.jpg',7,1,1),
+('P036', 'Green Skin Pomelo AJ',1,'Minor Issues','2024-03-26','2024-03-30','2024-01-31',NULL,'Green Skin Pomelo - Type AJ',9,'https://example.com/pomeloAJ.jpg',8,1,1),
+('P037', 'Green Skin Pomelo AK',2,'Healthy','2024-03-27','2024-03-31','2024-01-30',NULL,'Green Skin Pomelo - Type AK',9,'https://example.com/pomeloAK.jpg',8,1,1),
+('P038', 'Green Skin Pomelo AL',3,'Healthy','2024-03-28','2024-04-01','2024-01-29',NULL,'Green Skin Pomelo - Type AL',9,'https://example.com/pomeloAL.jpg',8,1,1),
+('P039', 'Green Skin Pomelo AM',4,'Healthy','2024-03-29','2024-04-02','2024-01-28',NULL,'Green Skin Pomelo - Type AM',9,'https://example.com/pomeloAM.jpg',8,1,1),
+('P040', 'Green Skin Pomelo AN',5,'Healthy','2024-03-30','2024-04-03','2024-01-27',NULL,'Green Skin Pomelo - Type AN',9,'https://example.com/pomeloAN.jpg',8,1,1);
 
 UPDATE [ipas].dbo.Plant
 SET isPassed = 0;
@@ -1585,7 +1623,7 @@ VALUES
 (N'CRP008', N'Autumn Harvest 2024', '2024-10-01', '2024-12-31', '2024-03-10', '2025-01-05', '2024-11-01', '2025-01-10', N'Pomelo Fall Harvest', 5200, 5100, 0, N'Completed', N'Needs more care', 1000, 1),
 
 -- 2025
-(N'CRP009', N'Winter Harvest 2025', '2025-01-01', '2025-03-31', '2024-12-10', '2025-04-10', '2025-02-01', '2025-04-05', N'Pomelo Winter Harvest', 5300, 5200, 0, N'Completed', N'Excellent growth', 1200, 1);
+(N'CRP009', N'Winter Harvest 2025', '2025-01-01', '2025-06-30', '2024-12-10', '2025-04-10', '2025-02-01', '2025-04-05', N'Pomelo Winter Harvest', 5300, 5200, 0, N'In Crop', N'Excellent growth', 2500, 1);
 
 
 -- Insert fake data into LandPlotCrop (Mapping crops to land plots)
@@ -1598,7 +1636,8 @@ VALUES
 (1, 5),
 (1, 6),
 (2, 7),
-(1, 8);
+(1, 8),
+(1, 9);
 
 INSERT INTO [ipas].dbo.HarvestHistory 
     (HarvestHistoryCode, DateHarvest, HarvestHistoryNote, TotalPrice, HarvestStatus, CropID)
@@ -1724,9 +1763,6 @@ VALUES
     (31, 8, N'kg', 7000.0, 6600.0, 90, 85, 7),  -- HarvestHistoryID 7
     (32, 8, N'kg', 7300.4, 6900.0, 95, 90, 8);  -- HarvestHistoryID 8
 
-UPDATE ipas.dbo.ProductHarvestHistory
-SET UserID = 1, RecordDate = GETDATE()
-WHERE UserID IS NULL;
 
 INSERT INTO [ipas].dbo.Process 
 (ProcessCode, ProcessName, isDefault, isActive, CreateDate, UpdateDate, IsDeleted, GrowthStageID, MasterTypeID, IsSample, FarmID)  
@@ -2158,6 +2194,7 @@ VALUES
 INSERT INTO SystemConfiguration (ConfigGroup, ConfigKey, ConfigValue, ValueType, Description)
 VALUES 
 ('Work','Watering', 'Watering', 'string', 'Watering'),
+('Work','Harvesting', 'Harvesting', 'string', 'Harvesting'),
 ('Work','Fertilizer', 'Fertilizer', 'string', 'Fertilizer'),
 ('Work','SprayingPesticides', 'Spraying Pesticides', 'string', 'Spraying Pesticides'),
 ('Work','PruningShaping', 'Pruning-Shaping', 'string', 'Pruning-Shaping'),
@@ -2621,13 +2658,13 @@ DECLARE @SubProcess2 INT = (SELECT TOP 1 SubProcessID FROM SubProcess WHERE SubP
 --DECLARE @SubProcess4 INT = (SELECT TOP 1 SubProcessID FROM SubProcess WHERE SubProcessCode = 'SP004' ORDER BY SubProcessID ASC);
 DECLARE @SubProcess5 INT = (SELECT TOP 1 SubProcessID FROM SubProcess WHERE SubProcessCode = 'SP005' ORDER BY SubProcessID ASC);
 
-INSERT INTO [Plan] (PlanCode, PlanName, PlanDetail, Notes, Status, CreateDate, StartDate, EndDate, IsActive, SubProcessID, FarmID, IsSample)
+INSERT INTO [Plan] (PlanCode, PlanName, PlanDetail, Notes, Status, CreateDate, StartDate, EndDate, IsActive, SubProcessID, FarmID, IsSample, AssignorID)
 VALUES
-(N'PL002', N'Initial survey', 'Survey the condition of grapefruit trees and collect data on suspected pests and diseases','Capture images, locations and use AI to help identify pests', N'Active', GETDATE(), NULL, NULL, 1, @SubProcess1, 1, 1),
-(N'PL003', N'Trim and clean', 'Prune to create canopy, remove diseased branches and clean the base of the tree', 'Make sure tools are clean, avoid spreading pathogens when pruning, and properly collect plant debris', N'Active', GETDATE(), NULL, NULL, 1, @SubProcess2, 1,1 ),
+(N'PL002', N'Initial survey', 'Survey the condition of grapefruit trees and collect data on suspected pests and diseases','Capture images, locations and use AI to help identify pests', N'Active', GETDATE(), NULL, NULL, 1, @SubProcess1, 1, 1,3),
+(N'PL003', N'Trim and clean', 'Prune to create canopy, remove diseased branches and clean the base of the tree', 'Make sure tools are clean, avoid spreading pathogens when pruning, and properly collect plant debris', N'Active', GETDATE(), NULL, NULL, 1, @SubProcess2, 1,1,3 ),
 --(N'PL004', N'Phun thuốc trị sâu vẽ bùa lần 1', N'Active', GETDATE(), NULL, NULL, 1, @SubProcess3, 1, 1 ),
 --(N'PL005', N'Theo dõi sau phun', N'Active', GETDATE(), NULL, NULL, 1, @SubProcess4, 1, 1),
-(N'PL006', N'Fertilizer restoration', 'Fertilize after harvest to help grapefruit trees regenerate nutrients and grow stably', 'Use organic fertilizer combined with NPK, apply into furrows 30-50cm from the base, avoid applying when it rains', N'Active', GETDATE(), NULL, NULL, 1, @SubProcess5, 1, 1);
+(N'PL006', N'Fertilizer restoration', 'Fertilize after harvest to help grapefruit trees regenerate nutrients and grow stably', 'Use organic fertilizer combined with NPK, apply into furrows 30-50cm from the base, avoid applying when it rains', N'Active', GETDATE(), NULL, NULL, 1, @SubProcess5, 1, 1,3);
 
 
 -- Declare variables
@@ -2846,3 +2883,82 @@ END
 
 CLOSE SubProcessCursor;
 DEALLOCATE SubProcessCursor;
+
+GO
+DECLARE @i INT = 1;
+DECLARE @HarvestHistoryID INT;
+DECLARE @ScheduleID INT;
+DECLARE @WorkLogID INT;
+DECLARE @UserID3 INT, @UserID4 INT;
+DECLARE @MasterTypeID INT;
+
+-- Lấy 2 UserID có RoleId = 5
+SELECT TOP 1 @UserID3 = UserID FROM [ipas].dbo.UserFarm WHERE RoleId = 5;
+SELECT TOP 1 @UserID4 = UserID FROM [ipas].dbo.UserFarm WHERE RoleId = 5 AND UserID <> @UserID3;
+
+WHILE @i <= 10
+BEGIN
+    DECLARE @CropID INT = 9 ;
+    DECLARE @Code NVARCHAR(10) = 'HH' + RIGHT('00' + CAST(100 + @i AS NVARCHAR),3);
+    DECLARE @DaysAgo INT = 1 + ABS(CHECKSUM(NEWID())) % 30; -- random từ 1-30 ngày trước
+    DECLARE @HarvestDate DATETIME = DATEADD(DAY, -@DaysAgo, GETDATE());
+
+    INSERT INTO [ipas].dbo.HarvestHistory 
+        (HarvestHistoryCode, DateHarvest, HarvestHistoryNote, TotalPrice, HarvestStatus, CropID)
+    VALUES 
+        (@Code, @HarvestDate, 'Auto generated harvest ' + CAST(@i AS NVARCHAR), 10000 + @i * 1000, 'Completed', @CropID);
+
+    SET @HarvestHistoryID = SCOPE_IDENTITY();
+
+    -- Random MasterTypeID = 30 hoặc 31
+    SET @MasterTypeID = CASE WHEN ABS(CHECKSUM(NEWID())) % 2 = 0 THEN 30 ELSE 31 END;
+
+    -- Dòng tổng sản phẩm (PlantID = NULL)
+    INSERT INTO [ipas].dbo.ProductHarvestHistory 
+        (MasterTypeID, PlantID, Unit, Revenue, CostPrice, QuantityNeed, ActualQuantity, HarvestHistoryID)
+    VALUES 
+        (@MasterTypeID, NULL, N'kg', 10000.0, 9500.0, 150, NULL, @HarvestHistoryID);
+
+    -- Dòng ghi nhận cây (PlantID != NULL)
+    DECLARE @j INT = 1;
+    DECLARE @num INT = 10 + ABS(CHECKSUM(NEWID())) % 11; -- 10-20 dòng
+    WHILE @j <= @num
+    BEGIN
+        DECLARE @PlantID INT = 9 + ABS(CHECKSUM(NEWID())) % 12; -- 9-20
+        DECLARE @Revenue FLOAT = 1000 + ABS(CHECKSUM(NEWID())) % 500;
+        DECLARE @CostPrice FLOAT = @Revenue - 100;
+        DECLARE @QuantityNeed INT = 10 + ABS(CHECKSUM(NEWID())) % 20;
+        DECLARE @ActualQuantity INT = @QuantityNeed + ABS(CHECKSUM(NEWID())) % 10;
+
+        INSERT INTO [ipas].dbo.ProductHarvestHistory 
+            (MasterTypeID, PlantID, Unit, Revenue, CostPrice, QuantityNeed, ActualQuantity, HarvestHistoryID)
+        VALUES 
+            (@MasterTypeID, @PlantID, N'kg', @Revenue, @CostPrice, @QuantityNeed, @ActualQuantity, @HarvestHistoryID);
+
+        SET @j = @j +1;
+    END
+
+    -- Thêm CarePlanSchedule
+    INSERT INTO ipas.dbo.CarePlanSchedule (DayOfWeek, Status, StartTime, EndTime, HarvestHistoryID, FarmID)
+    VALUES (DATENAME(WEEKDAY, @HarvestDate), 'Completed', '08:00:00', '12:00:00', @HarvestHistoryID, 1);
+
+    SET @ScheduleID = SCOPE_IDENTITY();
+
+    -- Thêm WorkLog
+    INSERT INTO ipas.dbo.WorkLog (WorkLogCode, WorkLogName, Status, [Date], ScheduleID)
+    VALUES ('WL' + CAST(@HarvestHistoryID AS NVARCHAR), 'Auto WorkLog ' + CAST(@i AS NVARCHAR), 'Completed', @HarvestDate, @ScheduleID);
+
+    SET @WorkLogID = SCOPE_IDENTITY();
+
+    -- Thêm UserWorkLog
+    INSERT INTO [ipas].dbo.UserWorkLog (WorkLogID, UserID, IsReporter, CreateDate)
+    VALUES 
+    (@WorkLogID, @UserID3, 1, @HarvestDate),
+    (@WorkLogID, @UserID4, 0, @HarvestDate);
+
+    SET @i = @i +1;
+END
+UPDATE ipas.dbo.ProductHarvestHistory
+SET UserID = 1, RecordDate = GETDATE()
+WHERE UserID IS NULL;
+

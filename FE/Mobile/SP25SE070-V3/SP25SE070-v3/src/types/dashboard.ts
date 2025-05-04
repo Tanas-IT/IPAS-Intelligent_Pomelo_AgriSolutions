@@ -1,12 +1,14 @@
+export interface StatusPercentage {
+  healthStatus: string;
+  quantity: number;
+}
+
 export interface ManagerHomeData {
   warning: string[];
   farmOverview: {
     totalPlants: number;
     totalYield: number;
-    normalCount: number;
-    deadCount: number;
-    normalPercentage: number;
-    deadPercentage: number;
+    statusPercentage: StatusPercentage[];
   };
   workOverview: {
     status: string;

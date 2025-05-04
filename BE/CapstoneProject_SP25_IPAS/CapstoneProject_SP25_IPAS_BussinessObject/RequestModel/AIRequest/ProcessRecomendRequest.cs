@@ -10,5 +10,8 @@ namespace CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.AIRequest
     {
         public string processName { get; set; }
         public bool? isSample { get; set; } = false;
+        public int? MasterTypeId { get; set; }
+        public int? PlanTargetInProcess { get; set; }
+
     }
 }

@@ -389,7 +389,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                                         })
                                                         .ToList()
                                     })
-                                    .ToList();
+                                    .OrderByDescending(x => x.Year).ToList();
             return result;
         }
 
@@ -1212,15 +1212,15 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 var getAllPlantOfFarm = await _unitOfWork.PlantRepository.GetAllPlantByFarmId(farmId);
                 var total = getAllPlantOfFarm.Count;
 
-                var statusOfPlant = new[] { "Minor Issues", "Healthy", "Serious Issues" };
+                var statusOfPlant = new[] { "Minor Issues", "Healthy", "Serious Issues", "Dead" };
 
                 var statusPercentage = statusOfPlant
-                             .Select(status => new
-                             {
-                                 HealthStatus = status,
-                                 Quantity = getAllPlantOfFarm
-                                     .Count(x => (x.HealthStatus ?? "Unknown") == (status ?? "Unknown"))
-                             }).ToList();
+                                      .Select(status => new
+                                      {
+                                          HealthStatus = status,
+                                          Quantity = getAllPlantOfFarm.Count(x =>
+                                              ((x.HealthStatus ?? "Unknown").ToLower()) == ((status ?? "Unknown").ToLower()))
+                                      }).ToList();
 
                 var getAllCrop = await _unitOfWork.CropRepository.GetAllCropByFarmId(farmId);
                 var totalYield = getAllCrop.Sum(x => x.ActualYield);

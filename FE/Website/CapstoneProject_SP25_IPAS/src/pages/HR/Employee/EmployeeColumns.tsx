@@ -42,7 +42,7 @@ export const EmployeeColumns: TableColumn<GetEmployee>[] = [
     accessor: (item) => {
       return (
         <Flex gap={4} wrap="wrap" justify="center">
-          {item.skills?.length ? (
+          {item.skills?.length > 0 && item.skills[0].skillName ? (
             item.skills.map((skill, index) => (
               <Tooltip key={index} title={`Score: ${skill.scoreOfSkill}`}>
                 <Tag color="green" style={{ margin: 0, cursor: "pointer" }}>

@@ -1,5 +1,4 @@
 import { axiosAuth } from "@/api";
-import { ROLE } from "@/constants";
 import { AddUserFarmRequest, ApiResponse, GetData, GetEmployee, GetUserRoleEmployee } from "@/payloads";
 import { buildParams } from "@/utils";
 

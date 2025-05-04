@@ -153,16 +153,18 @@ export const getProcessOfFarmByMasterType = async (processIds: number[]) => {
   }));
 };
 
-  export const getAIRecommendedProcess = async (
-    processName: string,
-    isSample: boolean,
-  ): Promise<ApiResponse<AIProcessResponse>> => {
-    const encodedProcessName = encodeURIComponent(processName);
-    const res = await axiosAuth.axiosJsonRequest.get(
-      `/ai/proceess/recomend-with-ai?processName=${encodedProcessName}&isSample=${isSample}`,
-    );
-    return res.data as ApiResponse<AIProcessResponse>;
-  };
+export const getAIRecommendedProcess = async (
+  processName: string,
+  isSample: boolean,
+  masterTypeId: number,
+  planTargetInProcess: number,
+): Promise<ApiResponse<AIProcessResponse>> => {
+  const encodedProcessName = encodeURIComponent(processName);
+  const res = await axiosAuth.axiosJsonRequest.get(
+    `/ai/process/recommend-with-ai?processName=${encodedProcessName}&isSample=${isSample}&MasterTypeId=${masterTypeId}&PlanTargetInProcess=${planTargetInProcess}`,
+  );
+  return res.data as ApiResponse<AIProcessResponse>;
+};
 
   export const createProcessWithSub = async (
     payload: AICreateProcessRequest,

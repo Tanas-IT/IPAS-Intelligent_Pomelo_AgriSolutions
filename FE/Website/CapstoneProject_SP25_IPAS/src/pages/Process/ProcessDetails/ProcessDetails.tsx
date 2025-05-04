@@ -34,6 +34,7 @@ interface SubProcess {
   parentSubProcessId?: number;
   listSubProcessData?: SubProcess[];
   // listPlan?: PlanType[];
+  order: number;
   listPlanIsSampleTrue: PlanType[];
 }
 
@@ -54,11 +55,13 @@ const mapSubProcessesToTree = (
   subProcesses: SubProcess[],
   parentId?: number,
 ): CustomTreeDataNode[] => {
-  return subProcesses
+  const sortedSubProcesses = [...subProcesses].sort((a, b) => (a.order || 0) - (b.order || 0));
+  return sortedSubProcesses
     .filter((sp) => sp.parentSubProcessId === parentId)
     .map((sp) => ({
       title: sp.subProcessName,
       key: sp.subProcessId.toString(),
+      order: sp.order,
       listPlan: sp.listPlanIsSampleTrue || [],
       children: mapSubProcessesToTree(subProcesses, sp.subProcessId),
     }));
@@ -135,7 +138,6 @@ function ProcessDetails() {
         setPlans([]);
       }
     } catch (error) {
-      console.error("Failed to fetch process details", error);
       toast.warning("Failed to fetch process details. Please try again later.");
     } finally {
       setIsLoading(false);
@@ -318,46 +320,62 @@ function ProcessDetails() {
     nodes: CustomTreeDataNode[],
     parentId: number | null = null,
   ): any[] => {
-    return nodes.flatMap((node, index) => {
-      const subProcessId = isNaN(Number(node.key)) ? tempIdCounter-- : Number(node.key);
-      const isNewSubProcess = node.status === "add";
-      const status = isNewSubProcess
-        ? "add"
-        : node.listPlan?.some((plan) => ["add", "update", "delete"].includes(plan.planStatus))
-          ? "update"
-          : node.status || "no_change";
+    const flattenAndSort = (nodes: CustomTreeDataNode[], parentKey: string | null = null): any[] => {
+      let allNodes: any[] = [];
+      nodes.forEach((node, index) => {
+        const subProcessId = isNaN(Number(node.key)) ? tempIdCounter-- : Number(node.key);
+        const isNewSubProcess = node.status === "add";
+        const status = isNewSubProcess
+          ? "add"
+          : node.status === "update" || node.order !== undefined
+            ? "update" // Đánh dấu là "update" nếu có order thay đổi
+            : node.listPlan?.some((plan) => ["add", "update", "delete"].includes(plan.planStatus))
+              ? "update"
+              : "no_change";
 
-      const hasChangedPlan = node.listPlan?.some((plan) =>
-        ["add", "update", "delete"].includes(plan.planStatus),
-      );
+        const hasChangedPlan = node.listPlan?.some((plan) =>
+          ["add", "update", "delete"].includes(plan.planStatus),
+        );
+        console.log("hasUpdatedPlan", hasChangedPlan);
 
-      const subProcess = {
-        SubProcessId: subProcessId,
-        SubProcessName: node.title || "New Task",
-        ParentSubProcessId: parentId,
-        IsDefault: true,
-        IsActive: true,
-        MasterTypeId: Number(node.masterTypeId) || null,
-        GrowthStageId: node.growthStageId || null,
-        // Status: hasChangedPlan ? "update" : node.status || "no_change",
-        Status: status,
-        Order: node.order || index + 1,
-        ListPlan:
-          node.listPlan?.map((plan) => ({
-            PlanId: plan.planId || 0,
-            PlanName: plan.planName || "New Plan",
-            PlanDetail: plan.planDetail || "",
-            PlanNote: plan.planNote || "",
-            GrowthStageId: plan.growthStageId || null,
-            MasterTypeId: Number(plan.masterTypeId) || null,
-            PlanStatus: plan.planStatus || "no_change",
-          })) || null,
-      };
+        const subProcess = {
+          SubProcessId: subProcessId,
+          SubProcessName: node.title || "New Task",
+          ParentSubProcessId: parentId !== null ? Number(parentKey) : null,
+          IsDefault: true,
+          IsActive: true,
+          MasterTypeId: Number(node.masterTypeId) || null,
+          GrowthStageId: node.growthStageId || null,
+          Status: status,
+          Order: node.order || index + 1,
+          ListPlan:
+            node.listPlan?.map((plan) => ({
+              PlanId: plan.planId || 0,
+              PlanName: plan.planName || "New Plan",
+              PlanDetail: plan.planDetail || "",
+              PlanNote: plan.planNote || "",
+              GrowthStageId: plan.growthStageId || null,
+              MasterTypeId: Number(plan.masterTypeId) || null,
+              PlanStatus: plan.planStatus || "no_change",
+            })) || null,
+        };
 
-      return [subProcess, ...convertTreeToList(node.children || [], subProcessId)];
-    });
+        allNodes.push(subProcess);
+
+        if (node.children && node.children.length > 0) {
+          const childNodes = flattenAndSort(node.children, node.key.toString());
+          allNodes = allNodes.concat(childNodes);
+        }
+      });
+
+      return parentKey === null ? allNodes.sort((a, b) => (a.Order || 0) - (b.Order || 0)) : allNodes;
+    };
+
+    let result = flattenAndSort(nodes);
+    tempIdCounter = Math.min(...result.map((n: any) => Number(n.SubProcessId)), -1) - 1;
+    console.log("nodes after flatten and sort", result);
+    return result;
   };
-
   const handleSaveProcess = async () => {
     const ListPlan: ListPlan[] = plans.map((plan) => ({
       PlanId: plan.planId || 0,
@@ -460,7 +478,7 @@ function ProcessDetails() {
         if (node.key === subProcessKey) {
           return {
             ...node,
-            status: "update", // Cập nhật node cha
+            status: "update",
             listPlan: node.listPlan?.map((plan) =>
               plan.planId === planId ? { ...plan, planStatus: "delete" } : plan,
             ),
@@ -518,6 +536,8 @@ function ProcessDetails() {
 
       if (node.status !== "add") {
         node.status = "update";
+      } else {
+        // console.log("ảo z");
       }
     }
     setTreeData(updatedData);
@@ -600,7 +620,7 @@ function ProcessDetails() {
         };
       });
   };
-
+  
   const onDrop: TreeProps["onDrop"] = (info) => {
     const dropKey = info.node.key.toString();
     const dragKey = info.dragNode.key.toString();
@@ -623,11 +643,10 @@ function ProcessDetails() {
         }
       }
     };
-
     // xoa node cu
     loop(data, dragKey, (item, index, arr) => {
       arr.splice(index, 1);
-      dragObj = item;
+      dragObj = { ...item, status: "update" };
     });
 
     if (!dropToGap) {
@@ -635,6 +654,7 @@ function ProcessDetails() {
       loop(data, dropKey, (item) => {
         item.children = item.children || [];
         item.children.push(dragObj!);
+        item.status = "update";
       });
     } else {
       // tha cung cap
@@ -646,16 +666,15 @@ function ProcessDetails() {
     const reorderNodes = (nodes: CustomTreeDataNode[]): CustomTreeDataNode[] => {
       return nodes.map((node, index) => ({
         ...node,
-        order: index + 1, // Cập nhật thứ tự
+        order: index + 1,
+        status: node.status === "add" ? "add" : "update",
         children: node.children ? reorderNodes(node.children) : undefined,
       }));
     };
 
     const updatedData = reorderNodes(data);
-
     setTreeData([...updatedData]);
   };
-
   const [form] = Form.useForm();
 
   const handleSaveSubProcess = (values: any) => {

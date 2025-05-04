@@ -27,6 +27,7 @@ const DescriptionSection = ({}: {}) => {
 
     doDownload(url, `QRCode-${plant.plantCode}.svg`);
   };
+
   return (
     <Flex className={style.descriptionSection}>
       <Flex className={`${style.infoField} ${style.infoFieldColumn}`} gap={20}>

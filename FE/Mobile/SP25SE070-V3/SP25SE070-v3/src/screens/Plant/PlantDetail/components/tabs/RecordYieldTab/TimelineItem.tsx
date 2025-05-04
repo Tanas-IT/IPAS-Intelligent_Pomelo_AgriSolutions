@@ -3,7 +3,7 @@ import { View, TouchableOpacity, StyleSheet, Image } from "react-native";
 import { HarvestRecord } from "@/types/harvest";
 
 import theme from "@/theme";
-import { CustomIcon, TextCustom } from "@/components";
+import { AvatarImage, CustomIcon, TextCustom } from "@/components";
 import { formatDate, formatDateAndTime } from "@/utils";
 import { useModifyPermission, useSystemConfigOptions } from "@/hooks";
 import { SYSTEM_CONFIG_GROUP, SYSTEM_CONFIG_KEY } from "@/constants";
@@ -49,9 +49,10 @@ const TimelineItem: React.FC<TimelineItemProps> = ({
       <View style={styles.timelineContent}>
         <View style={styles.timelineHeader}>
           <View style={styles.timelineDateContainer}>
-            <Image
-              source={{ uri: record.avartarRecord }}
+            <AvatarImage
+              uri={record.avartarRecord}
               style={styles.avatar}
+              iconSize={20}
             />
             <View style={{ flexDirection: "column" }}>
               <View style={{ flexDirection: "row", gap: 10 }}>

@@ -28,6 +28,14 @@ export class RulesManager {
       },
     ];
   }
+  static getNumberInRange1To10Rules(fieldName: string) {
+    return [
+      {
+        pattern: /^(10|[1-9])$/,
+        message: `${fieldName}must be between 1 and 10!`,
+      },
+    ];
+  }
   static getNumberRulesAllowZero(fieldName: string) {
     return [
       { required: true, message: `Please input the ${fieldName.toLowerCase()}!` },

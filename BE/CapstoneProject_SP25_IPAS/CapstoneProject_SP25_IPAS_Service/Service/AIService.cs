@@ -848,7 +848,7 @@ const generationConfig = {
                 if (tagIds.Count > 0)
                 {
                     getAllImages = getAllImages
-                               .Where(img =>  img.Tags != null && img.Tags.Any(tag => tagIds.Contains(tag.TagId)))
+                               .Where(img => img.Tags != null && img.Tags.Any(tag => tagIds.Contains(tag.TagId)))
                                .ToList();
                 }
 
@@ -1035,7 +1035,7 @@ const generationConfig = {
                 var image = existingTags.FirstOrDefault();
                 if (image != null)
                 {
-                    if(image.Tags != null)
+                    if (image.Tags != null)
                     {
                         var oldTagIds = image.Tags.Select(x => x.TagId).ToList();
                         await trainingClient.DeleteImageTagsAsync(projectId, listImage, oldTagIds);
@@ -1052,7 +1052,7 @@ const generationConfig = {
                                 TagId = Guid.Parse(tagId)
                             }
                     }
-                    
+
                 });
                 return new BusinessResult(200, "Update Tag Of Image Sucess");
             }
@@ -1068,20 +1068,20 @@ const generationConfig = {
             try
             {
                 var getListTags = await trainingClient.GetTagsAsync(projectId);
-                        
+
                 Func<IQueryable<Tag>, IOrderedQueryable<Tag>> orderBy = null!;
                 if (!string.IsNullOrEmpty(paginationParameter.Search))
                 {
                     getListTags = getListTags.Where(x => x.Name.ToLower().Contains(paginationParameter.Search.ToLower())).ToList();
                 }
-                   
+
 
                 switch (paginationParameter.SortBy != null ? paginationParameter.SortBy.ToLower() : "tagid")
                 {
                     case "id":
-                        if(!string.IsNullOrEmpty(paginationParameter.Direction))
+                        if (!string.IsNullOrEmpty(paginationParameter.Direction))
                         {
-                            if(paginationParameter.Direction.ToLower().Equals("desc"))
+                            if (paginationParameter.Direction.ToLower().Equals("desc"))
                             {
                                 getListTags.OrderByDescending(x => x.Id);
                             }
@@ -1118,10 +1118,10 @@ const generationConfig = {
                 }
                 int skipRecord = paginationParameter.PageIndex - 1;
 
-                var entities =  getListTags.Skip(skipRecord * paginationParameter.PageSize).Take(paginationParameter.PageSize).ToList();
+                var entities = getListTags.Skip(skipRecord * paginationParameter.PageSize).Take(paginationParameter.PageSize).ToList();
                 var pagin = new PageEntity<Tag>();
 
-              
+
                 pagin.List = entities;
                 pagin.TotalRecord = getListTags.Count();
                 pagin.TotalPage = PaginHelper.PageCount(pagin.TotalRecord, paginationParameter.PageSize);
@@ -1134,7 +1134,7 @@ const generationConfig = {
                 {
                     return new BusinessResult(200, "Do not have any tag", new PageEntity<PlanModel>());
                 }
-                
+
             }
             catch (Exception ex)
             {
@@ -1149,13 +1149,18 @@ const generationConfig = {
                 var promptBuilder = new StringBuilder();
                 var newResource = new List<Resource>();
                 promptBuilder.AppendLine($"Bạn cần tạo Process sau(Is Sample = {request.isSample.GetValueOrDefault()}): {request.processName}");
-                var geminiApiResponse = await GetAnswerFromGeminiAsync(promptBuilder.ToString(), null,null, PromptOptionConst.ProcessPromptContext);
+                var geminiApiResponse = await GetAnswerFromGeminiAsync(promptBuilder.ToString(), null, null, PromptOptionConst.ProcessPromptContext);
                 var jsonCheck = Util.ExtractJson(geminiApiResponse!);
                 var AIResponse = new ProcessRecomendResponseModel();
                 try
                 {
                     geminiApiResponse = Util.ExtractJson(geminiApiResponse);
-                    AIResponse = JsonConvert.DeserializeObject<ProcessRecomendResponseModel>(geminiApiResponse); 
+                    AIResponse = JsonConvert.DeserializeObject<ProcessRecomendResponseModel>(geminiApiResponse);
+                    if (AIResponse.processGenerate != null)
+                    {
+                        AIResponse.processGenerate.MasterTypeId = request.MasterTypeId;
+                        AIResponse.processGenerate.PlanTargetInProcess = request.PlanTargetInProcess;
+                    }
                 }
                 catch
                 {
