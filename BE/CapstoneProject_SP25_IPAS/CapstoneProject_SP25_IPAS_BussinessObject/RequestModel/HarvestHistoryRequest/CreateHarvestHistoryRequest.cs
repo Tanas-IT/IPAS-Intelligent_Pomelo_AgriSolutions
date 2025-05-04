@@ -19,6 +19,7 @@ namespace CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.HarvestHistoryR
         //public double? TotalPrice { get; set; }
         [Required]
         public int CropId { get; set; }
+        public int? AssignorId { get; set; }
 
         public ICollection<CreateProductHarvestWoutPlantID> ProductHarvestHistory { get; set; } = new List<CreateProductHarvestWoutPlantID>();
 

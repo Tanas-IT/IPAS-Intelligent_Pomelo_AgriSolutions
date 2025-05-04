@@ -91,6 +91,8 @@ export interface GetPlantHasHarvest {
   unit: string;
   actualQuantity: number;
   recordDate: string;
+  recordBy: string;
+  avartarRecord: string;
   harvestHistoryId: number;
   productName: string;
   harvestHistoryCode: string;

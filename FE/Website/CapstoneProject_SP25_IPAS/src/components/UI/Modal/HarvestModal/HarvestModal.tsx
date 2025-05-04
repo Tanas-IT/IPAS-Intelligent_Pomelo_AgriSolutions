@@ -1,8 +1,8 @@
-import { Button, Flex, Form } from "antd";
+import { Button, Flex, Form, Select, Space, Typography } from "antd";
 import { useEffect, useState } from "react";
-import { FormFieldModal, ModalForm } from "@/components";
+import { EmployeeOptionLabel, FormFieldModal, ModalForm, UserAvatar } from "@/components";
 import { formatDateReq, formatTimeReq, getUserId, RulesManager } from "@/utils";
-import { CROP_STATUS, harvestFormFields, MASTER_TYPE, MESSAGES, UserRole } from "@/constants";
+import { CROP_STATUS, harvestFormFields, MASTER_TYPE, MESSAGES, WORK_TARGETS } from "@/constants";
 import { AssignEmployee, HarvestRequest, GetHarvestDay } from "@/payloads";
 import style from "./HarvestModal.module.scss";
 import { useMasterTypeOptions, useUserInFarmByRole } from "@/hooks";
@@ -10,6 +10,10 @@ import { Icons } from "@/assets";
 import { toast } from "react-toastify";
 import dayjs from "dayjs";
 import { useCropStore, useDirtyStore } from "@/stores";
+import { EmployeeWithSkills } from "@/payloads/worklog";
+import { worklogService } from "@/services";
+import { SelectOption } from "@/types";
+const Text = Typography;
 
 type HarvestModalProps = {
   isOpen: boolean;
@@ -32,14 +36,35 @@ const HarvestModal = ({
   const [modalSize, setModalSize] = useState<"large" | "largeXL">("largeXL");
   const isUpdate = harvestData !== undefined && Object.keys(harvestData).length > 0;
   const { options: productOptions } = useMasterTypeOptions(MASTER_TYPE.PRODUCT);
-  const { options: employeeOptions } = useUserInFarmByRole([UserRole.Employee], true);
+  const [employeeOptions, setEmployeeOptions] = useState<SelectOption[]>([]);
   const { setIsDirty } = useDirtyStore();
   const isCropCompleted = crop.status === CROP_STATUS.COMPLETED;
+
+  const fetchEmployeeWithHarvestSkill = async () => {
+    const res = await worklogService.getEmployeesByWorkTargetSkill(WORK_TARGETS.Harvesting);
+    if (res.statusCode === 200 && res.data) {
+      const options: SelectOption[] = res.data.map((emp) => ({
+        value: emp.userId,
+        label: (
+          <EmployeeOptionLabel
+            fullName={emp.fullName}
+            avatarURL={emp.avatarURL}
+            skillWithScore={emp.skillWithScore}
+          />
+        ),
+      }));
+      setEmployeeOptions(options);
+    }
+  };
 
   const resetForm = () => {
     setIsDirty(false);
     form.resetFields();
   };
+
+  useEffect(() => {
+    if (!isUpdate) fetchEmployeeWithHarvestSkill();
+  }, []);
 
   useEffect(() => {
     resetForm();
@@ -300,12 +325,37 @@ const HarvestModal = ({
                     <Flex key={key} align="center" gap={20}>
                       <span>{index + 1}.</span>
                       <FormFieldModal
+                        type="select"
                         label="Employee"
                         name={[name, "userId"]}
-                        type="select"
                         options={employeeOptions}
                         rules={RulesManager.getRequiredRules("Employee")}
                       />
+                      {/* <Form.Item
+                        label="Employee"
+                        name={[name, "userId"]}
+                        rules={RulesManager.getRequiredRules("Employee")}
+                        style={{ flex: 1 }}
+                      >
+                        <Select
+                          style={{ flex: 1, width: "100%" }}
+                          showSearch
+                          allowClear
+                          placeholder="Select an employee"
+                          optionLabelProp="label"
+                          filterOption={(input, option) =>
+                            (option?.label as any)?.props?.fullName
+                              ?.toLowerCase()
+                              .includes(input.toLowerCase())
+                          }
+                        >
+                          {employeeOptions.map((opt) => (
+                            <Select.Option key={opt.value} value={opt.value} label={opt.label}>
+                              {opt.label}
+                            </Select.Option>
+                          ))}
+                        </Select>
+                      </Form.Item> */}
                       <FormFieldModal
                         label="Is Reporter"
                         name={[name, "isReporter"]}

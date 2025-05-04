@@ -63,7 +63,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             //{
             try
             {
-                if (addNewTaskModel.DateWork <= DateTime.Now)
+                if (addNewTaskModel.DateWork.Value.Date < DateTime.Now.Date)
                 {
                     throw new Exception("Date Work must be greater than or equal now");
                 }
@@ -447,12 +447,16 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 }
                 var result = _mapper.Map<WorkLogDetailModel>(getDetailWorkLog);
                 var assignorId = getDetailWorkLog?.Schedule?.CarePlan?.AssignorId;
-
-                User? getAssignor = null;
+                var assignorHarvestId = getDetailWorkLog?.Schedule?.HarvestHistory?.AssignorId;
+                User ? getAssignor = null;
                 if (assignorId != null)
                 {
                     getAssignor = await _unitOfWork.UserRepository
                         .GetByCondition(x => x.UserId == assignorId);
+                }
+                else
+                {
+                    getAssignor = await _unitOfWork.UserRepository.GetByCondition(x => x.UserId == assignorHarvestId);
                 }
                 if (getAssignor != null)
                 {
@@ -3288,7 +3292,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                              FullName = u.User.FullName,
                              AvatarURL = u.User.AvatarURL,
                              SkillWithScore = u.EmployeeSkills
-                                 .GroupBy(s => s.WorkType.Target ?? "Không xác định")
+                                 .GroupBy(s => s.WorkType.MasterTypeName ?? "Không xác định")
                                  .Select(g => new SkillScoreModel
                                  {
                                      SkillName = g.Key,
@@ -3324,7 +3328,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                              FullName = u.User.FullName,
                              AvatarURL = u.User.AvatarURL,
                              SkillWithScore = u.EmployeeSkills
-                                 .GroupBy(s => s.WorkType.Target ?? "Không xác định")
+                                 .GroupBy(s => s.WorkType.MasterTypeName ?? "Không xác định")
                                  .Select(g => new SkillScoreModel
                                  {
                                      SkillName = g.Key,

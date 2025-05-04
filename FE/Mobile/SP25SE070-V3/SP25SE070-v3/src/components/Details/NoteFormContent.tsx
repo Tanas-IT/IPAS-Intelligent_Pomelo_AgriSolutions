@@ -7,6 +7,7 @@ import {
   TouchableOpacity,
   Animated,
   Image,
+  Platform,
 } from "react-native";
 import { LinearGradient } from "expo-linear-gradient";
 import { Video } from "expo-av";
@@ -354,7 +355,7 @@ export const styles = StyleSheet.create({
   },
   submitButton: {
     position: "absolute",
-    bottom: 70,
+    bottom: Platform.OS === "ios" ? 70 : 20,
     left: 20,
     right: 20,
     borderRadius: 10,

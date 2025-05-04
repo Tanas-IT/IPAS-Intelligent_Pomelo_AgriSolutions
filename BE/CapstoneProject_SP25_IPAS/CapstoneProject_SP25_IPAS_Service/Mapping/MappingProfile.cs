@@ -391,6 +391,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Mapping
                                     ? src.ProductHarvestHistories.Where(x => x.PlantId != null).Sum(x => x.ActualQuantity)
                                     : 0))
                .ForMember(dest => dest.CarePlanSchedules, opt => opt.MapFrom(src => src.CarePlanSchedules.Where(x => x.IsDeleted != true)))
+               .ForMember(dest => dest.AvatarOfAssignor, opt => opt.MapFrom(src => src.User != null ? src.User.AvatarURL : (string?)null))
+               .ForMember(dest => dest.AssignorName, opt => opt.MapFrom(src => src.User != null ? src.User.FullName : (string?)null))
                .ReverseMap();
 
             CreateMap<CarePlanSchedule, CarePlanScheduleModel>()

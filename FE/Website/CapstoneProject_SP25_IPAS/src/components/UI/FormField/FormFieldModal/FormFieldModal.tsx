@@ -191,6 +191,7 @@ const FormFieldModal: React.FC<FormFieldModalProps> = ({
             className={`${style.select} ${styles.customSelect}`}
             tagRender={TagRender}
             options={options}
+            allowClear
             showSearch={isSearch}
             loading={isLoading}
             onChange={onChange}

@@ -10,12 +10,7 @@ import {
   UpdateProductHarvestRequest,
 } from "@/payloads";
 import { harvestService } from "@/services";
-import {
-  ActionMenuHarvest,
-  LoadingSkeleton,
-  UpdateProductHarvestModal,
-  UserAvatar,
-} from "@/components";
+import { LoadingSkeleton, UpdateProductHarvestModal, UserAvatar } from "@/components";
 import { formatCurrencyVND, formatDate, formatDateAndTime } from "@/utils";
 import { harvestStatusColors, ROUTES } from "@/constants";
 import { useCropStore } from "@/stores";
@@ -66,6 +61,7 @@ function HarvestDayDetail({ selectedHarvest, actionMenu }: HarvestDayDetailProps
         selectedHarvest.harvestHistoryId,
         productId,
       );
+
       if (res.statusCode === 200) {
         setPlantsHarvested(res.data);
       }
@@ -325,6 +321,19 @@ function HarvestDayDetail({ selectedHarvest, actionMenu }: HarvestDayDetailProps
                   key: "recordDate",
                   align: "center",
                   render: (date: string) => formatDateAndTime(date),
+                },
+                {
+                  title: "Record By",
+                  key: "recordBy",
+                  align: "center",
+                  render: (item: GetPlantHasHarvest) => {
+                    return (
+                      <Flex align="center" justify="center" gap={8}>
+                        <UserAvatar avatarURL={item.avartarRecord || undefined} size={40} />
+                        <span>{item.recordBy || "Unknown"}</span>
+                      </Flex>
+                    );
+                  },
                 },
                 {
                   title: "Action",
