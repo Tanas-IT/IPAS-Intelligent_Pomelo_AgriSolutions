@@ -3312,6 +3312,42 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             }
         }
 
+        public async Task<BusinessResult> FilterEmployeeByTarget(string? target, int farmId)
+        {
+            try
+            {
+                var getEmployeeSkill = await _unitOfWork.EmployeeSkillRepository.GetListEmployeeByTarget(target, farmId);
+                var result = getEmployeeSkill
+                         .Select(u => new EmployeeSkillModel
+                         {
+                             UserId = u.User.UserId,
+                             FullName = u.User.FullName,
+                             AvatarURL = u.User.AvatarURL,
+                             SkillWithScore = u.EmployeeSkills
+                                 .GroupBy(s => s.WorkType.Target ?? "Không xác định")
+                                 .Select(g => new SkillScoreModel
+                                 {
+                                     SkillName = g.Key,
+                                     Score = g.Select(s => (double?)s.ScoreOfSkill ?? 0).Average()
+                                 })
+                                 .OrderByDescending(skill => skill.Score)
+                                 .ToList()
+                         })
+                         .ToList();
+
+                if (getEmployeeSkill.Count() > 0)
+                {
+                    return new BusinessResult(200, "Filter Employee By Work Skill", result);
+                }
+                return new BusinessResult(404, "Do not have any employee");
+            }
+            catch (Exception ex)
+            {
+
+                return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
+            }
+        }
+
         public async Task<BusinessResult> GetDependentWorkLog(int workLogID)
         {
             try
