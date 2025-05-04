@@ -135,13 +135,13 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     await transaction.RollbackAsync();
                     Console.WriteLine(ex.Message);
                     Console.WriteLine(ex.InnerException?.Message);
-                    return new BusinessResult(400, "Fail to create harvest.", ex.Message);
+                    return new BusinessResult(Const.ERROR_EXCEPTION, "Fail to create harvest.", ex.Message);
 
                 }
                 catch (Exception ex)
                 {
                     await transaction.RollbackAsync();
-                    return new BusinessResult(400, "Fail to create harvest.", ex.Message);
+                    return new BusinessResult(Const.ERROR_EXCEPTION, "Fail to create harvest.", ex.Message);
                 }
 
             }
@@ -263,7 +263,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 catch (Exception ex)
                 {
                     await transaction.RollbackAsync();
-                    return new BusinessResult(Const.FAIL_UPDATE_HARVEST_HISTORY_CODE,
+                    return new BusinessResult(Const.ERROR_EXCEPTION,
                                               Const.FAIL_UPDATE_HARVEST_HISTORY_MSG, ex.Message);
                 }
             }
@@ -489,7 +489,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 catch (Exception ex)
                 {
                     await transaction.RollbackAsync();
-                    return new BusinessResult(Const.FAIL_DELETE_PERMANENTLY_HARVEST_HISTORY_CODE, Const.FAIL_DELETE_PERMANENTLY_HARVEST_HISTORY_MSG, ex.Message);
+                    return new BusinessResult(Const.ERROR_EXCEPTION, Const.FAIL_DELETE_PERMANENTLY_HARVEST_HISTORY_MSG, ex.Message);
                 }
             }
         }
