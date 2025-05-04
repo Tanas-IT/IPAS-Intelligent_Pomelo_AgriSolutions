@@ -30,5 +30,10 @@ namespace CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.FarmBsModels.H
         public string? ProductName { get; set; }
         public int? CropId { get; set; }
         public string? CropName { get; set;}
+        public int? PlantIndex { get; set; }
+        public string? LandRowCode { get; set; }
+        public int? LandRowIndex { get; set; }
+        public string? LantPlotCode { get; set; }
+        public string? LantPlotName { get; set; }
     }
 }
