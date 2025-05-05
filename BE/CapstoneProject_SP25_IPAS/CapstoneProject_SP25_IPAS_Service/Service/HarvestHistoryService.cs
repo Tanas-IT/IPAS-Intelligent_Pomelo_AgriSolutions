@@ -1076,8 +1076,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         : x => x.OrderBy(c => c.ProductHarvestHistories.Where(x => x.PlantId != null).Sum(x => x.ActualQuantity)).ThenByDescending(c => c.HarvestHistoryId);
                     break;
                 default:
-                    orderBy = isDescending ? (x => x.OrderBy(o => o.HarvestHistoryId))
-                                           : (x => x.OrderByDescending(o => o.HarvestHistoryId));
+                    orderBy = isDescending ? (x => x.OrderByDescending(o => o.HarvestHistoryId))
+                                           : (x => x.OrderBy(o => o.HarvestHistoryId));
                     break;
             }
         }

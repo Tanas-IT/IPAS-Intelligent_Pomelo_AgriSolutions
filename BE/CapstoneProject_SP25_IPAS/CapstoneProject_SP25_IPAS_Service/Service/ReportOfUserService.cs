@@ -75,10 +75,12 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     }
 
                 }
+                var timeZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
+                var today = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, timeZone);
                 var newReportOfUser = new Report()
                 {
-                    ReportCode = "RPT-" + DateTime.Now,
-                    CreatedDate = DateTime.Now,
+                    ReportCode = "RPT-" + today,
+                    CreatedDate = today,
                     QuestionOfUser = createReportOfUserModel.QuestionOfUser,
                     QuestionerID = createReportOfUserModel.QuestionerID,
                     Description = createReportOfUserModel.Description,
