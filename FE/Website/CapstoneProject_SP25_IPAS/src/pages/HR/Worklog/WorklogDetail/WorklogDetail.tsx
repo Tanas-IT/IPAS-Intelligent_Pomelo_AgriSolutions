@@ -1042,13 +1042,13 @@ function WorklogDetail() {
                             Update
                           </Button>
                         )}
-                      <Button
+                      {/* <Button
                         className={style.deleteButton}
                         onClick={() => handleOpenDeleteModal(item)}
                         disabled
                       >
                         Delete
-                      </Button>
+                      </Button> */}
                       {["Redo", "Failed"].includes(worklogDetail.status) &&
                         !worklogDetail.redoWorkLog && (
                           <Button
