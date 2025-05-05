@@ -19,7 +19,6 @@ import {
 } from "@/hooks";
 import {
   fetchProcessesOfFarm,
-  fetchUserInfoByRole,
   getFarmId,
   getGrowthStageOfProcess,
   getTypeOfProcess,
@@ -62,7 +61,6 @@ const UpdatePlan = () => {
   const navigate = useNavigate();
   const userId = Number(getUserId());
   const { getAuthData } = useLocalStorage();
-  const authData = getAuthData();
   const farmId = Number(getFarmId());
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
@@ -72,7 +70,6 @@ const UpdatePlan = () => {
   const [selectedEmployees, setSelectedEmployees] = useState<EmployeeWithSkills[]>([]);
   const [selectedReporter, setSelectedReporter] = useState<number | null>(null);
   const [processFarmOptions, setProcessFarmOptions] = useState<OptionType<number>[]>([]);
-  const [workTypeOptions, setWorkTypeOptions] = useState<OptionType<number | string>[]>([]);
   const [employee, setEmployee] = useState<EmployeeWithSkills[]>([]);
   const [assignorId, setAssignorId] = useState<number>();
   const [frequency, setFrequency] = useState<string>("none");
@@ -83,7 +80,6 @@ const UpdatePlan = () => {
   const [selectedGrowthStage, setSelectedGrowthStage] = useState<number[]>([]);
   const [selectedCrop, setSelectedCrop] = useState<number | null>(null);
   const [landPlotOfCropOptions, setLandPlotOfCropOptions] = useState<SelectOption[]>([]);
-  // const [processTypeOptions, setProcessTypeOptions] = useState<SelectOption[]>([]);
   const [isLockedGrowthStage, setIsLockedGrowthStage] = useState<boolean>(false);
   const [isTargetDisabled, setIsTargetDisabled] = useState<boolean>(true);
   const [isCropDisabled, setIsCropDisabled] = useState<boolean>(false);
@@ -92,8 +88,6 @@ const UpdatePlan = () => {
 
   // const { options: processTypeOptions } = useMasterTypeOptions(MASTER_TYPE.WORK, false);
   const { options: growthStageOptions } = useGrowthStageOptions(false);
-  const { options: landPlots } = useLandPlotOptions();
-  const { options: landRowOptions } = useLandRowOptions(selectedLandPlot);
   const { options: plantsOptions } = usePlantOfRowOptions(selectedLandRow);
   const { options: graftedPlantsOptions } = useGraftedPlantOptions(farmId);
   const { options: cropOptions } = useCropCurrentOption();
@@ -621,6 +615,12 @@ const UpdatePlan = () => {
           />
         </Tooltip>
         <h2 className={style.title}>Update Plan</h2>
+      </Flex>
+      <Divider />
+      {/* FORM ACTIONS */}
+      <Flex gap={10} justify="end" className={style.btnGroup}>
+        <CustomButton label="Clear" isCancel handleOnClick={() => form.resetFields()} />
+        <CustomButton label="Update Plan" htmlType="submit" />
       </Flex>
       <Divider />
       <Form

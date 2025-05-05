@@ -256,3 +256,27 @@ export const paymentStatusColors: Record<string, string> = {
   [PAYMENT_STATUS.FAIL]: "red",
   [PAYMENT_STATUS.CANCELLED]: "default",
 };
+
+export const PLAN_STATUS = {
+  NOT_STARTED: "Not Started",
+  IN_PROGRESS: "In Progress",
+  REVIEWING: "Reviewing",
+  REDO: "Redo",
+  FAILED: "Failed",
+  DONE: "Done",
+  CANCELLED: "Cancelled",
+  OVERDUE: "Overdue",
+  COMPLETED: "Completed",
+} as const;
+
+export const planStatusColors: Record<string, string> = {
+  "Not Started": "gray",
+  "In Progress": "blue",
+  Reviewing: "gold",
+  Redo: "orange",
+  Failed: "red",
+  Done: "green",
+  Cancelled: "volcano",
+  Overdue: "magenta",
+  Completed: "green",
+};

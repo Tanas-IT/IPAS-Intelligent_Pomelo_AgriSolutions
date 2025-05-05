@@ -33,7 +33,7 @@
     }
 
     .statusTag {
-      padding: 4px 24px;
+      padding: 4px 18px;
       margin: 0;
       border-radius: 8px;
       font-weight: bold;
@@ -43,35 +43,35 @@
     .notstarted {
       background-color: #bfbfbf;
     }
-    
+
     .inprogress {
       background-color: #1890ff;
     }
-    
+
     .reviewing {
       background-color: #13c2c2;
     }
-    
+
     .redo {
       background-color: #faad14;
     }
-    
+
     .failed {
       background-color: #ff959a;
     }
-    
+
     .done {
       background-color: #52c41a;
     }
-    
+
     .cancelled {
       background-color: #8c8c8c;
     }
-    
+
     .overdue {
       background-color: #cf1322;
     }
-    
+
     .default {
       background-color: #d9d9d9;
     }
@@ -106,63 +106,63 @@
       border-radius: 100%;
     }
 
-        .createdBy {
-            font-size: 16px;
-            color: vars.$color_second;
-        }
-
-        .actualTime {
-            font-size: 16px;
-            color: #096dd9;
-        }
-
-        .textUpdated,
-        .noReplacementText {
-            font-size: 16px;
-        }
-
-        .replacementBadge {
-          position: relative;
-          display: inline-flex;
-          align-items: center;
-          background-color: #f0f2f5;
-          border-radius: 16px;
-          padding: 2px 8px 2px 4px;
-          margin: 2px;
-          transition: all 0.3s;
-          border: 1px solid #d9d9d9;
-        
-          &:hover {
-            background-color: #e6f7ff;
-            border-color: #91d5ff;
-          }
-
-          .deleteIcon {
-            color: #ff0000;
-            font-size: 20px;
-            padding: 2px;
-            background: white;
-            border-radius: 50%;
-            box-shadow: 0 0 2px rgba(255, 0, 0, 0.2);
-            
-            &:hover {
-              color: #ff4d4f;
-              background: white;
-            }
-          }
-        }
-
-        .createdDate {
-            font-size: 14px;
-            color: vars.$color_create_at;
-        }
-
-        .info {
-            box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
-            padding: 20px;
-            margin-top: 15px;
-        }
+    .createdBy {
+      font-size: 16px;
+      color: vars.$color_second;
     }
+
+    .actualTime {
+      font-size: 16px;
+      color: #096dd9;
+    }
+
+    .textUpdated,
+    .noReplacementText {
+      font-size: 16px;
+    }
+
+    .replacementBadge {
+      position: relative;
+      display: inline-flex;
+      align-items: center;
+      background-color: #f0f2f5;
+      border-radius: 16px;
+      padding: 2px 8px 2px 4px;
+      margin: 2px;
+      transition: all 0.3s;
+      border: 1px solid #d9d9d9;
+
+      &:hover {
+        background-color: #e6f7ff;
+        border-color: #91d5ff;
+      }
+
+      .deleteIcon {
+        color: #ff0000;
+        font-size: 20px;
+        padding: 2px;
+        background: white;
+        border-radius: 50%;
+        box-shadow: 0 0 2px rgba(255, 0, 0, 0.2);
+
+        &:hover {
+          color: #ff4d4f;
+          background: white;
+        }
+      }
+    }
+
+    .createdDate {
+      font-size: 14px;
+      color: vars.$color_create_at;
+    }
+
+    .info {
+      box-shadow: 0 4px 10px rgba(0, 0, 0, 0.1);
+      padding: 20px;
+      margin-top: 15px;
+    }
+  }
 
   .contentSectionBody {
     width: 80%;

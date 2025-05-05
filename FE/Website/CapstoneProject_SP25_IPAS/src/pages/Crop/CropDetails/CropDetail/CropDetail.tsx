@@ -184,6 +184,12 @@ function CropDetail() {
     },
   ];
 
+  const handleClick = (plotId: number) => {
+    navigate(PATHS.FARM.FARM_ROW_LIST, {
+      state: { plotId, viewMode: "simulate" },
+    });
+  };
+
   if (isLoading) return <LoadingSkeleton rows={10} />;
 
   return (
@@ -219,7 +225,11 @@ function CropDetail() {
         <Flex className={style.landPlotList}>
           {crop?.landPlotCrops && crop?.landPlotCrops.length > 0 ? (
             crop.landPlotCrops.map((plot) => (
-              <div key={plot.landPlotID} className={style.landPlotItem}>
+              <div
+                key={plot.landPlotID}
+                className={style.landPlotItem}
+                onClick={() => handleClick(plot.landPlotID)}
+              >
                 <Icons.leaf className={style.landPlotIcon} />
                 {plot.landPlotName}
               </div>

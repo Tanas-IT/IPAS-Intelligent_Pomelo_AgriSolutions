@@ -1,4 +1,4 @@
-import { Avatar, Badge, Button, DatePicker, Divider, Flex, Image, Modal, Tag } from "antd";
+import { Badge, Button, Divider, Flex, Image, Modal, Tag } from "antd";
 import style from "./WorklogDetail.module.scss";
 import { Icons, Images } from "@/assets";
 import { useNavigate, useParams } from "react-router-dom";
@@ -12,7 +12,6 @@ import FeedbackModal from "./FeedbackModal/FeedbackModal";
 import { feedbackService, harvestService, worklogService } from "@/services";
 import {
   CancelReplacementRequest,
-  GetAttendanceList,
   GetWorklogDetail,
   ListEmployeeUpdate,
   TaskFeedback,
@@ -20,8 +19,8 @@ import {
   UpdateWorklogReq,
 } from "@/payloads/worklog";
 import { formatDate, formatDateW, getUserId } from "@/utils";
-import { GetHarvestDay, GetUser, PlanTarget, PlanTargetModel } from "@/payloads";
-import { ActionMenuHarvest, ConfirmModal, CustomButton, Loading, Tooltip } from "@/components";
+import { PlanTarget, PlanTargetModel } from "@/payloads";
+import { ConfirmModal, CustomButton, Loading, Tooltip, UserAvatar } from "@/components";
 import PlanTargetTable from "@/pages/Plan/PlanDetails/PlanTargetTable";
 import AttendanceModal from "./AttendanceModal";
 import EditWorklogModal from "./EditWorklogModal";
@@ -29,8 +28,7 @@ import RedoWorklogModal from "./RedoWorklogModal";
 import { statusIconMap } from "@/constants/statusMap";
 import DependencyModal from "./DependencyModal";
 import { useCropStore } from "@/stores";
-import HarvestDayDetail from "@/pages/Crop/CropDetails/HarvestDays/HarvestDayDetail";
-import { CROP_STATUS, ROUTES } from "@/constants";
+import { planStatusColors, ROUTES } from "@/constants";
 
 const InfoField = ({
   icon: Icon,
@@ -39,7 +37,7 @@ const InfoField = ({
   planId,
   processId,
   isTag = false,
-  handleViewDetail
+  handleViewDetail,
 }: {
   icon: React.ElementType;
   label: string;
@@ -66,24 +64,14 @@ const InfoField = ({
         <Icon className={style.fieldIcon} />
         <label className={style.fieldLabel}>{label}:</label>
       </Flex>
-      {/* <label className={style.fieldValue}>
-        {isClickable ? (
-          <span className={style.linkText} onClick={() => navigate(path!)}>
-            {value}
-          </span>
-        ) : isTag ? (
-          <Tag color="green">{value}</Tag>
-        ) : (
-          value
-        )}
-      </label> */}
+
       <label className={style.fieldValue}>
         {isClickable ? (
           <span className={style.linkText} onClick={() => navigate(path!)}>
             {value}
           </span>
         ) : label === "Harvest" && value !== "None" ? (
-          <Button type="link" onClick={() => handleViewDetail(Number(value))}>
+          <Button type="dashed" onClick={() => handleViewDetail(Number(value))}>
             View Harvest Detail
           </Button>
         ) : isTag ? (
@@ -92,7 +80,6 @@ const InfoField = ({
           value
         )}
       </label>
-
     </Flex>
   );
 };
@@ -100,9 +87,6 @@ const InfoField = ({
 function WorklogDetail() {
   const navigate = useNavigate();
   const formModal = useModal<GetFeedback>();
-  const formHarvestModal = useModal<GetHarvestDay>();
-  const recordModal = useModal<GetHarvestDay>();
-  const importModal = useModal<{ harvestId: number }>();
   const [warning, setWarning] = useState<{ message: string; names: string[] } | null>(null);
   const [feedbackList, setFeedbackList] = useState<TaskFeedback[]>([]);
   const { id } = useParams();
@@ -115,34 +99,31 @@ function WorklogDetail() {
   const [isAttendanceModalVisible, setIsAttendanceModalVisible] = useState(false);
   const [attendanceStatus, setAttendanceStatus] = useState<{ [key: number]: string | null }>({});
   const [isEditModalVisible, setIsEditModalVisible] = useState(false);
-  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isRedoModalOpen, setIsRedoModalOpen] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedTimeRange, setSelectedTimeRange] = useState<[string, string]>(["", ""]);
   const [initialReporterId, setInitialReporterId] = useState<number | undefined>(undefined);
   const [selectedDate, setSelectedDate] = useState<string>("");
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
-  const { crop, setCrop, isHarvestDetailView, setIsHarvestDetailView, markForRefetch, setSelectedHarvest } =
-    useCropStore();
-  const deleteConfirmModal = useModal<{ ids: number[] }>();
+  const { setIsHarvestDetailView, setSelectedHarvest } = useCropStore();
   const rawStatus = worklogDetail?.status || "Not Started";
   const normalizedStatus = rawStatus.toLowerCase();
   const classKey = normalizedStatus.replace(/\s+/g, "");
   const statusClass = style[classKey] || style.default;
-  const icon = statusIconMap[normalizedStatus] || "❓";
+  const icon = statusIconMap["normalizedStatus"];
 
   const handleViewDetail = async (id: number) => {
-    console.log("ID", id);
-    
     const res = await harvestService.getHarvest(id);
     setSelectedHarvest(res.data);
     setIsHarvestDetailView(true); // Đánh dấu đang xem chi tiết
     if (worklogDetail?.cropId) {
-      navigate(ROUTES.CROP_DETAIL(worklogDetail?.cropId || 0));
-
+      navigate(ROUTES.CROP_DETAIL(worklogDetail?.cropId || 0), {
+        state: { isFromWorklog: true },
+      });
     }
   };
-  
+
   const handleUpdateFeedback = (feedback: TaskFeedback) => {
     setSelectedFeedback(feedback);
     formModal.showModal();
@@ -423,7 +404,7 @@ function WorklogDetail() {
     formModal.showModal();
   };
 
-  const handleAdd = () => { };
+  const handleAdd = () => {};
 
   const determineUnit = (planTargetModels: PlanTargetModel) => {
     const { rows, plants, landPlotName, graftedPlants, plantLots } = planTargetModels;
@@ -541,7 +522,7 @@ function WorklogDetail() {
 
   const fetchPlanDetail = async () => {
     try {
-      setIsLoading(true);
+      // setIsLoading(true);
       const res = await worklogService.getWorklogDetail(Number(id));
       setWorklogDetail(res);
       checkAndNotifyReassignment(res);
@@ -595,7 +576,7 @@ function WorklogDetail() {
         {
           label: "Harvest",
           value: res.isHarvest ? "Yes" : "No",
-          icon: Icons.category,
+          icon: Icons.plant,
         },
       ]);
 
@@ -709,10 +690,14 @@ function WorklogDetail() {
       <Divider className={style.divider} />
       <Flex className={style.contentSectionTitleLeft}>
         <p className={style.title}>{worklogDetail?.workLogName || "Caring Process"}</p>
-        <Tooltip title="Hello">
+        <Tooltip title="Work-log">
           <Icons.tag className={style.iconTag} />
         </Tooltip>
-        <Tag className={`${style.statusTag} ${statusClass}`}>
+        {/* <Tag className={`${style.statusTag} ${statusClass}`}>
+          <span style={{ marginRight: 6 }}>{icon}</span>
+          {rawStatus}
+        </Tag> */}
+        <Tag color={planStatusColors[rawStatus] || "default"} className={style.statusTag}>
           <span style={{ marginRight: 6 }}>{icon}</span>
           {rawStatus}
         </Tag>
@@ -735,19 +720,12 @@ function WorklogDetail() {
 
       <Flex vertical gap={10} className={style.contentSectionUser}>
         <Flex vertical>
-          <Flex vertical={false} gap={15}>
-            <Image
-              src={worklogDetail?.reporter[0]?.avatarURL || Images.avatar}
-              width={25}
-              className={style.avt}
-              crossOrigin="anonymous"
-            />
+          <Flex align="center" gap={8}>
+            <UserAvatar avatarURL={worklogDetail?.reporter[0]?.avatarURL || undefined} size={35} />
             <label className={style.createdBy}>{worklogDetail?.assignorName || "laggg"}</label>
             <label className={style.textCreated}>created this plan</label>
             <label className={style.createdDate}>{formatDateW(worklogDetail?.date ?? "2")}</label>
             <Button
-              type="primary"
-              ghost
               onClick={() => setIsModalOpen(true)}
               style={{
                 fontWeight: 500,
@@ -785,18 +763,13 @@ function WorklogDetail() {
                 const tooltipText = isRejected
                   ? "Rejected"
                   : isBeReplaced
-                    ? "Being Replaced"
-                    : "Received";
+                  ? "Being Replaced"
+                  : "Received";
 
                 return (
                   <Tooltip key={index} title={tooltipText}>
-                    <Flex align="center">
-                      <Image
-                        src={employee.avatarURL || Images.avatar}
-                        width={25}
-                        className={style.avt}
-                        crossOrigin="anonymous"
-                      />
+                    <Flex align="center" gap={8}>
+                      <UserAvatar avatarURL={employee.avatarURL || undefined} size={30} />
                       <label className={style.createdBy} style={{ color: textColor }}>
                         {employee.fullName || "Unknown"}
                       </label>
@@ -812,7 +785,7 @@ function WorklogDetail() {
                 worklogDetail.replacementEmployee.map((e) => (
                   <Tooltip key={e.userId} title={`Replacing: ${e.fullName}`} placement="top">
                     <div className={style.replacementBadge}>
-                      <Flex align="center" gap={6}>
+                      <Flex align="center" vertical gap={6}>
                         <Badge
                           count={
                             <Icons.delUser
@@ -826,12 +799,7 @@ function WorklogDetail() {
                           offset={[5, -3]}
                           style={{ backgroundColor: "white", cursor: "pointer" }}
                         >
-                          <Image
-                            src={e.avatar || Images.avatar}
-                            width={25}
-                            className={style.avt}
-                            crossOrigin="anonymous"
-                          />
+                          <UserAvatar avatarURL={e.avatar || undefined} size={25} />
                           <span className={style.replacementText}>{e.replaceUserFullName}</span>
                         </Badge>
                       </Flex>
@@ -850,16 +818,14 @@ function WorklogDetail() {
                   worklogDetail?.reporter[0]?.statusOfUserWorkLog === "Rejected"
                     ? "Rejected"
                     : worklogDetail?.reporter[0]?.statusOfUserWorkLog === "BeReplaced"
-                      ? "Being Replaced"
-                      : "Received"
+                    ? "Being Replaced"
+                    : "Received"
                 }
               >
-                <Flex align="center">
-                  <Image
-                    src={worklogDetail?.reporter[0]?.avatarURL || Images.avatar}
-                    width={25}
-                    className={style.avt}
-                    crossOrigin="anonymous"
+                <Flex align="center" gap={8}>
+                  <UserAvatar
+                    avatarURL={worklogDetail?.reporter[0]?.avatarURL || undefined}
+                    size={30}
                   />
                   <label
                     style={{
@@ -867,8 +833,8 @@ function WorklogDetail() {
                         worklogDetail?.reporter[0]?.statusOfUserWorkLog === "Rejected"
                           ? "red"
                           : worklogDetail?.reporter[0]?.statusOfUserWorkLog === "BeReplaced"
-                            ? "goldenrod"
-                            : "#bcd379",
+                          ? "goldenrod"
+                          : "#bcd379",
                       fontSize: 16,
                     }}
                   >
@@ -894,13 +860,13 @@ function WorklogDetail() {
             <Flex gap={15}>
               <label className={style.textUpdated}>Start Date Plan:</label>
               <label className={style.actualTime}>
-                {formatDate(worklogDetail?.startDate || "") || "N/A"}
+                {worklogDetail?.startDate ? formatDate(worklogDetail?.startDate) : "N/A"}
               </label>
             </Flex>
             <Flex gap={15}>
               <label className={style.textUpdated}>End Date Plan:</label>
               <label className={style.actualTime}>
-                {formatDate(worklogDetail?.endDate || "") || "N/A"}
+                {worklogDetail?.endDate ? formatDate(worklogDetail?.endDate) : "N/A"}
               </label>
             </Flex>
             <Flex gap={15}>
@@ -1016,10 +982,11 @@ function WorklogDetail() {
             {feedbackList.map((item, index) => (
               <div
                 key={index}
-                className={`${style.feedbackItem} ${worklogDetail?.status === "Redo" || worklogDetail?.status === "Failed"
-                  ? style.redoBackground
-                  : style.doneBackground
-                  }`}
+                className={`${style.feedbackItem} ${
+                  worklogDetail?.status === "Redo" || worklogDetail?.status === "Failed"
+                    ? style.redoBackground
+                    : style.doneBackground
+                }`}
               >
                 <Image
                   src={item.avatarURL}
@@ -1123,7 +1090,6 @@ function WorklogDetail() {
         onClose={() => setIsModalOpen(false)}
         worklogId={worklogDetail?.workLogId || 0}
       />
-    
 
       <Modal
         title="Confirm Completion"

@@ -9,19 +9,17 @@ interface UserAvatarProps {
 
 const UserAvatar: React.FC<UserAvatarProps> = ({ avatarURL, size = 40, shape = "circle" }) => {
   return (
-    <div>
-      <Avatar
-        src={avatarURL || undefined}
-        alt="Avatar"
-        crossOrigin="anonymous"
-        style={{
-          width: size,
-          height: size,
-        }}
-        shape={shape}
-        icon={!avatarURL ? <UserOutlined /> : undefined}
-      />
-    </div>
+    <Avatar
+      src={avatarURL || undefined}
+      alt="Avatar"
+      crossOrigin="anonymous"
+      style={{
+        width: size,
+        height: size,
+      }}
+      shape={shape}
+      icon={!avatarURL ? <UserOutlined /> : undefined}
+    />
   );
 };
 
