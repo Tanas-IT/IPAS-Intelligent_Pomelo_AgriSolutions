@@ -1048,7 +1048,7 @@ function WorklogDetail() {
             ))}
           </div>
         ) : (
-          <div className={style.noFeedback}>Chưa có feedback</div>
+          <div className={style.noFeedback}>No feedback yet</div>
         )}
         {worklogDetail?.status === "Reviewing" || worklogDetail?.status === "Overdue" ? (
           <Button onClick={handleFeedback} className={style.btnFeedback}>

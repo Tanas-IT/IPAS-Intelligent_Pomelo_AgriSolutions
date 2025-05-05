@@ -4,7 +4,7 @@
     "slug": "SP25SE070-v3",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./src/assets/icon.png",
+    "icon": "./src/assets/logo-removebg-preview.png",
     "userInterfaceStyle": "light",
     "newArchEnabled": true,
     "splash": {

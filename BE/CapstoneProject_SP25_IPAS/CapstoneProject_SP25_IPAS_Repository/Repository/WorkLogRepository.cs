@@ -553,5 +553,10 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
             return getWorkLog;
 
         }
+        public async Task<WorkLog> GetWorkLogForEmployeeRedo(int? workLogId)
+        {
+            var getWorkLog = await _context.WorkLogs.Include(x => x.UserWorkLogs).FirstOrDefaultAsync(x => x.WorkLogId == workLogId);
+            return getWorkLog;
+        }
     }
 }

@@ -478,7 +478,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 }
 
                 var redoWorkLog = getDetailWorkLog.RedoWorkLogID.HasValue
-                    ? await _unitOfWork.WorkLogRepository.GetByCondition(x => x.WorkLogId == getDetailWorkLog.RedoWorkLogID)
+                    ? await _unitOfWork.WorkLogRepository.GetWorkLogForEmployeeRedo(getDetailWorkLog.RedoWorkLogID)
                     : null;
 
                 var originalRedo = await _unitOfWork.WorkLogRepository.GetByCondition(x => x.RedoWorkLogID == getDetailWorkLog.WorkLogId);
@@ -489,7 +489,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                        WorkLogName = redoWorkLog.WorkLogName,
                        Date = redoWorkLog.Date,
                        ReasonDelay = redoWorkLog.ReasonDelay,
-                       Status = redoWorkLog.Status
+                       Status = redoWorkLog.Status,
+                       ListEmployee = redoWorkLog.UserWorkLogs.Select(x => x.UserId).ToList()
                    }
                    : null;
                 result.OriginalWorkLog = originalRedo != null
