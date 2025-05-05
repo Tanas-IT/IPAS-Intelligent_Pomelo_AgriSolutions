@@ -60,4 +60,5 @@ export interface WeatherLocation {
       windSpeed: WeatherChartData[];
       rainfall: WeatherChartData[];
     };
+    warnings: string[];
   }
