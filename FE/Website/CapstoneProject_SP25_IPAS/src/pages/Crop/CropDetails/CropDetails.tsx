@@ -40,7 +40,7 @@ function CropDetails() {
     <Flex className={style.detailContainer}>
       <Tabs
         className={`${style.containerWrapper} ${styles.customTab}`}
-        defaultActiveKey="1"
+        defaultActiveKey={isHarvestDetailView ? "2" : "1"}
         items={items}
         onChange={() => setIsHarvestDetailView(false)}
         tabBarExtraContent={{

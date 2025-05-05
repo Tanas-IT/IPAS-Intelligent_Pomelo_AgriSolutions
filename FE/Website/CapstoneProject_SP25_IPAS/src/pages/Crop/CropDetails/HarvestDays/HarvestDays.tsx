@@ -33,7 +33,7 @@ import { toast } from "react-toastify";
 import RecordImportModal from "./RecordImportModal";
 
 function HarvestDays() {
-  const [selectedHarvest, setSelectedHarvest] = useState<GetHarvestDay | null>(null);
+  // const [selectedHarvest, setSelectedHarvest] = useState<GetHarvestDay | null>(null);
   const [isActionLoading, setIsActionLoading] = useState(false);
   const formModal = useModal<GetHarvestDay>();
   const recordModal = useModal<GetHarvestDay>();
@@ -44,7 +44,7 @@ function HarvestDays() {
   const importErrorModal = useModal<{ errors: string[] }>();
   const cancelConfirmModal = useModal();
   const { isDirty } = useDirtyStore();
-  const { crop, setCrop, isHarvestDetailView, setIsHarvestDetailView, markForRefetch } =
+  const { crop, setCrop, isHarvestDetailView, setIsHarvestDetailView, markForRefetch, selectedHarvest, setSelectedHarvest } =
     useCropStore();
   if (!crop) return;
 

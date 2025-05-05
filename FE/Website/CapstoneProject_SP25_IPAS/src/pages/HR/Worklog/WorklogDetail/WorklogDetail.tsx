@@ -9,7 +9,7 @@ import { useModal } from "@/hooks";
 import { CreateFeedbackRequest, GetFeedback } from "@/payloads/feedback";
 import { useEffect, useState } from "react";
 import FeedbackModal from "./FeedbackModal/FeedbackModal";
-import { feedbackService, worklogService } from "@/services";
+import { feedbackService, harvestService, worklogService } from "@/services";
 import {
   CancelReplacementRequest,
   GetAttendanceList,
@@ -20,14 +20,17 @@ import {
   UpdateWorklogReq,
 } from "@/payloads/worklog";
 import { formatDate, formatDateW, getUserId } from "@/utils";
-import { GetUser, PlanTarget, PlanTargetModel } from "@/payloads";
-import { ConfirmModal, CustomButton, Loading, Tooltip } from "@/components";
+import { GetHarvestDay, GetUser, PlanTarget, PlanTargetModel } from "@/payloads";
+import { ActionMenuHarvest, ConfirmModal, CustomButton, Loading, Tooltip } from "@/components";
 import PlanTargetTable from "@/pages/Plan/PlanDetails/PlanTargetTable";
 import AttendanceModal from "./AttendanceModal";
 import EditWorklogModal from "./EditWorklogModal";
 import RedoWorklogModal from "./RedoWorklogModal";
 import { statusIconMap } from "@/constants/statusMap";
 import DependencyModal from "./DependencyModal";
+import { useCropStore } from "@/stores";
+import HarvestDayDetail from "@/pages/Crop/CropDetails/HarvestDays/HarvestDayDetail";
+import { CROP_STATUS, ROUTES } from "@/constants";
 
 const InfoField = ({
   icon: Icon,
@@ -36,6 +39,7 @@ const InfoField = ({
   planId,
   processId,
   isTag = false,
+  handleViewDetail
 }: {
   icon: React.ElementType;
   label: string;
@@ -43,6 +47,7 @@ const InfoField = ({
   planId?: number;
   processId?: number;
   isTag?: boolean;
+  handleViewDetail: (value: number) => void;
 }) => {
   const navigate = useNavigate();
 
@@ -61,7 +66,7 @@ const InfoField = ({
         <Icon className={style.fieldIcon} />
         <label className={style.fieldLabel}>{label}:</label>
       </Flex>
-      <label className={style.fieldValue}>
+      {/* <label className={style.fieldValue}>
         {isClickable ? (
           <span className={style.linkText} onClick={() => navigate(path!)}>
             {value}
@@ -71,7 +76,23 @@ const InfoField = ({
         ) : (
           value
         )}
+      </label> */}
+      <label className={style.fieldValue}>
+        {isClickable ? (
+          <span className={style.linkText} onClick={() => navigate(path!)}>
+            {value}
+          </span>
+        ) : label === "Harvest" && value !== "None" ? (
+          <Button type="link" onClick={() => handleViewDetail(Number(value))}>
+            View Harvest Detail
+          </Button>
+        ) : isTag ? (
+          <Tag color="green">{value}</Tag>
+        ) : (
+          value
+        )}
       </label>
+
     </Flex>
   );
 };
@@ -79,6 +100,9 @@ const InfoField = ({
 function WorklogDetail() {
   const navigate = useNavigate();
   const formModal = useModal<GetFeedback>();
+  const formHarvestModal = useModal<GetHarvestDay>();
+  const recordModal = useModal<GetHarvestDay>();
+  const importModal = useModal<{ harvestId: number }>();
   const [warning, setWarning] = useState<{ message: string; names: string[] } | null>(null);
   const [feedbackList, setFeedbackList] = useState<TaskFeedback[]>([]);
   const { id } = useParams();
@@ -98,13 +122,25 @@ function WorklogDetail() {
   const [initialReporterId, setInitialReporterId] = useState<number | undefined>(undefined);
   const [selectedDate, setSelectedDate] = useState<string>("");
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
-
+  const { crop, setCrop, isHarvestDetailView, setIsHarvestDetailView, markForRefetch } =
+    useCropStore();
+  const deleteConfirmModal = useModal<{ ids: number[] }>();
+  const [selectedHarvest, setSelectedHarvest] = useState<GetHarvestDay | null>(null);
   const rawStatus = worklogDetail?.status || "Not Started";
   const normalizedStatus = rawStatus.toLowerCase();
   const classKey = normalizedStatus.replace(/\s+/g, "");
   const statusClass = style[classKey] || style.default;
   const icon = statusIconMap[normalizedStatus] || "❓";
 
+  const handleViewDetail = async (id: number) => {
+    console.log("ID", id);
+    
+    const res = await harvestService.getHarvest(id);
+    setSelectedHarvest(res.data);
+    setIsHarvestDetailView(true); // Đánh dấu đang xem chi tiết
+    navigate(ROUTES.CROP_DETAIL(9))
+  };
+  
   const handleUpdateFeedback = (feedback: TaskFeedback) => {
     setSelectedFeedback(feedback);
     formModal.showModal();
@@ -385,7 +421,7 @@ function WorklogDetail() {
     formModal.showModal();
   };
 
-  const handleAdd = () => {};
+  const handleAdd = () => { };
 
   const determineUnit = (planTargetModels: PlanTargetModel) => {
     const { rows, plants, landPlotName, graftedPlants, plantLots } = planTargetModels;
@@ -747,8 +783,8 @@ function WorklogDetail() {
                 const tooltipText = isRejected
                   ? "Rejected"
                   : isBeReplaced
-                  ? "Being Replaced"
-                  : "Received";
+                    ? "Being Replaced"
+                    : "Received";
 
                 return (
                   <Tooltip key={index} title={tooltipText}>
@@ -812,8 +848,8 @@ function WorklogDetail() {
                   worklogDetail?.reporter[0]?.statusOfUserWorkLog === "Rejected"
                     ? "Rejected"
                     : worklogDetail?.reporter[0]?.statusOfUserWorkLog === "BeReplaced"
-                    ? "Being Replaced"
-                    : "Received"
+                      ? "Being Replaced"
+                      : "Received"
                 }
               >
                 <Flex align="center">
@@ -829,8 +865,8 @@ function WorklogDetail() {
                         worklogDetail?.reporter[0]?.statusOfUserWorkLog === "Rejected"
                           ? "red"
                           : worklogDetail?.reporter[0]?.statusOfUserWorkLog === "BeReplaced"
-                          ? "goldenrod"
-                          : "#bcd379",
+                            ? "goldenrod"
+                            : "#bcd379",
                       fontSize: 16,
                     }}
                   >
@@ -933,6 +969,7 @@ function WorklogDetail() {
               value={field.value}
               planId={worklogDetail?.planId}
               processId={worklogDetail?.processId}
+              handleViewDetail={() => handleViewDetail(worklogDetail?.harvestHistoryId || 0)}
             />
           ))}
         </Flex>
@@ -946,6 +983,7 @@ function WorklogDetail() {
               isTag={field.isTag}
               planId={worklogDetail?.planId}
               processId={worklogDetail?.processId}
+              handleViewDetail={() => handleViewDetail(worklogDetail?.harvestHistoryId || 0)}
             />
           ))}
         </Flex>
@@ -976,11 +1014,10 @@ function WorklogDetail() {
             {feedbackList.map((item, index) => (
               <div
                 key={index}
-                className={`${style.feedbackItem} ${
-                  worklogDetail?.status === "Redo" || worklogDetail?.status === "Failed"
-                    ? style.redoBackground
-                    : style.doneBackground
-                }`}
+                className={`${style.feedbackItem} ${worklogDetail?.status === "Redo" || worklogDetail?.status === "Failed"
+                  ? style.redoBackground
+                  : style.doneBackground
+                  }`}
               >
                 <Image
                   src={item.avatarURL}
@@ -1084,6 +1121,25 @@ function WorklogDetail() {
         onClose={() => setIsModalOpen(false)}
         worklogId={worklogDetail?.workLogId || 0}
       />
+      {selectedHarvest && (
+        <HarvestDayDetail
+          selectedHarvest={selectedHarvest}
+          actionMenu={
+            <ActionMenuHarvest
+              isCropComplete={crop?.status === CROP_STATUS.COMPLETED}
+              onEdit={() => formHarvestModal.showModal(selectedHarvest)}
+              onDelete={() =>
+                deleteConfirmModal.showModal({ ids: [selectedHarvest.harvestHistoryId] })
+              }
+              onOpenRecordModal={() => recordModal.showModal(selectedHarvest)}
+              onImport={() =>
+                importModal.showModal({ harvestId: selectedHarvest.harvestHistoryId })
+              }
+            />
+          }
+        />
+      )
+      }
 
       <Modal
         title="Confirm Completion"
