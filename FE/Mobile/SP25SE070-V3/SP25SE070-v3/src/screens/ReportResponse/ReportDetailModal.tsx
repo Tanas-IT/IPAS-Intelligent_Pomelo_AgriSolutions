@@ -128,7 +128,7 @@ const ReportDetailModal: React.FC<ReportDetailModalProps> = ({
           <View style={styles.mainContent}>
             <View style={styles.userInfo}>
               <AvatarImage
-                uri={report.avatarOfAnswer}
+                uri={report.avatarOfQuestioner}
                 style={styles.avatar}
                 iconSize={36}
               />

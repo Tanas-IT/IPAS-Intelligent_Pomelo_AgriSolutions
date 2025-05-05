@@ -112,7 +112,7 @@ const ReportResponseScreen = () => {
             styles.card,
             {
               borderLeftWidth: 5,
-              borderLeftColor: item.answerFromExpert ? "#4CAF50" : "#FF5252",
+              borderLeftColor: item.answerFromExpert ? "#4CAF50" : "#FFA726",
             },
           ]}
           onPress={() => openModal(item)}
