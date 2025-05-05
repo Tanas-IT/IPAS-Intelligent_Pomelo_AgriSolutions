@@ -15,15 +15,15 @@ interface PlantHealthStatusProps {
   data: Record<string, number>;
 }
 
-const COLORS = {
-  healthy: "#4CAF50",
-  moderate: "#FF9800",
-  unhealthy: "#F44336",
+const COLORS: Record<string, string> = {
+  "healthy": "#4CAF50",
+  "minor Issues": "#FF9800",
+  "serious Issues": "#F44336",
 };
 
 const PlantHealthStatus: React.FC<PlantHealthStatusProps> = ({ data }) => {
   const chartData = Object.keys(data).map((key) => ({
-    name: key.charAt(0).toUpperCase() + key.slice(1),
+    name: key,
     value: data[key],
   }));
 
@@ -43,7 +43,7 @@ const PlantHealthStatus: React.FC<PlantHealthStatusProps> = ({ data }) => {
             {chartData.map((entry, index) => (
               <Cell
                 key={`cell-${index}`}
-                fill={COLORS[entry.name.toLowerCase() as keyof typeof COLORS]}
+                fill={COLORS[entry.name] || "#8884d8"}
               />
             ))}
           </Bar>
