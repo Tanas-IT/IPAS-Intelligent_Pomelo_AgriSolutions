@@ -1,6 +1,5 @@
 import React, { useEffect, useRef } from "react";
 import { View, StyleSheet, Animated } from "react-native";
-import theme from "@/theme";
 import { TextCustom } from "@/components";
 
 const LoadingScreen = () => {

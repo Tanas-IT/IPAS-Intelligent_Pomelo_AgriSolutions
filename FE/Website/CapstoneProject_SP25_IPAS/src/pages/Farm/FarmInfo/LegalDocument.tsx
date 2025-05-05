@@ -4,7 +4,7 @@ import { Icons } from "@/assets";
 import { ConfirmModal, CustomButton, LoadingSkeleton, Section, SectionHeader } from "@/components";
 import { useEffect, useState } from "react";
 import { FarmDocumentRequest, GetFarmDocuments } from "@/payloads";
-import { getFarmId } from "@/utils";
+import { getFarmId, isOwner } from "@/utils";
 import { toast } from "react-toastify";
 import { farmService } from "@/services";
 import { useModal } from "@/hooks";
@@ -16,6 +16,7 @@ function LegalDocument() {
   const formModal = useModal<GetFarmDocuments>();
   const deleteConfirmModal = useModal<{ docId: string }>();
   const updateConfirmModal = useModal<{ doc: FarmDocumentRequest }>();
+  const inOwnerLogin = isOwner();
 
   const fetchFarmDocumentsData = async () => {
     try {
@@ -126,6 +127,7 @@ function LegalDocument() {
           title="Legal Documents"
           subtitle="Upload and manage your farm’s legal documents"
           isDisplayEdit={false}
+          isLoginOwner={inOwnerLogin}
         />
         <CustomButton
           label="Add New Document"
