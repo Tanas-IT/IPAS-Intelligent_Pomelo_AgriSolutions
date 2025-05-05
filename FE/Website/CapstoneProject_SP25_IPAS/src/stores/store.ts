@@ -256,6 +256,8 @@ export const usePlantStore = create<PlantStore>((set, get) => ({
 interface CropStore {
   crop: GetCropDetail | null;
   setCrop: (crop: GetCropDetail | null) => void;
+  selectedHarvest: GetHarvestDay | null;
+  setSelectedHarvest: (selectedHarvest: GetHarvestDay | null) => void;
   harvestDay: GetHarvestDay | null;
   setHarvestDay: (harvestDays: GetHarvestDay | null) => void;
   shouldRefetch: boolean;
@@ -267,6 +269,8 @@ interface CropStore {
 export const useCropStore = create<CropStore>((set, get) => ({
   crop: null,
   setCrop: (crop) => set({ crop }),
+  selectedHarvest: null,
+  setSelectedHarvest: (selectedHarvest) => set({ selectedHarvest }),
   harvestDay: null,
   setHarvestDay: (harvestDay) => set({ harvestDay }),
   shouldRefetch: false,

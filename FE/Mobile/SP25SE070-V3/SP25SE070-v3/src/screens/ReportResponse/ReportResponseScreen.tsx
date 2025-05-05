@@ -126,7 +126,7 @@ const ReportResponseScreen = () => {
               <CustomIcon
                 name={item.answerFromExpert ? "check-circle" : "alert-circle"}
                 size={20}
-                color={item.answerFromExpert ? "#4CAF50" : "#FF5252"}
+                color={item.answerFromExpert ? "#4CAF50" : "#FFA726"}
                 type="MaterialCommunityIcons"
               />
             </View>

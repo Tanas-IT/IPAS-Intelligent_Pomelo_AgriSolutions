@@ -33,7 +33,7 @@ import { toast } from "react-toastify";
 import RecordImportModal from "./RecordImportModal";
 
 function HarvestDays() {
-  const [selectedHarvest, setSelectedHarvest] = useState<GetHarvestDay | null>(null);
+  // const [selectedHarvest, setSelectedHarvest] = useState<GetHarvestDay | null>(null);
   const [isActionLoading, setIsActionLoading] = useState(false);
   const formModal = useModal<GetHarvestDay>();
   const recordModal = useModal<GetHarvestDay>();
@@ -44,9 +44,9 @@ function HarvestDays() {
   const importErrorModal = useModal<{ errors: string[] }>();
   const cancelConfirmModal = useModal();
   const { isDirty } = useDirtyStore();
-  const { crop, setCrop, isHarvestDetailView, setIsHarvestDetailView, markForRefetch } =
+  const { crop, setCrop, isHarvestDetailView, setIsHarvestDetailView, markForRefetch, selectedHarvest, setSelectedHarvest } =
     useCropStore();
-  if (!crop) return;
+  // if (!crop) return;
 
   const handleViewDetail = (selected: GetHarvestDay) => {
     setSelectedHarvest(selected);
@@ -87,7 +87,7 @@ function HarvestDays() {
         sortField,
         sortDirection,
         searchValue,
-        crop.cropId,
+        crop?.cropId,
         filters,
       ),
   });
@@ -135,7 +135,7 @@ function HarvestDays() {
     const hasUnsavedChanges = isUpdate
       ? hasChanges(harvest, "harvestHistoryId", undefined, ["startTime", "endTime"])
       : hasChanges(harvest, undefined, {
-          cropId: crop.cropId,
+          cropId: crop?.cropId,
           ...(harvest.addNewTask && {
             addNewTask: {
               ...harvest.addNewTask,
@@ -176,7 +176,14 @@ function HarvestDays() {
     fetchData: fetchData,
     onSuccess: () => {
       formModal.hideModal();
-      setCrop({ ...crop, status: CROP_STATUS.HARVESTING });
+      if (crop) {
+        setCrop({
+          ...crop,
+          status: CROP_STATUS.HARVESTING,
+          landPlotCrops: crop.landPlotCrops || [],
+          numberHarvest: crop.numberHarvest || 0,
+        });
+      }
       setIsHarvestDetailView(false);
     },
   });
@@ -233,6 +240,9 @@ function HarvestDays() {
       onApply={applyFilters}
     />
   );
+  console.log("isHarvestDetailView", isHarvestDetailView);
+  console.log("selectedHarvest", selectedHarvest);
+  
 
   return (
     <Flex className={style.contentDetailWrapper}>
@@ -243,7 +253,7 @@ function HarvestDays() {
           selectedHarvest={selectedHarvest}
           actionMenu={
             <ActionMenuHarvest
-              isCropComplete={crop.status === CROP_STATUS.COMPLETED}
+              isCropComplete={crop?.status === CROP_STATUS.COMPLETED}
               onEdit={() => formModal.showModal(selectedHarvest)}
               onDelete={() =>
                 deleteConfirmModal.showModal({ ids: [selectedHarvest.harvestHistoryId] })
@@ -278,7 +288,7 @@ function HarvestDays() {
               notifyNoData="No days to display"
               renderAction={(harvest: GetHarvestDay) => (
                 <ActionMenuHarvest
-                  isCropComplete={crop.status === CROP_STATUS.COMPLETED}
+                  isCropComplete={crop?.status === CROP_STATUS.COMPLETED}
                   onEdit={() => formModal.showModal(harvest)}
                   onDelete={() => deleteConfirmModal.showModal({ ids: [harvest.harvestHistoryId] })}
                   onOpenRecordModal={() => recordModal.showModal(harvest)}
