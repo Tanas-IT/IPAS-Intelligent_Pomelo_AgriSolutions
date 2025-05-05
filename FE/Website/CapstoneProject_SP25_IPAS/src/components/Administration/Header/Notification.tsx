@@ -6,6 +6,7 @@ import { Icons } from "@/assets";
 import { useRef, useState } from "react";
 import dayjs from "dayjs";
 import { GetNotification } from "@/payloads";
+import UserAvatar from "@/components/UI/UserAvatar";
 
 const { Text } = Typography;
 
@@ -15,7 +16,8 @@ const Notification = () => {
   const popoverRef = useRef<HTMLDivElement>(null);
   const [filter, setFilter] = useState<"All" | "Unread">("All");
 
-  const filteredNotifications = filter === "All" ? notifications : notifications.filter((n) => !n.isRead);
+  const filteredNotifications =
+    filter === "All" ? notifications : notifications.filter((n) => !n.isRead);
 
   const groupedNotifications = (filteredNotifications ?? []).reduce((acc, notification) => {
     const dateKey = dayjs(notification.createDate).format("DD/MM/YYYY");
@@ -34,7 +36,9 @@ const Notification = () => {
 
   const moreOptions = (
     <div>
-      <Button type="text" onClick={markAllAsRead}>Mark all as read</Button>
+      <Button type="text" onClick={markAllAsRead}>
+        Mark all as read
+      </Button>
     </div>
   );
 
@@ -65,7 +69,9 @@ const Notification = () => {
           dataSource={Object.entries(groupedNotifications)}
           renderItem={([date, items]) => (
             <div key={date}>
-              <Text type="secondary" style={{ marginLeft: 16 }}>{date}</Text>
+              <Text type="secondary" style={{ marginLeft: 16 }}>
+                {date}
+              </Text>
               {items.map((item) => (
                 <List.Item
                   className={style.notificationItem}
@@ -73,13 +79,15 @@ const Notification = () => {
                   onClick={() => markAsRead(item.notificationId)}
                 >
                   <List.Item.Meta
-                    avatar={<Avatar src={item.sender.avt} icon={!item.sender.avt ? <UserOutlined /> : undefined} />}
+                    avatar={<UserAvatar avatarURL={item.sender.avt || undefined} size={40} />}
                     title={
                       <Flex justify="space-between" align="center">
                         <div>
                           <Text strong>{item.title}</Text>
                           <Flex gap={4}>
-                            <Tag color={item.color} style={{ color: "#333333" }}>{item.masterType.masterTypeName}</Tag>
+                            <Tag color={item.color} style={{ color: "#333333" }}>
+                              {item.masterType.masterTypeName}
+                            </Tag>
                           </Flex>
                         </div>
                         <Text type="secondary" style={{ fontSize: 12 }}>
@@ -87,7 +95,11 @@ const Notification = () => {
                         </Text>
                       </Flex>
                     }
-                    description={<Text type="secondary" style={{ color: "#555" }}>{item.content}</Text>}
+                    description={
+                      <Text type="secondary" style={{ color: "#555" }}>
+                        {item.content}
+                      </Text>
+                    }
                   />
                   <span
                     className={style.unreadDot}
@@ -99,7 +111,6 @@ const Notification = () => {
                   >
                     ●
                   </span>
-
                 </List.Item>
               ))}
             </div>
@@ -115,13 +126,18 @@ const Notification = () => {
       trigger="click"
       placement="bottomLeft"
       overlayStyle={{
-        maxWidth: "350px", right: 300, boxShadow: "0 8px 16px rgba(0, 0, 0, 0.2)", borderRadius: "10px",
+        maxWidth: "350px",
+        right: 300,
+        boxShadow: "0 8px 16px rgba(0, 0, 0, 0.2)",
+        borderRadius: "10px",
       }}
       getPopupContainer={(triggerNode) => triggerNode.parentElement || document.body}
       destroyTooltipOnHide
     >
       <Badge count={unreadCount}>
-        <Button className={style.notificationButton}><Icons.regBell /></Button>
+        <Button className={style.notificationButton}>
+          <Icons.regBell />
+        </Button>
       </Badge>
     </Popover>
   );

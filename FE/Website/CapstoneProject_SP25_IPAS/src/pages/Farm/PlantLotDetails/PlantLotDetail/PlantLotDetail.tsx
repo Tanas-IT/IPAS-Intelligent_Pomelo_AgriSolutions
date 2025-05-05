@@ -131,6 +131,7 @@ function PlantLotDetail() {
       updateConfirmModal.hideModal();
     },
   });
+  console.log(lot);
 
   const infoFieldsLeft = [
     {
