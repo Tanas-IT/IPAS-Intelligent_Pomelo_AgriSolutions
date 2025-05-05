@@ -1948,11 +1948,11 @@ VALUES
     ('Not Started', 'PLN001', GETDATE(), '2025-04-02', '2025-04-10', GETDATE(), 1, 'Plan for watering spraying', 'Watering for all tree in farm', 
      'JohnDoe', NULL, 'Watering Plan', 3, NULL, 5.0, 2.0, NULL, NULL, 0, 15, 4, 1, 1, '00c889cf-3b65-4471-83ba-0a3362a5c9f4'),
     ('Done', 'PLN002', GETDATE(), '2025-05-01', '2025-05-01', GETDATE(), 1, 'Soil preparation', 'Detail 2', 
-     'JaneSmith', NULL, 'Soil Prep Plan', 3, NULL, NULL, NULL, NULL, NULL, 0, 11, 2, 1, 0,'cd108998-e339-4816-b798-97dffda9cda6'),
+     'JaneSmith', NULL, 'Soil Prep Plan', 3, NULL, NULL, NULL, NULL, NULL, 0, 18, 2, 1, 0,'cd108998-e339-4816-b798-97dffda9cda6'),
     ('Not Started', 'PLN003', GETDATE(), '2025-06-01', '2025-06-20', GETDATE(), 0, 'Harvesting completed', 'Detail 3', 
-     'AlexBrown', NULL, 'Harvest Plan', 3, NULL, NULL, NULL, 3, NULL, 1, 12, 3, 1, 0, 'a851c9fe-8ef3-467d-b41d-dacdf24010fc'),
+     'AlexBrown', NULL, 'Harvest Plan', 3, NULL, NULL, NULL, 3, NULL, 1, 18, 3, 1, 0, 'a851c9fe-8ef3-467d-b41d-dacdf24010fc'),
     ('Not Started', 'PLN004', GETDATE(), '2025-07-01', '2025-07-12', GETDATE(), 1, 'Irrigation management', 'Detail 4', 
-     'ChrisWhite', NULL, 'Irrigation Plan', 3, NULL, NULL, NULL, 4, NULL, 0, 13, 8, 1, 0, '81fc69c3-251d-4a33-97c8-ffef6fa0a5f0'),
+     'ChrisWhite', NULL, 'Irrigation Plan', 3, NULL, NULL, NULL, 4, NULL, 0, 18, 8, 1, 0, '81fc69c3-251d-4a33-97c8-ffef6fa0a5f0'),
     ('Not Started', 'PLN005', GETDATE(), '2025-04-16', '2025-04-18', GETDATE(), 1, 'Fertilizer application', 'Detail 5', 
      'EmilyGreen', NULL, 'Fertilization Plan', 3, 'Fertilizer X', 3.5, 1.5, NULL, NULL, 0, 16, 5, 1, 1, '00c889cf-3b65-4471-83ba-0a3362a5c9f4'),
     ('Not Started', 'PLN006', GETDATE(), '2025-09-01', '2025-09-15', GETDATE(), 0, 'Weed control applied', 'Detail 6', 
@@ -2773,23 +2773,33 @@ SELECT SubProcessID
 FROM SubProcess
 WHERE ProcessID = @TemplateProcessId
 ORDER BY [Order] ASC;
-
+DECLARE @MasterTypeID123 INT
+DECLARE @CountMasterType INT
+SET @CountMasterType = 1;
 OPEN SubProcessCursor;
 FETCH NEXT FROM SubProcessCursor INTO @SubProcessID;
 
 WHILE @@FETCH_STATUS = 0
 BEGIN
+	SET @MasterTypeID123 = 
+    CASE 
+        WHEN @CountMasterType = 1 THEN 18
+        WHEN @CountMasterType = 2 THEN 17
+        WHEN @CountMasterType = 3 THEN 45
+        ELSE NULL
+    END
     -- ==========================================
     -- 3. Insert Plan thực tế
     -- ==========================================
     INSERT INTO [Plan] (
         Status, PlanCode, PlanName, CreateDate, StartDate, EndDate, 
-        isActive, SubProcessID, FarmID, IsSample, KeyGroup, AssignorID
+        isActive, SubProcessID, FarmID, IsSample, KeyGroup, AssignorID, [MasterTypeID]
     )
     VALUES (
         'Active', 
         'PLAN_' + FORMAT(GETDATE(), 'yyyyMMdd_HHmmss') + '_' + LEFT(NEWID(), 8), 
-        (SELECT TOP 1 SubProcessName FROM SubProcess WHERE SubProcessID = @SubProcessID),
+       N'Kế hoạch ' + LOWER(LEFT((SELECT TOP 1 SubProcessName FROM SubProcess WHERE SubProcessID = @SubProcessID), 1)) + 
+              SUBSTRING((SELECT TOP 1 SubProcessName FROM SubProcess WHERE SubProcessID = @SubProcessID), 2, 100),
         GETDATE(), 
         @BaseStartDate, 
         DATEADD(DAY, @DaysPerPlan - 1, @BaseStartDate),
@@ -2798,7 +2808,8 @@ BEGIN
         @FarmID, 
         0,
 		@GroupKey,
-	3
+	     3,
+	     @MasterTypeID123
     );
 
     DECLARE @NewPlanID INT = SCOPE_IDENTITY();
@@ -2882,7 +2893,7 @@ BEGIN
     -- 8. Move BaseStartDate cho Plan kế tiếp
     -- ==========================================
     SET @BaseStartDate = DATEADD(DAY, @DaysPerPlan, @BaseStartDate);
-
+    SET @CountMasterType = @CountMasterType + 1;
     FETCH NEXT FROM SubProcessCursor INTO @SubProcessID;
 END
 
@@ -2898,8 +2909,8 @@ DECLARE @UserID6 INT, @UserID7 INT;
 DECLARE @MasterTypeID INT;
 
 -- Lấy 2 UserID có RoleId = 5
-SELECT TOP 1 @UserID6 = UserID FROM [ipas].dbo.UserFarm WHERE RoleId = 5;
-SELECT TOP 1 @UserID7 = UserID FROM [ipas].dbo.UserFarm WHERE RoleId = 5 AND UserID <> @UserID6;
+SELECT TOP 1 @UserID6 = UserID FROM [ipas].dbo.UserFarm WHERE RoleId = 5 AND FarmID = 1;
+SELECT TOP 1 @UserID7 = UserID FROM [ipas].dbo.UserFarm WHERE RoleId = 5 AND FarmID = 1 AND UserID <> @UserID6;
 
 WHILE @k <= 10
 BEGIN
@@ -2945,7 +2956,7 @@ BEGIN
 
     -- Thêm CarePlanSchedule
     INSERT INTO ipas.dbo.CarePlanSchedule (DayOfWeek, Status, StartTime, EndTime, HarvestHistoryID, FarmID)
-    VALUES (DATENAME(WEEKDAY, @HarvestDate), 'Completed', '08:00:00', '12:00:00', @HarvestHistoryID, 1);
+    VALUES (DATENAME(WEEKDAY, @HarvestDate), 'Completed', '22:30:00', '23:30:00', @HarvestHistoryID, 1);
 
     SET @ScheduleID2 = SCOPE_IDENTITY();
 

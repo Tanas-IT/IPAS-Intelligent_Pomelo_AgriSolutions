@@ -14,8 +14,15 @@ namespace CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.WeatherModel
         public Wind wind { get; set; }
         public string name { get; set; }
         public int timezone { get; set; }
+        public int visibility { get; set; }
+        public SysInfo sys { get; set; }
     }
 
+    public class SysInfo
+    {
+        public long sunrise { get; set; } 
+        public long sunset { get; set; }  
+    }
     public class Coord
     {
         public double lon { get; set; }

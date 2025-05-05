@@ -1139,11 +1139,11 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         validatePlan.SubProcessId = updatePlanModel.SubProcessId.Value;
                         var getProcessBySub = await _unitOfWork.SubProcessRepository.GetProcessBySubProcessId(updatePlanModel.SubProcessId.Value);
                         checkProcessId = getProcessBySub.ProcessId;
-                    }
-                    var errors = await ValidatePlansAgainstTemplate(checkProcessId, new List<CreatePlanModel>() { validatePlan });
-                    if (errors.Any())
-                    {
-                        return new BusinessResult(400, string.Join("\n", errors));
+                        var errors = await ValidatePlansAgainstTemplate(checkProcessId, new List<CreatePlanModel>() { validatePlan });
+                        if (errors.Any())
+                        {
+                            return new BusinessResult(400, string.Join("\n", errors));
+                        }
                     }
                     var checkExistPlan = await _unitOfWork.PlanRepository.GetPlanByInclude(updatePlanModel.PlanId);
                     if (updatePlanModel.StartTime != null && updatePlanModel.EndTime != null)
@@ -1989,7 +1989,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
                 foreach (var customeDate in updatePlanModel.CustomDates)
                 {
-                    if (customeDate >= currentDate && customeDate <= plan.EndDate)
+                    if (customeDate.Date >= currentDate && customeDate.Date <= plan.EndDate.Value.Date)
                     {
                         var tempModel = conflictCustomDates.Contains(customeDate)
                             ? new UpdatePlanModel(updatePlanModel) { ListEmployee = null }
