@@ -247,8 +247,6 @@ function HarvestDays() {
       onApply={applyFilters}
     />
   );
-  console.log("isHarvestDetailView", isHarvestDetailView);
-  console.log("selectedHarvest", selectedHarvest);
 
   return (
     <Flex className={style.contentDetailWrapper}>

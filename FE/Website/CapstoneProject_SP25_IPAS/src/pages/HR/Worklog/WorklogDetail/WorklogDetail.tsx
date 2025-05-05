@@ -9,7 +9,7 @@ import { useModal } from "@/hooks";
 import { CreateFeedbackRequest, GetFeedback } from "@/payloads/feedback";
 import { useEffect, useState } from "react";
 import FeedbackModal from "./FeedbackModal/FeedbackModal";
-import { feedbackService, harvestService, worklogService } from "@/services";
+import { cropService, feedbackService, harvestService, worklogService } from "@/services";
 import {
   CancelReplacementRequest,
   GetWorklogDetail,
@@ -19,7 +19,7 @@ import {
   UpdateWorklogReq,
 } from "@/payloads/worklog";
 import { formatDate, formatDateW, getUserId } from "@/utils";
-import { PlanTarget, PlanTargetModel } from "@/payloads";
+import { GetCropDetail, PlanTarget, PlanTargetModel } from "@/payloads";
 import { ConfirmModal, CustomButton, Loading, Tooltip, UserAvatar } from "@/components";
 import PlanTargetTable from "@/pages/Plan/PlanDetails/PlanTargetTable";
 import AttendanceModal from "./AttendanceModal";
@@ -37,6 +37,7 @@ const InfoField = ({
   planId,
   processId,
   isTag = false,
+  isHarvest = false,
   handleViewDetail,
 }: {
   icon: React.ElementType;
@@ -45,6 +46,7 @@ const InfoField = ({
   planId?: number;
   processId?: number;
   isTag?: boolean;
+  isHarvest?: boolean;
   handleViewDetail: (value: number) => void;
 }) => {
   const navigate = useNavigate();
@@ -64,13 +66,12 @@ const InfoField = ({
         <Icon className={style.fieldIcon} />
         <label className={style.fieldLabel}>{label}:</label>
       </Flex>
-
       <label className={style.fieldValue}>
         {isClickable ? (
           <span className={style.linkText} onClick={() => navigate(path!)}>
             {value}
           </span>
-        ) : label === "Harvest" && value !== "None" ? (
+        ) : label === "Harvest" && isHarvest ? (
           <Button type="dashed" onClick={() => handleViewDetail(Number(value))}>
             View Harvest Detail
           </Button>
@@ -106,7 +107,7 @@ function WorklogDetail() {
   const [initialReporterId, setInitialReporterId] = useState<number | undefined>(undefined);
   const [selectedDate, setSelectedDate] = useState<string>("");
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
-  const { setIsHarvestDetailView, setSelectedHarvest } = useCropStore();
+  const { setIsHarvestDetailView, setSelectedHarvest, setCrop } = useCropStore();
   const rawStatus = worklogDetail?.status || "Not Started";
   const normalizedStatus = rawStatus.toLowerCase();
   const classKey = normalizedStatus.replace(/\s+/g, "");
@@ -117,8 +118,14 @@ function WorklogDetail() {
     const res = await harvestService.getHarvest(id);
     setSelectedHarvest(res.data);
     setIsHarvestDetailView(true); // Đánh dấu đang xem chi tiết
-    if (worklogDetail?.cropId) {
-      navigate(ROUTES.CROP_DETAIL(worklogDetail?.cropId || 0), {
+
+    const cropId = worklogDetail?.cropId;
+    if (cropId) {
+      // 👉 Gọi API để lấy crop detail trước khi navigate
+      const cropRes = await cropService.getCropOfFarm(cropId);
+      setCrop(cropRes.data); // Gán crop vào store
+
+      navigate(ROUTES.CROP_DETAIL(cropId), {
         state: { isFromWorklog: true },
       });
     }
@@ -387,15 +394,15 @@ function WorklogDetail() {
   };
 
   const [infoFieldsLeft, setInfoFieldsLeft] = useState([
-    { label: "Crop", value: "Spring 2025", icon: Icons.growth },
-    { label: "Plan Name", value: "Plan name", icon: Icons.box },
-    { label: "Growth Stage", value: "Cây non", icon: Icons.plant },
+    { label: "Crop", value: "N/A", icon: Icons.growth },
+    { label: "Plan Name", value: "N/A", icon: Icons.box },
+    { label: "Growth Stage", value: "N/A", icon: Icons.plant },
   ]);
 
   const [infoFieldsRight, setInfoFieldsRight] = useState([
-    { label: "Process Name", value: "Caring Process for Pomelo Tree", icon: Icons.process },
-    { label: "Type", value: "Watering", icon: Icons.category, isTag: true },
-    { label: "Harvest", value: "Harvest", icon: Icons.category, isTag: false },
+    { label: "Process Name", value: "N/A", icon: Icons.process },
+    { label: "Type", value: "N/A", icon: Icons.category, isTag: true },
+    { label: "Harvest", value: "N/A", icon: Icons.plant, isTag: false, isHarvest: false },
   ]);
 
   const addModal = useModal<CreateFeedbackRequest>();
@@ -576,7 +583,9 @@ function WorklogDetail() {
         {
           label: "Harvest",
           value: res.isHarvest ? "Yes" : "No",
-          icon: Icons.plant,
+          icon: Icons.category,
+          isHarvest: res.isHarvest,
+          isTag: false,
         },
       ]);
 
@@ -949,6 +958,7 @@ function WorklogDetail() {
               label={field.label}
               value={field.value}
               isTag={field.isTag}
+              isHarvest={field.label === "Harvest" ? field.isHarvest : false}
               planId={worklogDetail?.planId}
               processId={worklogDetail?.processId}
               handleViewDetail={() => handleViewDetail(worklogDetail?.harvestHistoryId || 0)}
@@ -1015,13 +1025,13 @@ function WorklogDetail() {
                             Update
                           </Button>
                         )}
-                      <Button
+                      {/* <Button
                         className={style.deleteButton}
                         onClick={() => handleOpenDeleteModal(item)}
                         disabled
                       >
                         Delete
-                      </Button>
+                      </Button> */}
                       {["Redo", "Failed"].includes(worklogDetail.status) &&
                         !worklogDetail.redoWorkLog && (
                           <Button

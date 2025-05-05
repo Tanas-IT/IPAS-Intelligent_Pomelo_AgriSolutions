@@ -63,6 +63,7 @@ namespace CapstoneProject_SP25_IPAS_Repository.UnitOfWork
         public SystemConfigRepository SystemConfigRepository { get; }
         public EmployeeSkillRepository EmployeeSkillRepository { get; }
         public PackageDetailRepository PackageDetailRepository { get; }
+        public GrowthStagePlanRepository GrowthStagePlanRepository { get; }
 
     }
 }

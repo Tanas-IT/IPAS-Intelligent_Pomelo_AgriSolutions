@@ -1308,7 +1308,12 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                             {
                                 if (!existingGrowthStageIds.Contains(newId))
                                 {
-                                    checkExistPlan.GrowthStagePlans.Add(new GrowthStagePlan { GrowthStageID = newId });
+                                    var newGrowthStagePlan = new GrowthStagePlan()
+                                    {
+                                        GrowthStageID = newId,
+                                        PlanID = checkExistPlan.PlanId
+                                    };
+                                    await _unitOfWork.GrowthStagePlanRepository.Insert(newGrowthStagePlan);
                                 }
                             }
                             await _unitOfWork.SaveAsync();

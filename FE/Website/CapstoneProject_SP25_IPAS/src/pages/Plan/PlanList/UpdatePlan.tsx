@@ -475,6 +475,8 @@ const UpdatePlan = () => {
       })),
       listLandPlotOfCrop: values.listLandPlotOfCrop,
     };
+    console.log("planDataPayload", planDataPayload);
+    
 
     if (id) {
       const result = await planService.updatePlan(planDataPayload);
