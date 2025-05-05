@@ -42,7 +42,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
             // Tạo URL API từ cấu hình
             var weatherUrl = $"{_configuration["WeatherConfig:WeatherUrl"]}?lat={lat}&lon={lon}&units=metric&appid={_configuration["WeatherConfig:ApiKey"]}";
-            var forecastUrl = $"https://api.openweathermap.org/data/2.5/forecast?lat={lat}&lon={lon}&appid={_configuration["WeatherConfig:ApiKey"]}";
+            var forecastUrl = $"{_configuration["WeatherConfig:ForecastUrl"]}?lat={lat}&lon={lon}&appid={_configuration["WeatherConfig:ApiKey"]}";
             var airUrl = $"{_configuration["WeatherConfig:AirPollutionUrl"]}?lat={lat}&lon={lon}&appid={_configuration["WeatherConfig:ApiKey"]}";
 
             try
@@ -51,9 +51,6 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 var weatherRes = await _httpClient.GetFromJsonAsync<WeatherResponse>(weatherUrl) ?? throw new Exception("Weather API response is null.");
                 var forecastRes = await _httpClient.GetFromJsonAsync<ForecastResponse>(forecastUrl) ?? throw new Exception("Forecast API response is null.");
                 var airRes = await _httpClient.GetFromJsonAsync<AirPollutionResponse>(airUrl) ?? throw new Exception("Air Pollution API response is null.");
-                Console.WriteLine(JsonConvert.SerializeObject(forecastRes));
-                Console.WriteLine("----------------------------------------");
-                Console.WriteLine(JsonConvert.SerializeObject(weatherRes));
                 // Ép kiểu danh sách dự báo trước khi sử dụng LINQ
                 var forecastList = forecastRes.list as IEnumerable<dynamic> ?? throw new Exception("Forecast list is null or invalid.");
 
@@ -77,7 +74,10 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         Pressure = weatherRes.main.pressure,
                         WindSpeed = weatherRes.wind.speed,
                         WindDeg = weatherRes.wind.deg,
-                        WindDirection = DegreeToCardinal(weatherRes.wind.deg)
+                        WindDirection = DegreeToCardinal(weatherRes.wind.deg),
+                        Visibility = weatherRes.visibility,
+                        Sunrise = DateTimeOffset.FromUnixTimeSeconds(weatherRes.sys.sunrise).ToLocalTime().DateTime,
+                        Sunset = DateTimeOffset.FromUnixTimeSeconds(weatherRes.sys.sunset).ToLocalTime().DateTime
                     },
                     Today = new TodayInfo
                     {
@@ -126,7 +126,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                             Time = DateTime.Parse(f.dt_txt).ToString("HH:mm"),
                             Value = f.rain != null ? f.rain._3h : 0 // Nếu không có rain, đặt là 0
                         }).Take(24).ToList()
-                    }
+                    },
 
                 };
 

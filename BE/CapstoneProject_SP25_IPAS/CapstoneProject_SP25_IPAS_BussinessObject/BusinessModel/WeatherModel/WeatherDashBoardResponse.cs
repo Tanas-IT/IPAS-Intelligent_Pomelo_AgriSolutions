@@ -39,6 +39,9 @@ namespace CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.WeatherModel
         public double? WindSpeed { get; set; }
         public int? WindDeg { get; set; }
         public string? WindDirection { get; set; }
+        public int? Visibility { get; set; }    
+        public DateTime? Sunrise { get; set; }   
+        public DateTime? Sunset { get; set; }
     }
 
     public class AirQualityInfo
