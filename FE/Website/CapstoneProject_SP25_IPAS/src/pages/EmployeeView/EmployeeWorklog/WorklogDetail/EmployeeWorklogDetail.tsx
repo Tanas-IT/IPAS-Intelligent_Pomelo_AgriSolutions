@@ -376,7 +376,7 @@ function EmployeeWorklogDetail() {
                     </Flex>
                     <Flex gap={15}>
                         <label className={style.textUpdated}>Supplementary Worklog:</label>
-                        {worklogDetail?.redoWorkLog ? (
+                        {worklogDetail?.redoWorkLog && worklogDetail.redoWorkLog.listEmployee.includes(Number(getUserId())) ? (
                             <CustomButton
                                 label="View Detail"
                                 handleOnClick={() =>

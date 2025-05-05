@@ -354,6 +354,26 @@ function Weather() {
     Mist: "linear-gradient(to right, #57d6d4, #7leeec)",
   };
 
+  const windDirectionMap: Record<string, string> = {
+    N: "North",
+    NNE: "North-Northeast",
+    NE: "Northeast",
+    ENE: "East-Northeast",
+    E: "East",
+    ESE: "East-Southeast",
+    SE: "Southeast",
+    SSE: "South-Southeast",
+    S: "South",
+    SSW: "South-Southwest",
+    SW: "Southwest",
+    WSW: "West-Southwest",
+    W: "West",
+    WNW: "West-Northwest",
+    NW: "Northwest",
+    NNW: "North-Northwest",
+  };
+
+
   const getWeatherImage = (weather?: string): string => {
     return weather && weather in weatherImages
       ? weatherImages[weather]
@@ -532,7 +552,12 @@ function Weather() {
                 </Col>
               </Row>
               <h3 className={style.mainValue}>{weatherData?.airQuality.value || 0}</h3>
-              <p>{weatherData?.current.windDirection || "N/A"} West Wind</p>
+              <p>
+                {weatherData?.current.windDirection
+                  ? `${windDirectionMap[weatherData.current.windDirection] || weatherData.current.windDirection} Wind`
+                  : "N/A"}
+              </p>
+
             </div>
           </Flex>
           <Flex style={{ flex: 3 }}>
