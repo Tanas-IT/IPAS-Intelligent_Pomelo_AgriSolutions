@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import {
   View,
   Text,
@@ -12,7 +12,7 @@ import {
   RootStackNavigationProp,
   WorklogDetailScreenProps,
 } from "@/constants/Types";
-import { useNavigation } from "@react-navigation/native";
+import { useFocusEffect, useNavigation } from "@react-navigation/native";
 import { ROUTE_NAMES } from "@/constants/RouteNames";
 import {
   CancelWorklogRequest,
@@ -60,9 +60,11 @@ const WorklogDetailScreen: React.FC<WorklogDetailScreenProps> = ({ route }) => {
       setLoading(false);
     }
   };
-  useEffect(() => {
-    fetchWorklogDetail();
-  }, [worklogId]);
+  useFocusEffect(
+    useCallback(() => {
+      fetchWorklogDetail();
+    }, [])
+  );
 
   const isUserRejected = () => {
     const isRejectedInEmployee =
