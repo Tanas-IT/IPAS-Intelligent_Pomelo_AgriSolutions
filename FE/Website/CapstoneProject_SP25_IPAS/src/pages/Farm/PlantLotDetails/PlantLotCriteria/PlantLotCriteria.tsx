@@ -140,7 +140,7 @@ function PlantLotCriteria() {
         (target === CRITERIA_TARGETS["Plantlot Evaluation"] && quantity === lot.lastQuantity) ||
         (target === CRITERIA_TARGETS["Plantlot Condition"] && quantity === lot.inputQuantity)
       ) {
-        // Không gọi API nếu số lượng không thay đổi
+        quantityModal.hideModal();
       } else if (quantity !== null && quantity !== undefined && isAllCompletedCheckUpdate) {
         var resUpdate = await plantLotService.updateQuantityLot(lot.plantLotId, target, quantity);
 

@@ -44,8 +44,15 @@ function HarvestDays() {
   const importErrorModal = useModal<{ errors: string[] }>();
   const cancelConfirmModal = useModal();
   const { isDirty } = useDirtyStore();
-  const { crop, setCrop, isHarvestDetailView, setIsHarvestDetailView, markForRefetch, selectedHarvest, setSelectedHarvest } =
-    useCropStore();
+  const {
+    crop,
+    setCrop,
+    isHarvestDetailView,
+    setIsHarvestDetailView,
+    markForRefetch,
+    selectedHarvest,
+    setSelectedHarvest,
+  } = useCropStore();
   // if (!crop) return;
 
   const handleViewDetail = (selected: GetHarvestDay) => {
@@ -240,9 +247,6 @@ function HarvestDays() {
       onApply={applyFilters}
     />
   );
-  console.log("isHarvestDetailView", isHarvestDetailView);
-  console.log("selectedHarvest", selectedHarvest);
-  
 
   return (
     <Flex className={style.contentDetailWrapper}>
