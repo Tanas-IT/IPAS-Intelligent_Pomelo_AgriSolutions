@@ -418,7 +418,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isDefault = false }) => {
           label: "Work Schedules",
           icon: Images.radius,
           to: PATHS.HR.WORKLOG_CALENDAR,
-          activePaths: [PATHS.HR.WORKLOG_CALENDAR],
+          activePaths: [PATHS.HR.WORKLOG_CALENDAR, PATHS.HR.WORKLOG_DETAIL],
         },
       ],
       category: "Main",

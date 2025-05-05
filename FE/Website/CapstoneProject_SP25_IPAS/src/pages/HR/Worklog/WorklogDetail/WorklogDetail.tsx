@@ -794,24 +794,24 @@ function WorklogDetail() {
                 worklogDetail.replacementEmployee.map((e) => (
                   <Tooltip key={e.userId} title={`Replacing: ${e.fullName}`} placement="top">
                     <div className={style.replacementBadge}>
-                      <Flex align="center" vertical gap={6}>
-                        <Badge
-                          count={
-                            <Icons.delUser
-                              className={style.deleteIcon}
-                              onClick={(event) => {
-                                event.stopPropagation();
-                                handleRemoveReplacement(e.userId);
-                              }}
-                            />
-                          }
-                          offset={[5, -3]}
-                          style={{ backgroundColor: "white", cursor: "pointer" }}
-                        >
+                      <Badge
+                        count={
+                          <Icons.delUser
+                            className={style.deleteIcon}
+                            onClick={(event) => {
+                              event.stopPropagation();
+                              handleRemoveReplacement(e.userId);
+                            }}
+                          />
+                        }
+                        offset={[5, -3]}
+                        style={{ backgroundColor: "white", cursor: "pointer" }}
+                      >
+                        <Flex align="center" gap={6}>
                           <UserAvatar avatarURL={e.avatar || undefined} size={25} />
                           <span className={style.replacementText}>{e.replaceUserFullName}</span>
-                        </Badge>
-                      </Flex>
+                        </Flex>
+                      </Badge>
                     </div>
                   </Tooltip>
                 ))

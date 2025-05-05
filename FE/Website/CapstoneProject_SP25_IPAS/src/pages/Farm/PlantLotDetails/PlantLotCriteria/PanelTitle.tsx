@@ -2,11 +2,10 @@ import { Flex, Tag } from "antd";
 import style from "./PlantLotCriteria.module.scss";
 import { Icons } from "@/assets";
 import { CustomButton, MapControls, Tooltip } from "@/components";
-import { GetCriteriaCheck, GetPlantLotDetail } from "@/payloads";
+import { GetCriteriaCheck } from "@/payloads";
 import { formatDateRange } from "@/utils";
 import { usePlantLotStore } from "@/stores";
 import { CRITERIA_TARGETS } from "@/constants";
-import { useEffect } from "react";
 
 interface PanelTitleProps {
   title: string;
@@ -45,7 +44,7 @@ const PanelTitle = ({
   onUpdateQuantity,
   isCompleted = false,
 }: PanelTitleProps) => {
-  const { lot, setLot } = usePlantLotStore();
+  const { lot } = usePlantLotStore();
   if (!lot) return;
   const completedCount = data.filter((item) => item.isPassed).length;
 
@@ -111,7 +110,7 @@ const PanelTitle = ({
           </Tooltip>
         )}
         {isAllConditionChecked &&
-          // (lot.inputQuantity === undefined || lot.inputQuantity === null) &&
+          ((!lot.isFromGrafted && lot.inputQuantity == null) || lot.isFromGrafted) &&
           !lot.isPassed &&
           target === CRITERIA_TARGETS["Plantlot Condition"] && (
             <MapControls
