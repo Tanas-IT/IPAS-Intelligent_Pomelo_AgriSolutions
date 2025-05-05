@@ -107,6 +107,7 @@ namespace CapstoneProject_SP25_IPAS_API.ProgramConfig
             services.AddScoped<ISystemConfigRepository, SystemConfigRepository>();
             services.AddScoped<IEmployeeSkillRepository, EmployeeSkillRepository>();
             services.AddScoped<IPackageDetailRepository, PackageDetailRepository>();
+            services.AddScoped<IGrowthStagePlanRepository, GrowthStagePlanRepository>();
 
 
 
