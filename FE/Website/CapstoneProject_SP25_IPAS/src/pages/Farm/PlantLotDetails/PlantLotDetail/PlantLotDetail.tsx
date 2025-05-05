@@ -152,13 +152,13 @@ function PlantLotDetail() {
     { label: "Unit", value: lot?.unit, icon: Icons.scale },
     { label: "Initial Quantity", value: lot?.previousQuantity, icon: Icons.box },
     {
-      label: "Checked  Quantity",
-      value: !lot?.inputQuantity ? "Checking..." : lot?.inputQuantity,
+      label: "Checked Quantity",
+      value: lot?.inputQuantity == null ? "Checking..." : lot?.inputQuantity,
       icon: Icons.checkSuccuss,
     },
     {
       label: "Qualified Quantity",
-      value: !lot?.lastQuantity ? "Checking..." : lot?.lastQuantity,
+      value: lot?.lastQuantity == null ? "Checking..." : lot?.lastQuantity,
       icon: Icons.star,
     },
     { label: "Assigned Quantity", value: lot?.usedQuantity ?? 0, icon: Icons.share },
