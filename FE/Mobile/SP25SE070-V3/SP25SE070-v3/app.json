@@ -4,11 +4,11 @@
     "slug": "SP25SE070-v3",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./assets/icon.png",
+    "icon": "./src/assets/icon.png",
     "userInterfaceStyle": "light",
     "newArchEnabled": true,
     "splash": {
-      "image": "./assets/splash-icon.png",
+      "image": "./src/assets/splash-icon.png",
       "resizeMode": "contain",
       "backgroundColor": "#ffffff"
     },
@@ -23,7 +23,7 @@
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./assets/adaptive-icon.png",
+        "foregroundImage": "./src/assets/adaptive-icon.png",
         "backgroundColor": "#ffffff"
       },
       "permissions": [
@@ -33,13 +33,13 @@
       "package": "com.laggg.SP25SE070"
     },
     "web": {
-      "favicon": "./assets/favicon.png"
+      "favicon": "./src/assets/favicon.png"
     },
     "plugins": [
       [
         "expo-font",
         {
-          "fonts": ["./assets/fonts/BalsamiqSans-Regular.ttf"]
+          "fonts": ["./src/assets/fonts/BalsamiqSans-Regular.ttf"]
         }
       ],
       [
