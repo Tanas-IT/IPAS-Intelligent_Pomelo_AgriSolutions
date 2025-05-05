@@ -28,6 +28,7 @@ export * as expertService from "./ExpertService";
 export * as ChatBoxService from "./ChatBoxService";
 export * as systemConfigService from "./SystemConfigService";
 export * as tagService from "./TagService";
+export * as weatherService from "./WeatherService";
 
 
 
