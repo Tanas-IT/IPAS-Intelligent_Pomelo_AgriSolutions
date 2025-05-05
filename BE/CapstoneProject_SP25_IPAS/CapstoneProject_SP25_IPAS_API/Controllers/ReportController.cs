@@ -19,11 +19,13 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
     {
         private readonly IReportService _reportService;
         private readonly IJwtTokenService _jwtTokenService;
+        private readonly IWeatherService _weatherService;
 
-        public ReportController(IReportService reportService, IJwtTokenService jwtTokenService)
+        public ReportController(IReportService reportService, IJwtTokenService jwtTokenService, IWeatherService weatherService)
         {
             _reportService = reportService;
             _jwtTokenService = jwtTokenService;
+            _weatherService = weatherService;
         }
         [HttpGet(APIRoutes.Report.CropCareReport, Name = "CropCareReport")]
         [HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)}")]
@@ -445,6 +447,23 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             }
         }
 
+        [HttpGet(APIRoutes.Report.GetWeather, Name = "GetWeather")]
+        public async Task<IActionResult> GetWeather(int? farmId)
+        {
+            if (!farmId.HasValue)
+                farmId = _jwtTokenService.GetFarmIdFromToken() ?? 0;
+            if (!farmId.HasValue)
+            {
+                var response = new BaseResponse()
+                {
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    Message = "farm id is not exist"
+                };
+                return BadRequest(response);
+            }
+            var weather = await _weatherService.GetWeatherAsync(farmId.Value);
+            return Ok(weather);
+        }
     }
 
 }
