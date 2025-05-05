@@ -59,7 +59,7 @@ const Sidebar: React.FC<SidebarProps> = ({ isDefault = false }) => {
     {
       key: "Dashboard",
       label: "Dashboard",
-      icon: <Icons.users />,
+      icon: <Icons.dashboard />,
       to: PATHS.ADMIN.DASHBOARD,
       activePaths: [PATHS.ADMIN.DASHBOARD],
       category: "Main",
