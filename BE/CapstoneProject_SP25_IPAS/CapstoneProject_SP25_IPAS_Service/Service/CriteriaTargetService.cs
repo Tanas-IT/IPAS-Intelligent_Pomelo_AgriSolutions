@@ -807,7 +807,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 if (request.PlantIds!.Any())
                 {
                     CriteriaTargetList = (await _unitOfWork.CriteriaTargetRepository
-                    .GetAllNoPaging(filter: x => request.PlantIds.Contains(x.PlantID!.Value) && criteriaList.Contains(x.CriteriaID!.Value), includeProperties: "Criteria")).ToList();
+                    .GetAllNoPaging(filter: x => request.PlantIds.Contains(x.PlantID!.Value) /*&& criteriaList.Contains(x.CriteriaID!.Value)*/, includeProperties: "Criteria")).ToList();
                 }
 
                 if (!CriteriaTargetList.Any())

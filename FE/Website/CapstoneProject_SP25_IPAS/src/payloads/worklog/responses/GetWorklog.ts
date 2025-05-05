@@ -124,6 +124,7 @@ interface RedoWorkLog {
   status: string
   workLogName: string
   date: string
+  listEmployee: number[]
 }
 
 export interface ReplacementEmployee {
