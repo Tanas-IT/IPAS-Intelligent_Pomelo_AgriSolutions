@@ -2773,23 +2773,33 @@ SELECT SubProcessID
 FROM SubProcess
 WHERE ProcessID = @TemplateProcessId
 ORDER BY [Order] ASC;
-
+DECLARE @MasterTypeID123 INT
+DECLARE @CountMasterType INT
+SET @CountMasterType = 1;
 OPEN SubProcessCursor;
 FETCH NEXT FROM SubProcessCursor INTO @SubProcessID;
 
 WHILE @@FETCH_STATUS = 0
 BEGIN
+	SET @MasterTypeID123 = 
+    CASE 
+        WHEN @CountMasterType = 1 THEN 18
+        WHEN @CountMasterType = 2 THEN 17
+        WHEN @CountMasterType = 3 THEN 45
+        ELSE NULL
+    END
     -- ==========================================
     -- 3. Insert Plan thực tế
     -- ==========================================
     INSERT INTO [Plan] (
         Status, PlanCode, PlanName, CreateDate, StartDate, EndDate, 
-        isActive, SubProcessID, FarmID, IsSample, KeyGroup, AssignorID
+        isActive, SubProcessID, FarmID, IsSample, KeyGroup, AssignorID, [MasterTypeID]
     )
     VALUES (
         'Active', 
         'PLAN_' + FORMAT(GETDATE(), 'yyyyMMdd_HHmmss') + '_' + LEFT(NEWID(), 8), 
-        (SELECT TOP 1 SubProcessName FROM SubProcess WHERE SubProcessID = @SubProcessID),
+       N'Kế hoạch ' + LOWER(LEFT((SELECT TOP 1 SubProcessName FROM SubProcess WHERE SubProcessID = @SubProcessID), 1)) + 
+              SUBSTRING((SELECT TOP 1 SubProcessName FROM SubProcess WHERE SubProcessID = @SubProcessID), 2, 100),
         GETDATE(), 
         @BaseStartDate, 
         DATEADD(DAY, @DaysPerPlan - 1, @BaseStartDate),
@@ -2798,7 +2808,8 @@ BEGIN
         @FarmID, 
         0,
 		@GroupKey,
-	3
+	     3,
+	     @MasterTypeID123
     );
 
     DECLARE @NewPlanID INT = SCOPE_IDENTITY();
@@ -2882,7 +2893,7 @@ BEGIN
     -- 8. Move BaseStartDate cho Plan kế tiếp
     -- ==========================================
     SET @BaseStartDate = DATEADD(DAY, @DaysPerPlan, @BaseStartDate);
-
+    SET @CountMasterType = @CountMasterType + 1;
     FETCH NEXT FROM SubProcessCursor INTO @SubProcessID;
 END
 
