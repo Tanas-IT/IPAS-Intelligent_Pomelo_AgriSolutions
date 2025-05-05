@@ -122,10 +122,9 @@ function WorklogDetail() {
   const [initialReporterId, setInitialReporterId] = useState<number | undefined>(undefined);
   const [selectedDate, setSelectedDate] = useState<string>("");
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
-  const { crop, setCrop, isHarvestDetailView, setIsHarvestDetailView, markForRefetch } =
+  const { crop, setCrop, isHarvestDetailView, setIsHarvestDetailView, markForRefetch, setSelectedHarvest } =
     useCropStore();
   const deleteConfirmModal = useModal<{ ids: number[] }>();
-  const [selectedHarvest, setSelectedHarvest] = useState<GetHarvestDay | null>(null);
   const rawStatus = worklogDetail?.status || "Not Started";
   const normalizedStatus = rawStatus.toLowerCase();
   const classKey = normalizedStatus.replace(/\s+/g, "");
@@ -138,7 +137,10 @@ function WorklogDetail() {
     const res = await harvestService.getHarvest(id);
     setSelectedHarvest(res.data);
     setIsHarvestDetailView(true); // Đánh dấu đang xem chi tiết
-    navigate(ROUTES.CROP_DETAIL(9))
+    if (worklogDetail?.cropId) {
+      navigate(ROUTES.CROP_DETAIL(worklogDetail?.cropId || 0));
+
+    }
   };
   
   const handleUpdateFeedback = (feedback: TaskFeedback) => {
@@ -1121,25 +1123,7 @@ function WorklogDetail() {
         onClose={() => setIsModalOpen(false)}
         worklogId={worklogDetail?.workLogId || 0}
       />
-      {selectedHarvest && (
-        <HarvestDayDetail
-          selectedHarvest={selectedHarvest}
-          actionMenu={
-            <ActionMenuHarvest
-              isCropComplete={crop?.status === CROP_STATUS.COMPLETED}
-              onEdit={() => formHarvestModal.showModal(selectedHarvest)}
-              onDelete={() =>
-                deleteConfirmModal.showModal({ ids: [selectedHarvest.harvestHistoryId] })
-              }
-              onOpenRecordModal={() => recordModal.showModal(selectedHarvest)}
-              onImport={() =>
-                importModal.showModal({ harvestId: selectedHarvest.harvestHistoryId })
-              }
-            />
-          }
-        />
-      )
-      }
+    
 
       <Modal
         title="Confirm Completion"

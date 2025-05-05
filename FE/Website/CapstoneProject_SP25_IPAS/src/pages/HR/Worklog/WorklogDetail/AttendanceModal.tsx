@@ -29,7 +29,6 @@ const AttendanceModal: React.FC<AttendanceModalProps> = ({
   isTakeAttendance,
 }) => {
   const [list, setList] = useState<GetAttendanceList[]>([]);
-  console.log("list", list);
 
   const fetchListAttendance = async () => {
     const result = await worklogService.getAttendanceList(worklogId);

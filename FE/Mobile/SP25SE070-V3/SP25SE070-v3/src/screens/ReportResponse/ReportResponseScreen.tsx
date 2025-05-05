@@ -112,7 +112,7 @@ const ReportResponseScreen = () => {
             styles.card,
             {
               borderLeftWidth: 5,
-              borderLeftColor: item.answerFromExpert ? "#4CAF50" : "#F7AF4A",
+              borderLeftColor: item.answerFromExpert ? "#4CAF50" : "#FFA726",
             },
           ]}
           onPress={() => openModal(item)}
@@ -126,7 +126,7 @@ const ReportResponseScreen = () => {
               <CustomIcon
                 name={item.answerFromExpert ? "check-circle" : "alert-circle"}
                 size={20}
-                color={item.answerFromExpert ? "#4CAF50" : "#F7AF4A"}
+                color={item.answerFromExpert ? "#4CAF50" : "#FFA726"}
                 type="MaterialCommunityIcons"
               />
             </View>

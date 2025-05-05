@@ -3,7 +3,6 @@ import style from "./SectionHeader.module.scss";
 import { Flex } from "antd";
 import { Icons } from "@/assets";
 import EditActions from "../EditActions/EditActions";
-import CustomButton from "../../Button/CustomButton";
 
 type SectionHeaderProps = {
   isLoginOwner: boolean;
