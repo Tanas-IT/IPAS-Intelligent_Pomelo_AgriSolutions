@@ -1169,7 +1169,7 @@ VALUES
 ('user4@example.com', '$2a$11$1V.AriJm/OGpjG0vWRH8tuD9/Fi2ezrgyDJItAZ5bzGH1DTukcH9e', 'Isla Thomas', '0966444555', 'Female', '1993-09-30', 'U009', GETDATE(), GETDATE(), 0, 'Active', NULL, 'https://res.cloudinary.com/dgshx4n2c/image/upload/v1745387356/fyoou7xbzgw8e7kpjsdx.png', NULL, NULL, 2),
 ('user5@example.com', '$2a$11$1V.AriJm/OGpjG0vWRH8tuD9/Fi2ezrgyDJItAZ5bzGH1DTukcH9e', 'Noah Martinez', '0977555666', 'Male', '1990-06-05', 'U010', GETDATE(), GETDATE(), 0, 'Active', NULL, 'https://res.cloudinary.com/dgshx4n2c/image/upload/v1745387381/meeitig8z1onzjqqjuw5.png', NULL, NULL, 2),
 ('lequangdung232@gmail.com', '$2a$11$qi491eunYFCQeO..SFS.Iethgoa5BFyMgH5ugmS8Drv54uqZ5QpnC', 'Quang Dung', '0912345678', 'Male', '2003-08-02', 'U007', GETDATE(), GETDATE(), 0, 'Active', NULL, 'https://res.cloudinary.com/dgshx4n2c/image/upload/v1741237242/user/avatar/igg0uhkj5yomwkzfskph.png', NULL, NULL, 2),
-('expert@gmail.com', '$2a$11$qi491eunYFCQeO..SFS.Iethgoa5BFyMgH5ugmS8Drv54uqZ5QpnC', 'Expert', '0912345678', 'Male', '1992-12-20', 'U003', GETDATE(), GETDATE(), 0, 'Active', NULL, 'https://res.cloudinary.com/dgshx4n2c/image/upload/v1738903142/user/avatar/tgfbqvv5f3jmuc220rhy.webp', NULL, NULL, 6),
+('expert@gmail.com', '$2a$11$qi491eunYFCQeO..SFS.Iethgoa5BFyMgH5ugmS8Drv54uqZ5QpnC', 'Expert', '0912345678', 'Male', '1992-12-20', 'U003', GETDATE(), GETDATE(), 0, 'Active', NULL, 'https://res.cloudinary.com/dgshx4n2c/image/upload/v1746421612/yosqwvyw2gaiqogyqu9w.png', NULL, NULL, 6),
 ('admin@gmail.com', '$2a$11$qi491eunYFCQeO..SFS.Iethgoa5BFyMgH5ugmS8Drv54uqZ5QpnC', 'Admin', '0912345678', 'Male', '1992-12-20', 'U003', GETDATE(), GETDATE(), 0, 'Active', NULL, 'https://res.cloudinary.com/dgshx4n2c/image/upload/v1745387411/zhldeggmvwca6eemozoc.png', NULL, NULL, 1);
 
 
@@ -2680,7 +2680,7 @@ DECLARE @EndTime1 TIME = '03:30:00';
 INSERT INTO [ipas].dbo.[Plan] 
 (Status, PlanCode, CreateDate, StartDate, EndDate, UpdateDate, isActive, PlanName, FarmID, IsSample,AssignorID)
 VALUES 
-('Active', CONCAT('PLAN_', FORMAT(GETDATE(), 'yyyyMMdd_HHmmss')), GETDATE(), @TodayDate1, @TodayDate1, NULL, 1, N'Chăm sóc cây bưởi sâu vẽ bùa (hôm nay)', 1, 0,3);
+('Active',  'PLAN_' + FORMAT(GETDATE(), 'yyyyMMdd_HHmmss') + '_' + LEFT(NEWID(), 8), GETDATE(), @TodayDate1, @TodayDate1, NULL, 1, N'Chăm sóc cây bưởi sâu vẽ bùa (hôm nay)', 1, 0,3);
 
 -- 2. Get PlanID
 DECLARE @PlanID INT = SCOPE_IDENTITY();
@@ -2788,7 +2788,7 @@ BEGIN
     )
     VALUES (
         'Active', 
-        CONCAT('PLAN_', FORMAT(GETDATE(), 'yyyyMMdd_HHmmss')), 
+        'PLAN_' + FORMAT(GETDATE(), 'yyyyMMdd_HHmmss') + '_' + LEFT(NEWID(), 8), 
         (SELECT TOP 1 SubProcessName FROM SubProcess WHERE SubProcessID = @SubProcessID),
         GETDATE(), 
         @BaseStartDate, 
