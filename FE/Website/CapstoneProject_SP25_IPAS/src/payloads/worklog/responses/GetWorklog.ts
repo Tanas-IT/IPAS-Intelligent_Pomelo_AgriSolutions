@@ -115,6 +115,8 @@ export interface GetWorklogDetail {
   assignorName: string;
   endDate: string;
   startDate: string;
+  harvestHistoryId: number;
+  cropId: number;
 }
 
 interface RedoWorkLog {
