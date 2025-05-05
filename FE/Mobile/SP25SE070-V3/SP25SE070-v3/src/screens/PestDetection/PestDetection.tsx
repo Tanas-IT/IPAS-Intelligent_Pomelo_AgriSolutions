@@ -30,7 +30,9 @@ interface ImageFile {
 const PestDetectionScreen = () => {
   const [selectedImageUri, setSelectedImageUri] = useState<string | null>(null);
   const [selectedImageUrl, setSelectedImageUrl] = useState<string | null>(null); // Lưu URL từ Cloudinary
-  const [detectionResults, setDetectionResults] = useState<PestDetectionResult[] | null>(null);
+  const [detectionResults, setDetectionResults] = useState<
+    PestDetectionResult[] | null
+  >(null);
   const [isReportModalVisible, setIsReportModalVisible] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const fadeAnim = useRef(new Animated.Value(0)).current;
@@ -50,7 +52,8 @@ const PestDetectionScreen = () => {
   // Yêu cầu quyền truy cập
   const requestPermission = async (type: "library" | "camera") => {
     if (type === "library") {
-      const { status } = await ImagePicker.requestMediaLibraryPermissionsAsync();
+      const { status } =
+        await ImagePicker.requestMediaLibraryPermissionsAsync();
       if (status !== "granted") {
         alert("Sorry, we need camera roll permissions to make this work!");
         return false;
@@ -68,7 +71,11 @@ const PestDetectionScreen = () => {
   const getFileSize = async (uri: string): Promise<number> => {
     try {
       const fileInfo = await FileSystem.getInfoAsync(uri);
-      if (fileInfo.exists && "size" in fileInfo && fileInfo.size !== undefined) {
+      if (
+        fileInfo.exists &&
+        "size" in fileInfo &&
+        fileInfo.size !== undefined
+      ) {
         return fileInfo.size;
       }
       console.warn("File does not exist or size is undefined:", uri);
@@ -94,10 +101,13 @@ const PestDetectionScreen = () => {
     formData.append("cloud_name", CLOUD_NAME);
 
     try {
-      const response = await fetch(`https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`, {
-        method: "POST",
-        body: formData,
-      });
+      const response = await fetch(
+        `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`,
+        {
+          method: "POST",
+          body: formData,
+        }
+      );
       const result = await response.json();
       if (result.secure_url) {
         if (fileSize > MAX_FILE_SIZE) {
@@ -199,8 +209,9 @@ const PestDetectionScreen = () => {
     setIsLoading(true);
 
     try {
-
-      const response = await PestDetectionService.predictDiseaseByUrl(selectedImageUrl);
+      const response = await PestDetectionService.predictDiseaseByUrl(
+        selectedImageUrl
+      );
 
       if (response.statusCode === 200) {
         setDetectionResults(
@@ -215,7 +226,7 @@ const PestDetectionScreen = () => {
           text1: "Detection Failed",
           text2: "Please take a clear photo of a pomelo tree (cây bưởi)",
           visibilityTime: 4000,
-          position: 'bottom'
+          position: "bottom",
         });
         setDetectionResults(null);
       } else {
@@ -307,7 +318,8 @@ const PestDetectionScreen = () => {
 
           <View style={styles.tipContainer}>
             <TextCustom style={styles.tipText}>
-              <TextCustom style={{ fontWeight: 'bold' }}>Tip:</TextCustom> Please take a clear photo of pomelo fruits for accurate detection
+              <TextCustom style={{ fontWeight: "bold" }}>Tip:</TextCustom>{" "}
+              Please take a clear photo of pomelo fruits for accurate detection
             </TextCustom>
           </View>
 
@@ -369,10 +381,11 @@ const PestDetectionScreen = () => {
           </View>
           <View style={styles.resultContainer}>
             {detectionResults.map((result, index) => (
-              <View key={index} style={[styles.resultItem, theme.shadow.default]}>
-                <TextCustom
-                  style={styles.resultText}
-                >
+              <View
+                key={index}
+                style={[styles.resultItem, theme.shadow.default]}
+              >
+                <TextCustom style={styles.resultText}>
                   {result.tagName}
                 </TextCustom>
                 <View style={styles.progressContainer}>

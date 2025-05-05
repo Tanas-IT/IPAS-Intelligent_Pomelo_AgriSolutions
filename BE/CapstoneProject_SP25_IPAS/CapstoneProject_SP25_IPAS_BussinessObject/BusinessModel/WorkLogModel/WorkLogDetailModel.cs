@@ -30,6 +30,7 @@ namespace CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.WorkLogModel
         public string? ProcessName { get; set; }
         public string? AssignorName { get; set; }
         public int? AssignorId { get; set; }
+        public int? CropId { get; set; }
         public string? AssignorAvatarURL { get; set; }
         public string? MasterTypeName { get; set; }
 

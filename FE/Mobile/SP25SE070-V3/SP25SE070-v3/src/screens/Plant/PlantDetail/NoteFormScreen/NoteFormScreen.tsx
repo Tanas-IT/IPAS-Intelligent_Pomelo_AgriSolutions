@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
-import { Animated } from "react-native";
+import { Alert, Animated } from "react-native";
 import { useNavigation, useRoute } from "@react-navigation/native";
 import { RootStackNavigationProp } from "@/constants";
 import * as ImagePicker from "expo-image-picker";
@@ -92,17 +92,17 @@ const NoteFormScreen: React.FC = () => {
     setIsLoadingVideo(true);
     try {
       const result = await ImagePicker.launchImageLibraryAsync({
-        mediaTypes: ImagePicker.MediaTypeOptions.Videos,
+        // mediaTypes: ImagePicker.MediaTypeOptions.Videos,
+        mediaTypes: ["videos"],
         allowsEditing: false,
         quality: 1,
       });
-
       if (!result.canceled && result.assets) {
         const asset = result.assets[0];
         const currentVideos = watch("videos") || [];
         const newVideo = {
           uri: asset.uri,
-          type: asset.mimeType || "video/mp4",
+          type: "video/mp4",
           name: asset.fileName || `video_${Date.now()}.mp4`,
         };
         const newVideos = [...currentVideos, newVideo];
@@ -163,10 +163,9 @@ const NoteFormScreen: React.FC = () => {
   const handlePress = () => {
     handleSubmit(onSubmit)();
     if (Object.keys(errors).length > 0) {
-      console.log("Form Errors:", errors);
+      console.log("Form Errors:", JSON.stringify(errors, null, 2));
     }
   };
-
   return (
     <NoteFormContent
       control={control}
