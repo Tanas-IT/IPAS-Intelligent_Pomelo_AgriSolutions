@@ -7,6 +7,7 @@ export const statusIconMap: Record<string, string> = {
     'done': '✅',
     'cancelled': '🚫',
     'overdue': '⏰',
+    'completed': '✔️'
   };
   
   export const statusColorClassMap: Record<string, string> = {
