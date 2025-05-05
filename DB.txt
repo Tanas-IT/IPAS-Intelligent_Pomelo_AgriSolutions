@@ -2909,8 +2909,8 @@ DECLARE @UserID6 INT, @UserID7 INT;
 DECLARE @MasterTypeID INT;
 
 -- Lấy 2 UserID có RoleId = 5
-SELECT TOP 1 @UserID6 = UserID FROM [ipas].dbo.UserFarm WHERE RoleId = 5;
-SELECT TOP 1 @UserID7 = UserID FROM [ipas].dbo.UserFarm WHERE RoleId = 5 AND UserID <> @UserID6;
+SELECT TOP 1 @UserID6 = UserID FROM [ipas].dbo.UserFarm WHERE RoleId = 5 AND FarmID = 1;
+SELECT TOP 1 @UserID7 = UserID FROM [ipas].dbo.UserFarm WHERE RoleId = 5 AND FarmID = 1 AND UserID <> @UserID6;
 
 WHILE @k <= 10
 BEGIN
@@ -2956,7 +2956,7 @@ BEGIN
 
     -- Thêm CarePlanSchedule
     INSERT INTO ipas.dbo.CarePlanSchedule (DayOfWeek, Status, StartTime, EndTime, HarvestHistoryID, FarmID)
-    VALUES (DATENAME(WEEKDAY, @HarvestDate), 'Completed', '08:00:00', '12:00:00', @HarvestHistoryID, 1);
+    VALUES (DATENAME(WEEKDAY, @HarvestDate), 'Completed', '22:30:00', '23:30:00', @HarvestHistoryID, 1);
 
     SET @ScheduleID2 = SCOPE_IDENTITY();
 
