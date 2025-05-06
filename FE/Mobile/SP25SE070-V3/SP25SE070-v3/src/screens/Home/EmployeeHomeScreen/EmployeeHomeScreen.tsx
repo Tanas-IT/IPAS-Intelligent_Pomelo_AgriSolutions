@@ -132,13 +132,14 @@ const EmployeeHomeScreen = () => {
 
             return (
               <TouchableOpacity
+                key={`task-${item.workLogId}`}
                 onPress={() =>
                   navigation.navigate(ROUTE_NAMES.WORKLOG.WORKLOG_DETAIL, {
                     worklogId: item.workLogId.toString(),
                   })
                 }
               >
-                <View key={`task-${item.workLogId}`} style={styles.taskCard}>
+                <View style={styles.taskCard}>
                   <View style={styles.taskHeader}>
                     <View
                       style={[

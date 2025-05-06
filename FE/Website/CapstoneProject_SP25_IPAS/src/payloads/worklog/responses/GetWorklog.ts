@@ -44,7 +44,7 @@ interface PlantModel {
 interface RowModel {
   landRowId: number;
   rowIndex: number;
-  plants: PlantModel[]
+  plants: PlantModel[];
 }
 
 // export interface PlanTargetModel {
@@ -92,6 +92,7 @@ export interface GetWorklogDetail {
   status: string;
   workLogName: string;
   date: string;
+  assignorAvatarURL: string;
   actualStartTime: string;
   actualEndTime: string;
   isConfirm: boolean;
@@ -120,11 +121,11 @@ export interface GetWorklogDetail {
 }
 
 interface RedoWorkLog {
-  workLogId: number
-  status: string
-  workLogName: string
-  date: string
-  listEmployee: number[]
+  workLogId: number;
+  status: string;
+  workLogName: string;
+  date: string;
+  listEmployee: number[];
 }
 
 export interface ReplacementEmployee {
@@ -134,7 +135,7 @@ export interface ReplacementEmployee {
   avatar?: string;
   replaceUserFullName?: string;
   replaceUserAvatar?: string;
-  replaceUserIsRepoter?: boolean
+  replaceUserIsRepoter?: boolean;
 }
 
 export interface GetWorklogNote {
