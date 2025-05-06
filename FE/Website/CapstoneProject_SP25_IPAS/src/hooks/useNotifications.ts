@@ -51,8 +51,7 @@ const useNotifications = () => {
     if (!userId) return;
 
     const isDevelopment = import.meta.env.VITE_API_DEVELOPMENT === "true";
-    console.log("isDevelopment", isDevelopment);
-    
+
     const wsUrl = isDevelopment
       ? import.meta.env.VITE_PUBLIC_WS_URL
       : import.meta.env.VITE_PUBLIC_WS_DEPLOY_URL;

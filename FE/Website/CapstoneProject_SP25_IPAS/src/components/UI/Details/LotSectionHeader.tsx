@@ -23,7 +23,7 @@ const LotSectionHeader = ({
   deleteConfirmModal?: ReturnType<typeof useModal<{ id: number }>>;
   onExport?: () => void;
 }) => {
-  const { lot, setLot } = usePlantLotStore();
+  const { lot, setLot, markForRefetch } = usePlantLotStore();
   const updateConfirmModal = useModal();
   const updateUsedConfirmModal = useModal();
   const fillPlantsModal = useModal();
@@ -33,7 +33,11 @@ const LotSectionHeader = ({
     try {
       var res = await plantLotService.updateIsCompletedLot(lot.plantLotId, true);
       if (res.statusCode === 200) {
-        setLot({ ...lot, isPassed: true });
+        if (lot.inputQuantity == null || lot.lastQuantity == null) {
+          markForRefetch();
+        } else {
+          setLot({ ...lot, isPassed: true });
+        }
         toast.success(`Lot ${lot.plantLotName} marked as Passed!`);
       } else {
         toast.warning(res.message);
