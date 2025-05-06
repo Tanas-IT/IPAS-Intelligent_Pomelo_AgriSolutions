@@ -66,15 +66,40 @@ function EmployeeList() {
     return JSON.stringify(sortedOld) !== JSON.stringify(sortedNew);
   };
 
-  const handleUpdateEmployee = async (
-    userId: number,
-    newRole?: string,
-    isActive?: boolean,
-    skills?: Skill[],
-  ) => {
+  const handleUpdateEmployee = async (userId: number, newRole?: string, isActive?: boolean) => {
+    try {
+      const farmId = Number(getFarmId());
+
+      setIsUpdateLoading(true);
+      const request: AddUserFarmRequest = {
+        farmId,
+        userId,
+        roleName: newRole ?? ROLE.EMPLOYEE,
+        isActive: isActive ?? true,
+      };
+
+      const res = await employeeService.updateEmployee(request);
+
+      if (res.statusCode === 200) {
+        if (newRole) {
+          toast.success(`User role updated to ${newRole}`);
+        } else if (isActive !== undefined) {
+          toast.success(`User has been ${isActive ? "activated" : "deactivated"}`);
+        }
+        await fetchData();
+      } else {
+        toast.warning(res.message || "Failed to update employee");
+      }
+    } finally {
+      setIsUpdateLoading(false);
+    }
+  };
+
+  const handleUpdateEmployeeSkills = async (userId: number, skills?: Skill[]) => {
     try {
       const farmId = Number(getFarmId());
       const employee = data.find((emp) => emp.userId === userId);
+
       if (!employee) return;
 
       const oldSkills: Skill[] = (employee.skills || []).map((s) => ({
@@ -93,22 +118,15 @@ function EmployeeList() {
       const request: AddUserFarmRequest = {
         farmId,
         userId,
-        roleName: newRole ?? ROLE.EMPLOYEE,
-        isActive: isActive ?? true,
         skills: skills ?? [],
       };
 
       const res = await employeeService.updateEmployee(request);
 
       if (res.statusCode === 200) {
-        if (newRole) {
-          toast.success(`User role updated to ${newRole}`);
-        } else if (isActive !== undefined) {
-          toast.success(`User has been ${isActive ? "activated" : "deactivated"}`);
-        } else if (skills) {
-          toast.success("Employee skills updated successfully");
-          editSkillsModal.hideModal();
-        }
+        toast.success("Employee skills updated successfully");
+        editSkillsModal.hideModal();
+
         await fetchData();
       } else {
         toast.warning(res.message || "Failed to update employee");
@@ -225,10 +243,8 @@ function EmployeeList() {
           isOpen={editSkillsModal.modalState.visible}
           onClose={editSkillsModal.hideModal}
           onSave={(skills) =>
-            handleUpdateEmployee(
+            handleUpdateEmployeeSkills(
               editSkillsModal.modalState.data?.employee.userId ?? 0,
-              undefined,
-              undefined,
               skills,
             )
           }

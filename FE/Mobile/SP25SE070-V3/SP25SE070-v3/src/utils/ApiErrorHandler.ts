@@ -1,10 +1,11 @@
 import { MESSAGES, STORAGE_KEYS } from "@/constants";
 import { AuthService } from "@/services";
-import { resetToLogin } from "@/services/NavigationService";
+import { resetToFarmPicker, resetToLogin } from "@/services/NavigationService";
 import { useAuthStore } from "@/store";
 import AsyncStorage from "@react-native-async-storage/async-storage";
 import axios from "axios";
 import Toast from "react-native-toast-message";
+import { getRoleId, getUserId } from "./UtilFunction";
 
 export const handleApiError = async (error: any) => {
   const redirectToHomeWithMessage = async (
@@ -24,6 +25,22 @@ export const handleApiError = async (error: any) => {
     resetToLogin();
   };
 
+  const redirectToFarmPickerWithMessage = async (message: string) => {
+    const res = await AuthService.refreshTokenOutFarm();
+    if (res.statusCode === 200) {
+      const roleId = getRoleId(res.data.authenModel.accessToken);
+      const userId = getUserId(res.data.authenModel.accessToken);
+      Toast.show({
+        type: "error",
+        text1: message,
+      });
+      useAuthStore.getState().updateRoleOutFarm(res.data, userId, roleId);
+      resetToFarmPicker();
+    } else {
+      redirectToHomeWithMessage(message);
+    }
+  };
+
   if (error.message === "Network Error" && !error.response) {
     Toast.show({
       type: "error",
@@ -32,7 +49,7 @@ export const handleApiError = async (error: any) => {
   } else if (error.response) {
     switch (error.response.status) {
       case 401:
-        const message = error.response.data.Message;
+        const message = error.response.data.message;
         if (message.includes("Token is expired!")) {
           const originalRequest = error.config;
           const result = await AuthService.refreshToken();
@@ -58,10 +75,15 @@ export const handleApiError = async (error: any) => {
           redirectToHomeWithMessage("", false);
         }
         break;
+      case 402:
+        redirectToFarmPickerWithMessage(error.response.data.message);
+        break;
       case 403:
-        const errorStatusCode = error.response.data.StatusCode;
+        const errorStatusCode = error.response.data.statusCode;
         if (errorStatusCode === 401) {
-          redirectToHomeWithMessage(error.response.data.Message);
+          redirectToHomeWithMessage(error.response.data.message);
+        } else if (errorStatusCode === 403) {
+          redirectToFarmPickerWithMessage(error.response.data.message);
         } else {
           redirectToHomeWithMessage(MESSAGES.NO_PERMISSION);
         }

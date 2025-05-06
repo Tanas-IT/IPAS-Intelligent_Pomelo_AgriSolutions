@@ -333,7 +333,6 @@ const Sidebar: React.FC<SidebarProps> = ({ isDefault = false }) => {
           icon: Images.radius,
           to: PATHS.FARM.FARM_INFO,
           activePaths: [PATHS.FARM.FARM_INFO],
-          roles: [UserRolesStr.Owner],
         },
         {
           key: "Manage Plots",

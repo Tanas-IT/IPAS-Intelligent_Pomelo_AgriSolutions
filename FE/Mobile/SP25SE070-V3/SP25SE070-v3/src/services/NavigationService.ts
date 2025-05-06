@@ -11,3 +11,12 @@ export function resetToLogin() {
     });
   }
 }
+
+export function resetToFarmPicker() {
+  if (navigationRef.isReady()) {
+    navigationRef.reset({
+      index: 0,
+      routes: [{ name: ROUTE_NAMES.FARM.FARM_PICKER }],
+    });
+  }
+}

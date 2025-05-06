@@ -730,7 +730,7 @@ function WorklogDetail() {
       <Flex vertical gap={10} className={style.contentSectionUser}>
         <Flex vertical>
           <Flex align="center" gap={8}>
-            <UserAvatar avatarURL={worklogDetail?.reporter[0]?.avatarURL || undefined} size={35} />
+            <UserAvatar avatarURL={worklogDetail?.assignorAvatarURL || undefined} size={35} />
             <label className={style.createdBy}>{worklogDetail?.assignorName || "laggg"}</label>
             <label className={style.textCreated}>created this plan</label>
             <label className={style.createdDate}>{formatDateW(worklogDetail?.date ?? "2")}</label>
