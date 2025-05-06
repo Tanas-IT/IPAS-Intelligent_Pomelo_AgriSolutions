@@ -38,7 +38,9 @@ export const GraftedPlantPanelTitle = ({
       updatedCriteria[item.criteriaId] !== undefined &&
       updatedCriteria[item.criteriaId] !== initialCriteria[item.criteriaId],
   );
-  const isAllInitialCriteriaChecked = data.every((item) => initialCriteria[item.criteriaId]);
+  const isAllInitialCriteriaChecked = data.every(
+    (item) => initialCriteria[item.criteriaId] !== null,
+  );
 
   const startDate = data[0].createDate;
   const endDate =

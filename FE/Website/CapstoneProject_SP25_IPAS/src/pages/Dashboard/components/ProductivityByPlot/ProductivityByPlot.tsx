@@ -71,19 +71,19 @@ const ProductivityByPlot: React.FC = () => {
     fetchData(selectedYear);
   }, [selectedYear]);
 
-  
-  const chartData = data?.map((season) => {
-    const seasonData: any = { harvestSeason: season.harvestSeason };
-    season.landPlots.forEach((plot) => {
-      seasonData[plot.landPlotName] = plot.quantity;
-    });
-    return seasonData;
-  }) || [];
+  const chartData =
+    data?.map((season) => {
+      const seasonData: any = { harvestSeason: season.harvestSeason };
+      season.landPlots.forEach((plot) => {
+        seasonData[plot.landPlotName] = plot.quantity;
+      });
+      return seasonData;
+    }) || [];
 
   const uniquePlots = useMemo(() => {
     if (!data) return [];
     return Array.from(
-      new Set(data.flatMap((season) => season.landPlots.map((plot) => plot.landPlotName)))
+      new Set(data.flatMap((season) => season.landPlots.map((plot) => plot.landPlotName))),
     );
   }, [data]);
 
@@ -128,31 +128,25 @@ const ProductivityByPlot: React.FC = () => {
       render: (_: any, record: any) => {
         const totalPlants = record.landPlots.reduce(
           (sum: number, plot: any) => sum + plot.totalPlantOfLandPlot,
-          0
+          0,
         );
         const totalQuantity = record.landPlots.reduce(
           (sum: number, plot: any) => sum + plot.quantity,
-          0
+          0,
         );
         return totalPlants > 0 ? (totalQuantity / totalPlants).toFixed(2) : 0;
       },
       sorter: (a: any, b: any) => {
         const aPlants = a.landPlots.reduce(
           (sum: number, plot: any) => sum + plot.totalPlantOfLandPlot,
-          0
+          0,
         );
-        const aQuantity = a.landPlots.reduce(
-          (sum: number, plot: any) => sum + plot.quantity,
-          0
-        );
+        const aQuantity = a.landPlots.reduce((sum: number, plot: any) => sum + plot.quantity, 0);
         const bPlants = b.landPlots.reduce(
           (sum: number, plot: any) => sum + plot.totalPlantOfLandPlot,
-          0
+          0,
         );
-        const bQuantity = b.landPlots.reduce(
-          (sum: number, plot: any) => sum + plot.quantity,
-          0
-        );
+        const bQuantity = b.landPlots.reduce((sum: number, plot: any) => sum + plot.quantity, 0);
         const aYield = aPlants > 0 ? aQuantity / aPlants : 0;
         const bYield = bPlants > 0 ? bQuantity / bPlants : 0;
         return aYield - bYield;
@@ -207,15 +201,11 @@ const ProductivityByPlot: React.FC = () => {
   return (
     <div style={{ padding: "10px" }}>
       <Space style={{ marginBottom: 16 }}>
-        <Flex style={{justifyContent: 'center', alignItems: 'center', gap: '20px'}}>
-        <h3 style={{color: "#20461e"}}>Productivity by Plot</h3>
-        <span style={{ fontSize: "16px", color: "#666" }}>Select Year:</span>
+        <Flex style={{ justifyContent: "center", alignItems: "center", gap: "20px" }}>
+          <h3 style={{ color: "#20461e" }}>Productivity by Plot</h3>
+          <span style={{ fontSize: "16px", color: "#666" }}>Select Year:</span>
         </Flex>
-        <Select
-          value={selectedYear}
-          onChange={setSelectedYear}
-          style={{ width: 120 }}
-        >
+        <Select value={selectedYear} onChange={setSelectedYear} style={{ width: 120 }}>
           {years.map((year) => (
             <Option key={year} value={year}>
               {year}
@@ -232,17 +222,27 @@ const ProductivityByPlot: React.FC = () => {
           marginBottom: 20,
         }}
       >
-        <h2 style={{ marginBottom: 20, alignSelf: 'center', justifyContent: 'center', display: 'flex', color: '#20461e' }}>Productivity Details</h2>
+        <h2
+          style={{
+            marginBottom: 20,
+            alignSelf: "center",
+            justifyContent: "center",
+            display: "flex",
+            color: "#20461e",
+          }}
+        >
+          Productivity Details
+        </h2>
         <>
-        <style>{tableStyles}</style>
-        <Table
-        className="table"
-          columns={columns}
-          dataSource={tableData}
-          expandable={{ expandedRowRender }}
-          bordered
-          pagination={{ pageSize: 5 }}
-        />
+          <style>{tableStyles}</style>
+          <Table
+            className="table"
+            columns={columns}
+            dataSource={tableData}
+            expandable={{ expandedRowRender }}
+            bordered
+            pagination={{ pageSize: 5 }}
+          />
         </>
       </div>
       <div
@@ -257,33 +257,32 @@ const ProductivityByPlot: React.FC = () => {
         <ResponsiveContainer width="100%" height={400}>
           {chartData.length > 0 ? (
             <BarChart data={chartData}>
-            <CartesianGrid strokeDasharray="3 3" stroke="#e8e8e8" />
-            <XAxis dataKey="harvestSeason" stroke="#666" />
-            <YAxis stroke="#666" />
-            <Tooltip
-              contentStyle={{
-                background: "#fff",
-                borderRadius: "5px",
-                boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
-              }}
-              formatter={(value: number, name: string) => [`${value} kg`, name]}
-            />
-            <Legend />
-            {uniquePlots.map((plot, index) => (
-              <Bar
-                key={plot}
-                dataKey={plot}
-                fill={["#1890ff", "#52c41a", "#fa8c16", "#722ed1", "#eb2f96"][index % 5]}
-                radius={[5, 5, 0, 0]}
+              <CartesianGrid strokeDasharray="3 3" stroke="#e8e8e8" />
+              <XAxis dataKey="harvestSeason" stroke="#666" />
+              <YAxis stroke="#666" />
+              <Tooltip
+                contentStyle={{
+                  background: "#fff",
+                  borderRadius: "5px",
+                  boxShadow: "0 2px 8px rgba(0,0,0,0.1)",
+                }}
+                formatter={(value: number, name: string) => [`${value} kg`, name]}
               />
-            ))}
-          </BarChart>
+              <Legend />
+              {uniquePlots.map((plot, index) => (
+                <Bar
+                  key={plot}
+                  dataKey={plot}
+                  fill={["#1890ff", "#52c41a", "#fa8c16", "#722ed1", "#eb2f96"][index % 5]}
+                  radius={[5, 5, 0, 0]}
+                />
+              ))}
+            </BarChart>
           ) : (
             <Flex justify="center" align="center" style={{ width: "100%" }}>
-                    <Empty description="No data available" />
-                </Flex>
+              <Empty description="No data available" />
+            </Flex>
           )}
-          
         </ResponsiveContainer>
       </div>
     </div>
