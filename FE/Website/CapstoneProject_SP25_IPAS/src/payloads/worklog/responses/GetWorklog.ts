@@ -65,7 +65,7 @@ export interface TaskFeedback {
   workLogId: number;
   managerId: number;
   workLogName: string;
-  reason?: string;
+  reasonDelay?: string;
   status?: string;
   avatarURL: string;
   fullName: string;

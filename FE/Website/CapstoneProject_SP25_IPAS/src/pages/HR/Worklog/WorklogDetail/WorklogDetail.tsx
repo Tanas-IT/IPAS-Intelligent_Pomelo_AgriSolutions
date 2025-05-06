@@ -1076,6 +1076,7 @@ function WorklogDetail() {
         managerId={Number(getUserId())}
         onSuccess={fetchPlanDetail}
         feedbackData={selectedFeedback}
+        statuss={worklogDetail?.status}
       />
       <ConfirmModal
         visible={isDeleteModalVisible}
