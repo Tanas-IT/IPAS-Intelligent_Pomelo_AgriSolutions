@@ -11,7 +11,7 @@ interface WeatherState {
   error: string | null;
   isSearchVisible: boolean;
   setPlace: (place: string) => void;
-  fetchWeather: (farmId?: number) => Promise<void>;
+  fetchWeather: (farmId: number) => Promise<void>;
   toggleSearch: () => void;
 }
 
@@ -25,7 +25,7 @@ const useWeatherStore = create<WeatherState>((set, get) => ({
 
   setPlace: (newPlace: string) => set({ place: newPlace }),
 
-  fetchWeather: async (farmId: number = 1) => {
+  fetchWeather: async (farmId: number) => {
     const { place, isLoading } = get();
     if (isLoading) return;
 

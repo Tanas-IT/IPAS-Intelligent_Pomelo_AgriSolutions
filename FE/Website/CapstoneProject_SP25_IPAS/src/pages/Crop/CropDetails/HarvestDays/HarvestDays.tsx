@@ -247,6 +247,7 @@ function HarvestDays() {
       onApply={applyFilters}
     />
   );
+  
 
   return (
     <Flex className={style.contentDetailWrapper}>

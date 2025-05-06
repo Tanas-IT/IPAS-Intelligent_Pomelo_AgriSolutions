@@ -17,7 +17,7 @@ import TimeFilterModal from "./TimeFilterModal";
 import { StatBox } from "../components/StatBox";
 import { reportService } from "@/services";
 import { useAuthStore } from "@/store";
-import { Image } from "native-base";
+import { Image } from "@gluestack-ui/themed";
 import { ActivityIndicator } from "react-native-paper";
 import { useNavigation } from "@react-navigation/native";
 import { RootStackNavigationProp, ROUTE_NAMES } from "@/constants";

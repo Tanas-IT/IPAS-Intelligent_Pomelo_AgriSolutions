@@ -7,7 +7,7 @@ import { yupResolver } from "@hookform/resolvers/yup";
 import { loginSchema } from "@/validations/authSchemas";
 import Toast from "react-native-toast-message";
 import { useNavigation } from "@react-navigation/native";
-import { KeyboardAvoidingView, VStack } from "native-base";
+import { KeyboardAvoidingView, VStack } from "@gluestack-ui/themed";
 import { AuthNavigationProp, ROUTE_NAMES, UserRolesStr } from "@/constants";
 import { AuthService } from "@/services";
 import theme from "@/theme";
@@ -99,7 +99,7 @@ export const LoginScreen = () => {
         <View style={styles.formContainer}>
           <View style={styles.formContent}>
             {/* Email Input */}
-            <VStack w="100%" space={8}>
+            <VStack width="100%" space="2xl">
               <Controller
                 control={control}
                 name="email"
