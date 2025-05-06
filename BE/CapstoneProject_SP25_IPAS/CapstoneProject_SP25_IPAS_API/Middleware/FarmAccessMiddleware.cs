@@ -66,12 +66,26 @@ namespace CapstoneProject_SP25_IPAS_API.Middleware
                 return;
             }
 
-
+            var farm = await dbContext.Farms.AsNoTracking().FirstOrDefaultAsync(f => f.IsDeleted == false);
+            if (farm != null && farm.Status!.Equals(FarmStatusEnum.Inactive.ToString(), StringComparison.OrdinalIgnoreCase))
+            {
+                context.Result = new ObjectResult(new BaseResponse
+                {
+                    StatusCode = StatusCodes.Status403Forbidden,
+                    IsSuccess = false,
+                    Message = "Your farm were inactive, please contact to know more info",
+                    Data = null
+                })
+                {
+                    StatusCode = StatusCodes.Status403Forbidden
+                };
+                return;
+            }
             var userFarm = await dbContext.UserFarms
                 .AsNoTracking()
                 .FirstOrDefaultAsync(uf => uf.UserId == userId && uf.FarmId == farmId);
 
-            if (userFarm == null || userFarm.IsActive == false)
+            if (userFarm == null || userFarm.IsActive == false || farm.Status!.Equals(FarmStatusEnum.Inactive.ToString(), StringComparison.OrdinalIgnoreCase))
             {
                 context.Result = new ObjectResult(new BaseResponse
                 {
