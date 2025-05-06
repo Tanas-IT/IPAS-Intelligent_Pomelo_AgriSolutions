@@ -33,5 +33,4 @@ public partial class WorkLog
 
     public virtual ICollection<UserWorkLog> UserWorkLogs { get; set; } = new List<UserWorkLog>();
 
-    public virtual Warning? Warning { get; set; }
 }

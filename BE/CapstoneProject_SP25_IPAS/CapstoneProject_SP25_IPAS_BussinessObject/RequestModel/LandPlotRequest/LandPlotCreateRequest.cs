@@ -37,10 +37,6 @@ namespace CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.LandPlotRequest
         [Required]
         public int NumberOfRows { get; set; }
         //[Required]
-        public double? MinLength { get; set; }
-        public double? MaxLength { get; set; }
-        public double? MinWidth { get; set; }
-        public double? MaxWidth { get; set; }
         public ICollection<CoordinationCreateRequest> LandPlotCoordinations { get; set; } = new List<CoordinationCreateRequest>();
         public ICollection<CreateLandRowRequest> LandRows { get; set; } = new List<CreateLandRowRequest>();
     }
