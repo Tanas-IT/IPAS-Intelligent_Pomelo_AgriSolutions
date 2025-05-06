@@ -63,6 +63,7 @@ namespace CapstoneProject_SP25_IPAS_Repository.UnitOfWork
         public SystemConfigRepository _systemConfigRepo;
         public EmployeeSkillRepository _employeeSkillRepo;
         public PackageDetailRepository _packageDetailRepo;
+        public GrowthStagePlanRepository _growthStagePlanRepo;
         public UnitOfWork(IpasContext context, IConfiguration configuration)
         {
             _context = context;
@@ -111,6 +112,7 @@ namespace CapstoneProject_SP25_IPAS_Repository.UnitOfWork
             _systemConfigRepo = new SystemConfigRepository(context);
             _employeeSkillRepo = new EmployeeSkillRepository(context);
             _packageDetailRepo = new PackageDetailRepository(context);
+            _growthStagePlanRepo = new GrowthStagePlanRepository(context);
         }
 
         private bool disposed = false;
@@ -707,6 +709,18 @@ namespace CapstoneProject_SP25_IPAS_Repository.UnitOfWork
                     this._packageDetailRepo = new PackageDetailRepository(_context);
                 }
                 return _packageDetailRepo;
+            }
+        }
+
+        public GrowthStagePlanRepository GrowthStagePlanRepository
+        {
+            get
+            {
+                if (_growthStagePlanRepo == null)
+                {
+                    this._growthStagePlanRepo = new GrowthStagePlanRepository(_context);
+                }
+                return _growthStagePlanRepo;
             }
         }
     }

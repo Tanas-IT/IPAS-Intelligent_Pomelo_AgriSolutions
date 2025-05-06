@@ -1,4 +1,4 @@
-import { Avatar, Badge, Button, DatePicker, Divider, Flex, Image, Modal, Tag } from "antd";
+import { Badge, Button, Divider, Flex, Image, Modal, Tag } from "antd";
 import style from "./WorklogDetail.module.scss";
 import { Icons, Images } from "@/assets";
 import { useNavigate, useParams } from "react-router-dom";
@@ -9,10 +9,9 @@ import { useModal } from "@/hooks";
 import { CreateFeedbackRequest, GetFeedback } from "@/payloads/feedback";
 import { useEffect, useState } from "react";
 import FeedbackModal from "./FeedbackModal/FeedbackModal";
-import { feedbackService, worklogService } from "@/services";
+import { cropService, feedbackService, harvestService, worklogService } from "@/services";
 import {
   CancelReplacementRequest,
-  GetAttendanceList,
   GetWorklogDetail,
   ListEmployeeUpdate,
   TaskFeedback,
@@ -20,14 +19,16 @@ import {
   UpdateWorklogReq,
 } from "@/payloads/worklog";
 import { formatDate, formatDateW, getUserId } from "@/utils";
-import { GetUser, PlanTarget, PlanTargetModel } from "@/payloads";
-import { ConfirmModal, CustomButton, Loading, Tooltip } from "@/components";
+import { GetCropDetail, PlanTarget, PlanTargetModel } from "@/payloads";
+import { ConfirmModal, CustomButton, Loading, Tooltip, UserAvatar } from "@/components";
 import PlanTargetTable from "@/pages/Plan/PlanDetails/PlanTargetTable";
 import AttendanceModal from "./AttendanceModal";
 import EditWorklogModal from "./EditWorklogModal";
 import RedoWorklogModal from "./RedoWorklogModal";
 import { statusIconMap } from "@/constants/statusMap";
 import DependencyModal from "./DependencyModal";
+import { useCropStore } from "@/stores";
+import { planStatusColors, ROUTES } from "@/constants";
 
 const InfoField = ({
   icon: Icon,
@@ -36,6 +37,8 @@ const InfoField = ({
   planId,
   processId,
   isTag = false,
+  isHarvest = false,
+  handleViewDetail,
 }: {
   icon: React.ElementType;
   label: string;
@@ -43,6 +46,8 @@ const InfoField = ({
   planId?: number;
   processId?: number;
   isTag?: boolean;
+  isHarvest?: boolean;
+  handleViewDetail: (value: number) => void;
 }) => {
   const navigate = useNavigate();
 
@@ -66,6 +71,10 @@ const InfoField = ({
           <span className={style.linkText} onClick={() => navigate(path!)}>
             {value}
           </span>
+        ) : label === "Harvest" && isHarvest ? (
+          <Button type="dashed" onClick={() => handleViewDetail(Number(value))}>
+            View Harvest Detail
+          </Button>
         ) : isTag ? (
           <Tag color="green">{value}</Tag>
         ) : (
@@ -91,19 +100,36 @@ function WorklogDetail() {
   const [isAttendanceModalVisible, setIsAttendanceModalVisible] = useState(false);
   const [attendanceStatus, setAttendanceStatus] = useState<{ [key: number]: string | null }>({});
   const [isEditModalVisible, setIsEditModalVisible] = useState(false);
-  const [isLoading, setIsLoading] = useState<boolean>(false);
+  const [isLoading, setIsLoading] = useState<boolean>(true);
   const [isRedoModalOpen, setIsRedoModalOpen] = useState(false);
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [selectedTimeRange, setSelectedTimeRange] = useState<[string, string]>(["", ""]);
   const [initialReporterId, setInitialReporterId] = useState<number | undefined>(undefined);
   const [selectedDate, setSelectedDate] = useState<string>("");
   const [isConfirmModalOpen, setIsConfirmModalOpen] = useState(false);
-
+  const { setIsHarvestDetailView, setSelectedHarvest, setCrop } = useCropStore();
   const rawStatus = worklogDetail?.status || "Not Started";
   const normalizedStatus = rawStatus.toLowerCase();
   const classKey = normalizedStatus.replace(/\s+/g, "");
   const statusClass = style[classKey] || style.default;
-  const icon = statusIconMap[normalizedStatus] || "❓";
+  const icon = statusIconMap["normalizedStatus"];
+
+  const handleViewDetail = async (id: number) => {
+    const res = await harvestService.getHarvest(id);
+    setSelectedHarvest(res.data);
+    setIsHarvestDetailView(true); // Đánh dấu đang xem chi tiết
+
+    const cropId = worklogDetail?.cropId;
+    if (cropId) {
+      // 👉 Gọi API để lấy crop detail trước khi navigate
+      const cropRes = await cropService.getCropOfFarm(cropId);
+      setCrop(cropRes.data); // Gán crop vào store
+
+      navigate(ROUTES.CROP_DETAIL(cropId), {
+        state: { isFromWorklog: true },
+      });
+    }
+  };
 
   const handleUpdateFeedback = (feedback: TaskFeedback) => {
     setSelectedFeedback(feedback);
@@ -368,15 +394,15 @@ function WorklogDetail() {
   };
 
   const [infoFieldsLeft, setInfoFieldsLeft] = useState([
-    { label: "Crop", value: "Spring 2025", icon: Icons.growth },
-    { label: "Plan Name", value: "Plan name", icon: Icons.box },
-    { label: "Growth Stage", value: "Cây non", icon: Icons.plant },
+    { label: "Crop", value: "N/A", icon: Icons.growth },
+    { label: "Plan Name", value: "N/A", icon: Icons.box },
+    { label: "Growth Stage", value: "N/A", icon: Icons.plant },
   ]);
 
   const [infoFieldsRight, setInfoFieldsRight] = useState([
-    { label: "Process Name", value: "Caring Process for Pomelo Tree", icon: Icons.process },
-    { label: "Type", value: "Watering", icon: Icons.category, isTag: true },
-    { label: "Harvest", value: "Harvest", icon: Icons.category, isTag: false },
+    { label: "Process Name", value: "N/A", icon: Icons.process },
+    { label: "Type", value: "N/A", icon: Icons.category, isTag: true },
+    { label: "Harvest", value: "N/A", icon: Icons.plant, isTag: false, isHarvest: false },
   ]);
 
   const addModal = useModal<CreateFeedbackRequest>();
@@ -503,7 +529,7 @@ function WorklogDetail() {
 
   const fetchPlanDetail = async () => {
     try {
-      setIsLoading(true);
+      // setIsLoading(true);
       const res = await worklogService.getWorklogDetail(Number(id));
       setWorklogDetail(res);
       checkAndNotifyReassignment(res);
@@ -558,6 +584,8 @@ function WorklogDetail() {
           label: "Harvest",
           value: res.isHarvest ? "Yes" : "No",
           icon: Icons.category,
+          isHarvest: res.isHarvest,
+          isTag: false,
         },
       ]);
 
@@ -671,10 +699,14 @@ function WorklogDetail() {
       <Divider className={style.divider} />
       <Flex className={style.contentSectionTitleLeft}>
         <p className={style.title}>{worklogDetail?.workLogName || "Caring Process"}</p>
-        <Tooltip title="Hello">
+        <Tooltip title="Work-log">
           <Icons.tag className={style.iconTag} />
         </Tooltip>
-        <Tag className={`${style.statusTag} ${statusClass}`}>
+        {/* <Tag className={`${style.statusTag} ${statusClass}`}>
+          <span style={{ marginRight: 6 }}>{icon}</span>
+          {rawStatus}
+        </Tag> */}
+        <Tag color={planStatusColors[rawStatus] || "default"} className={style.statusTag}>
           <span style={{ marginRight: 6 }}>{icon}</span>
           {rawStatus}
         </Tag>
@@ -697,19 +729,12 @@ function WorklogDetail() {
 
       <Flex vertical gap={10} className={style.contentSectionUser}>
         <Flex vertical>
-          <Flex vertical={false} gap={15}>
-            <Image
-              src={worklogDetail?.reporter[0]?.avatarURL || Images.avatar}
-              width={25}
-              className={style.avt}
-              crossOrigin="anonymous"
-            />
+          <Flex align="center" gap={8}>
+            <UserAvatar avatarURL={worklogDetail?.reporter[0]?.avatarURL || undefined} size={35} />
             <label className={style.createdBy}>{worklogDetail?.assignorName || "laggg"}</label>
             <label className={style.textCreated}>created this plan</label>
             <label className={style.createdDate}>{formatDateW(worklogDetail?.date ?? "2")}</label>
             <Button
-              type="primary"
-              ghost
               onClick={() => setIsModalOpen(true)}
               style={{
                 fontWeight: 500,
@@ -752,13 +777,8 @@ function WorklogDetail() {
 
                 return (
                   <Tooltip key={index} title={tooltipText}>
-                    <Flex align="center">
-                      <Image
-                        src={employee.avatarURL || Images.avatar}
-                        width={25}
-                        className={style.avt}
-                        crossOrigin="anonymous"
-                      />
+                    <Flex align="center" gap={8}>
+                      <UserAvatar avatarURL={employee.avatarURL || undefined} size={30} />
                       <label className={style.createdBy} style={{ color: textColor }}>
                         {employee.fullName || "Unknown"}
                       </label>
@@ -774,29 +794,24 @@ function WorklogDetail() {
                 worklogDetail.replacementEmployee.map((e) => (
                   <Tooltip key={e.userId} title={`Replacing: ${e.fullName}`} placement="top">
                     <div className={style.replacementBadge}>
-                      <Flex align="center" gap={6}>
-                        <Badge
-                          count={
-                            <Icons.delUser
-                              className={style.deleteIcon}
-                              onClick={(event) => {
-                                event.stopPropagation();
-                                handleRemoveReplacement(e.userId);
-                              }}
-                            />
-                          }
-                          offset={[5, -3]}
-                          style={{ backgroundColor: "white", cursor: "pointer" }}
-                        >
-                          <Image
-                            src={e.avatar || Images.avatar}
-                            width={25}
-                            className={style.avt}
-                            crossOrigin="anonymous"
+                      <Badge
+                        count={
+                          <Icons.delUser
+                            className={style.deleteIcon}
+                            onClick={(event) => {
+                              event.stopPropagation();
+                              handleRemoveReplacement(e.userId);
+                            }}
                           />
+                        }
+                        offset={[5, -3]}
+                        style={{ backgroundColor: "white", cursor: "pointer" }}
+                      >
+                        <Flex align="center" gap={6}>
+                          <UserAvatar avatarURL={e.avatar || undefined} size={25} />
                           <span className={style.replacementText}>{e.replaceUserFullName}</span>
-                        </Badge>
-                      </Flex>
+                        </Flex>
+                      </Badge>
                     </div>
                   </Tooltip>
                 ))
@@ -816,12 +831,10 @@ function WorklogDetail() {
                     : "Received"
                 }
               >
-                <Flex align="center">
-                  <Image
-                    src={worklogDetail?.reporter[0]?.avatarURL || Images.avatar}
-                    width={25}
-                    className={style.avt}
-                    crossOrigin="anonymous"
+                <Flex align="center" gap={8}>
+                  <UserAvatar
+                    avatarURL={worklogDetail?.reporter[0]?.avatarURL || undefined}
+                    size={30}
                   />
                   <label
                     style={{
@@ -856,13 +869,13 @@ function WorklogDetail() {
             <Flex gap={15}>
               <label className={style.textUpdated}>Start Date Plan:</label>
               <label className={style.actualTime}>
-                {formatDate(worklogDetail?.startDate || "") || "N/A"}
+                {worklogDetail?.startDate ? formatDate(worklogDetail?.startDate) : "N/A"}
               </label>
             </Flex>
             <Flex gap={15}>
               <label className={style.textUpdated}>End Date Plan:</label>
               <label className={style.actualTime}>
-                {formatDate(worklogDetail?.endDate || "") || "N/A"}
+                {worklogDetail?.endDate ? formatDate(worklogDetail?.endDate) : "N/A"}
               </label>
             </Flex>
             <Flex gap={15}>
@@ -933,6 +946,7 @@ function WorklogDetail() {
               value={field.value}
               planId={worklogDetail?.planId}
               processId={worklogDetail?.processId}
+              handleViewDetail={() => handleViewDetail(worklogDetail?.harvestHistoryId || 0)}
             />
           ))}
         </Flex>
@@ -944,8 +958,10 @@ function WorklogDetail() {
               label={field.label}
               value={field.value}
               isTag={field.isTag}
+              isHarvest={field.label === "Harvest" ? field.isHarvest : false}
               planId={worklogDetail?.planId}
               processId={worklogDetail?.processId}
+              handleViewDetail={() => handleViewDetail(worklogDetail?.harvestHistoryId || 0)}
             />
           ))}
         </Flex>
@@ -1009,13 +1025,13 @@ function WorklogDetail() {
                             Update
                           </Button>
                         )}
-                      <Button
+                      {/* <Button
                         className={style.deleteButton}
                         onClick={() => handleOpenDeleteModal(item)}
                         disabled
                       >
                         Delete
-                      </Button>
+                      </Button> */}
                       {["Redo", "Failed"].includes(worklogDetail.status) &&
                         !worklogDetail.redoWorkLog && (
                           <Button
@@ -1032,7 +1048,7 @@ function WorklogDetail() {
             ))}
           </div>
         ) : (
-          <div className={style.noFeedback}>Chưa có feedback</div>
+          <div className={style.noFeedback}>No feedback yet</div>
         )}
         {worklogDetail?.status === "Reviewing" || worklogDetail?.status === "Overdue" ? (
           <Button onClick={handleFeedback} className={style.btnFeedback}>

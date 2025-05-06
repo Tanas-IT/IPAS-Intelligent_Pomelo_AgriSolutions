@@ -31,15 +31,7 @@ public partial class Plan
     public string? Frequency { get; set; }
     public string? PlanName { get; set; }
 
-
-
     public int? AssignorId { get; set; }
-
-    public string? PesticideName { get; set; }
-
-    public double? MaxVolume { get; set; }
-
-    public double? MinVolume { get; set; }
 
     public int? ProcessId { get; set; }
     public int? SubProcessId { get; set; }

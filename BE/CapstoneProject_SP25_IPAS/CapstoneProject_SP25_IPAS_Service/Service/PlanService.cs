@@ -160,11 +160,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         IsActive = createPlanModel?.IsActive,
                         IsDeleted = false,
                         MasterTypeId = createPlanModel?.MasterTypeId,
-                        MaxVolume = createPlanModel?.MaxVolume,
-                        MinVolume = createPlanModel?.MinVolume,
                         Notes = createPlanModel?.Notes,
                         KeyGroup = keyGroup,
-                        PesticideName = createPlanModel?.PesticideName,
                         ResponsibleBy = createPlanModel?.ResponsibleBy,
                         ProcessId = createPlanModel?.ProcessId,
                         SubProcessId = createPlanModel?.SubProcessId,
@@ -447,14 +444,15 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
                     var getMasterType = getListMasterType
                                     .FirstOrDefault(x => x.MasterTypeName?.ToLower().Contains("task assignment".ToLower()) == true);
-
+                    var timeZoneNoti = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
+                    var todayNoti = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, timeZoneNoti);
                     var addNotification = new Notification()
                     {
                         Content = "Plan " + createPlanModel.PlanName + " has just been created",
                         Title = "Plan",
                         MasterTypeId = getMasterType?.MasterTypeId,
                         IsRead = false,
-                        CreateDate = DateTime.Now,
+                        CreateDate = todayNoti,
                         NotificationCode = "NTF " + "_" + DateTime.Now.Date.ToString()
 
                     };
@@ -1139,11 +1137,11 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         validatePlan.SubProcessId = updatePlanModel.SubProcessId.Value;
                         var getProcessBySub = await _unitOfWork.SubProcessRepository.GetProcessBySubProcessId(updatePlanModel.SubProcessId.Value);
                         checkProcessId = getProcessBySub.ProcessId;
-                    }
-                    var errors = await ValidatePlansAgainstTemplate(checkProcessId, new List<CreatePlanModel>() { validatePlan });
-                    if (errors.Any())
-                    {
-                        return new BusinessResult(400, string.Join("\n", errors));
+                        var errors = await ValidatePlansAgainstTemplate(checkProcessId, new List<CreatePlanModel>() { validatePlan });
+                        if (errors.Any())
+                        {
+                            return new BusinessResult(400, string.Join("\n", errors));
+                        }
                     }
                     var checkExistPlan = await _unitOfWork.PlanRepository.GetPlanByInclude(updatePlanModel.PlanId);
                     if (updatePlanModel.StartTime != null && updatePlanModel.EndTime != null)
@@ -1308,7 +1306,12 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                             {
                                 if (!existingGrowthStageIds.Contains(newId))
                                 {
-                                    checkExistPlan.GrowthStagePlans.Add(new GrowthStagePlan { GrowthStageID = newId });
+                                    var newGrowthStagePlan = new GrowthStagePlan()
+                                    {
+                                        GrowthStageID = newId,
+                                        PlanID = checkExistPlan.PlanId
+                                    };
+                                    await _unitOfWork.GrowthStagePlanRepository.Insert(newGrowthStagePlan);
                                 }
                             }
                             await _unitOfWork.SaveAsync();
@@ -1347,19 +1350,6 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         {
                             checkExistPlan.EndDate = updatePlanModel.EndDate;
                         }
-                        if (updatePlanModel.PesticideName != null)
-                        {
-                            checkExistPlan.PesticideName = updatePlanModel.PesticideName;
-                        }
-                        if (updatePlanModel.MinVolume != null)
-                        {
-                            checkExistPlan.MinVolume = updatePlanModel.MinVolume;
-                        }
-                        if (updatePlanModel.MaxVolume != null)
-                        {
-                            checkExistPlan.MaxVolume = updatePlanModel.MaxVolume;
-                        }
-
                         if (updatePlanModel.Frequency != null)
                         {
                             checkExistPlan.Frequency = updatePlanModel.Frequency;
@@ -1575,13 +1565,15 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                             var result = await UpdatePlanSchedule(checkExistPlan, updatePlanModel);
                             if (result)
                             {
+                                var timeZoneNoti = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
+                                var todayNoti = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, timeZoneNoti);
                                 var addNotification = new Notification()
                                 {
                                     Content = "Plan " + updatePlanModel.PlanName + " has just been created",
                                     Title = "Plan",
                                     MasterTypeId = 36,
                                     IsRead = false,
-                                    CreateDate = DateTime.Now,
+                                    CreateDate = todayNoti,
                                     NotificationCode = "NTF " + "_" + DateTime.Now.Date.ToString()
 
                                 };
@@ -1989,7 +1981,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
                 foreach (var customeDate in updatePlanModel.CustomDates)
                 {
-                    if (customeDate >= currentDate && customeDate <= plan.EndDate)
+                    if (customeDate.Date >= currentDate && customeDate.Date <= plan.EndDate.Value.Date)
                     {
                         var tempModel = conflictCustomDates.Contains(customeDate)
                             ? new UpdatePlanModel(updatePlanModel) { ListEmployee = null }
@@ -2332,53 +2324,29 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 {
                     if (plantTarget.LandPlotID != null && plantTarget.LandPlotID > 0)
                     {
-                        var getLandPlot = await _unitOfWork.LandPlotRepository.GetByID(plantTarget.LandPlotID.Value);
-                        if (count > 0)
-                        {
-                            plantLotName = " & " + plantLotName + "_" + getLandPlot.LandPlotName;
-                        }
-                        else
-                        {
-                            plantLotName = plantLotName + "_" + getLandPlot.LandPlotName;
-                        }
+                        plantLotName = "LandPlot";
                     }
 
                     if (plantTarget.LandRowID != null && plantTarget.LandRowID.Count > 0)
                     {
-                        foreach (var landRowId in plantTarget.LandRowID)
-                        {
-                            var getLandRow = await _unitOfWork.LandRowRepository.GetByID(landRowId);
-                            plantLotName = plantLotName + "_Row " + getLandRow.RowIndex;
-                        }
+                        plantLotName = "Row";
 
                     }
 
                     if (plantTarget.PlantID != null && plantTarget.PlantID.Count > 0)
                     {
-                        foreach (var plantId in plantTarget.PlantID)
-                        {
-                            var getPlant = await _unitOfWork.PlantRepository.GetByID(plantId);
-                            plantLotName = plantLotName + "_" + getPlant.PlantName;
-                        }
+                        plantLotName = "Plant";
 
                     }
 
                     if (plantTarget.GraftedPlantID != null && plantTarget.GraftedPlantID.Count > 0)
                     {
-                        foreach (var graftedPlantId in plantTarget.GraftedPlantID)
-                        {
-                            var graftedPlant = await _unitOfWork.GraftedPlantRepository.GetByID(graftedPlantId);
-                            plantLotName = plantLotName + "_" + graftedPlant.GraftedPlantName;
-                        }
+                        plantLotName = "Grafted_Plant";
                     }
 
                     if (plantTarget.PlantLotID != null && plantTarget.PlantLotID.Count > 0)
                     {
-                        foreach (var plantLotID in plantTarget.PlantLotID)
-                        {
-                            var getPlantLot = await _unitOfWork.PlantLotRepository.GetByID(plantLotID);
-                            plantLotName = plantLotName + "_" + getPlantLot.PlantLotName;
-                        }
+                        plantLotName = "Plant_Lot";
 
                     }
                     count++;
@@ -2999,7 +2967,6 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                   || x.PlanName.ToLower().Contains(paginationParameter.Search.ToLower())
                                   || x.Status.ToLower().Contains(paginationParameter.Search.ToLower())
                                   || x.MasterType.MasterTypeName.ToLower().Contains(paginationParameter.Search.ToLower())
-                                  || x.PesticideName.ToLower().Contains(paginationParameter.Search.ToLower())
                                   || x.Notes.ToLower().Contains(paginationParameter.Search.ToLower())
                                   || x.ResponsibleBy.ToLower().Contains(paginationParameter.Search.ToLower())
                                   || x.Frequency.ToLower().Contains(paginationParameter.Search.ToLower()));
@@ -3060,12 +3027,6 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                    ? x => x.OrderByDescending(x => x.IsDeleted)
                                    : x => x.OrderBy(x => x.IsDeleted)) : x => x.OrderBy(x => x.IsDeleted);
                         break;
-                    case "pesticidename":
-                        orderBy = !string.IsNullOrEmpty(paginationParameter.Direction)
-                                    ? (paginationParameter.Direction.ToLower().Equals("desc")
-                                   ? x => x.OrderByDescending(x => x.PesticideName)
-                                   : x => x.OrderBy(x => x.PesticideName)) : x => x.OrderBy(x => x.PesticideName);
-                        break;
                     case "isactive":
                         orderBy = !string.IsNullOrEmpty(paginationParameter.Direction)
                                     ? (paginationParameter.Direction.ToLower().Equals("desc")
@@ -3102,18 +3063,6 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                     ? (paginationParameter.Direction.ToLower().Equals("desc")
                                    ? x => x.OrderByDescending(x => x.Notes)
                                    : x => x.OrderBy(x => x.Notes)) : x => x.OrderBy(x => x.Notes);
-                        break;
-                    case "minVolume":
-                        orderBy = !string.IsNullOrEmpty(paginationParameter.Direction)
-                                    ? (paginationParameter.Direction.ToLower().Equals("desc")
-                                   ? x => x.OrderByDescending(x => x.MinVolume)
-                                   : x => x.OrderBy(x => x.MinVolume)) : x => x.OrderBy(x => x.MinVolume);
-                        break;
-                    case "maxVolume":
-                        orderBy = !string.IsNullOrEmpty(paginationParameter.Direction)
-                                    ? (paginationParameter.Direction.ToLower().Equals("desc")
-                                   ? x => x.OrderByDescending(x => x.MaxVolume)
-                                   : x => x.OrderBy(x => x.MaxVolume)) : x => x.OrderBy(x => x.MaxVolume);
                         break;
                     case "status":
                         orderBy = !string.IsNullOrEmpty(paginationParameter.Direction)

@@ -115,6 +115,8 @@ export interface GetWorklogDetail {
   assignorName: string;
   endDate: string;
   startDate: string;
+  harvestHistoryId: number;
+  cropId: number;
 }
 
 interface RedoWorkLog {
@@ -122,6 +124,7 @@ interface RedoWorkLog {
   status: string
   workLogName: string
   date: string
+  listEmployee: number[]
 }
 
 export interface ReplacementEmployee {

@@ -24,7 +24,6 @@ public partial class WorkLog
 
     public int? ScheduleId { get; set; }
 
-    public int? WarningId { get; set; }
     public int? RedoWorkLogID { get; set; }
 
     public virtual CarePlanSchedule? Schedule { get; set; }
@@ -33,5 +32,4 @@ public partial class WorkLog
 
     public virtual ICollection<UserWorkLog> UserWorkLogs { get; set; } = new List<UserWorkLog>();
 
-    public virtual Warning? Warning { get; set; }
 }

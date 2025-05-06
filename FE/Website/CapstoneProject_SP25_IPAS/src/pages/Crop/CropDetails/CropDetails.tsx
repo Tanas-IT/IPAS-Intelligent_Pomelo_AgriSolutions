@@ -3,14 +3,16 @@ import style from "./CropDetails.module.scss";
 import { useStyle } from "@/hooks";
 import { Icons } from "@/assets";
 import { Tooltip } from "@/components";
-import { useNavigate } from "react-router-dom";
+import { useLocation, useNavigate } from "react-router-dom";
 import { PATHS } from "@/routes";
 import { CropDetail, HarvestDays } from "@/pages";
 import { useCropStore } from "@/stores";
 
 function CropDetails() {
+  const location = useLocation();
   const { isHarvestDetailView, setIsHarvestDetailView } = useCropStore();
   const navigate = useNavigate();
+  const isFromWorklog = location.state?.isFromWorklog ?? false;
   const { styles } = useStyle();
 
   const items: TabsProps["items"] = [
@@ -40,7 +42,7 @@ function CropDetails() {
     <Flex className={style.detailContainer}>
       <Tabs
         className={`${style.containerWrapper} ${styles.customTab}`}
-        defaultActiveKey="1"
+        defaultActiveKey={isFromWorklog ? "2" : "1"}
         items={items}
         onChange={() => setIsHarvestDetailView(false)}
         tabBarExtraContent={{

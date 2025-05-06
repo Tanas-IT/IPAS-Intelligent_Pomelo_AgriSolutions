@@ -15,6 +15,7 @@ namespace CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.WeatherModel
         public WeekInfo? Week { get; set; }
         public ChartInfo? Charts { get; set; }
         public HighlightInfo? Highlights { get; set; }
+        public List<string>? Warnings { get; set; }
     }
 
     public class LocationInfo

@@ -17,8 +17,10 @@ import TimeFilterModal from "./TimeFilterModal";
 import { StatBox } from "../components/StatBox";
 import { reportService } from "@/services";
 import { useAuthStore } from "@/store";
-import { Image } from "native-base";
+import { Image } from "@gluestack-ui/themed";
 import { ActivityIndicator } from "react-native-paper";
+import { useNavigation } from "@react-navigation/native";
+import { RootStackNavigationProp, ROUTE_NAMES } from "@/constants";
 
 const { width, height } = Dimensions.get("window");
 
@@ -29,6 +31,7 @@ const EmployeeHomeScreen = () => {
   const [loading, setLoading] = useState(false);
   const [timeFilterVisible, setTimeFilterVisible] = useState(false);
   const scrollY = useRef(new Animated.Value(0)).current;
+  const navigation = useNavigation<RootStackNavigationProp>();
 
   const fetchData = async (filters: { timeRange?: string } = {}) => {
     setLoading(true);
@@ -128,25 +131,33 @@ const EmployeeHomeScreen = () => {
             };
 
             return (
-              <View key={`task-${item.workLogId}`} style={styles.taskCard}>
-                <View style={styles.taskHeader}>
-                  <View
-                    style={[
-                      styles.taskStatusDot,
-                      { backgroundColor: statusInfo.color },
-                    ]}
-                  />
-                  <TextCustom style={styles.taskTime}>
-                    {item.time || "Flexible"}
+              <TouchableOpacity
+                onPress={() =>
+                  navigation.navigate(ROUTE_NAMES.WORKLOG.WORKLOG_DETAIL, {
+                    worklogId: item.workLogId.toString(),
+                  })
+                }
+              >
+                <View key={`task-${item.workLogId}`} style={styles.taskCard}>
+                  <View style={styles.taskHeader}>
+                    <View
+                      style={[
+                        styles.taskStatusDot,
+                        { backgroundColor: statusInfo.color },
+                      ]}
+                    />
+                    <TextCustom style={styles.taskTime}>
+                      {item.time || "Flexible"}
+                    </TextCustom>
+                  </View>
+                  <TextCustom style={styles.taskTitle} numberOfLines={2}>
+                    {item.workLogName}
                   </TextCustom>
+                  <View style={styles.taskFooter}>
+                    <StatusBadge status={item.status} />
+                  </View>
                 </View>
-                <TextCustom style={styles.taskTitle} numberOfLines={2}>
-                  {item.workLogName}
-                </TextCustom>
-                <View style={styles.taskFooter}>
-                  <StatusBadge status={item.status} />
-                </View>
-              </View>
+              </TouchableOpacity>
             );
           })}
         </ScrollView>

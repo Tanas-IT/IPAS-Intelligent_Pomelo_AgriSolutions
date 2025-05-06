@@ -237,9 +237,6 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
                 getPlanToUpdate.StartDate = plan.StartDate;
                 getPlanToUpdate.EndDate = plan.EndDate;
                 getPlanToUpdate.AssignorId = plan.AssignorId;
-                getPlanToUpdate.PesticideName = plan.PesticideName;
-                getPlanToUpdate.MaxVolume = plan.MaxVolume;
-                getPlanToUpdate.MinVolume = plan.MinVolume;
                 getPlanToUpdate.ProcessId = plan.ProcessId;
                 getPlanToUpdate.SubProcessId = plan.SubProcessId;
                 getPlanToUpdate.CropId = plan.CropId;

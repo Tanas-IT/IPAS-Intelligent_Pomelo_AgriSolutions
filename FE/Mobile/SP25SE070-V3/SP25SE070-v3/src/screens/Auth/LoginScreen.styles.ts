@@ -1,5 +1,5 @@
 import theme from "@/theme";
-import { StyleSheet } from "react-native";
+import { Platform, StyleSheet } from "react-native";
 
 export const styles = StyleSheet.create({
   container: {
@@ -8,9 +8,9 @@ export const styles = StyleSheet.create({
     backgroundColor: theme.colors.background,
   },
   headerGradient: {
-    paddingTop: 50,
+    paddingTop: Platform.OS === "ios" ? 50 : 30,
     paddingBottom: 30,
-    paddingHorizontal: 24,
+    paddingHorizontal: Platform.OS === "ios" ? 24 : 14,
   },
   headerContainer: {
     flexDirection: "row",

@@ -43,7 +43,6 @@ namespace CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.WorkLogModel
         public TimeSpan? ActualEndTime { get; set; }
 
         public bool? IsConfirm { get; set; }
-        public string? WarningName { get; set; }
         public WorkLogBasicModel? RedoWorkLog { get; set; }
         public WorkLogBasicModel? OriginalWorkLog { get; set; }
         public List<ReporterModel>? ListEmployee { get; set; }

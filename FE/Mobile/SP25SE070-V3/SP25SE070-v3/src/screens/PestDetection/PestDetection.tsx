@@ -40,7 +40,7 @@ const PestDetectionScreen = () => {
   const CLOUD_NAME = process.env.EXPO_PUBLIC_CLOUD_NAME;
 
   useEffect(() => {
-    if (detectionResults) {
+    if (detectionResults !== null) {
       Animated.timing(fadeAnim, {
         toValue: 1,
         duration: 500,
@@ -220,11 +220,20 @@ const PestDetectionScreen = () => {
               b.probability - a.probability
           )
         );
+      } else if (response.statusCode === 400) {
+        Toast.show({
+          type: "error",
+          text1: "Detection Failed",
+          text2: response.message || "Invalid image or cannot detect pest",
+          visibilityTime: 4000,
+          position: "bottom",
+        });
+        setDetectionResults([]);
       } else if (response.statusCode === 500) {
         Toast.show({
           type: "error",
           text1: "Detection Failed",
-          text2: "Please take a clear photo of a pomelo tree (cây bưởi)",
+          text2: "AI model is not available",
           visibilityTime: 4000,
           position: "bottom",
         });
@@ -301,7 +310,7 @@ const PestDetectionScreen = () => {
         <Text style={styles.title}>Pest Detection</Text>
       </View>
 
-      {!detectionResults ? (
+      {detectionResults === null ? (
         <>
           <View style={styles.imageContainer}>
             {selectedImageUri ? (
@@ -380,29 +389,35 @@ const PestDetectionScreen = () => {
             </TextCustom>
           </View>
           <View style={styles.resultContainer}>
-            {detectionResults.map((result, index) => (
-              <View
-                key={index}
-                style={[styles.resultItem, theme.shadow.default]}
-              >
-                <TextCustom style={styles.resultText}>
-                  {result.tagName}
-                </TextCustom>
-                <View style={styles.progressContainer}>
-                  <Progress.Bar
-                    progress={result.probability}
-                    width={270}
-                    height={7}
-                    color={theme.colors.primary}
-                    unfilledColor={theme.colors.secondary}
-                    borderColor="none"
-                  />
-                  <TextCustom style={styles.percentageText}>
-                    {(result.probability * 100).toFixed(2)}%
+          {detectionResults.length > 0 ? (
+              detectionResults.map((result, index) => (
+                <View
+                  key={index}
+                  style={[styles.resultItem, theme.shadow.default]}
+                >
+                  <TextCustom style={styles.resultText}>
+                    {result.tagName}
                   </TextCustom>
+                  <View style={styles.progressContainer}>
+                    <Progress.Bar
+                      progress={result.probability}
+                      width={270}
+                      height={7}
+                      color={theme.colors.primary}
+                      unfilledColor={theme.colors.secondary}
+                      borderColor="none"
+                    />
+                    <TextCustom style={styles.percentageText}>
+                      {(result.probability * 100).toFixed(2)}%
+                    </TextCustom>
+                  </View>
                 </View>
-              </View>
-            ))}
+              ))
+            ) : (
+              <TextCustom style={styles.noResultText}>
+                No pests detected. You can still report this image.
+              </TextCustom>
+            )}
           </View>
           <View style={styles.actionButtons}>
             <TouchableOpacity
