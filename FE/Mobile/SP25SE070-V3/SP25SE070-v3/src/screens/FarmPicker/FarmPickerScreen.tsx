@@ -10,15 +10,13 @@ import { AuthService, FarmService } from "@/services";
 import { AuthNavigationProp, ROUTE_NAMES, UserRolesStr } from "@/constants";
 import { useNavigation } from "@react-navigation/native";
 import Toast from "react-native-toast-message";
+import theme from "@/theme";
 
 const roleColorMap = {
-  [UserRolesStr.Admin]: "#F8D7DA",     // Pastel đỏ (hồng nhạt)
-  [UserRolesStr.User]: "#FFF3CD",      // Pastel vàng (vàng nhạt)
-  [UserRolesStr.Owner]: "#D6EAF8",     // Pastel xanh dương (xanh da trời nhạt)
-  [UserRolesStr.Manager]: "#D4EDDA",   // Pastel xanh lá (xanh lá nhạt)
-  [UserRolesStr.Employee]: "#D1ECF1",  // Pastel xanh ngọc nhạt
+  [UserRolesStr.Owner]: theme.colors.color_bg_tag_owner,
+  [UserRolesStr.Manager]: theme.colors.color_bg_tag_other,
+  [UserRolesStr.Employee]: theme.colors.color_bg_tag_other,
 };
-
 
 const FarmPickerScreen = () => {
   const [farmsData, setFarmsData] = useState<GetFarmPicker[]>([]);
@@ -153,7 +151,7 @@ const FarmPickerScreen = () => {
                                   : styles.activeText,
                               ]}
                             >
-                              {farm.farm.status}
+                              {isInactive ? "Inactive" : "Active"}
                             </TextCustom>
                           </View>
                         </View>
@@ -162,23 +160,23 @@ const FarmPickerScreen = () => {
                       {/* Footer */}
                       <View style={styles.footer}>
                         <Badge
-                          backgroundColor={roleColorMap[farm.roleId] || "$info500"}
-                          borderRadius="$sm"
+                          backgroundColor={
+                            roleColorMap[farm.roleId] || "$info500"
+                          }
+                          borderRadius="$lg"
                           px="$2"
                           py="$1"
                         >
-                          <BadgeText
-                            color="$white"
-                            fontSize="$sm"
+                          <TextCustom
                             style={{
                               padding: 7,
-                              ...(farm.roleId === UserRolesStr.Owner
+                              ...(farm.roleName == "Owner"
                                 ? styles.ownerText
-                                : styles.otherText)
+                                : styles.otherText),
                             }}
                           >
                             {farm.roleName}
-                          </BadgeText>
+                          </TextCustom>
                         </Badge>
                         <TextCustom style={styles.dateText}>
                           Since{" "}

@@ -32,10 +32,11 @@ export const handleApiError = async (error: any) => {
     }
   };
 
-  const redirectToRenewalPageWithMessage = async (message: string, hasMessage: boolean = true) => {
-    if (hasMessage) localStorage.setItem(LOCAL_STORAGE_KEYS.ERROR_MESSAGE, message);
-    window.location.href = PATHS.PACKAGE.PAYMENT;
+  const redirectToRenewalPageWithMessage = async (message: string) => {
+    localStorage.setItem(LOCAL_STORAGE_KEYS.ERROR_MESSAGE, message);
+    window.location.href = PATHS.PACKAGE.PACKAGE_PURCHASE;
   };
+
   try {
     if (error.message === "Network Error" && !error.response) {
       toast.error(MESSAGES.NETWORK_ERROR);
@@ -63,7 +64,7 @@ export const handleApiError = async (error: any) => {
           }
           break;
         case 402:
-          redirectToRenewalPageWithMessage(error.response.data.Message);
+          redirectToRenewalPageWithMessage(error.response.data.message);
           break;
         case 403:
           const errorStatusCode = error.response.data.statusCode;
