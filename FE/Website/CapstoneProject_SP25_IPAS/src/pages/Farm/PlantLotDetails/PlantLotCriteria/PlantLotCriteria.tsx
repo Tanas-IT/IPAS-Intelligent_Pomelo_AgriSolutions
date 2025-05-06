@@ -53,7 +53,7 @@ function PlantLotCriteria() {
           res.data &&
           res.data.reduce((acc, group) => {
             group.criteriaList.forEach((item) => {
-              acc[item.criteriaId] = item.valueChecked ?? 0;
+              acc[item.criteriaId] = item.valueChecked ?? null;
             });
             return acc;
           }, {} as Record<number, number>);
@@ -96,11 +96,11 @@ function PlantLotCriteria() {
     }
   };
 
-  const handleValueCheckChange = (criteriaId: number, value: number) => {
+  const handleValueCheckChange = (criteriaId: number, value: number | null) => {
     setUpdatedCriteria((prev) => {
       const initialValue = initialCriteria[criteriaId];
 
-      if (value === initialValue) {
+      if (value === null || value === initialValue) {
         // Nếu giá trị mới bằng giá trị ban đầu, loại bỏ nó khỏi updatedCriteria
         const { [criteriaId]: _, ...rest } = prev;
         return rest;
@@ -116,7 +116,7 @@ function PlantLotCriteria() {
       prevGroups.map((group) => ({
         ...group,
         criteriaList: group.criteriaList.map((item) =>
-          item.criteriaId === criteriaId ? { ...item, valueChecked: value } : item,
+          item.criteriaId === criteriaId ? { ...item, valueChecked: value as number } : item,
         ),
       })),
     );
@@ -180,7 +180,7 @@ function PlantLotCriteria() {
       return;
     }
     const criteriaDatas: CriteriaCheckData[] = Object.entries(updatedCriteria)
-      .filter(([, valueChecked]) => valueChecked !== 0) // Lọc ra giá trị khác 0
+      .filter(([, valueChecked]) => valueChecked !== null && valueChecked !== undefined)
       .map(([criteriaId, valueChecked]) => ({
         criteriaId: Number(criteriaId),
         valueChecked,
@@ -260,7 +260,9 @@ function PlantLotCriteria() {
                 if (conditionGroups.length === 0) return false; // Không có tiêu chí "Condition" nào
 
                 return conditionGroups.every((group) =>
-                  group.criteriaList.every((item) => initialCriteria[item.criteriaId]),
+                  group.criteriaList.every((item) =>
+                    initialCriteria.hasOwnProperty(item.criteriaId),
+                  ),
                 );
               })();
 

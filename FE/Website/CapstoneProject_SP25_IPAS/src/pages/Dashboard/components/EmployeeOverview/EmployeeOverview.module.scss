@@ -1,216 +1,226 @@
+@use "@/styles/variables.scss" as vars;
+
 .container {
-    padding: 20px;
-    background-color: #fff;
-    min-height: 100vh;
-    border-radius: 10;
-  
-    .header {
+  padding: 20px;
+  background-color: #fff;
+  min-height: 100vh;
+  border-radius: 10;
+
+  .header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 24px;
+
+    h2 {
+      font-size: 24px;
+      font-weight: 600;
+      color: #1e293b;
+      margin: 0;
+    }
+  }
+
+  .filters {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 16px;
+    margin-bottom: 24px;
+    padding: 16px;
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
+
+    .filterGroup {
       display: flex;
-      justify-content: space-between;
       align-items: center;
-      margin-bottom: 24px;
-  
-      h2 {
-        font-size: 24px;
-        font-weight: 600;
-        color: #1e293b;
-        margin: 0;
-      }
-    }
-  
-    .filters {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 16px;
-      margin-bottom: 24px;
-      padding: 16px;
-      background: #fff;
-      border-radius: 12px;
-      box-shadow: 0 2px 8px rgba(0, 0, 0, 0.05);
-  
-      .filterGroup {
-        display: flex;
-        align-items: center;
-        gap: 8px;
-  
-        label {
-          font-weight: 500;
-          color: #64748b;
-        }
-      }
-  
-      .scoreFilter {
-        background: #f8f9fa;
-        padding: 8px 12px;
-        border-radius: 8px;
-      }
-    }
-  
-    .compareButton {
-      background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
-      border: none;
-      font-weight: 500;
-      transition: all 0.3s ease;
-      box-shadow: 0 4px 12px rgba(106, 17, 203, 0.2);
-      
-      &:hover {
-        transform: translateY(-2px);
-        box-shadow: 0 6px 16px rgba(106, 17, 203, 0.3);
-      }
-  
-      &:disabled {
-        background: #e9ecef;
-        color: #adb5bd;
-        box-shadow: none;
-        transform: none;
-      }
-    }
-  
-    .tableContainer {
-      background: #fff;
-      border-radius: 12px;
-      box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
-      overflow: hidden;
-  
-      :global {
-        .ant-table-thead > tr > th {
-          background: #f8f9fa;
-          font-weight: 600;
-          color: #495057;
-          border-bottom: 2px solid #e9ecef;
-        }
-  
-        .ant-table-tbody > tr {
-          transition: all 0.2s ease;
-          
-          &:hover {
-            background: rgba(73, 80, 87, 0.03) !important;
-            transform: translateY(-1px);
-          }
-        }
-  
-        .ant-table-row-selected {
-          background: rgba(32, 107, 196, 0.05) !important;
-        }
-      }
-    }
-  
-    .tag {
-      display: inline-flex;
-      align-items: center;
-      gap: 6px;
-      padding: 4px 10px;
-      border-radius: 20px;
-      font-weight: 500;
-      border: none;
-  
-      &.success {
-        background: rgba(40, 167, 69, 0.1);
-        color: #28a745;
-      }
-  
-      &.error {
-        background: rgba(220, 53, 69, 0.1);
-        color: #dc3545;
-      }
-  
-      &.warning {
-        background: rgba(255, 193, 7, 0.1);
-        color: #ffc107;
-      }
-    }
-  
-    .select {
-      min-width: 120px;
-      
-      :global(.ant-select-selector) {
-        border-radius: 8px !important;
-        height: 40px !important;
-        display: flex;
-        align-items: center;
-      }
-    }
-  
-    .search {
-      :global(.ant-input-group) {
-        border-radius: 8px;
-        overflow: hidden;
-      }
-  
-      :global(.ant-input) {
-        height: 40px;
-      }
-  
-      :global(.ant-btn) {
-        height: 40px;
-      }
-    }
-  
-    .scoreInput {
-      width: 100px;
-      border-radius: 8px;
-  
-      :global(.ant-input-number-input) {
-        height: 40px;
+      gap: 8px;
+
+      label {
+        font-weight: 500;
+        color: #64748b;
       }
     }
 
-    .clearButton {
-        // Layout
-        display: inline-flex;
-        align-items: center;
-        justify-content: center;
-        gap: 6px;
-        height: 36px;
-        padding: 0 16px;
-        
-        // Visual
-        background-color: transparent;
-        border: 1px solid #d9d9d9;
-        border-radius: 6px;
-        color: #666;
-        font-weight: 500;
-        font-size: 14px;
-        transition: all 0.2s cubic-bezier(0.645, 0.045, 0.355, 1);
-        
-        // Icon
-        .anticon {
-          font-size: 14px;
-          color: #8c8c8c;
-          transition: all 0.2s;
-        }
-      
-        // States
+    .scoreFilter {
+      background: #f8f9fa;
+      padding: 8px 12px;
+      border-radius: 8px;
+    }
+  }
+
+  .compareButton {
+    background: linear-gradient(135deg, #6a11cb 0%, #2575fc 100%);
+    border: none;
+    font-weight: 500;
+    transition: all 0.3s ease;
+    box-shadow: 0 4px 12px rgba(106, 17, 203, 0.2);
+
+    &:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 6px 16px rgba(106, 17, 203, 0.3);
+    }
+
+    &:disabled {
+      background: #e9ecef;
+      color: #adb5bd;
+      box-shadow: none;
+      transform: none;
+    }
+  }
+
+  .tableContainer {
+    background: #fff;
+    border-radius: 12px;
+    box-shadow: 0 8px 30px rgba(0, 0, 0, 0.08);
+    overflow: hidden;
+
+    :global {
+      .ant-table-thead > tr > th {
+        background: #f8f9fa;
+        font-weight: 600;
+        color: #495057;
+        border-bottom: 2px solid #e9ecef;
+      }
+
+      .ant-table-tbody > tr {
+        transition: all 0.2s ease;
+
         &:hover {
-          color: #444;
-          border-color: #bfbfbf;
-          background-color: rgba(0, 0, 0, 0.02);
-          
-          .anticon {
-            color: #666;
-          }
-        }
-      
-        &:active {
-          color: #222;
-          border-color: #999;
-          background-color: rgba(0, 0, 0, 0.04);
-        }
-      
-        &:focus {
-          outline: none;
-          box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.1);
-        }
-      
-        &[disabled] {
-          color: rgba(0, 0, 0, 0.25);
-          border-color: #d9d9d9;
-          background: rgba(0, 0, 0, 0.04);
-          cursor: not-allowed;
-          
-          .anticon {
-            color: rgba(0, 0, 0, 0.25);
-          }
+          background: rgba(73, 80, 87, 0.03) !important;
+          transform: translateY(-1px);
         }
       }
+
+      .ant-table-row-selected {
+        background: rgba(32, 107, 196, 0.05) !important;
+      }
+    }
+
+    .tbl {
+      .selectedRow {
+        td {
+          background-color: vars.$color_selected_row !important;
+        }
+      }
+    }
   }
+
+  .tag {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 10px;
+    border-radius: 20px;
+    font-weight: 500;
+    border: none;
+
+    &.success {
+      background: rgba(40, 167, 69, 0.1);
+      color: #28a745;
+    }
+
+    &.error {
+      background: rgba(220, 53, 69, 0.1);
+      color: #dc3545;
+    }
+
+    &.warning {
+      background: rgba(255, 193, 7, 0.1);
+      color: #ffc107;
+    }
+  }
+
+  .select {
+    min-width: 120px;
+
+    :global(.ant-select-selector) {
+      border-radius: 8px !important;
+      height: 40px !important;
+      display: flex;
+      align-items: center;
+    }
+  }
+
+  .search {
+    :global(.ant-input-group) {
+      border-radius: 8px;
+      overflow: hidden;
+    }
+
+    :global(.ant-input) {
+      height: 40px;
+    }
+
+    :global(.ant-btn) {
+      height: 40px;
+    }
+  }
+
+  .scoreInput {
+    width: 100px;
+    border-radius: 8px;
+
+    :global(.ant-input-number-input) {
+      height: 40px;
+    }
+  }
+
+  .clearButton {
+    // Layout
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    height: 36px;
+    padding: 0 16px;
+
+    // Visual
+    background-color: transparent;
+    border: 1px solid #d9d9d9;
+    border-radius: 6px;
+    color: #666;
+    font-weight: 500;
+    font-size: 14px;
+    transition: all 0.2s cubic-bezier(0.645, 0.045, 0.355, 1);
+
+    // Icon
+    .anticon {
+      font-size: 14px;
+      color: #8c8c8c;
+      transition: all 0.2s;
+    }
+
+    // States
+    &:hover {
+      color: #444;
+      border-color: #bfbfbf;
+      background-color: rgba(0, 0, 0, 0.02);
+
+      .anticon {
+        color: #666;
+      }
+    }
+
+    &:active {
+      color: #222;
+      border-color: #999;
+      background-color: rgba(0, 0, 0, 0.04);
+    }
+
+    &:focus {
+      outline: none;
+      box-shadow: 0 0 0 2px rgba(24, 144, 255, 0.1);
+    }
+
+    &[disabled] {
+      color: rgba(0, 0, 0, 0.25);
+      border-color: #d9d9d9;
+      background: rgba(0, 0, 0, 0.04);
+      cursor: not-allowed;
+
+      .anticon {
+        color: rgba(0, 0, 0, 0.25);
+      }
+    }
+  }
+}

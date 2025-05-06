@@ -46,6 +46,7 @@ const PanelTitle = ({
 }: PanelTitleProps) => {
   const { lot } = usePlantLotStore();
   if (!lot) return;
+
   const completedCount = data.filter((item) => item.isPassed).length;
 
   const hasChanges = data.some(
@@ -54,7 +55,9 @@ const PanelTitle = ({
       updatedCriteria[item.criteriaId] !== initialCriteria[item.criteriaId],
   );
 
-  const isAllInitialCriteriaChecked = data.every((item) => initialCriteria[item.criteriaId]);
+  const isAllInitialCriteriaChecked = data.every(
+    (item) => initialCriteria[item.criteriaId] !== null,
+  );
 
   const startDate = data[0].createDate;
   const endDate =
@@ -111,7 +114,7 @@ const PanelTitle = ({
         )}
         {isAllConditionChecked &&
           ((!lot.isFromGrafted && lot.inputQuantity == null) || lot.isFromGrafted) &&
-          !lot.isPassed &&
+          // !lot.isPassed &&
           target === CRITERIA_TARGETS["Plantlot Condition"] && (
             <MapControls
               icon={<Icons.edit />}
