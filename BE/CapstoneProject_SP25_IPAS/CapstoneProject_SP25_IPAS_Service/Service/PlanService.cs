@@ -447,14 +447,15 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
                     var getMasterType = getListMasterType
                                     .FirstOrDefault(x => x.MasterTypeName?.ToLower().Contains("task assignment".ToLower()) == true);
-
+                    var timeZoneNoti = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
+                    var todayNoti = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, timeZoneNoti);
                     var addNotification = new Notification()
                     {
                         Content = "Plan " + createPlanModel.PlanName + " has just been created",
                         Title = "Plan",
                         MasterTypeId = getMasterType?.MasterTypeId,
                         IsRead = false,
-                        CreateDate = DateTime.Now,
+                        CreateDate = todayNoti,
                         NotificationCode = "NTF " + "_" + DateTime.Now.Date.ToString()
 
                     };
@@ -1580,13 +1581,15 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                             var result = await UpdatePlanSchedule(checkExistPlan, updatePlanModel);
                             if (result)
                             {
+                                var timeZoneNoti = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
+                                var todayNoti = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, timeZoneNoti);
                                 var addNotification = new Notification()
                                 {
                                     Content = "Plan " + updatePlanModel.PlanName + " has just been created",
                                     Title = "Plan",
                                     MasterTypeId = 36,
                                     IsRead = false,
-                                    CreateDate = DateTime.Now,
+                                    CreateDate = todayNoti,
                                     NotificationCode = "NTF " + "_" + DateTime.Now.Date.ToString()
 
                                 };
