@@ -48,7 +48,6 @@ const WorklogDetailScreen: React.FC<WorklogDetailScreenProps> = ({ route }) => {
   const [selectedResources, setSelectedResources] = useState<ResourceItem[]>(
     []
   );
-  const currentUser = 2;
 
   const fetchWorklogDetail = async () => {
     try {
@@ -65,6 +64,14 @@ const WorklogDetailScreen: React.FC<WorklogDetailScreenProps> = ({ route }) => {
       fetchWorklogDetail();
     }, [])
   );
+
+  const currentUser = worklog?.listEmployee.find(
+    (employee) => employee.userId === Number(userId)
+  );
+  
+  const currentUserStatus = currentUser?.statusOfUserWorkLog;
+  
+  
 
   const isUserRejected = () => {
     const isRejectedInEmployee =
@@ -294,38 +301,41 @@ const WorklogDetailScreen: React.FC<WorklogDetailScreenProps> = ({ route }) => {
             Code: {worklog.workLogCode}
           </TextCustom>
           <StatusBadge status={worklog.status as StatusType} />
+          <TextCustom style={styles.attendanceStatus}>
+            Attendance Status: {currentUserStatus ? currentUserStatus : "Not Yet"}
+          </TextCustom>
         </View>
         {![UserRole.Owner.toString(), UserRole.Manager.toString()].includes(
           roleId!
         ) && (
-          <>
-            {!isUserRejected() && worklog.status === "Not Started" ? (
-              <TouchableOpacity
-                onPress={handleCancelWorklog}
-                style={styles.delBtn}
-              >
-                <CustomIcon
-                  name="cancel"
-                  size={24}
-                  color="red"
-                  type="MaterialCommunityIcons"
-                />
-              </TouchableOpacity>
-            ) : canRedoWorklog() ? (
-              <TouchableOpacity
-                onPress={handleRedoWorklog}
-                style={styles.delBtn}
-              >
-                <CustomIcon
-                  name="restore"
-                  size={24}
-                  color="green"
-                  type="MaterialCommunityIcons"
-                />
-              </TouchableOpacity>
-            ) : null}
-          </>
-        )}
+            <>
+              {!isUserRejected() && worklog.status === "Not Started" ? (
+                <TouchableOpacity
+                  onPress={handleCancelWorklog}
+                  style={styles.delBtn}
+                >
+                  <CustomIcon
+                    name="cancel"
+                    size={24}
+                    color="red"
+                    type="MaterialCommunityIcons"
+                  />
+                </TouchableOpacity>
+              ) : canRedoWorklog() ? (
+                <TouchableOpacity
+                  onPress={handleRedoWorklog}
+                  style={styles.delBtn}
+                >
+                  <CustomIcon
+                    name="restore"
+                    size={24}
+                    color="green"
+                    type="MaterialCommunityIcons"
+                  />
+                </TouchableOpacity>
+              ) : null}
+            </>
+          )}
       </View>
 
       <View style={styles.dateTimeFrame}>
@@ -470,7 +480,7 @@ const WorklogDetailScreen: React.FC<WorklogDetailScreenProps> = ({ route }) => {
                   style={[
                     styles.userItemHorizontal,
                     worklog.reporter[0].userId === Number(userId) &&
-                      styles.highlightedUser,
+                    styles.highlightedUser,
                   ]}
                 >
                   <Image
@@ -478,14 +488,14 @@ const WorklogDetailScreen: React.FC<WorklogDetailScreenProps> = ({ route }) => {
                     style={[
                       styles.avatarSmall,
                       worklog.reporter[0].userId === Number(userId) &&
-                        styles.avatarHighlighted,
+                      styles.avatarHighlighted,
                     ]}
                   />
                   <TextCustom
                     style={[
                       styles.userNameSmallHorizontal,
                       worklog.reporter[0].userId === Number(userId) &&
-                        styles.userNameHighlighted,
+                      styles.userNameHighlighted,
                     ]}
                   >
                     {worklog.reporter[0].fullName}
@@ -620,19 +630,19 @@ const WorklogDetailScreen: React.FC<WorklogDetailScreenProps> = ({ route }) => {
           {![UserRole.Owner.toString(), UserRole.Manager.toString()].includes(
             roleId!
           ) && (
-            <TouchableOpacity
-              style={styles.addNoteButton}
-              onPress={handleAddNote}
-            >
-              <CustomIcon
-                name="plus"
-                size={20}
-                color="#fff"
-                type="MaterialCommunityIcons"
-              />
-              <TextCustom style={styles.addNoteText}>Add Note</TextCustom>
-            </TouchableOpacity>
-          )}
+              <TouchableOpacity
+                style={styles.addNoteButton}
+                onPress={handleAddNote}
+              >
+                <CustomIcon
+                  name="plus"
+                  size={20}
+                  color="#fff"
+                  type="MaterialCommunityIcons"
+                />
+                <TextCustom style={styles.addNoteText}>Add Note</TextCustom>
+              </TouchableOpacity>
+            )}
         </View>
         {worklog.listNoteOfWorkLog.length > 0 ? (
           worklog.listNoteOfWorkLog.map((note, index) => (
@@ -698,7 +708,7 @@ const WorklogDetailScreen: React.FC<WorklogDetailScreenProps> = ({ route }) => {
                       </TextCustom>
                     </TouchableOpacity>
                   )}
-                  {note.userId === currentUser && (
+                  {note.userId === Number(userId) && (
                     <View style={styles.actionButtons}>
                       <TouchableOpacity
                         onPress={() =>
