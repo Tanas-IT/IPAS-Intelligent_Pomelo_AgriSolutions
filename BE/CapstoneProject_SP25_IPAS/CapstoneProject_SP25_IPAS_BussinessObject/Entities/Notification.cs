@@ -19,7 +19,7 @@ public partial class Notification
     public DateTime? CreateDate { get; set; }
 
     public int? MasterTypeId { get; set; }
-    public int? SenderID { get; set; }
+    public int? UserID { get; set; }
     public virtual MasterType? MasterType { get; set; }
 
     public virtual User? Sender { get; set; }

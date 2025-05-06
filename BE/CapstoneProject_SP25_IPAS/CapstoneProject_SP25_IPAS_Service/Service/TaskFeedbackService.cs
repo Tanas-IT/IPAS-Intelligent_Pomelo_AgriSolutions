@@ -81,7 +81,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         Title = "WorkLog",
                         MasterTypeId = 38,
                         IsRead = false,
-                        SenderID = createTaskFeedbackModel.ManagerId,
+                        UserID = createTaskFeedbackModel.ManagerId,
                         CreateDate = DateTime.Now,
                         NotificationCode = "NTF " + "_" + DateTime.Now.Date.ToString()
                     };

@@ -1,4 +1,4 @@
-import { View } from "native-base";
+import { View } from "@gluestack-ui/themed";
 import { styles } from "./Details.styles";
 
 export const SkeletonItem = () => (

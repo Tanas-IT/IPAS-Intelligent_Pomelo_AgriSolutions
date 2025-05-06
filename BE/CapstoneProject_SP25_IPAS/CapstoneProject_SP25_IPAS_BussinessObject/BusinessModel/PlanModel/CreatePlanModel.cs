@@ -22,12 +22,6 @@ namespace CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.PlanModel
 
         public int? AssignorId { get; set; }
 
-        public string? PesticideName { get; set; }
-
-        public double? MaxVolume { get; set; }
-
-        public double? MinVolume { get; set; }
-
         public int? ProcessId { get; set; }
         public int? SubProcessId { get; set; }
 
@@ -67,9 +61,6 @@ namespace CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.PlanModel
             ResponsibleBy = model.ResponsibleBy;
             Frequency = model.Frequency;
             AssignorId = model.AssignorId;
-            PesticideName = model.PesticideName;
-            MaxVolume = model.MaxVolume;
-            MinVolume = model.MinVolume;
             ProcessId = model.ProcessId;
             CropId = model.CropId;
             GrowthStageId = model.GrowthStageId;

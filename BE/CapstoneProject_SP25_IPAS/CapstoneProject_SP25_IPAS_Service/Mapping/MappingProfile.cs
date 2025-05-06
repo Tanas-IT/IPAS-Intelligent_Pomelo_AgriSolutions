@@ -556,7 +556,6 @@ namespace CapstoneProject_SP25_IPAS_Service.Mapping
 
 
             CreateMap<WorkLog, WorkLogDetailModel>()
-            .ForMember(dest => dest.WarningName, opt => opt.MapFrom(src => src.Warning.WarningName))
             .ForMember(dest => dest.CropName, opt => opt.MapFrom(src => src.Schedule.CarePlan.Crop.CropName))
             .ForMember(dest => dest.CropId, opt => opt.MapFrom(src => src.Schedule.HarvestHistory.CropId))
             .ForMember(dest => dest.ProcessName, opt => opt.MapFrom(src => src.Schedule.CarePlan.Process != null ? src.Schedule.CarePlan.Process.ProcessName : src.Schedule.CarePlan.SubProcess.SubProcessName))
@@ -582,7 +581,6 @@ namespace CapstoneProject_SP25_IPAS_Service.Mapping
                                                 )
             .ForMember(dest => dest.PlanTargetModels, opt => opt.Ignore())
             .ForMember(dest => dest.TypeWork, opt => opt.MapFrom(src => src.Schedule.CarePlan.Process.ProcessName))
-            .ForMember(dest => dest.WarningName, opt => opt.MapFrom(src => src.Warning.WarningName))
            .ForMember(dest => dest.ReplacementEmployee, opt => opt.MapFrom(src =>
                                                                 src.UserWorkLogs
                                                                     .Where(uwl => src.UserWorkLogs.Any(r => r.ReplaceUserId == uwl.UserId && uwl.IsDeleted == false)) // Chỉ lấy nhân viên bị thay

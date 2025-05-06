@@ -24,6 +24,7 @@ import { LineChart, ResponsiveContainer, XAxis, YAxis, Line } from "recharts";
 import { useStyle } from "@/hooks";
 import RightSidebar from "./RightSidebar";
 import { WeatherChartData, WeatherHourly } from "@/payloads";
+import { getFarmId } from "@/utils";
 
 const { Title, Text } = Typography;
 
@@ -61,7 +62,7 @@ function Weather() {
   const { styles } = useStyle();
 
   useEffect(() => {
-    fetchWeather();
+    fetchWeather(Number(getFarmId()));
   }, [place, fetchWeather]);
 
   const labelMapping: Record<ViewMode, string> = {
@@ -256,7 +257,7 @@ function Weather() {
                 </div>
                 <div>
                   <p>Visibility</p>
-                  <h3>{weatherData?.current.visibility || 0} km</h3>
+                  <h3>{weatherData?.current.visibility || 0} m</h3>
                 </div>
                 <div>
                   <p>Humidity</p>

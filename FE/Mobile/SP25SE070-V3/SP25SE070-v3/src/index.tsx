@@ -4,7 +4,10 @@ import { NavigationContainer } from "@react-navigation/native";
 import { StatusBar } from "expo-status-bar";
 import React, { useCallback, useEffect } from "react";
 import * as SplashScreen from "expo-splash-screen";
-import { extendTheme, NativeBaseProvider, theme } from "native-base";
+import { GluestackUIProvider } from "@gluestack-ui/themed";
+// import config from "./gluestack-ui.config";
+import { config } from '@gluestack-ui/config';
+// import { extendTheme, NativeBaseProvider, theme } from "native-base";
 import Toast from "react-native-toast-message";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { useFonts } from "expo-font";
@@ -24,6 +27,29 @@ const themeCustome = {
     medium: {
       fontFamily: "BalsamiqSans-Regular",
       fontWeight: "normal",
+    },
+  },
+};
+
+const customConfig = {
+  ...config,
+  tokens: {
+    ...config.tokens,
+    fonts: {
+      balsamiqSans: {
+        regular: 'BalsamiqSans-Regular',
+        bold: 'BalsamiqSans-Bold',
+        italic: 'BalsamiqSans-Italic',
+      },
+    },
+    space: {
+      ...config.tokens.space,
+      8: 8,
+    },
+  },
+  aliases: {
+    fontFamily: {
+      body: 'balsamiqSans',
     },
   },
 };
@@ -63,7 +89,7 @@ export default function MainApp() {
         }, 1000);
       }}
     >
-      <NativeBaseProvider theme={theme}>
+      <GluestackUIProvider config={customConfig}>
         <PaperProvider theme={themeCustome}>
           <NavigationContainer ref={navigationRef}>
             <StatusBar style="auto" />
@@ -71,7 +97,7 @@ export default function MainApp() {
             <Toast />
           </NavigationContainer>
         </PaperProvider>
-      </NativeBaseProvider>
+        </GluestackUIProvider>
     </GestureHandlerRootView>
   );
 }

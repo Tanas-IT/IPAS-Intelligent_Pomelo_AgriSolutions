@@ -8,7 +8,7 @@ import {
   Platform,
 } from "react-native";
 import { DrawerContentComponentProps } from "@react-navigation/drawer";
-import { useTheme } from "native-base";
+import { useTheme } from "@gluestack-ui/themed";
 
 import { LinearGradient } from "expo-linear-gradient";
 import theme from "@/theme";

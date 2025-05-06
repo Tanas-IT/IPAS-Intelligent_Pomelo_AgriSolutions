@@ -50,7 +50,6 @@ const EmployeeTable: React.FC<EmployeeTableProps> = ({
           toast.warning("Failed to fetch employees");
         }
       } catch (error) {
-        console.error("Error fetching employees:", error);
         toast.warning("Error fetching employees");
       }
     };
@@ -110,7 +109,7 @@ const EmployeeTable: React.FC<EmployeeTableProps> = ({
     },
     {
       title: "Status",
-      dataIndex: "statusOfUserWorkLog",
+      dataIndex: "statusOfUser",
       render: (status: string | undefined) => (
         <Tag
           color={
