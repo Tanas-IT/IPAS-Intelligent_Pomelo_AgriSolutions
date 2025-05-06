@@ -24,7 +24,6 @@ public partial class WorkLog
 
     public int? ScheduleId { get; set; }
 
-    public int? WarningId { get; set; }
     public int? RedoWorkLogID { get; set; }
 
     public virtual CarePlanSchedule? Schedule { get; set; }
