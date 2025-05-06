@@ -507,12 +507,11 @@ const RightSidebar: React.FC = () => {
       <Divider />
 
       <List
-        dataSource={farmAlertsData}
+        dataSource={weatherData?.warnings}
         renderItem={(item) => (
           <List.Item
             style={{
-              backgroundColor:
-                item.level === "high" ? "#FFCCCC" : item.level === "medium" ? "#FFF3CD" : "#D4EDDA",
+              backgroundColor:"#FFF3CD",
               borderRadius: "5px",
               marginBottom: "10px",
               padding: "10px",
@@ -522,33 +521,12 @@ const RightSidebar: React.FC = () => {
               style={{
                 fontSize: "13px",
                 fontWeight: "bold",
-                color:
-                  item.level === "high"
-                    ? "#FF0000"
-                    : item.level === "medium"
-                    ? "#FF9900"
-                    : "#28A745",
+                color: "#FF9900"
               }}
             >
-              {item.alert}
+              {item}
             </Text>
-            <Dropdown overlay={menu} trigger={["click"]}>
-              <Button
-                type="link"
-                style={{
-                  float: "right",
-                  fontSize: "14px",
-                  color:
-                    item.level === "high"
-                      ? "#FF0000"
-                      : item.level === "medium"
-                      ? "#FF9900"
-                      : "#28A745",
-                }}
-              >
-                <MoreOutlined />
-              </Button>
-            </Dropdown>
+            
           </List.Item>
         )}
       />

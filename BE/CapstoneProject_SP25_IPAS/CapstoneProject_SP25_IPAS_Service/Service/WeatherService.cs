@@ -1,12 +1,15 @@
 ﻿using CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.ReportModel;
 using CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.WeatherModel;
 using CapstoneProject_SP25_IPAS_BussinessObject.Entities;
+using CapstoneProject_SP25_IPAS_BussinessObject.ProgramSetUpObject.Weather;
 using CapstoneProject_SP25_IPAS_Common.Constants;
 using CapstoneProject_SP25_IPAS_Repository.UnitOfWork;
 using CapstoneProject_SP25_IPAS_Service.Base;
 using CapstoneProject_SP25_IPAS_Service.IService;
+using CloudinaryDotNet;
 using Microsoft.Extensions.Configuration;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -54,6 +57,59 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 // Ép kiểu danh sách dự báo trước khi sử dụng LINQ
                 var forecastList = forecastRes.list as IEnumerable<dynamic> ?? throw new Exception("Forecast list is null or invalid.");
 
+                HttpResponseMessage response = await _httpClient.GetAsync(weatherUrl);
+                response.EnsureSuccessStatusCode();
+                string responseBody = await response.Content.ReadAsStringAsync();
+
+                JObject weatherData = JObject.Parse(responseBody);
+                var weatherProperty = new WeatherPropertyModel
+                {
+                    CurrentTemp = weatherData["main"]["temp"].Value<double>(),
+                    TempMax = weatherData["main"]["temp_max"].Value<double>(),
+                    TempMin = weatherData["main"]["temp_min"].Value<double>(),
+                    Status = weatherData["weather"][0]["main"].Value<string>(),
+                    Description = weatherData["weather"][0]["description"].Value<string>(),
+                    Humidity = weatherData["main"]["humidity"].Value<double>(),
+                    Visibility = weatherData["visibility"].Value<int>(),
+                    Clouds = weatherData["clouds"]["all"].Value<double>(),
+                    WindSpeed = weatherData["wind"]["speed"].Value<double>() + " m/s",
+                };
+                var warnings = new List<string>();
+                var rules = _configuration.GetSection("WeatherConfig:WorkRules").Get<Dictionary<string, WeatherRule>>() ?? new();
+                var extremeWeather = _configuration.GetSection("WeatherConfig:ExtremeWeatherConditions").Get<Dictionary<string, List<int>>>() ?? new();
+               
+                foreach (var (workType, rule) in rules)
+                {
+                    var conditionsViolated = new List<string>();
+                    // troi qua lanh
+                    if (rule.MinTemperature.HasValue && weatherProperty.CurrentTemp < rule.MinTemperature)
+                        conditionsViolated.Add($"Temperature too low: {weatherProperty.CurrentTemp}°C");
+                    // troi qua nong
+                    if (rule.MaxTemperature.HasValue && weatherProperty.CurrentTemp > rule.MaxTemperature)
+                        conditionsViolated.Add($"Temperature too high: {weatherProperty.CurrentTemp}°C");
+                    // troi qua kho
+                    if (rule.MinHumidity.HasValue && weatherProperty.Humidity < rule.MinHumidity)
+                        conditionsViolated.Add($"Humidity too low: {weatherProperty.Humidity}%");
+                    // qua am
+                    if (rule.MaxHumidity.HasValue && weatherProperty.Humidity > rule.MaxHumidity)
+                        conditionsViolated.Add($"Humidity too high: {weatherProperty.Humidity}%");
+                    // nhieu gio
+                    if (rule.MaxWindSpeed.HasValue && weatherData["wind"]["speed"].Value<double>() > rule.MaxWindSpeed)
+                        conditionsViolated.Add($"Wind speed too high: {weatherData["wind"]["speed"].Value<double>()} m/s");
+
+                    // cv nay neu ko can lam khi troi mua
+                    if (rule.RainCondition == "NoRain" && weatherData["weather"][0].Contains("Rain"))
+                        conditionsViolated.Add("Rain detected, avoid work.");
+                    if (conditionsViolated.Any())
+                        warnings.Add($"{workType} - Not recommended work because: {string.Join(", ", conditionsViolated)} ");
+                }
+
+                // Kiểm tra các hiện tượng thời tiết cực đoan
+                foreach (var (condition, ids) in extremeWeather)
+                {
+                    if (weatherData["weather"][0].Any(w => ids.Contains(weatherData["weather"][0]["id"].Value<int>())))
+                        warnings.Add($"Extreme Weather Warning: {condition}");
+                }
                 var result = new WeatherDashBoardResponse
                 {
                     Location = new LocationInfo
@@ -127,6 +183,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                             Value = f.rain != null ? f.rain._3h : 0 // Nếu không có rain, đặt là 0
                         }).Take(24).ToList()
                     },
+                    Warnings = warnings
 
                 };
 
