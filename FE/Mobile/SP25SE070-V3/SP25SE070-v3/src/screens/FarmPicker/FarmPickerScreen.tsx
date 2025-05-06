@@ -1,7 +1,7 @@
 import React, { useEffect, useState } from "react";
 import { View, Image, TouchableOpacity, ScrollView } from "react-native";
 import { formatDate, getRoleId, getUserId } from "@/utils/UtilFunction";
-import { Tag } from "native-base";
+import { Badge, BadgeText } from "@gluestack-ui/themed";
 import { styles } from "./FarmPickerScreen.styles";
 import { Loading, TextCustom } from "@/components";
 import { useAuthStore } from "@/store";
@@ -10,6 +10,15 @@ import { AuthService, FarmService } from "@/services";
 import { AuthNavigationProp, ROUTE_NAMES, UserRolesStr } from "@/constants";
 import { useNavigation } from "@react-navigation/native";
 import Toast from "react-native-toast-message";
+
+const roleColorMap = {
+  [UserRolesStr.Admin]: "#F8D7DA",     // Pastel đỏ (hồng nhạt)
+  [UserRolesStr.User]: "#FFF3CD",      // Pastel vàng (vàng nhạt)
+  [UserRolesStr.Owner]: "#D6EAF8",     // Pastel xanh dương (xanh da trời nhạt)
+  [UserRolesStr.Manager]: "#D4EDDA",   // Pastel xanh lá (xanh lá nhạt)
+  [UserRolesStr.Employee]: "#D1ECF1",  // Pastel xanh ngọc nhạt
+};
+
 
 const FarmPickerScreen = () => {
   const [farmsData, setFarmsData] = useState<GetFarmPicker[]>([]);
@@ -152,25 +161,25 @@ const FarmPickerScreen = () => {
 
                       {/* Footer */}
                       <View style={styles.footer}>
-                        <Tag
-                          style={[
-                            styles.statusTag,
-                            farm.roleId == UserRolesStr.Owner
-                              ? styles.owner
-                              : styles.other,
-                          ]}
+                        <Badge
+                          backgroundColor={roleColorMap[farm.roleId] || "$info500"}
+                          borderRadius="$sm"
+                          px="$2"
+                          py="$1"
                         >
-                          <TextCustom
-                            style={[
-                              styles.statusTag,
-                              farm.roleId == UserRolesStr.Owner
+                          <BadgeText
+                            color="$white"
+                            fontSize="$sm"
+                            style={{
+                              padding: 7,
+                              ...(farm.roleId === UserRolesStr.Owner
                                 ? styles.ownerText
-                                : styles.otherText,
-                            ]}
+                                : styles.otherText)
+                            }}
                           >
                             {farm.roleName}
-                          </TextCustom>
-                        </Tag>
+                          </BadgeText>
+                        </Badge>
                         <TextCustom style={styles.dateText}>
                           Since{" "}
                           {new Date(farm.farm.createDate).toLocaleDateString(
