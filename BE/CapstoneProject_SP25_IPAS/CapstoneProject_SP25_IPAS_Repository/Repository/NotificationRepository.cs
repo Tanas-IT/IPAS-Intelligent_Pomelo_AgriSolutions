@@ -24,7 +24,7 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
             var result = await _context.Notifications
                 .Include(x => x.Sender)
                 .Include(x => x.MasterType)
-                .Where(x => x.SenderID == userId).ToListAsync();
+                .Where(x => x.UserID == userId).ToListAsync();
             return result;
         }
 

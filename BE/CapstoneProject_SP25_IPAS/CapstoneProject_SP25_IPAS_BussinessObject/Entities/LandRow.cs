@@ -29,11 +29,6 @@ public partial class LandRow
 
     public string? Description { get; set; }
     public bool? IsDeleted { get; set; }
-
-    public double? MinLength { get; set; }
-    public double? MaxLength { get; set; }
-    public double? MinWidth { get; set; }
-    public double? MaxWidth { get; set; }
     public int? MaxNumberOfPlant { get; set; }
 
     public int? LandPlotId { get; set; }

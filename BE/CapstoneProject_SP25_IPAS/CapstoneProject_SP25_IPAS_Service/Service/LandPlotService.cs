@@ -71,10 +71,6 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         NumberOfRows = createRequest.NumberOfRows,
                         IsRowHorizontal = createRequest.IsRowHorizontal,
                         IsDeleted = false,
-                        MinLength = createRequest.MinLength,
-                        MaxLength = createRequest.MaxLength,
-                        MinWidth = createRequest.MinWidth,
-                        MaxWidth = createRequest.MaxLength,
                         LandPlotCode = $"{CodeAliasEntityConst.LANDPLOT}{LandPlotCode}-{DateTime.Now.ToString("ddMMyy")}-{checkExistFarm.FarmCode}",
                     };
 

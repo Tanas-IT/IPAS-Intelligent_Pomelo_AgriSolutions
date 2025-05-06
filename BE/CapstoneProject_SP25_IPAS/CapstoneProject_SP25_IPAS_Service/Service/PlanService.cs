@@ -160,11 +160,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         IsActive = createPlanModel?.IsActive,
                         IsDeleted = false,
                         MasterTypeId = createPlanModel?.MasterTypeId,
-                        MaxVolume = createPlanModel?.MaxVolume,
-                        MinVolume = createPlanModel?.MinVolume,
                         Notes = createPlanModel?.Notes,
                         KeyGroup = keyGroup,
-                        PesticideName = createPlanModel?.PesticideName,
                         ResponsibleBy = createPlanModel?.ResponsibleBy,
                         ProcessId = createPlanModel?.ProcessId,
                         SubProcessId = createPlanModel?.SubProcessId,
@@ -1353,19 +1350,6 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         {
                             checkExistPlan.EndDate = updatePlanModel.EndDate;
                         }
-                        if (updatePlanModel.PesticideName != null)
-                        {
-                            checkExistPlan.PesticideName = updatePlanModel.PesticideName;
-                        }
-                        if (updatePlanModel.MinVolume != null)
-                        {
-                            checkExistPlan.MinVolume = updatePlanModel.MinVolume;
-                        }
-                        if (updatePlanModel.MaxVolume != null)
-                        {
-                            checkExistPlan.MaxVolume = updatePlanModel.MaxVolume;
-                        }
-
                         if (updatePlanModel.Frequency != null)
                         {
                             checkExistPlan.Frequency = updatePlanModel.Frequency;
@@ -2983,7 +2967,6 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                   || x.PlanName.ToLower().Contains(paginationParameter.Search.ToLower())
                                   || x.Status.ToLower().Contains(paginationParameter.Search.ToLower())
                                   || x.MasterType.MasterTypeName.ToLower().Contains(paginationParameter.Search.ToLower())
-                                  || x.PesticideName.ToLower().Contains(paginationParameter.Search.ToLower())
                                   || x.Notes.ToLower().Contains(paginationParameter.Search.ToLower())
                                   || x.ResponsibleBy.ToLower().Contains(paginationParameter.Search.ToLower())
                                   || x.Frequency.ToLower().Contains(paginationParameter.Search.ToLower()));
@@ -3044,12 +3027,6 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                    ? x => x.OrderByDescending(x => x.IsDeleted)
                                    : x => x.OrderBy(x => x.IsDeleted)) : x => x.OrderBy(x => x.IsDeleted);
                         break;
-                    case "pesticidename":
-                        orderBy = !string.IsNullOrEmpty(paginationParameter.Direction)
-                                    ? (paginationParameter.Direction.ToLower().Equals("desc")
-                                   ? x => x.OrderByDescending(x => x.PesticideName)
-                                   : x => x.OrderBy(x => x.PesticideName)) : x => x.OrderBy(x => x.PesticideName);
-                        break;
                     case "isactive":
                         orderBy = !string.IsNullOrEmpty(paginationParameter.Direction)
                                     ? (paginationParameter.Direction.ToLower().Equals("desc")
@@ -3086,18 +3063,6 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                     ? (paginationParameter.Direction.ToLower().Equals("desc")
                                    ? x => x.OrderByDescending(x => x.Notes)
                                    : x => x.OrderBy(x => x.Notes)) : x => x.OrderBy(x => x.Notes);
-                        break;
-                    case "minVolume":
-                        orderBy = !string.IsNullOrEmpty(paginationParameter.Direction)
-                                    ? (paginationParameter.Direction.ToLower().Equals("desc")
-                                   ? x => x.OrderByDescending(x => x.MinVolume)
-                                   : x => x.OrderBy(x => x.MinVolume)) : x => x.OrderBy(x => x.MinVolume);
-                        break;
-                    case "maxVolume":
-                        orderBy = !string.IsNullOrEmpty(paginationParameter.Direction)
-                                    ? (paginationParameter.Direction.ToLower().Equals("desc")
-                                   ? x => x.OrderByDescending(x => x.MaxVolume)
-                                   : x => x.OrderBy(x => x.MaxVolume)) : x => x.OrderBy(x => x.MaxVolume);
                         break;
                     case "status":
                         orderBy = !string.IsNullOrEmpty(paginationParameter.Direction)
