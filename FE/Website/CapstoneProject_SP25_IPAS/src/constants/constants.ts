@@ -40,6 +40,10 @@ export const criteriaGroupsHasReference = [
   "PlantCriteria",
   "GraftedCriteria",
   "ProductCriteria",
+  "GraftedConditionApply",
+  "GraftedEvaluationApply",
+  "PlantLotConditionApply",
+  "PlantLotEvaluationApply",
 ];
 
 export const SYSTEM_CONFIG_KEY = {
