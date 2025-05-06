@@ -641,10 +641,18 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         {
 
                             // check dk can de nhap va dieu kien danh gia chat luong truoc khi trong
-                            //var requiredConditions = _masterTypeConfig.PlantLotCriteriaApply?.PlantLotCondition!.Concat(_masterTypeConfig.PlantLotCriteriaApply?.PlantLotEvaluation!).ToList() ?? new List<string>();
-                            //var checkCondition = await CheckPlantLotCriteriaCompletedAsync(checkExistPlantLot.PlantLotId, requiredConditions);
-                            //if (checkCondition.StatusCode != 200)
-                            //    return new BusinessResult(checkCondition.StatusCode, checkCondition.Message!);
+                            var requiredCondition = await _unitOfWork.SystemConfigRepository.GetAllNoPaging(x =>
+                                                x.ConfigGroup.Trim().ToLower().Equals(SystemConfigConst.PLANT_LOT_EVALUATION_APPLY.Trim().ToLower()) ||
+                                                x.ConfigGroup.Trim().ToLower().Equals(SystemConfigConst.PLANT_LOT_CONDITION_APPLY.Trim().ToLower()));
+                            var requiredList = requiredCondition.Any() ? requiredCondition.Select(x => x.ConfigKey).ToList() : new List<string>();
+
+                            var checkCondition = await CheckPlantLotCriteriaCompletedAsync(checkExistPlantLot.PlantLotId, requiredList);
+                            if (checkCondition.StatusCode == 200)
+                            {
+                                checkExistPlantLot.InputQuantity = checkExistPlantLot.InputQuantity ?? checkExistPlantLot.PreviousQuantity;
+                                checkExistPlantLot.LastQuantity = checkExistPlantLot.InputQuantity;
+                            }
+
                             if (!checkExistPlantLot.LastQuantity.HasValue)
                                 return new BusinessResult(400, "You must enter last quantity before Completed to use");
                             //if (checkExistPlantLot.LastQuantity == 0)
@@ -758,7 +766,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                             var newPlant = new Plant
                             {
                                 PlantName = $"Plant {code}",
-                                PlantCode = $"{CodeAliasEntityConst.PLANT}{CodeHelper.GenerateCode()}-{DateTime.Now:ddMMyy}-{Util.SplitByDash(plantLot.PlantLotCode).First()}",
+                                PlantCode = $"{CodeAliasEntityConst.PLANT}{CodeHelper.GenerateCode()}-{DateTime.Now:ddMMyy}-{Util.SplitByDash(plantLot.PlantLotCode).First().ToUpper()}",
                                 PlantingDate = DateTime.UtcNow,
                                 HealthStatus = HealthStatusConst.HEALTHY,
                                 LandRowId = row.LandRowId,
