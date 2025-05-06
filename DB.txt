@@ -1785,9 +1785,9 @@ VALUES
 
 INSERT INTO ipas.dbo.Package (PackageCode, PackageName, PackagePrice, Duration, isActive, CreateDate, UpdateDate, Status)
 VALUES
-('PKG101', 'Starter Farm Package', 50000, 30, 1, GETDATE(), NULL, 'Active'),
+('PKG101', 'Premium Farm Package', 200000, 365, 1, GETDATE(), NULL, 'Active');
 ('PKG102', 'Standard Farm Package', 100000, 180, 1, GETDATE(), NULL, 'Active'),
-('PKG103', 'Premium Farm Package', 200000, 365, 1, GETDATE(), NULL, 'Active');
+('PKG103', 'Starter Farm Package', 50000, 30, 1, GETDATE(), NULL, 'Active'),
 
 
 INSERT INTO ipas.dbo.PackageDetail (PackageDetailCode, FeatureName, FeatureDescription, PackageID)
@@ -1814,16 +1814,16 @@ VALUES
 INSERT INTO ipas.dbo.[Order] 
 (OrderCode, OrderName, TotalPrice, Notes, OrderDate, EnrolledDate, ExpiredDate, PackageID, FarmID, Status)
 VALUES
-('ORD001', 'Order for Starter Package', 500000, 'First order', '2024-01-15', '2024-01-15', '2024-02-14', 1, 1, 'Paid'),
-('ORD002', 'Order for Standard Package', 2000000, 'Second order', '2024-03-10', '2024-03-10', '2024-09-06', 2, 1, 'Fail'),
-('ORD003', 'Order for Premium Package', 4000000, 'Third order', '2024-06-01', '2024-06-01', '2025-05-31', 3, 1, 'Paid'),
-('ORD004', 'Order for Starter Package', 500000, 'Fourth order', '2024-07-20', '2024-07-20', '2024-08-19', 1, 2, 'Fail'),
-('ORD005', 'Order for Standard Package', 2000000, 'Fifth order', '2024-08-01', '2024-08-01', '2025-01-28', 2, 2, 'Paid'),
-('ORD006', 'Order for Premium Package', 4000000, 'VIP order', '2024-09-05', '2024-09-05', '2025-09-04', 3, 2, 'Paid'),
-('ORD007', 'Order for Starter Package', 500000, 'Gold order', '2024-11-10', '2024-11-10', '2024-12-10', 1, 2, 'Paid'),
-('ORD008', 'Order for Standard Package', 2000000, 'Silver order', '2024-12-01', '2024-12-01', '2025-05-30', 2, 3, 'Paid'),
-('ORD009', 'Order for Premium Package', 4000000, 'Bronze order', '2025-02-01', '2025-02-01', '2026-01-31', 3, 3, 'Paid'),
-('ORD010', 'Order for Starter Package', 500000, 'Custom order', '2025-03-25', '2025-03-25', '2025-05-24', 1, 3, 'Paid');
+('ORD001', 'Order for Starter Package', 50000, 'First order', '2024-01-15', '2024-01-15', '2024-02-14', 3, 1, 'Paid'),
+('ORD002', 'Order for Standard Package', 100000, 'Second order', '2024-03-10', '2024-03-10', '2024-09-06', 2, 1, 'Fail'),
+('ORD003', 'Order for Premium Package', 200000, 'Third order', '2024-06-01', '2024-06-01', '2025-05-31', 1, 1, 'Paid'),
+('ORD004', 'Order for Starter Package', 50000, 'Fourth order', '2024-07-20', '2024-07-20', '2024-08-19', 3, 2, 'Fail'),
+('ORD005', 'Order for Standard Package', 100000, 'Fifth order', '2024-08-01', '2024-08-01', '2025-01-28', 2, 2, 'Paid'),
+('ORD006', 'Order for Premium Package', 200000, 'VIP order', '2024-09-05', '2024-09-05', '2025-09-04', 1, 2, 'Paid'),
+('ORD007', 'Order for Starter Package', 50000, 'Gold order', '2024-11-10', '2024-11-10', '2024-12-10', 3, 2, 'Paid'),
+('ORD008', 'Order for Standard Package', 100000, 'Silver order', '2024-12-01', '2024-12-01', '2025-05-30', 2, 3, 'Paid'),
+('ORD009', 'Order for Premium Package', 200000, 'Bronze order', '2025-02-01', '2025-02-01', '2026-01-31', 1, 3, 'Paid'),
+('ORD010', 'Order for Starter Package', 50000, 'Custom order', '2025-03-25', '2025-03-25', '2025-05-24', 3, 3, 'Paid');
 
 
 INSERT INTO ipas.dbo.Partner (PartnerCode, PartnerName, Province, PhoneNumber, Email, CreateDate, UpdateDate, [National],  District, Ward, Description, Major, Status, ContactName, Note, BusinessField, FarmID)
@@ -2216,8 +2216,6 @@ VALUES
 ('Criteria', 'Product', 'Product', 'string', 'Product'),
 ('Criteria', 'Others', 'Others', 'string', 'Others');
 
-
-
 -- Validation List
 INSERT INTO SystemConfiguration (ConfigGroup, ConfigKey, ConfigValue, ValueType, Description)
 VALUES 
@@ -2226,7 +2224,6 @@ VALUES
 ('ValidationVariable', 'MinTime', '1', 'double', 'Minimum Time'),
 ('ValidationVariable', 'MaxTime', '3600', 'double', 'Maximum Time'),
 ('ValidationVariable', 'MaximumGraftingLimit', '100', 'int', 'Maximum Grafting Limit');
-
 
 
 -- Danh sách Config trong farm
@@ -2265,8 +2262,6 @@ VALUES
 --JOIN SystemConfiguration c
 --    ON c.ConfigGroup = 'Criteria' AND c.ConfigValue = v.ConfigValue;
 
-
-
 INSERT INTO SystemConfiguration (ConfigGroup,ConfigKey, ConfigValue, ValueType, Description)
 VALUES 
 ('PlantCriteria', 'GraftedCondition', 'Grafted Condition', 'string', N'Bộ tiêu chí dánh giá cây mẹ đủ điều kiện chiết cành'),
@@ -2280,6 +2275,16 @@ VALUES
 
 ('ProductCriteria', 'Others', 'Others', 'string', 'Others'),
 ('ProductCriteria','Product', 'Product', 'string',  N'Tiêu chí dánh giá sản phẩm');
+
+
+INSERT INTO SystemConfiguration (ConfigGroup,ConfigKey, ConfigValue, ValueType, Description)
+VALUES 
+('GraftedConditionApply', 'GraftedCondition', 'Grafted Condition', 'string', N'Bộ tiêu chí dánh giá cây mẹ đủ điều kiện chiết cành'),
+
+('GraftedEvaluationApply', 'GraftedEvaluation', 'Grafted Evaluation', 'string',  N'Bộ tiêu chí dánh giá cành chiết'),
+
+('PlantLotConditionApply', 'PlantLotCondition', 'PlantLot Condition', 'string', N'Tiêu chí dánh giá lô giống nhập vào'),
+('PlantLotEvaluationApply', 'PlantLotEvaluation', 'PlantLot Evaluation', 'string', N'Tiêu chí dánh giá lô giống sau khi nhập vào');
 
 
 -- Update ReferenceConfigId cho GraftedConditionApply
@@ -2308,7 +2313,7 @@ JOIN SystemConfiguration b
     ON a.ConfigGroup = 'PlantLotCriteria'
     AND b.ConfigGroup = 'Criteria'
     AND a.ConfigKey = b.ConfigKey;
-	
+
 	-- Update ReferenceConfigId cho GraftedConditionApply
 UPDATE a
 SET a.ReferenceConfigId = b.ConfigId
@@ -2317,7 +2322,7 @@ JOIN SystemConfiguration b
     ON a.ConfigGroup = 'ProductCriteria'
     AND b.ConfigGroup = 'Criteria'
     AND a.ConfigKey = b.ConfigKey;
-	
+
 -- Update ReferenceConfigId cho GraftedConditionApply
 UPDATE a
 SET a.ReferenceConfigId = b.ConfigId
@@ -2326,7 +2331,7 @@ JOIN SystemConfiguration b
     ON a.ConfigGroup = 'GraftedConditionApply'
     AND b.ConfigGroup = 'Criteria'
     AND a.ConfigKey = b.ConfigKey;
-	
+
 -- Update ReferenceConfigId cho GraftedEvaluationApply
 UPDATE a
 SET a.ReferenceConfigId = b.ConfigId
@@ -2335,7 +2340,7 @@ JOIN SystemConfiguration b
     ON a.ConfigGroup = 'GraftedEvaluationApply'
     AND b.ConfigGroup = 'Criteria'
     AND a.ConfigKey = b.ConfigKey;
-	
+
 -- Update ReferenceConfigId cho PlantLotConditionApply
 UPDATE a
 SET a.ReferenceConfigId = b.ConfigId
@@ -2354,7 +2359,6 @@ JOIN SystemConfiguration b
     AND b.ConfigGroup = 'Criteria'
     AND a.ConfigKey = b.ConfigKey;
 	
-
 
 INSERT INTO SystemConfiguration (ConfigGroup, ConfigKey, ConfigValue, ValueType, Description)
 VALUES 
@@ -2678,9 +2682,9 @@ DECLARE @EndTime1 TIME = '03:30:00';
 
 -- 1. Insert Plan
 INSERT INTO [ipas].dbo.[Plan] 
-(Status, PlanCode, CreateDate, StartDate, EndDate, UpdateDate, isActive, PlanName, FarmID, IsSample,AssignorID)
+(Status, PlanCode, CreateDate, StartDate, EndDate, UpdateDate, isActive, PlanName, FarmID, IsSample,AssignorID, [MasterTypeID])
 VALUES 
-('Active',  'PLAN_' + FORMAT(GETDATE(), 'yyyyMMdd_HHmmss') + '_' + LEFT(NEWID(), 8), GETDATE(), @TodayDate1, @TodayDate1, NULL, 1, N'Chăm sóc cây bưởi sâu vẽ bùa (hôm nay)', 1, 0,3);
+('Active',  'PLAN_' + FORMAT(GETDATE(), 'yyyyMMdd_HHmmss') + '_' + LEFT(NEWID(), 8), GETDATE(), @TodayDate1, @TodayDate1, NULL, 1, N'Chăm sóc cây bưởi sâu vẽ bùa (hôm nay)', 1, 0,3,18);
 
 -- 2. Get PlanID
 DECLARE @PlanID INT = SCOPE_IDENTITY();

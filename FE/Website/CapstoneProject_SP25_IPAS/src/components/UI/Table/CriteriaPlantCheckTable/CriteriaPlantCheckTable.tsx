@@ -7,7 +7,7 @@ import { formatDateAndTime } from "@/utils";
 interface CriteriaPlantCheckTableProps {
   isCompleted?: boolean;
   data: GetCriteriaCheck[];
-  handleValueCheckChange: (criteriaId: number, valueCheck: number) => void;
+  handleValueCheckChange: (criteriaId: number, valueCheck: number | null) => void;
 }
 
 const CriteriaPlantCheckTable: React.FC<CriteriaPlantCheckTableProps> = ({
@@ -66,13 +66,14 @@ const CriteriaPlantCheckTable: React.FC<CriteriaPlantCheckTableProps> = ({
       render: (_: any, record: GetCriteriaCheck, index: number) => (
         <InputNumber
           placeholder="Enter number..."
-          value={
-            record.valueChecked !== undefined && record.valueChecked !== 0
-              ? record.valueChecked
-              : null
-          }
+          // value={
+          //   record.valueChecked !== undefined && record.valueChecked !== 0
+          //     ? record.valueChecked
+          //     : null
+          // }
+          value={record.valueChecked !== undefined ? record.valueChecked : null}
           readOnly={isCompleted}
-          onChange={(value) => handleValueCheckChange(record.criteriaId, value ?? 0)}
+          onChange={(value) => handleValueCheckChange(record.criteriaId, value ?? null)}
           min={0}
         />
       ),

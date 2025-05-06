@@ -26,7 +26,7 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
                                   .Include(e => e.User)
                                   .Include(e => e.EmployeeSkills)
                                   .ThenInclude(e => e.WorkType)
-                                  .Where(x => x.FarmId == farmId && x.RoleId != (int)RoleEnum.OWNER)
+                                  .Where(x => x.FarmId == farmId && (x.RoleId == (int)RoleEnum.MANAGER || x.RoleId == (int)RoleEnum.EMPLOYEE))
                                   .Select(e => new {
                                       Employee = e,
                                       MatchingSkill = e.EmployeeSkills

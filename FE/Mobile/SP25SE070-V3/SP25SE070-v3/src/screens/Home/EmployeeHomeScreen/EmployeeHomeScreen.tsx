@@ -122,8 +122,8 @@ const EmployeeHomeScreen = () => {
               item.priority === "high"
                 ? "#F87171"
                 : item.priority === "medium"
-                  ? "#FBBF24"
-                  : "#34D399";
+                ? "#FBBF24"
+                : "#34D399";
             const statusKey = item.status?.toLowerCase().replace(/\s+/g, "_");
             const statusInfo = statusMap[statusKey] || {
               color: "#9CA3AF",
@@ -131,11 +131,13 @@ const EmployeeHomeScreen = () => {
             };
 
             return (
-              <TouchableOpacity onPress={() =>
-                          navigation.navigate(ROUTE_NAMES.WORKLOG.WORKLOG_DETAIL, {
-                            worklogId: item.workLogId.toString(),
-                          })
-                        }>
+              <TouchableOpacity
+                onPress={() =>
+                  navigation.navigate(ROUTE_NAMES.WORKLOG.WORKLOG_DETAIL, {
+                    worklogId: item.workLogId.toString(),
+                  })
+                }
+              >
                 <View key={`task-${item.workLogId}`} style={styles.taskCard}>
                   <View style={styles.taskHeader}>
                     <View

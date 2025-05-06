@@ -1,13 +1,14 @@
 import { FC, useEffect, useState } from "react";
 import style from "./LandRow.module.scss";
 import { GetLandPlotSimulate } from "@/payloads";
-import { Flex } from "antd";
+import { Flex, Popover } from "antd";
 import { Loading, MapControls, RowList } from "@/components";
 import { AddNewPlotDrawer } from "@/pages";
 import { Icons } from "@/assets";
 import { usePanZoom } from "@/hooks";
 import { landPlotService } from "@/services";
 import { isManager } from "@/utils";
+import ColorGuide from "./ColorGuide";
 
 interface SimulationViewProps {
   plotId?: number;
@@ -29,6 +30,7 @@ const SimulationView: FC<SimulationViewProps> = ({ plotId }) => {
     handleMouseUp,
   } = usePanZoom();
   const notManagerIn = !isManager();
+  const [isGuidePopupVisible, setGuidePopupVisible] = useState(false);
 
   const closeDrawer = () => setIsDrawerVisible(false);
   const showDrawer = () => setIsDrawerVisible(true);
@@ -66,7 +68,7 @@ const SimulationView: FC<SimulationViewProps> = ({ plotId }) => {
           <span className={style.rowOrientationLabel}>
             Orientation: {plotData.isRowHorizontal ? "Horizontal" : "Vertical"}
           </span>
-          <Flex gap={20}>
+          <Flex gap={20} wrap="wrap" justify="end">
             {notManagerIn && (
               <MapControls
                 icon={<Icons.edit />}
@@ -74,6 +76,17 @@ const SimulationView: FC<SimulationViewProps> = ({ plotId }) => {
                 onClick={() => showDrawer()}
               />
             )}
+            <Popover
+              content={<ColorGuide onClose={() => setGuidePopupVisible(false)} />}
+              trigger="click"
+              placement="bottomRight"
+              open={isGuidePopupVisible}
+              onOpenChange={(visible) => setGuidePopupVisible(visible)}
+            >
+              <>
+                <MapControls icon={<Icons.seedling />} label="Color Guide" />
+              </>
+            </Popover>
             <MapControls
               icon={<Icons.zoomIn />}
               label="Zoom In"
