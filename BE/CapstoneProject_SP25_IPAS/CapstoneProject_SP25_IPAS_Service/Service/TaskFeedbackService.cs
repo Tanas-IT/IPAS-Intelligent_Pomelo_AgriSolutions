@@ -75,6 +75,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     await _unitOfWork.TaskFeedbackRepository.Insert(newTaskFeedback);
 
                     var checkInsertTaskFeedback = await _unitOfWork.SaveAsync();
+                    var timeZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
+                    var today = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, timeZone);
                     var newNotification = new Notification()
                     {
                         Content = "WorkLog " + getWorkLog.WorkLogName + " has been feedback",
@@ -82,7 +84,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         MasterTypeId = 38,
                         IsRead = false,
                         UserID = createTaskFeedbackModel.ManagerId,
-                        CreateDate = DateTime.Now,
+                        CreateDate = today,
                         NotificationCode = "NTF " + "_" + DateTime.Now.Date.ToString()
                     };
                     await _unitOfWork.NotificationRepository.Insert(newNotification);
