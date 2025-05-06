@@ -9,7 +9,7 @@ import { CRITERIA_TARGETS } from "@/constants";
 interface CriteriaCheckTableProps {
   data: GetCriteriaCheck[];
   target: string;
-  handleValueCheckChange: (criteriaId: number, valueCheck: number) => void;
+  handleValueCheckChange: (criteriaId: number, valueCheck: number | null) => void;
 }
 
 const CriteriaCheckTable: React.FC<CriteriaCheckTableProps> = ({
@@ -71,13 +71,14 @@ const CriteriaCheckTable: React.FC<CriteriaCheckTableProps> = ({
       render: (_: any, record: GetCriteriaCheck, index: number) => (
         <InputNumber
           placeholder="Enter number..."
-          value={
-            record.valueChecked !== undefined && record.valueChecked !== 0
-              ? record.valueChecked
-              : null
-          }
+          // value={
+          //   record.valueChecked !== undefined && record.valueChecked !== 0
+          //     ? record.valueChecked
+          //     : null
+          // }
+          value={record.valueChecked !== undefined ? record.valueChecked : null}
           readOnly={isCondition && lot.inputQuantity !== undefined && lot.inputQuantity !== null}
-          onChange={(value) => handleValueCheckChange(record.criteriaId, value ?? 0)}
+          onChange={(value) => handleValueCheckChange(record.criteriaId, value ?? null)}
           min={0}
         />
       ),

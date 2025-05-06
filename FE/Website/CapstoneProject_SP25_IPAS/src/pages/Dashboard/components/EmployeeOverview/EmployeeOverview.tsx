@@ -5,7 +5,8 @@ import { EmployeeListItem } from "@/payloads/dashboard";
 import { Loading } from "@/components";
 import { CheckCircleOutlined, CloseCircleOutlined, WarningOutlined } from "@ant-design/icons";
 import { Icons } from "@/assets";
-import styles from "./EmployeeOverview.module.scss";
+import style from "./EmployeeOverview.module.scss";
+import { useStyle } from "@/hooks";
 
 const { Search } = Input;
 const { Option } = Select;
@@ -24,6 +25,7 @@ const EmployeeOverview: React.FC<EmployeeOverviewProps> = ({ onCompare }) => {
   const [search, setSearch] = useState<string>("");
   const [minScore, setMinScore] = useState<number | null>(null);
   const [maxScore, setMaxScore] = useState<number | null>(null);
+  const { styles } = useStyle();
 
   const fetchData = async () => {
     try {
@@ -32,7 +34,7 @@ const EmployeeOverview: React.FC<EmployeeOverviewProps> = ({ onCompare }) => {
         limit,
         search || undefined,
         minScore ?? undefined,
-        maxScore ?? undefined
+        maxScore ?? undefined,
       );
       setData(employeeList);
       setLoading(false);
@@ -89,10 +91,10 @@ const EmployeeOverview: React.FC<EmployeeOverviewProps> = ({ onCompare }) => {
       title: "Task OK / Failed",
       render: (_: any, record: EmployeeListItem) => (
         <Space>
-          <Tag className={`${styles.tag} ${styles.success}`} icon={<Icons.checkCircle />}>
+          <Tag className={`${style.tag} ${style.success}`} icon={<Icons.checkCircle />}>
             {record.taskSuccess}
           </Tag>
-          <Tag className={`${styles.tag} ${styles.error}`} icon={<Icons.closee />}>
+          <Tag className={`${style.tag} ${style.error}`} icon={<Icons.closee />}>
             {record.taskFail}
           </Tag>
         </Space>
@@ -105,11 +107,11 @@ const EmployeeOverview: React.FC<EmployeeOverviewProps> = ({ onCompare }) => {
       render: (_: any, record: EmployeeListItem) => {
         const warningCount = record.taskFail;
         return warningCount > 0 ? (
-          <Tag className={`${styles.tag} ${styles.warning}`} icon={<WarningOutlined />}>
+          <Tag className={`${style.tag} ${style.warning}`} icon={<WarningOutlined />}>
             {warningCount} Warning{warningCount > 1 ? "s" : ""}
           </Tag>
         ) : (
-          <Tag className={`${styles.tag} ${styles.success}`}>Good</Tag>
+          <Tag className={`${style.tag} ${style.success}`}>Good</Tag>
         );
       },
       sorter: (a: EmployeeListItem, b: EmployeeListItem) => a.taskFail - b.taskFail,
@@ -119,8 +121,8 @@ const EmployeeOverview: React.FC<EmployeeOverviewProps> = ({ onCompare }) => {
   if (loading) return <Loading />;
 
   return (
-    <div className={styles.container}>
-      <div className={styles.header}>
+    <div className={style.container}>
+      <div className={style.header}>
         <Title level={2}>Employee Performance</Title>
       </div>
       <Space style={{ marginBottom: 16, flexWrap: "wrap" }}>
@@ -160,7 +162,7 @@ const EmployeeOverview: React.FC<EmployeeOverviewProps> = ({ onCompare }) => {
           />
         </Space>
         <Button
-          className={styles.clearButton}
+          className={style.clearButton}
           onClick={() => {
             setType("top");
             setLimit(10);
@@ -177,19 +179,23 @@ const EmployeeOverview: React.FC<EmployeeOverviewProps> = ({ onCompare }) => {
           type="primary"
           onClick={handleCompare}
           disabled={selectedRowKeys.length < 2 || selectedRowKeys.length > 5}
-          style={{ backgroundColor: "#bcd379", color: "#20461e"}}
+          style={{ backgroundColor: "#bcd379", color: "#20461e" }}
         >
           Compare Selected ({selectedRowKeys.length})
         </Button>
       </Space>
 
-      <div className={styles.tableContainer}>
+      <div className={style.tableContainer}>
         <Table
+          className={`${style.tbl} ${styles.customeTable2}`}
           rowSelection={rowSelection}
           columns={columns}
           dataSource={data.map((item) => ({ ...item, key: item.employeeId }))}
           pagination={{ pageSize: 5 }}
           bordered={false}
+          rowClassName={(record) =>
+            selectedRowKeys.includes(record.employeeId) ? style.selectedRow : ""
+          }
         />
       </div>
     </div>
