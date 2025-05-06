@@ -30,7 +30,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
         [HttpGet(APIRoutes.PlantLot.getPlantLotWithPagination, Name = "getPlantLotWithPagination")]
         [HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)},{nameof(RoleEnum.EMPLOYEE)}")]
         [CheckUserFarmAccess]
-        //[FarmExpired]
+        [FarmExpired]
         public async Task<IActionResult> GetAllPlantLot([FromQuery] GetPlantLotRequest filterRequest, [FromQuery] PaginationParameter paginationParameter)
         {
             try
@@ -59,7 +59,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
         [HttpGet(APIRoutes.PlantLot.getPlantLotById, Name = "getPlantLotById")]
         [HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)},{nameof(RoleEnum.EMPLOYEE)}")]
         [CheckUserFarmAccess]
-        //[FarmExpired]
+        [FarmExpired]
         public async Task<IActionResult> GetPlantLotById([FromRoute] int id)
         {
             try
@@ -81,7 +81,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
         //[ServiceFilter(typeof(FarmExpiredFilter))]
         [HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)}")]
         [CheckUserFarmAccess]
-        //[FarmExpired]
+        [FarmExpired]
         public async Task<IActionResult> CreatePlantLot([FromBody] CreatePlantLotModel createPlantLotModel)
         {
             try
@@ -111,7 +111,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
         [HttpPost(APIRoutes.PlantLot.createPlantLotAdditional, Name = "createPlantLotAdditional")]
         [HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)}")]
         [CheckUserFarmAccess]
-        //[FarmExpired]
+        [FarmExpired]
         public async Task<IActionResult> createPlantLotAdditional([FromBody] CreateAdditionalPlantLotModel createPlantLotModel)
         {
             try
@@ -133,7 +133,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
         [HttpPut(APIRoutes.PlantLot.updatePlantLotInfo, Name = "updatePlantLotInfo")]
         [HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)}")]
         [CheckUserFarmAccess]
-        //[FarmExpired]
+        [FarmExpired]
         public async Task<IActionResult> UpdatePlantLot([FromBody] UpdatePlantLotModel updatePlantLotModel)
         {
             try
@@ -156,7 +156,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
         [HttpDelete(APIRoutes.PlantLot.permanenlyDelete, Name = "permanentlyDeletePlantLot")]
         [HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)}")]
         [CheckUserFarmAccess]
-        //[FarmExpired]
+        [FarmExpired]
         public async Task<IActionResult> DeletePlantLot([FromRoute] int id)
         {
             try
@@ -196,8 +196,10 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
         //    }
         //}
 
-        //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)}")]
         [HttpPost(APIRoutes.PlantLot.FillPlantToPlot, Name = "FillPlantToPlotAsync")]
+        [HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)}")]
+        [CheckUserFarmAccess]
+        [FarmExpired]
         public async Task<IActionResult> FillPlantToPlotAsync([FromBody] FillPlanToPlotRequest fillRequest)
         {
             try
@@ -242,7 +244,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
         [HttpPatch(APIRoutes.PlantLot.SoftedDeletePlantLot, Name = "SoftedDeletePlantLot")]
         [HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)}")]
         [CheckUserFarmAccess]
-        //[FarmExpired]
+        [FarmExpired]
         public async Task<IActionResult> SoftedDeletePlantLot([FromBody] List<int> plantIds)
         {
             try
@@ -264,7 +266,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
         [HttpPut(APIRoutes.PlantLot.checkCriteriaForLot, Name = "checkCriteriaForLot")]
         [HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)}")]
         [CheckUserFarmAccess]
-        //[FarmExpired]
+        [FarmExpired]
         public async Task<IActionResult> checkCriteriaForLot([FromBody] CheckPlantLotCriteriaRequest request)
         {
             if (!ModelState.IsValid)
@@ -283,7 +285,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
         [HttpPatch(APIRoutes.PlantLot.MarkUsedPlantLot, Name = "MarkUsedPlantLot")]
         [HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)}")]
         [CheckUserFarmAccess]
-        //[FarmExpired]
+        [FarmExpired]
         public async Task<IActionResult> MarkUsedPlantLot([FromQuery] int plantLotIds)
         {
             try

@@ -29,7 +29,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
         [HttpGet(APIRoutes.GrowthStage.getGrowthStageWithPagination, Name = "getAllGrowthStagePaginationAsync")]
         [HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)}")]
         [CheckUserFarmAccess]
-        //[FarmExpired]
+        [FarmExpired]
         public async Task<IActionResult> GetAllGrowthStage(PaginationParameter paginationParameter, int? farmId)
         {
             try
@@ -62,7 +62,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
         [HttpGet(APIRoutes.GrowthStage.getGrowthStageById, Name = "getGrowthStageByIdAsync")]
         [HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)},{nameof(RoleEnum.EMPLOYEE)}")]
         [CheckUserFarmAccess]
-        //[FarmExpired]
+        [FarmExpired]
         public async Task<IActionResult> GetGrowthStageById([FromRoute] int id)
         {
             try
@@ -85,7 +85,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
         [HttpPost(APIRoutes.GrowthStage.createGrowthStage, Name = "createGrowthStageAsync")]
         [HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)}")]
         [CheckUserFarmAccess]
-        //[FarmExpired]
+        [FarmExpired]
         public async Task<IActionResult> CreateGrowthStage([FromBody] CreateGrowthStageModel createGrowthStageModel, int? farmId)
         {
             try
@@ -119,7 +119,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
         [HttpPut(APIRoutes.GrowthStage.updateGrowthStageInfo, Name = "updateGrowthStageAsync")]
         [HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)}")]
         [CheckUserFarmAccess]
-        //[FarmExpired]
+        [FarmExpired]
         public async Task<IActionResult> UpdateGrowthStage([FromBody] UpdateGrowthStageModel updateGrowthStageModel)
         {
             try
@@ -149,7 +149,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
         [HttpDelete(APIRoutes.GrowthStage.permanenlyDelete, Name = "permenlyDeleteGrowthStage")]
         [HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)}")]
         [CheckUserFarmAccess]
-        //[FarmExpired]
+        [FarmExpired]
         public async Task<IActionResult> DeleteGrowthStage([FromRoute] int id)
         {
             try
@@ -171,7 +171,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
         [HttpGet(APIRoutes.GrowthStage.getGrowthStageByFarm, Name = "getGrowthStageByFarm")]
         [HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)},{nameof(RoleEnum.EMPLOYEE)}")]
         [CheckUserFarmAccess]
-        //[FarmExpired]
+        [FarmExpired]
         public async Task<IActionResult> GetGrowthStageByFarmId([FromRoute(Name = "farm-id")] int? farmId)
         {
             try
@@ -206,7 +206,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
         [HttpDelete(APIRoutes.GrowthStage.permentlyDeleteManyGrowthStage, Name = "deleteManyGrowthStage")]
         [HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)}")]
         [CheckUserFarmAccess]
-        //[FarmExpired]
+        [FarmExpired]
         public async Task<IActionResult> DeleteManyGrowthStage([FromBody] List<int> growthStageId)
         {
             try
@@ -228,7 +228,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
         [HttpPatch(APIRoutes.GrowthStage.softDeleteManyGrowthStage, Name = "SoftedDeleteManyGrowthStage")]
         [HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)}")]
         [CheckUserFarmAccess]
-        //[FarmExpired]
+        [FarmExpired]
         public async Task<IActionResult> SoftedDeleteManyGrowthStage([FromBody] List<int> GrowthStageIds, int? farmId)
         {
             try

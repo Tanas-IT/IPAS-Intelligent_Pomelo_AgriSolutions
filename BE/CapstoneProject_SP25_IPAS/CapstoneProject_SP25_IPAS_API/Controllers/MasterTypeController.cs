@@ -29,7 +29,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
         [HttpGet(APIRoutes.MasterType.getMasterTypeWithPagination, Name = "getAllMasterType")]
         [HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)},{nameof(RoleEnum.EMPLOYEE)}")]
         [CheckUserFarmAccess]
-        //[FarmExpired]
+        [FarmExpired]
         public async Task<IActionResult> GetAllMasterType(PaginationParameter paginationParameter, MasterTypeFilter masterTypeFilter, int? farmId)
         {
             try
@@ -53,7 +53,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
         [HttpGet(APIRoutes.MasterType.getMasterTypeById, Name = "getMasterTypeById")]
         [HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)},{nameof(RoleEnum.EMPLOYEE)}")]
         [CheckUserFarmAccess]
-        //[FarmExpired]
+        [FarmExpired]
         public async Task<IActionResult> GetMasterTypeById([FromRoute] int id)
         {
             try
@@ -75,7 +75,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
         [HttpGet(APIRoutes.MasterType.getMasterTypeByName, Name = "getMasterTypeByName")]
         [HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)},{nameof(RoleEnum.EMPLOYEE)}")]
         [CheckUserFarmAccess]
-        //[FarmExpired]
+        [FarmExpired]
         public async Task<IActionResult> GetMasterTypeByName([FromQuery(Name = "typeName")] string typeName, int? farmId)
         {
             try
@@ -101,7 +101,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
         [HttpPost(APIRoutes.MasterType.createMasterType, Name = "createMasterType")]
         [HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)}")]
         [CheckUserFarmAccess]
-        //[FarmExpired]
+        [FarmExpired]
         public async Task<IActionResult> CreateMasterType([FromBody] CreateMasterTypeRequestModel createMasterTypeModel)
         {
             try
@@ -123,9 +123,9 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
         }
 
         [HttpPut(APIRoutes.MasterType.updateMasterTypeInfo, Name = "updateMasterType")]
-        //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)}")]
+        [HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)}")]
         [CheckUserFarmAccess]
-        //[FarmExpired]
+        [FarmExpired]
         public async Task<IActionResult> UpdateMasterType([FromBody] UpdateMasterTypeModel updateMasterTypeModel)
         {
             try
@@ -147,7 +147,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
         [HttpDelete(APIRoutes.MasterType.permanenlyDelete, Name = "deleteMasterType")]
         [HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)}")]
         [CheckUserFarmAccess]
-        //[FarmExpired]
+        [FarmExpired]
         public async Task<IActionResult> DeleteMasterType([FromRoute] int id)
         {
             try
@@ -169,7 +169,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
         [HttpDelete(APIRoutes.MasterType.permanenlyDeletemanyMasterType, Name = "deleteManyMasterType")]
         [HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)}")]
         [CheckUserFarmAccess]
-        //[FarmExpired]
+        [FarmExpired]
         public async Task<IActionResult> DeleteManyMasterType([FromBody] List<int> masterTypeId)
         {
             try
@@ -189,9 +189,9 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
         }
 
         [HttpPatch(APIRoutes.MasterType.softedDelete, Name = "SoftedDeleteMasterType")]
-        //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)}")]
+        [HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)}")]
         [CheckUserFarmAccess]
-        //[FarmExpired]
+        [FarmExpired]
         public async Task<IActionResult> SoftedDeleteMasterType([FromBody] List<int> MasterTypeIds)
         {
             try
@@ -213,7 +213,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
         [HttpGet(APIRoutes.MasterType.getForSelected, Name = "getMasterTypeForSelected")]
         [HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)},{nameof(RoleEnum.EMPLOYEE)}")]
         [CheckUserFarmAccess]
-        //[FarmExpired]
+        [FarmExpired]
         public async Task<IActionResult> getMasterTypeForSelected([FromQuery] string typeName, string? target, int? farmId)
         {
             try
@@ -239,7 +239,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
         [HttpPost(APIRoutes.MasterType.checkMasterTypeByTarget, Name = "checkMasterTypeByTarget")]
         [HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.USER)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)},{nameof(RoleEnum.EMPLOYEE)}")]
         [CheckUserFarmAccess]
-        //[FarmExpired]
+        [FarmExpired]
         public async Task<IActionResult> CheckMasterTypeByTarget([FromBody] CheckByTargetModel checkByTargetModel)
         {
             try

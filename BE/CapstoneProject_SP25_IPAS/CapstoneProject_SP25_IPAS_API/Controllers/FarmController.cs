@@ -277,7 +277,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
         /// </summary>
         [HttpGet(APIRoutes.Farm.getUserOfFarmByRole, Name = "GetAllUserOfFarmByRoleAsync")]
         [HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)}")]
-        //[CheckUserFarmAccess]
+        [CheckUserFarmAccess]
         //[FarmExpired]
         public async Task<IActionResult> GetAllUserOfFarmByRoleAsync([FromQuery] int? farmId, [FromQuery] List<int> listRole)
         {
@@ -348,7 +348,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
         [HttpGet(APIRoutes.Farm.getUsersOfFarmById, Name = "GetUsersOfFarmByIdAsync")]
         [HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)},{nameof(RoleEnum.EMPLOYEE)}")]
         [CheckUserFarmAccess]
-        //[FarmExpired]
+        [FarmExpired]
         public async Task<IActionResult> GetUsersOfFarmByIdAsync([FromQuery(Name = "farmId")] int? farmId, [FromQuery(Name = "userId")] int userId)
         {
             try
@@ -377,7 +377,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
         [HttpDelete(APIRoutes.Farm.deleteUserFarm, Name = "deleteUserFarmAsync")]
         [HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)}")]
         [CheckUserFarmAccess]
-        //[FarmExpired]
+        [FarmExpired]
         public async Task<IActionResult> DeleteUserFarm([FromQuery(Name = "farmId")] int? farmId, [FromQuery(Name = "userId")] int userId)
         {
             try
@@ -407,7 +407,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
         [HttpPost(APIRoutes.Farm.addUserToFarm, Name = "AddUserToFarmAsync")]
         [HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)}")]
         [CheckUserFarmAccess]
-        //[FarmExpired]
+        [FarmExpired]
         public async Task<IActionResult> AddUserToFarmAsync([FromBody] UserFarmRequest userFarmCreate)
         {
             try
@@ -438,7 +438,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
         [HttpPut(APIRoutes.Farm.updateUserOfFarm, Name = "UpdateRoleOfEmployeeAsync")]
         [HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)}")]
         [CheckUserFarmAccess]
-        //[FarmExpired]
+        [FarmExpired]
         public async Task<IActionResult> UpdateRoleOfEmployeeAsync([FromBody] UserFarmRequest userFarmUpdateRequest)
         {
             try

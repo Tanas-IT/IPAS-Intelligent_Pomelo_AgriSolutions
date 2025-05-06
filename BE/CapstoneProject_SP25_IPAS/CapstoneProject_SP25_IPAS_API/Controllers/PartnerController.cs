@@ -31,7 +31,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
         [HttpGet(APIRoutes.Partner.getPartnerWithPagination, Name = "getPartnerWithPagination")]
         [HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)},{nameof(RoleEnum.EMPLOYEE)}")]
         [CheckUserFarmAccess]
-        //[FarmExpired]
+        [FarmExpired]
         public async Task<IActionResult> GetAllPartner([FromQuery] GetPartnerFilterRequest filterRequest, [FromQuery] PaginationParameter paginationParameter)
         {
             try
@@ -61,7 +61,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
         [HttpGet(APIRoutes.Partner.getPartnerById, Name = "getPartnerById")]
         [HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)},{nameof(RoleEnum.EMPLOYEE)}")]
         [CheckUserFarmAccess]
-        //[FarmExpired]
+        [FarmExpired]
         public async Task<IActionResult> GetPartnerById([FromRoute] int id)
         {
             try
@@ -111,7 +111,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
         [HttpPut(APIRoutes.Partner.updatePartnerInfo, Name = "updatePartnerInfo")]
         [HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)}")]
         [CheckUserFarmAccess]
-        //[FarmExpired]
+        [FarmExpired]
         public async Task<IActionResult> UpdatePartner([FromBody] UpdatePartnerModel updatePartnerModel)
         {
             try
@@ -133,7 +133,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
         [HttpDelete(APIRoutes.Partner.permanenlyDelete, Name = "permanentlyDeletePartner")]
         [HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)}")]
         [CheckUserFarmAccess]
-        //[FarmExpired]
+        [FarmExpired]
         public async Task<IActionResult> DeletePartner([FromRoute] int id)
         {
             try
@@ -155,7 +155,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
         [HttpGet(APIRoutes.Partner.getPartnerByRoleName, Name = "getPartnerByRoleName")]
         //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)}")]
         [CheckUserFarmAccess]
-        //[FarmExpired]
+        [FarmExpired]
         public async Task<IActionResult> GetPartnerByRoleName([FromRoute] string roleName)
         {
             try
@@ -177,7 +177,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
         [HttpGet(APIRoutes.Partner.getForSelected, Name = "getPartnerForSelected")]
         [HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)}")]
         [CheckUserFarmAccess]
-        //[FarmExpired]
+        [FarmExpired]
         public async Task<IActionResult> getPartnerForSelected([FromQuery] int? farmId, string? Major)
         {
             try
@@ -207,7 +207,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
         [HttpPatch(APIRoutes.Partner.softedDeletePartner, Name = "softedDeletePartnerAsync")]
         [HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)}")]
         [CheckUserFarmAccess]
-        //[FarmExpired]
+        [FarmExpired]
         public async Task<IActionResult> softedDeletePartnerAsync([FromBody] List<int> partners)
         {
             try
@@ -229,7 +229,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
         [HttpGet(APIRoutes.Partner.exportCSV)]
         [HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)},{nameof(RoleEnum.EMPLOYEE)}")]
         [CheckUserFarmAccess]
-        //[FarmExpired]
+        [FarmExpired]
         public async Task<IActionResult> ExportPartner([FromQuery] int farmId)
         {
             var result = await _partnerService.ExportExcel(farmId);

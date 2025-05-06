@@ -26,7 +26,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
         [HttpGet(APIRoutes.LandPlot.getLandPlotById + "/{landplot-id}", Name = "getLandPlotByIdAsync")]
         [HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)},{nameof(RoleEnum.EMPLOYEE)}")]
         [CheckUserFarmAccess]
-        //[FarmExpired]
+        [FarmExpired]
         public async Task<IActionResult> GetLantPlotByIdAsync([FromRoute(Name = "landplot-id")] int landplotId)
         {
             var result = await _landPlotService.GetLandPlotById(landplotId);
@@ -36,7 +36,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
         [HttpGet(APIRoutes.LandPlot.getAllLandPlotNoPagin, Name = "getAllLandPlotNoPaginAsync")]
         [HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)},{nameof(RoleEnum.EMPLOYEE)}")]
         [CheckUserFarmAccess]
-        //[FarmExpired]
+        [FarmExpired]
         public async Task<IActionResult> getAllLandPlotNoPaginAsync([FromQuery] int? farmId, string? searchKey)
         {
             if (!farmId.HasValue)
@@ -58,7 +58,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
         [HttpGet(APIRoutes.LandPlot.getLandPlotEmpty, Name = "getLandPlotEmptyAsync")]
         [HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)}")]
         [CheckUserFarmAccess]
-        //[FarmExpired]
+        [FarmExpired]
         public async Task<IActionResult> getLandPlotEmptyAsync([FromQuery] int? farmId)
         {
             if (!farmId.HasValue)
@@ -104,7 +104,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
         [HttpPost(APIRoutes.LandPlot.createLandPlot, Name = "createLandPlotAsync")]
         [HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)}")]
         [CheckUserFarmAccess]
-        //[FarmExpired]
+        [FarmExpired]
         public async Task<IActionResult> CreateLandPlotAsync([FromBody] LandPlotCreateRequest landPlotCreateRequest)
         {
             if (!ModelState.IsValid)
@@ -123,7 +123,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
         [HttpPut(APIRoutes.LandPlot.updateLandPlotInfo, Name = "updateLandPlotInfoAsync")]
         [HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)}")]
         [CheckUserFarmAccess]
-        //[FarmExpired]
+        [FarmExpired]
         public async Task<IActionResult> updateLandPlotInfoAsync([FromBody] LandPlotUpdateRequest landplotUpdateModel)
         {
 
@@ -139,7 +139,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
         [HttpPut(APIRoutes.LandPlot.updateLandPlotCoordination, Name = "updateLandPlotCooridinationAsync")]
         [HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)}")]
         [CheckUserFarmAccess]
-        //[FarmExpired]
+        [FarmExpired]
         public async Task<IActionResult> UpdateLandPlotCoorAsync([FromBody] LandPlotUpdateCoordinationRequest updateCoorRequest)
         {
             if (!ModelState.IsValid)
@@ -154,7 +154,7 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
         [HttpDelete(APIRoutes.LandPlot.deleteLandPlotOfFarm, Name = "DeleteLandPlotAsync")]
         [HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)}")]
         [CheckUserFarmAccess]
-        //[FarmExpired]
+        [FarmExpired]
         public async Task<IActionResult> DeleteLandPlot([FromQuery] int landPlotId)
         {
             var result = await _landPlotService.deleteLandPlotOfFarm(landPlotId);
@@ -162,9 +162,9 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
         }
 
         [HttpGet(APIRoutes.LandPlot.getForMap + "/{landplot-id}", Name = "getForMapAsync")]
-        //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)},{nameof(RoleEnum.EMPLOYEE)}")]
-        //[CheckUserFarmAccess]
-        //[FarmExpired]
+        [HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)},{nameof(RoleEnum.EMPLOYEE)}")]
+        [CheckUserFarmAccess]
+        [FarmExpired]
         public async Task<IActionResult> GetForMapped([FromRoute(Name = "landplot-id")] int landplotId)
         {
             var result = await _landPlotService.GetForMapped(landplotId);
@@ -173,9 +173,9 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
         }
 
         [HttpPatch(APIRoutes.LandPlot.deleteSoftedLandPlotOfFarm, Name = "deleteSoftedLandPlotOfFarm")]
-        //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)}")]
-        //[CheckUserFarmAccess]
-        //[FarmExpired]
+        [HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)}")]
+        [CheckUserFarmAccess]
+        [FarmExpired]
         public async Task<IActionResult> deleteSoftedLandPlotOfFarm([FromBody] int plantIds)
         {
             try
@@ -195,9 +195,9 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
         }
 
         [HttpPut(APIRoutes.LandPlot.updateVisualMap, Name = "updateVisualMap")]
-        //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)}")]
-        //[CheckUserFarmAccess]
-        //[FarmExpired]
+        [HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)}")]
+        [CheckUserFarmAccess]
+        [FarmExpired]
         public async Task<IActionResult> updateVisualMap([FromBody] UpdatePlotVisualMapRequest updateRequest)
         {
             try
