@@ -368,4 +368,9 @@ export const styles = StyleSheet.create({
     flexDirection: "row",
     alignItems: "center",
   },
+  attendanceStatus: {
+    marginTop: 4,
+    fontSize: 14,
+    color: "#555",
+  },
 });
