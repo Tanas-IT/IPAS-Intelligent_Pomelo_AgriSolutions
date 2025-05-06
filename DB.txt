@@ -2729,7 +2729,7 @@ DECLARE @GroupKey  NVARCHAR(MAX) = CAST(NEWID() AS NVARCHAR(MAX));
 -- Lấy ID Process mẫu
 SELECT TOP 1 @TemplateProcessId = ProcessID 
 FROM Process
-WHERE ProcessCode = 'PR001'; -- Quy trình mẫu Chăm sóc bưởi
+WHERE ProcessCode = 'PR007'; -- Quy trình mẫu Chăm sóc bưởi
 
 -- ==========================================
 -- 2. Khai báo cursor duyệt SubProcess
