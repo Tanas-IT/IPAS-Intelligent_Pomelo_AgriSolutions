@@ -1334,6 +1334,12 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                             {
                                 if (checkExistRefreshToken.ExpiredDate >= DateTime.Now)
                                 {
+                                    var farmExist = await _unitOfWork.FarmRepository.GetByCondition(x => x.IsDeleted == false);
+                                    if (farmExist == null )
+                                        return new BusinessResult(400, "Farm is not exist");
+                                    if ( farmExist.Status.Equals(FarmStatusEnum.Inactive.ToString(), StringComparison.OrdinalIgnoreCase))
+                                        return new BusinessResult(403, "Your farm were inactive, please contact to know more info");
+
                                     var getRoleOfUserInFarm = await _unitOfWork.UserFarmRepository.getRoleOfUserInFarm(existUser.UserId, farmId);
                                     if (getRoleOfUserInFarm == -1)
                                         return new BusinessResult(400, "You are not in this orgination");
