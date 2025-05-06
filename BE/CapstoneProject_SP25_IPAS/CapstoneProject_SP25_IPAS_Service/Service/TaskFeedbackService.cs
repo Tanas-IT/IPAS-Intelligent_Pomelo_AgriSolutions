@@ -363,6 +363,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                             else
                             {
                                 getWorkLog.Status = updateTaskFeedbackModel.Status;
+                                getWorkLog.ReasonDelay = updateTaskFeedbackModel.Reason;
                             }
                             _unitOfWork.WorkLogRepository.Update(getWorkLog);
                         }
