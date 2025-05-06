@@ -1,7 +1,7 @@
 import { SYSTEM_CONFIG_GROUP, SYSTEM_CONFIG_KEY } from "@/constants";
 import { useModifyPermission, useSystemConfigOptions } from "@/hooks";
 import { GetPlantGrowthHistory } from "@/payloads";
-import { View } from "native-base";
+import { View } from "@gluestack-ui/themed";
 import { AvatarImage, CustomIcon, TextCustom } from "@/components";
 import { formatDateAndTime } from "@/utils";
 import { TouchableOpacity, Image } from "react-native";
