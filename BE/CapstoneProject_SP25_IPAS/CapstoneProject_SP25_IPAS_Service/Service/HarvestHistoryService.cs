@@ -87,6 +87,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         foreach (var item in createRequest.ProductHarvestHistory)
                         {
                             var checkMasterTypeExist = await _unitOfWork.MasterTypeRepository.CheckTypeIdInTypeName(item.MasterTypeId, TypeNameInMasterEnum.Product.ToString());
+                            var timeZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
+                            var today = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, timeZone);
                             if (checkMasterTypeExist == null)
                             {
                                 return new BusinessResult(Const.WARNING_HARVEST_TYPE_OF_PRODUCT_NOT_SUITABLE_CODE, Const.WARNING_HARVEST_TYPE_OF_PRODUCT_NOT_SUITABLE_MSG);
@@ -98,7 +100,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                 CostPrice = item.CostPrice,
                                 Unit = item.Unit,
                                 QuantityNeed = item.QuantityNeed,
-                                RecordDate = DateTime.Now
+                                RecordDate = today
                                 //ProcessId = item.ProcessId ?? null,
                             };
                             harvestHistory.ProductHarvestHistories.Add(historyType);
@@ -355,6 +357,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         plantIds.Contains(x.PlantId!.Value));
 
                     int index = 1;
+                    var timeZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
+                    var today = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, timeZone);
                     foreach (var plant in createRequest.plantHarvestRecords)
                     {
                         var canHarvest = await _unitOfWork.PlantRepository.CheckIfPlantCanBeInTargetAsync(plantId: plant.PlantId, ActFunctionGrStageEnum.Harvest.ToString());
@@ -365,7 +369,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         {
                             existingHarvest.ActualQuantity += plant.Quantity;
                             existingHarvest.UserID = checkUserExist.UserId;
-                            existingHarvest.RecordDate = DateTime.Now;
+                            existingHarvest.RecordDate = today;
                             updateList.Add(existingHarvest);
                         }
                         else
@@ -378,7 +382,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                 Unit = existingProduct.Unit,
                                 ActualQuantity = plant.Quantity,
                                 UserID = checkUserExist.UserId,
-                                RecordDate = DateTime.Now,
+                                RecordDate = today,
                             });
                         }
                         index++;

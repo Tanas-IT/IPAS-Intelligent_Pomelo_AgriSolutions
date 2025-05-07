@@ -1650,8 +1650,8 @@ VALUES
     (31, 10, N'kg', 10800.0, 10300.0, 180, 210, 4),  -- HarvestHistoryID 4
     (32, 10, N'kg', 11200.5, 10700.0, 190, 220, 5),  -- HarvestHistoryID 5
     (31, 10, N'kg', 11500.4, 11000.0, 200, 230, 6),  -- HarvestHistoryID 6
-    (30, 10, N'kg', 11800.3, 11300.0, 50, 60, 7),  -- HarvestHistoryID 7
-    (31, 10, N'kg', 12200.2, 11700.0, 150, 140, 8),  -- HarvestHistoryID 8
+    (30, 10, N'kg', 11800.3, 11300.0, 50, 0, 7),  -- HarvestHistoryID 7
+    (30, 10, N'kg', 12200.2, 11700.0, 150, 140, 8),  -- HarvestHistoryID 8
 
 	    -- PlantID 1
     (32, 1, N'kg', 5200.0, 4800.0, 80, 75, 1),  -- HarvestHistoryID 1
@@ -2581,7 +2581,7 @@ INSERT INTO [dbo].[Report]
     ([ReportCode], [Description], [CreateDate], [QuestionOfUser], [AnswerFromExpert],
      [ImageURL], [IsTrainned], [AnswererID], [QuestionerID])
 VALUES
-    ('REP001', N'Report description 1', '2025-04-01 10:00:00', N'What is the disease with white spots on the plant?', N'It is powdery mildew.', 'https://res.cloudinary.com/dgshx4n2c/image/upload/v1744012238/hemiriqcnbaa1ult00r7.jpg', 1, 2, 10),
+    ('REP001', N'Report description 1', '2025-04-01 10:00:00', N'What is the disease with white spots on the plant?', N'It is powdery mildew.', 'https://res.cloudinary.com/dgshx4n2c/image/upload/v1746596869/uwfriwc7pdm0fxlzm8cb.png', 1, 2, 10),
     ('REP002', N'Report description 2', '2025-04-01 11:30:00', N'Leaves turn yellow and fall off, why?', N'The plant lacks potassium.', 'https://res.cloudinary.com/dm1xkvrjf/image/upload/v1745401510/aagnvvljdwdg9ahhbpul.jpg', 0, 3, 11),
     ('REP003', N'Report description 3', '2025-04-02 09:00:00', N'The plant is stunted and grows slowly?', N'Lack of light and nutrients.', 'https://res.cloudinary.com/dm1xkvrjf/image/upload/v1745401511/zzjgrfdz02hezroai7dp.jpg', 1, 1, 12),
     ('REP004', N'Report description 4', '2025-04-02 14:15:00', N'Leaves curl up, is it due to pests?', N'Could be aphids or thrips.', 'https://res.cloudinary.com/dm1xkvrjf/image/upload/v1745414859/occrn00xqosqryt9iqkf.jpg', 0, 4, 13),
@@ -2884,7 +2884,7 @@ WHILE @k <= 10
 BEGIN
     DECLARE @CropID INT = 9 ;
     DECLARE @Code NVARCHAR(10) = 'HH' + RIGHT('00' + CAST(100 + @k AS NVARCHAR),3);
-    DECLARE @DaysAgo INT = 1 + ABS(CHECKSUM(NEWID())) % 15; -- random từ 1-15 ngày trước
+    DECLARE @DaysAgo INT = 1 + ABS(CHECKSUM(NEWID())) % 10; -- random từ 1-15 ngày trước
     DECLARE @HarvestDate DATETIME = DATEADD(DAY, -@DaysAgo, GETDATE());
 
     INSERT INTO [ipas].dbo.HarvestHistory 
