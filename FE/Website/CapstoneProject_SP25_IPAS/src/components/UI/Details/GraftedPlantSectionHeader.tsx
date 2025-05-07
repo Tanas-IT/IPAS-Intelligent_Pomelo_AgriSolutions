@@ -75,7 +75,7 @@ const GraftedPlantSectionHeader = ({
             {!graftedPlant.isDead &&
               (!graftedPlant.isCompleted ? (
                 <Button type="primary" onClick={cuttingGraftedModal.showModal} ghost>
-                  <Icons.check /> Complete
+                  <Icons.check /> Mark as Completed
                 </Button>
               ) : (
                 <Flex gap={10}>
