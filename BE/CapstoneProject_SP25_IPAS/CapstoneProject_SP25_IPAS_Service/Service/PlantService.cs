@@ -351,6 +351,11 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     filter = filter.And(x => filterList.Contains(x.GrowthStageID!.ToString()!));
                     //filter = filter.And(x => request.GrowthStageIds.Contains(x.GrowthStageID!.Value));
                 }
+                if (!string.IsNullOrEmpty(request.PlantLotIds))
+                {
+                    List<string> filterList = Util.SplitByComma(request.PlantLotIds!);
+                    filter = filter.And(x => filterList.Contains(x.PlantLotID!.ToString()!));
+                }
                 if (request.RowIndexFrom.HasValue && request.RowIndexTo.HasValue)
                 {
                     filter = filter.And(x => x.LandRow!.RowIndex >= request.RowIndexFrom && x.LandRow.RowIndex <= request.RowIndexTo);

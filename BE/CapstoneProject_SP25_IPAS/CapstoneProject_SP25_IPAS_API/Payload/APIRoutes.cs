@@ -87,6 +87,7 @@ namespace CapstoneProject_SP25_IPAS_API.Payload
             public const string SoftedDeletePlantLot = Base + "/plant-lots/softed-delete";
             public const string checkCriteriaForLot = Base + "/plant-lots/criteria/check-criteria";
             public const string MarkUsedPlantLot = Base + "/plant-lots/mark-used";
+            public const string GetAllPlantPlotForSelected = Base + "/plant-lots/get-for-selected-filter";
         }
 
         public static class Resource
