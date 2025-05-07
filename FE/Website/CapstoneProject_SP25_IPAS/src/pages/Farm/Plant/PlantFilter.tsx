@@ -1,11 +1,11 @@
 import { Flex, Space } from "antd";
 import { useEffect, useState } from "react";
 import style from "./PlantList.module.scss";
-import { useGrowthStageOptions, useMasterTypeOptions } from "@/hooks";
+import { useGrowthStageOptions, useMasterTypeOptions, usePlantLotOptions } from "@/hooks";
 import { FilterFooter, FormFieldFilter } from "@/components";
-import { FilterPlantState } from "@/types";
+import { FilterPlantState, SelectOption } from "@/types";
 import { HEALTH_STATUS, MASTER_TYPE } from "@/constants";
-import { landPlotService, landRowService } from "@/services";
+import { landPlotService, landRowService, plantLotService } from "@/services";
 
 type FilterProps = {
   filters: FilterPlantState;
@@ -17,13 +17,27 @@ const PlantFilter = ({ filters, updateFilters, onClear, onApply }: FilterProps) 
   const [prevFilters, setPrevFilters] = useState(filters);
   const { options: cultivarTypeOptions } = useMasterTypeOptions(MASTER_TYPE.CULTIVAR);
   const { options: growthStageOptions } = useGrowthStageOptions();
-
+  const [lotOptions, setLotOptions] = useState<SelectOption[]>([]);
   const [treeData, setTreeData] = useState<any[]>([]);
   const [loadingPlots, setLoadingPlots] = useState(false);
   const [loadingRows, setLoadingRows] = useState<{ [key: number]: boolean }>({});
   const [selectedTreeValues, setSelectedTreeValues] = useState<string[]>(
     filters.landRowIds || filters.landPlotIds || [],
   );
+
+  useEffect(() => {
+    const fetchLandLots = async () => {
+      const res = await plantLotService.getAllPlantLotSelected();
+      if (res.statusCode === 200) {
+        const lots = res.data.map((lot) => ({
+          value: lot.id,
+          label: lot.name,
+        }));
+        setLotOptions(lots);
+      }
+    };
+    fetchLandLots();
+  }, []);
 
   useEffect(() => {
     const fetchLandPlots = async () => {
@@ -98,6 +112,7 @@ const PlantFilter = ({ filters, updateFilters, onClear, onApply }: FilterProps) 
     selectedTreeValues.length > 0 ||
     (filters.cultivarIds && filters.cultivarIds.length > 0) ||
     (filters.growthStageIds && filters.growthStageIds.length > 0) ||
+    (filters.plantLotIds && filters.plantLotIds.length > 0) ||
     (filters.healthStatus && filters.healthStatus.length > 0) ||
     filters.isLocated !== undefined ||
     filters.isDead !== undefined ||
@@ -162,16 +177,24 @@ const PlantFilter = ({ filters, updateFilters, onClear, onApply }: FilterProps) 
             onChange={(value) => updateFilters("growthStageIds", value)}
           />
         </Flex>
-
-        <FormFieldFilter
-          label="Passed Date"
-          fieldType="date"
-          value={[filters.passedDateFrom, filters.passedDateTo]}
-          onChange={(dates) => {
-            updateFilters("passedDateFrom", dates?.[0] ? dates[0].format("YYYY-MM-DD") : "");
-            updateFilters("passedDateTo", dates?.[1] ? dates[1].format("YYYY-MM-DD") : "");
-          }}
-        />
+        <Flex className={style.row}>
+          <FormFieldFilter
+            label="Plant Lot"
+            fieldType="select"
+            value={filters.plantLotIds}
+            options={lotOptions}
+            onChange={(value) => updateFilters("plantLotIds", value)}
+          />
+          <FormFieldFilter
+            label="Passed Date"
+            fieldType="date"
+            value={[filters.passedDateFrom, filters.passedDateTo]}
+            onChange={(dates) => {
+              updateFilters("passedDateFrom", dates?.[0] ? dates[0].format("YYYY-MM-DD") : "");
+              updateFilters("passedDateTo", dates?.[1] ? dates[1].format("YYYY-MM-DD") : "");
+            }}
+          />
+        </Flex>
 
         <FormFieldFilter
           label="Passed for Grafting"

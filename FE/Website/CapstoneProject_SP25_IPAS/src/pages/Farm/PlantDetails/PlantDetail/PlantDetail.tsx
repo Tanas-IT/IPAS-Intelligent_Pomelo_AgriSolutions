@@ -37,6 +37,7 @@ function PlantDetail() {
   const fetchPlant = async () => {
     await new Promise((resolve) => setTimeout(resolve, 500)); // ⏳ Delay 1 giây
     try {
+      if (plant && plant.plantId === Number(plantId)) return;
       const res = await plantService.getPlant(Number(plantId));
       if (res.statusCode === 200) {
         setPlant(res.data);
