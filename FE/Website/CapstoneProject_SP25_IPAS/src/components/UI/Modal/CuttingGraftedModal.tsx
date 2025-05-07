@@ -44,7 +44,7 @@ const CuttingGraftedModal = ({
       onSave={handleOk}
       isLoading={isLoadingAction}
       title={"Select Lot for Grafted Plant"}
-      saveLabel={isMove ? "Move" : "Cut & Move"}
+      saveLabel={isMove ? "Move" : "Complete"}
     >
       <Form form={form} layout="vertical">
         <FormFieldModal

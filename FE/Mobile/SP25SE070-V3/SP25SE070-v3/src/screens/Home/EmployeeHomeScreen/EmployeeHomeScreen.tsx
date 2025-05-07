@@ -56,7 +56,6 @@ const EmployeeHomeScreen = () => {
     } catch (error: any) {
       Toast.show({
         type: "error",
-        text1: "Error",
         text2: error.message || "Failed to fetch",
       });
     } finally {

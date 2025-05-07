@@ -154,7 +154,6 @@ const PestDetectionScreen = () => {
       } catch (error) {
         Toast.show({
           type: "error",
-          text1: "Error",
           text2: "Cannot upload image to Cloudinary",
         });
       } finally {

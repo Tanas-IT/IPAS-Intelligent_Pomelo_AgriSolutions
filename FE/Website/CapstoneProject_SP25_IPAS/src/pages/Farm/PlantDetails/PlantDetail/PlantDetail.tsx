@@ -32,15 +32,16 @@ function PlantDetail() {
   const markAsDeadModal = useModal<{ id: number }>();
   const markAsDeadConfirmModal = useModal<{ id: number }>();
   const cancelConfirmModal = useModal();
-  const { plant, setPlant } = usePlantStore();
+  const { plant, setPlant, setPlantId, shouldRefetch } = usePlantStore();
 
   const fetchPlant = async () => {
     await new Promise((resolve) => setTimeout(resolve, 500)); // ⏳ Delay 1 giây
     try {
-      if (plant && plant.plantId === Number(plantId)) return;
+      if (!shouldRefetch && plant && plant.plantId === Number(plantId)) return;
       const res = await plantService.getPlant(Number(plantId));
       if (res.statusCode === 200) {
         setPlant(res.data);
+        setPlantId(res.data.plantId);
       }
     } finally {
       setIsLoading(false);
@@ -49,7 +50,7 @@ function PlantDetail() {
 
   useEffect(() => {
     fetchPlant();
-  }, []);
+  }, [plantId, shouldRefetch]);
 
   const handleDelete = async (id: number | undefined) => {
     const res = await plantService.deletePlants([id] as number[]);
