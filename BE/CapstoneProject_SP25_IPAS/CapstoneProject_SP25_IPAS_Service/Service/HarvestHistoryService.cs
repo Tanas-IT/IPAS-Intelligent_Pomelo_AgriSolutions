@@ -1418,12 +1418,43 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     return new BusinessResult(Const.WARNING_HARVEST_NOT_EXIST_CODE, Const.WARNING_HARVEST_NOT_EXIST_MSG);
 
                 var recordHarvest = await _unitOfWork.ProductHarvestHistoryRepository.GetRecordToExport(harvestId);
-
+                
                 if (!recordHarvest.Any())
                     return new BusinessResult(200, Const.WARNING_HARVEST_TYPE_HISTORY_EMPTY_MSG);
 
                 var fileName = $"HarvestHistory_{harvest.HarvestHistoryCode}_{DateTime.Now:yyyyMMdd}.csv";
-                var mappedResult = _mapper.Map<List<ProductHarvestHistoryModel>>(recordHarvest);
+                var mappedResult = _mapper.Map<List<PlantLogHarvestModel>>(recordHarvest);
+                var export = await _excelReaderService.ExportToCsvAsync(mappedResult, fileName);
+
+                return new BusinessResult(Const.EXPORT_CSV_SUCCESS_CODE, Const.EXPORT_CSV_SUCCESS_MSG, new ExportFileResult
+                {
+                    FileBytes = export.FileBytes,
+                    FileName = export.FileName,
+                    ContentType = export.ContentType
+                });
+            }
+            catch (Exception ex)
+            {
+                return new BusinessResult(Const.ERROR_EXCEPTION, Const.ERROR_MESSAGE);
+            }
+
+        }
+
+        public async Task<BusinessResult> ExportPlantHarvestRecord(int plantId)
+        {
+            try
+            {
+                var plant = await _unitOfWork.PlantRepository.GetByID(plantId);
+                if (plant == null)
+                    return new BusinessResult(Const.WARNING_HARVEST_NOT_EXIST_CODE, Const.WARNING_HARVEST_NOT_EXIST_MSG);
+
+                var recordHarvest = await _unitOfWork.ProductHarvestHistoryRepository.GetPlantRecordToExport(plantId);
+
+                if (!recordHarvest.Any())
+                    return new BusinessResult(200, Const.WARNING_HARVEST_TYPE_HISTORY_EMPTY_MSG);
+
+                var fileName = $"ProductRecord_{plant.PlantCode}_{DateTime.Now:yyyyMMdd}.csv";
+                var mappedResult = _mapper.Map<List<PlantLogHarvestModel>>(recordHarvest);
                 var export = await _excelReaderService.ExportToCsvAsync(mappedResult, fileName);
 
                 return new BusinessResult(Const.EXPORT_CSV_SUCCESS_CODE, Const.EXPORT_CSV_SUCCESS_MSG, new ExportFileResult

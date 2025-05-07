@@ -12,5 +12,7 @@ namespace CapstoneProject_SP25_IPAS_Repository.IRepository
         public Task<List<ProductHarvestHistory>> GetHarvestDataByYear(int year, int? farmId);
         public Task<List<ProductHarvestHistory>> GetAllProductHarvestHistory(int farmId);
         public Task<List<ProductHarvestHistory>> GetRecordToExport(int harvestId);
+        public Task<List<ProductHarvestHistory>> GetPlantRecordToExport(int plantid);
+
     }
 }
