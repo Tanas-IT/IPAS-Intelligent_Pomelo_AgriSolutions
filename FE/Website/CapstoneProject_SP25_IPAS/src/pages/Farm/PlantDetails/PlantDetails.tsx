@@ -26,32 +26,14 @@ function PlantDetails() {
   const location = useLocation();
   const { plotId } = useParams();
   const { productType, yearRange } = location.state || {};
-  const { setPlantId } = usePlantStore();
   const formattedTimeline: [dayjs.Dayjs, dayjs.Dayjs] | undefined =
     Array.isArray(yearRange) &&
     yearRange.length === 2 &&
     yearRange.every((t) => typeof t === "string" && dayjs(t).isValid())
       ? ([dayjs(yearRange[0]), dayjs(yearRange[1])] as [dayjs.Dayjs, dayjs.Dayjs])
       : undefined;
-  const pathnames = location.pathname.split("/");
-  const plantId = pathnames[pathnames.length - 2];
   const { styles } = useStyle();
-  const { plant, setPlant, isGrowthDetailView, setIsGrowthDetailView } = usePlantStore();
-
-  const fetchPlant = async () => {
-    const res = await plantService.getPlant(Number(plantId));
-    if (res.statusCode === 200) {
-      setPlant(res.data);
-    }
-  };
-
-  useEffect(() => {
-    if (!plant) fetchPlant();
-  }, []);
-
-  useEffect(() => {
-    if (plantId) setPlantId(Number(plantId));
-  }, [plantId, setPlantId]);
+  const { isGrowthDetailView, setIsGrowthDetailView } = usePlantStore();
 
   const items: TabsProps["items"] = [
     {

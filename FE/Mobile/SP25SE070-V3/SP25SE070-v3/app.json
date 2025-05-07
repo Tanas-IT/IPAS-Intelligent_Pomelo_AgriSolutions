@@ -23,7 +23,7 @@
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./src/assets/logo-removebg-preview.png",
+        "foregroundImage": "./src/assets/logo-removebg-preview1.png",
         "backgroundColor": "#ffffff"
       },
       "permissions": [

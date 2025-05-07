@@ -38,6 +38,7 @@ function PlantLotDetail() {
   const fetchPlantLot = async () => {
     await new Promise((resolve) => setTimeout(resolve, 500)); // ⏳ Delay 1 giây
     try {
+      if (lot && lot.plantLotId === Number(lotId)) return;
       const res = await plantLotService.getPlantLot(Number(lotId));
       if (res.statusCode === 200) {
         setLot(res.data);
