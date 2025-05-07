@@ -639,6 +639,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         }
                         if (updatePlantLotRequestModel.IsPass.HasValue && updatePlantLotRequestModel.IsPass == true)
                         {
+                            if(checkExistPlantLot.IsFromGrafted == true && checkExistPlantLot.PreviousQuantity.Value == 0)
+                                return new BusinessResult(400, "Your Plant lot is 0 quantity. Can not be completed");
 
                             // check dk can de nhap va dieu kien danh gia chat luong truoc khi trong
                             var requiredCondition = await _unitOfWork.SystemConfigRepository.GetAllNoPaging(x =>
