@@ -241,6 +241,28 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
             return Ok(result);
         }
 
+        //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)},{nameof(RoleEnum.EMPLOYEE)}")]
+        [HttpGet(APIRoutes.PlantLot.GetAllPlantPlotForSelected, Name = "GetAllPlantPlotForSelected")]
+        [HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)},{nameof(RoleEnum.EMPLOYEE)}")]
+        [CheckUserFarmAccess]
+        //[FarmExpired]
+        public async Task<IActionResult> GetAllPlantPlotForSelected([FromQuery] int? farmId, bool? isFromGrafted)
+        {
+            if (!farmId.HasValue)
+                farmId = _jwtTokenService.GetFarmIdFromToken();
+            if (!farmId.HasValue)
+            {
+                var response = new BaseResponse()
+                {
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    Message = "Farm Id is required"
+                };
+                return BadRequest(response);
+            }
+            var result = await _plantLotService.GetAllForSelectedByFarmId(farmId.Value, isFromGrafted);
+            return Ok(result);
+        }
+
         [HttpPatch(APIRoutes.PlantLot.SoftedDeletePlantLot, Name = "SoftedDeletePlantLot")]
         [HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)}")]
         [CheckUserFarmAccess]
