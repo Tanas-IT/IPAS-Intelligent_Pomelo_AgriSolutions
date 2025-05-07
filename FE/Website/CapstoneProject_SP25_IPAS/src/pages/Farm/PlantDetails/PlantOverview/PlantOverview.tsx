@@ -41,7 +41,7 @@ function PlantOverview({ productType, timeline }: PlantOverviewProps) {
   const plantId = pathnames[pathnames.length - 2];
   const [selectedProduct, setSelectedProduct] = useState<number | string>();
   const [harvestData, setHarvestData] = useState<GetHarvestStatisticOfPlant | null>(null);
-  const { plant, setPlant } = usePlantStore();
+  const { plant, setPlant, setPlantId } = usePlantStore();
   const { options, loading } = useSystemConfigOptions(
     SYSTEM_CONFIG_GROUP.YIELD_THRESHOLD,
     undefined,
@@ -55,6 +55,7 @@ function PlantOverview({ productType, timeline }: PlantOverviewProps) {
       const res = await plantService.getPlant(Number(plantId));
       if (res.statusCode === 200) {
         setPlant(res.data);
+        setPlantId(res.data.plantId);
       }
     } finally {
       setIsLoading(false);

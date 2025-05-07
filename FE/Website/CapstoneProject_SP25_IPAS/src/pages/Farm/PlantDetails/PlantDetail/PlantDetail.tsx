@@ -32,7 +32,7 @@ function PlantDetail() {
   const markAsDeadModal = useModal<{ id: number }>();
   const markAsDeadConfirmModal = useModal<{ id: number }>();
   const cancelConfirmModal = useModal();
-  const { plant, setPlant } = usePlantStore();
+  const { plant, setPlant, setPlantId } = usePlantStore();
 
   const fetchPlant = async () => {
     await new Promise((resolve) => setTimeout(resolve, 500)); // ⏳ Delay 1 giây
@@ -41,6 +41,7 @@ function PlantDetail() {
       const res = await plantService.getPlant(Number(plantId));
       if (res.statusCode === 200) {
         setPlant(res.data);
+        setPlantId(res.data.plantId)
       }
     } finally {
       setIsLoading(false);
