@@ -61,7 +61,8 @@ function GraftedPlantDetail() {
   const fetchGraftedPlant = async () => {
     await new Promise((resolve) => setTimeout(resolve, 500)); // ⏳ Delay 1 giây
     try {
-      if (graftedPlant && graftedPlant.graftedPlantId === Number(graftedId)) return;
+      if (!shouldRefetch && graftedPlant && graftedPlant.graftedPlantId === Number(graftedId))
+        return;
       const res = await graftedPlantService.getGraftedPlant(Number(graftedId));
       if (res.statusCode === 200) {
         setGraftedPlant(res.data);

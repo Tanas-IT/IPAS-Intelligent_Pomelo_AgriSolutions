@@ -34,7 +34,6 @@ const LotSectionHeader = ({
       var res = await plantLotService.updateIsCompletedLot(lot.plantLotId, true);
       if (res.statusCode === 200) {
         if (lot.inputQuantity == null || lot.lastQuantity == null) {
-          console.log(1);
           markForRefetch();
         } else {
           setLot({ ...lot, isPassed: true });

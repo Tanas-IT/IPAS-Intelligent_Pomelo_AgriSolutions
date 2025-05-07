@@ -166,9 +166,9 @@ const GraftedPlantModal = ({
                     )}
                   </Flex>
                 )}
-                <FormFieldModal type="textarea" label="Note" name={graftedPlantFormFields.note} />
               </>
             )}
+            <FormFieldModal type="textarea" label="Note" name={graftedPlantFormFields.note} />
           </>
         )}
       </Form>
