@@ -613,7 +613,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                             return new BusinessResult(Const.WARNING_GET_PLANT_LOT_BY_ID_DOES_NOT_EXIST_CODE, Const.WARNING_GET_PLANT_LOT_BY_ID_DOES_NOT_EXIST_MSG);
                         if (checkPlantLotExist.MasterTypeId != checkGraftedExist.Plant!.MasterTypeId)
                             return new BusinessResult(400, "This Plantlot not same cultivar with this plant");
-                        checkPlantLotExist.PreviousQuantity = checkPlantLotExist.PreviousQuantity.Value + 1;
+                        checkPlantLotExist.PreviousQuantity = checkPlantLotExist.PreviousQuantity.GetValueOrDefault() + 1;
                         _unitOfWork.PlantLotRepository.Update(checkPlantLotExist);
                         checkGraftedExist.PlantLotId = request.PlantLotId.Value;
                         //checkPlantLotExist.Status = GraftedPlantStatusConst.GROUPED;
@@ -637,7 +637,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 catch (Exception ex)
                 {
                     await transaction.RollbackAsync();
-                    return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
+                    return new BusinessResult(Const.ERROR_EXCEPTION, Const.ERROR_MESSAGE ,ex.Message);
                 }
             }
         }
@@ -813,7 +813,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             }
             catch (Exception ex)
             {
-                return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
+                return new BusinessResult(Const.ERROR_EXCEPTION, Const.ERROR_MESSAGE, ex.Message);
             }
         }
 
@@ -953,7 +953,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 catch (Exception ex)
                 {
                     await transaction.RollbackAsync();
-                    return new BusinessResult(500, ex.Message);
+                    return new BusinessResult(Const.ERROR_EXCEPTION, Const.ERROR_MESSAGE, ex.Message);
                 }
             }
 
@@ -1052,7 +1052,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 catch (Exception ex)
                 {
                     await transaction.RollbackAsync();
-                    return new BusinessResult(500, ex.Message);
+                    return new BusinessResult(Const.ERROR_EXCEPTION, Const.ERROR_MESSAGE, ex.Message);
                 }
             }
         }
@@ -1122,7 +1122,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 catch (Exception ex)
                 {
                     await transaction.RollbackAsync();
-                    return new BusinessResult(500, ex.Message);
+                    return new BusinessResult(Const.ERROR_EXCEPTION, Const.ERROR_MESSAGE, ex.Message);
                 }
             }
 
