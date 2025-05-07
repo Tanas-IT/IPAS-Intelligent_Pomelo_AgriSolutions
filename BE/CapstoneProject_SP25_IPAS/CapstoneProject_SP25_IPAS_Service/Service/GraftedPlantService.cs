@@ -961,6 +961,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             {
                 try
                 {
+                    var timeZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
+                    var today = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, timeZone);
                     //  1️ Kiểm tra GraftedPlant có tồn tại không
                     var graftedPlant = await _unitOfWork.GraftedPlantRepository.GetByCondition(x => x.GraftedPlantId == request.graftedId && x.IsDeleted == false);
                     if (graftedPlant == null)
@@ -1007,7 +1009,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     {
                         PlantCode = $"{CodeAliasEntityConst.PLANT}{code}-{DateTime.Now.ToString("ddMMyy")}-{Util.SplitByDash(motherPlant.PlantCode!).First()}",
                         PlantName = $"{graftedPlant.GraftedPlantName} + {code}",
-                        PlantingDate = DateTime.Now,
+                        PlantingDate = today,
                         CreateDate = DateTime.Now,
                         HealthStatus = graftedPlant.Status,
                         MasterTypeId = motherPlant.MasterTypeId ?? null, // Lấy MasterTypeId từ MotherPlant
