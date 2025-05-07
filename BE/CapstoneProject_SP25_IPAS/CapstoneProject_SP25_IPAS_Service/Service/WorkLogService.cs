@@ -2957,6 +2957,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 }
                 var timeZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
                 var today = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, timeZone).Date;
+                var todayWithNoDate = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, timeZone);
                 var vietnamTimeOfDay = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, timeZone).TimeOfDay;
                 if(addNewTaskModel.NewDateWork.Date < today)
                 {
@@ -3107,7 +3108,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         Title = "WorkLog",
                         IsRead = false,
                         MasterTypeId = 36,
-                        CreateDate = today,
+                        CreateDate = todayWithNoDate,
                         NotificationCode = "NTF " + "_" + DateTime.Now.Date.ToString()
 
                     };
