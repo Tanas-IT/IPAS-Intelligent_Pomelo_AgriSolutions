@@ -1166,7 +1166,7 @@ INSERT INTO ipas.dbo.GrowthStage (GrowthStageCode, GrowthStageName, MonthAgeStar
 VALUES
 ('GS101', 'Germination Stage', 0, 6, 0, 1, 0, GETDATE(), NULL, 'Seed begins to sprout and establish roots'),
 ('GS102', 'Seedling Stage', 7, 24, 0, 1, 0, GETDATE(), 'Grafted,Harvest', 'Young plant starts growing leaves and roots'),
-('GS103', 'Vegetative Growth Stage', 25, 48, 0, 1, 0, GETDATE(), NULL, 'Tree develops canopy and root system'),
+('GS103', 'Vegetative Growth Stage', 25, 48, 0, 1, 0, GETDATE(), 'Harvest', 'Tree develops canopy and root system'),
 ('GS104', 'Flowering Stage', 49, 60, 0, 1, 0, GETDATE(), 'Harvest', 'Tree reaches maturity and starts flowering'),
 ('GS105', 'Fruiting & Harvest Stage', 61, 120, 0, 1, 0, GETDATE(), 'Grafted,Harvest', 'Fruits mature and are ready for harvest');
 
@@ -1811,6 +1811,7 @@ VALUES
 ('PL001', 'Plant Lot A', 100, 80, 70, 70, 'Plant', 'Used', '2024-06-01', 'Good condition', 1, NULL, 1, 0, 9, 1,0),
 ('PL002', 'Plant Lot B', 200, 180, 150, 150, 'Plant', 'Used', '2024-06-05', 'Stored in warehouse', 1, NULL, 1, 0, 9, 1,0),
 ('PL003', 'Plant Lot C', 150, 130, 120, 120, 'Plant', 'Used', '2024-06-10', 'Requires monitoring', 1, NULL, 1, 0, 9, 1,0),
+('PL007', 'Grafted Lot C', 0, NULL, NULL, 0, 'Plant', 'Pending', '2024-06-10', 'Requires monitoring', 1, NULL, 1, 0, 9, 0,1),
 
 -- Lô con (b? sung s? lu?ng thi?u, dã ki?m tra và s? d?ng h?t)
 ('PL004', 'Plant Lot A - Extra', 30, 30, 30, 30, 'Plant', 'Used', '2024-06-02', 'Additional for PL001', 1, 1, 1, 0, 9, 1,0),
@@ -2198,7 +2199,7 @@ VALUES
 ('ValidationVariable','MinWidth', '1', 'double', N'Ðộ dài tối đa'),
 ('ValidationVariable','MinArea', '1', 'double', N'Diện tích tối thiểu'),
 ('ValidationVariable','MinRowOfLandPlot', '1', 'int', N'Số hàng tôi thiểu của 1 LandPlot'),
-('ValidationVariable','CoordiantionPointRequired', '3', 'int', N'Số điểm tối đa của thửa plantLot'),
+('ValidationVariable','CoordiantionPointRequired', '3', 'int', N'Số điểm tối thiểu của thửa'),
 ('ValidationVariable','MinDistancePlant', '0.1', 'double', N'Khoảng cách tối thiểu giữa các cây'),
 ('ValidationVariable','MinPlantOfLandRow', '1', 'int', N'Số cây tối thiểu 1 Hàng'),
 ('ValidationVariable','EditInDay', '3', 'int', N'Số ngày có thể chỉnh sửa sau khi đã được ghi nhận'),
@@ -2600,7 +2601,7 @@ VALUES
     ('REP017', N'Report description 17', '2025-04-09 07:10:00', N'Leaves are yellow with blotches?', N'Lack of micronutrients or virus infection.', 'https://res.cloudinary.com/dm1xkvrjf/image/upload/v1745401512/lgrox1gf3bkgk4osouz0.jpg', 0, 3, 14),
     ('REP018', N'Report description 18', '2025-04-09 12:50:00', N'Plant grows well but bears no fruit?', N'Might need pollination or change of variety.', 'https://res.cloudinary.com/dm1xkvrjf/image/upload/v1745401513/e6wx4derx2la4n3hlimk.jpg', 1, 4, 15),
     ('REP019', N'Report description 19', '2025-04-09 16:30:00', N'Tree sheds many leaves after flowering?', N'Nutrient or temperature shock.', 'https://res.cloudinary.com/dm1xkvrjf/image/upload/v1745401513/ir0xhkcwfrw0yrklwvkg.jpg', 1, 2, 10),
-    ('REP020', N'Report description 20', '2025-04-09 18:15:00', N'Can lime powder be used for soil treatment?', N'Yes, but apply with proper dosage.', 'https://res.cloudinary.com/dm1xkvrjf/image/upload/v1745402524/yzgilheic2u2gelst2yt.jpg', 0, 1, 11);
+    ('REP020', N'Report description 20', '2025-04-09 18:15:00', N'Can lime powder be used for soil treatment?', NULL, 'https://res.cloudinary.com/dm1xkvrjf/image/upload/v1745402524/yzgilheic2u2gelst2yt.jpg', 0, NULL, 11);
 	
 	-- =============================================
 -- 1. Insert Process: Quy trình mẫu chăm sóc cây bưởi bị sâu vẽ bùa

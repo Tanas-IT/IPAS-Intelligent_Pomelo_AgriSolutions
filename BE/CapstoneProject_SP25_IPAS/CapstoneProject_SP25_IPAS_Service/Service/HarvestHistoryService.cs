@@ -1334,6 +1334,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     bool fileHasError = false;
                     var harvestRecord = new List<ProductHarvestHistory>();
 
+                    var timeZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
+                    var today = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, timeZone);
                     foreach (var plant in validPlants)
                     {
                         if (!plants.TryGetValue(plant.PlantCode, out var plantExist))
@@ -1383,7 +1385,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                             UserID = request.userId,
                             PlantId = plantExist.PlantId,
                             ActualQuantity = plant.Quantity.Value,
-                            RecordDate = DateTime.Now
+                            RecordDate = today
                         });
                     }
 

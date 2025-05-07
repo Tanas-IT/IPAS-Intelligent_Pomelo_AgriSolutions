@@ -72,6 +72,9 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
                     if (plantExist.IsPassed != true)
                         return new BusinessResult(400, "Mother Plant is not mark as PASS to grafted");
+                    var canCreateDate = await _unitOfWork.SystemConfigRepository.GetConfigValue(SystemConfigConst.CREATE_GRAFTED_ENABLE_DATE, (int)3);
+                    if(createRequest.GraftedDate.Value.Date.AddDays(3) >= DateTime.Now.Date || createRequest.GraftedDate.Value.Date.AddDays(-3) >= DateTime.Now.Date)
+                            return new BusinessResult(400, $"You only can create grafted plant in range {canCreateDate} date.");
                     // Create the new Plant entity from the request
                     //var jsonData = JsonConvert.DeserializeObject<PlantModel>(plantExist.Data!.ToString()!);
                     //var jsonData = plantExist.Data as PlantModel;
