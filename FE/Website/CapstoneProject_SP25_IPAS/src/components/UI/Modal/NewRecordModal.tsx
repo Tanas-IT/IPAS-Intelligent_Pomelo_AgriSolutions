@@ -16,14 +16,14 @@ type NewRecordModalProps = {
 
 const NewRecordModal = ({ isOpen, onClose, onSave, isLoadingAction }: NewRecordModalProps) => {
   const { plantId } = usePlantStore();
-  if (!plantId) return;
+  const resetForm = () => form.resetFields();
   const [form] = Form.useForm();
   const [availableHarvests, setAvailableHarvests] = useState<AvailableHarvest[]>([]);
   const [productOptions, setProductOptions] = useState<{ value: number; label: string }[]>([]);
   const [selectedHarvestId, setSelectedHarvestId] = useState<number | null>(null);
-
-  const resetForm = () => form.resetFields();
-
+  if (!plantId) return;
+  
+  
   useEffect(() => {
     const fetchHarvests = async () => {
       const response = await plantService.getAvailableHarvestsForPlant(plantId);
