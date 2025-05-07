@@ -30,6 +30,6 @@ namespace CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.PlantRequest
         public bool? isPassed { get; set; }
         public DateTime? PassedDateFrom { get; set; }
         public DateTime? PassedDateTo { get; set; }
-
+        public string? PlantLotIds { get; set; }
     }
 }
