@@ -1650,7 +1650,7 @@ VALUES
     (31, 10, N'kg', 10800.0, 10300.0, 180, 210, 4),  -- HarvestHistoryID 4
     (32, 10, N'kg', 11200.5, 10700.0, 190, 220, 5),  -- HarvestHistoryID 5
     (31, 10, N'kg', 11500.4, 11000.0, 200, 230, 6),  -- HarvestHistoryID 6
-    (30, 10, N'kg', 11800.3, 11300.0, 150, 200, 7),  -- HarvestHistoryID 7
+    (30, 10, N'kg', 11800.3, 11300.0, 50, 60, 7),  -- HarvestHistoryID 7
     (31, 10, N'kg', 12200.2, 11700.0, 150, 140, 8),  -- HarvestHistoryID 8
 
 	    -- PlantID 1
@@ -2884,7 +2884,7 @@ WHILE @k <= 10
 BEGIN
     DECLARE @CropID INT = 9 ;
     DECLARE @Code NVARCHAR(10) = 'HH' + RIGHT('00' + CAST(100 + @k AS NVARCHAR),3);
-    DECLARE @DaysAgo INT = 1 + ABS(CHECKSUM(NEWID())) % 10; -- random từ 1-10 ngày trước
+    DECLARE @DaysAgo INT = 1 + ABS(CHECKSUM(NEWID())) % 30; -- random từ 1-30 ngày trước
     DECLARE @HarvestDate DATETIME = DATEADD(DAY, -@DaysAgo, GETDATE());
 
     INSERT INTO [ipas].dbo.HarvestHistory 
@@ -2911,7 +2911,7 @@ BEGIN
         DECLARE @PlantID INT = 9 + ABS(CHECKSUM(NEWID())) % 12; -- 9-20
         DECLARE @Revenue FLOAT = 1000 + ABS(CHECKSUM(NEWID())) % 500;
         DECLARE @CostPrice FLOAT = @Revenue - 100;
-       DECLARE @QuantityNeed INT = 180 + ABS(CHECKSUM(NEWID())) % 51;
+        DECLARE @QuantityNeed INT = 100 + ABS(CHECKSUM(NEWID())) % 22;
         DECLARE @ActualQuantity INT = @QuantityNeed + ABS(CHECKSUM(NEWID())) % 10;
 
         INSERT INTO [ipas].dbo.ProductHarvestHistory 
