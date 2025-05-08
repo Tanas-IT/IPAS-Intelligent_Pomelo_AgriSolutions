@@ -234,8 +234,9 @@ function WorklogDetail() {
     try {
       const listEmployeeUpdate: ListEmployeeUpdate[] = [];
 
-      // Xử lý thay đổi reporter qua Radio hoặc thay reporter
+      // Xử lý thay đổi reporter qua Radio
       if (tempReporterId && tempReporterId !== initialReporterId) {
+        console.log("[DEBUG] Adding from Radio:", { oldUserId: initialReporterId, newUserId: tempReporterId });
         listEmployeeUpdate.push({
           oldUserId: initialReporterId!,
           newUserId: tempReporterId,
@@ -261,28 +262,36 @@ function WorklogDetail() {
             if (isReplacingReporter && !listEmployeeUpdate.some(
               (item) => item.oldUserId === replaceUserIdNum && item.isReporter
             )) {
-              // Trường hợp thay thế trực tiếp reporter (nếu chưa được thêm từ Radio)
+              // Trường hợp thay thế trực tiếp reporter
+              console.log("[DEBUG] Adding reporter replacement:", { oldUserId: replaceUserIdNum, newUserId: replacementUserId });
               listEmployeeUpdate.push({
                 oldUserId: replaceUserIdNum,
                 newUserId: replacementUserId,
                 isReporter: true,
                 status: "update",
               });
-            } else if (!isReplacingReporter) {
-              // Trường hợp thay thế nhân viên không phải reporter
-              const targetUser = [...worklogDetail.listEmployee, ...worklogDetail.reporter].find(
-                (user) => user.userId === replaceUserIdNum,
-              );
-              console.log("[DEBUG] targetUser:", targetUser);
+            }
 
-              if (targetUser) {
-                listEmployeeUpdate.push({
-                  oldUserId: replaceUserIdNum,
-                  newUserId: replacementUserId,
-                  isReporter: false,
-                  status: targetUser.statusOfUserWorkLog === "Rejected" ? "add" : "update",
-                });
-              }
+            // Thêm phần tử non-reporter nếu không phải thay thế reporter hoặc thay thế reporter nhưng không trùng với tempReporterId
+            const targetUser = [...worklogDetail.listEmployee, ...worklogDetail.reporter].find(
+              (user) => user.userId === replaceUserIdNum,
+            );
+            console.log("[DEBUG] targetUser:", targetUser);
+
+            if (
+              targetUser &&
+              (!isReplacingReporter || (isReplacingReporter && replacementUserId !== tempReporterId)) &&
+              !listEmployeeUpdate.some(
+                (item) => item.oldUserId === replaceUserIdNum && item.newUserId === replacementUserId && !item.isReporter
+              )
+            ) {
+              console.log("[DEBUG] Adding non-reporter replacement:", { oldUserId: replaceUserIdNum, newUserId: replacementUserId });
+              listEmployeeUpdate.push({
+                oldUserId: replaceUserIdNum,
+                newUserId: replacementUserId,
+                isReporter: false,
+                status: targetUser.statusOfUserWorkLog === "Rejected" ? "add" : "update",
+              });
             }
           }
         });
@@ -311,10 +320,12 @@ function WorklogDetail() {
         !payload.startTime &&
         !payload.endTime
       ) {
+        console.log("[DEBUG] No changes to save, exiting.");
         toast.info("No changes to save.");
         setIsEditModalVisible(false);
         return;
       }
+      console.log("[DEBUG] listEmployeeUpdate:", listEmployeeUpdate);
       console.log("[DEBUG] Payload for updateWorklog:", payload);
 
       const response = await worklogService.updateWorklog(payload);

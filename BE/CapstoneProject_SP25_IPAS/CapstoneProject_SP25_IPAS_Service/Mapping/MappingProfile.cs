@@ -600,6 +600,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Mapping
                                                                         ReplaceUserFullName = uwl.User.FullName,
                                                                         ReplaceUserAvatar = uwl.User.AvatarURL,
                                                                         ReplaceUserIsRepoter = uwl.IsReporter,
+                                                                        StatusOfUserWorkLog = uwl.StatusOfUserWorkLog,
                                                                         // Lấy thông tin nhân viên thay thế
                                                                         UserId = src.UserWorkLogs
                                                                             .Where(r => r.ReplaceUserId == uwl.UserId)
@@ -614,6 +615,10 @@ namespace CapstoneProject_SP25_IPAS_Service.Mapping
                                                                         Avatar = src.UserWorkLogs
                                                                             .Where(r => r.ReplaceUserId == uwl.UserId)
                                                                             .Select(r => r.User.AvatarURL)
+                                                                            .FirstOrDefault(),
+                                                                        ReplaceStatusOfUserWorkLog = src.UserWorkLogs
+                                                                            .Where(r => r.ReplaceUserId == uwl.UserId)
+                                                                            .Select(r => r.StatusOfUserWorkLog)
                                                                             .FirstOrDefault()
                                                                     })
                                                                     .ToList()))
@@ -627,7 +632,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Mapping
                                                                         StatusOfUserWorkLog = group.First().StatusOfUserWorkLog,
                                                                         IsReporter = group.First().IsReporter
                                                                     }).ToList()))
-            .ForMember(dest => dest.Reporter, opt => opt.MapFrom(src => src.UserWorkLogs.Where(x => x.IsReporter == true && x.StatusOfUserWorkLog != WorkLogStatusConst.REPLACED)
+            .ForMember(dest => dest.Reporter, opt => opt.MapFrom(src => src.UserWorkLogs.Where(x => x.IsReporter == true && x.IsDeleted == false)
                                                                     .GroupBy(user => user.UserId)
                                                                     .Select(group => new ReporterModel
                                                                     {
