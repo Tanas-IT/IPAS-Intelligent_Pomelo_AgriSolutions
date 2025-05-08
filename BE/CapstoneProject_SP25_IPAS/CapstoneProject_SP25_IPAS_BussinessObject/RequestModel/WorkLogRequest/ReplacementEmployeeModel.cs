@@ -11,9 +11,12 @@ namespace CapstoneProject_SP25_IPAS_BussinessObject.RequestModel.WorkLogRequest
         public int UserId { get; set; }
         public string? FullName { get; set; }
         public string? Avatar { get; set; }
+        public string? StatusOfUserWorkLog { get; set; }
         public int ReplaceUserId { get; set; }
         public bool? ReplaceUserIsRepoter { get; set; }
         public string? ReplaceUserFullName { get; set; }
         public string? ReplaceUserAvatar { get; set; }
+        public string? ReplaceStatusOfUserWorkLog { get; set; }
+
     }
 }
