@@ -1442,6 +1442,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
         {
             try
             {
+
                 // Lấy WorkLog và include các bảng liên quan
                 var getWorkLog = await _unitOfWork.WorkLogRepository.GetWorkLogByIdForDelete(
                     workLogId
@@ -1451,12 +1452,41 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 {
                     return new BusinessResult(404, "Cannot find any WorkLog");
                 }
-
+                var timeZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
+                var today = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, timeZone);
                 // Nếu WorkLog đã quá hạn, không cho phép xóa
-                if (getWorkLog.Date <= DateTime.Now)
+                if (getWorkLog.Date.Value.Date <= today.Date)
                 {
-                    return new BusinessResult(404, "This WorkLog is overdue. Cannot delete");
+                    if (getWorkLog.Date.Value.Date == today)
+                    {
+                        // Giả sử StartTime là TimeSpan hoặc DateTime
+                        if (getWorkLog.ActualStartTime.HasValue)
+                        {
+                            var startDateTime = getWorkLog.Date.Value.Date + getWorkLog.ActualStartTime.Value;
+                            if (today >= startDateTime)
+                            {
+                                return new BusinessResult(400, "This workLog is happened. Cannot delete");
+                            }
+                        }
+                        else
+                        {
+                            return new BusinessResult(400, "Cannot delete because start time is not defined.");
+                        }
+                    }
+                    else
+                    {
+                        return new BusinessResult(400, "This workLog is happened. Cannot delete");
+                    }
+
                 }
+                var getStatusNotStarted = await _unitOfWork.SystemConfigRepository
+                       .GetConfigValue(SystemConfigConst.NOT_STARTED.Trim(), "Not Started");
+                if (!getWorkLog.Status.Equals(getStatusNotStarted))
+                {
+                    return new BusinessResult(400, "This workLog is happened. Cannot delete");
+                }
+
+               
 
                 int result = 0;
 

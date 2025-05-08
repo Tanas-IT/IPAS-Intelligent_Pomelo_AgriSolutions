@@ -554,7 +554,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     var todayForProcess = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, timeZoneForProcess);
                     var newProcessModified = new CreateManyProcessModel()
                     {
-                        ProcessName = modifiedProcessName + " modifiled on " + $"{todayForProcess}",
+                        ProcessName = modifiedProcessName + " - modifiled on " + $"{todayForProcess}",
                         IsActive = updateProcessModel.IsActive != null ? updateProcessModel.IsActive : checkProcessHasUsed.IsActive,
                         IsSample = checkProcessHasUsed.IsSample,
                         ListPlan = updateProcessModel.ListPlan != null ? listPlanUpdate : listPlanCreate,
