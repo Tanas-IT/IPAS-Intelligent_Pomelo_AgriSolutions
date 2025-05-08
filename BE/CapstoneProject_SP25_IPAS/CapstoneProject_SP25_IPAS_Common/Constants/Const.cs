@@ -658,7 +658,7 @@ namespace CapstoneProject_SP25_IPAS_Common.Constants
         #endregion
 
         #region Farm Fail code
-        public static int FAIL_CREATE_FARM_CODE = 500;
+        public static int FAIL_CREATE_FARM_CODE = 400;
         public static string FAIL_CREATE_FARM_MSG = "Create farm have server error";
         public static int FAIL_UPDATE_FARM_CODE = 201;
         public static string FAIL_UPDATE_FARM_MSG = "Farm Update fail";

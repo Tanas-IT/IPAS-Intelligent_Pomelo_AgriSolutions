@@ -27,6 +27,7 @@ namespace CapstoneProject_SP25_IPAS_Service.IService
         public Task<BusinessResult> softedMultipleDelete(List<int> plantLotIds);
         public Task<BusinessResult> CheckingCriteriaForLot(CheckPlantLotCriteriaRequest request);
         public Task<BusinessResult> MarkStatusUsed(int plantLotIds);
+        public Task<BusinessResult> GetAllForSelectedByFarmId(int farmId, bool? isFromGrafted);
 
     }
 }

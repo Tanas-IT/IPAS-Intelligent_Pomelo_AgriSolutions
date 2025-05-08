@@ -177,6 +177,7 @@ export const DEFAULT_PLANT_FILTERS: FilterPlantState = {
   landRowIds: [] as string[],
   cultivarIds: [] as string[],
   growthStageIds: [] as string[],
+  plantLotIds: [] as string[],
   healthStatus: [] as string[],
   isLocated: null,
   isDead: null,

@@ -116,7 +116,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             }
             catch (Exception ex)
             {
-                return new BusinessResult(Const.FAIL_CREATE_FARM_CODE, Const.FAIL_CREATE_FARM_MSG, ex.Message);
+                return new BusinessResult(Const.ERROR_EXCEPTION, Const.FAIL_CREATE_FARM_MSG, ex.Message);
             }
         }
 
@@ -313,7 +313,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             catch (Exception ex)
             {
 
-                return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
+                return new BusinessResult(Const.ERROR_EXCEPTION, Const.ERROR_MESSAGE, ex.Message);
             }
 
         }
@@ -347,7 +347,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             }
             catch (Exception ex)
             {
-                return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
+                return new BusinessResult(Const.ERROR_EXCEPTION, Const.ERROR_MESSAGE, ex.Message);
             }
         }
 
@@ -380,7 +380,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             }
             catch (Exception ex)
             {
-                return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
+                return new BusinessResult(Const.ERROR_EXCEPTION, Const.ERROR_MESSAGE, ex.Message);
             }
         }
 
@@ -426,7 +426,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             }
             catch (Exception ex)
             {
-                return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
+                return new BusinessResult(Const.ERROR_EXCEPTION, Const.ERROR_MESSAGE, ex.Message);
             }
         }
 
@@ -464,7 +464,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             }
             catch (Exception ex)
             {
-                return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
+                return new BusinessResult(Const.ERROR_EXCEPTION, Const.ERROR_MESSAGE, ex.Message);
             }
 
         }
@@ -586,7 +586,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             }
             catch (Exception ex)
             {
-                return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
+                return new BusinessResult(Const.ERROR_EXCEPTION, Const.ERROR_MESSAGE, ex.Message);
             }
         }
 
@@ -660,7 +660,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             }
             catch (Exception ex)
             {
-                return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
+                return new BusinessResult(Const.ERROR_EXCEPTION, Const.ERROR_MESSAGE, ex.Message);
             }
         }
 
@@ -695,6 +695,18 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     }
                     if(updateRequest.Skills != null)
                     {
+                        var duplicateSkillIds = updateRequest.Skills
+                            .Where(s => s.SkillID.HasValue)
+                            .GroupBy(s => s.SkillID)
+                            .Where(g => g.Count() > 1)
+                            .Select(g => g.Key)
+                            .ToList();
+
+                        if (duplicateSkillIds.Any())
+                        {
+                            return new BusinessResult(400, $"Duplicate skill found. Please check again");
+                        }
+
                         // Lấy toàn bộ kỹ năng hiện có của nhân viên trong farm đó
                         var existingSkills = await _unitOfWork.EmployeeSkillRepository
                             .GetEmployeeSkillByUserIdAndFarmId(updateRequest.UserId, updateRequest.FarmId.Value);
@@ -760,7 +772,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 catch (Exception ex)
                 {
                     await transaction.RollbackAsync();
-                    return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
+                    return new BusinessResult(Const.ERROR_EXCEPTION, Const.ERROR_MESSAGE, ex.Message);
                 }
             }
         }
@@ -792,7 +804,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 catch (Exception ex)
                 {
                     await transaction.RollbackAsync();
-                    return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
+                    return new BusinessResult(Const.ERROR_EXCEPTION, Const.ERROR_MESSAGE, ex.Message);
                 }
             }
         }
@@ -824,6 +836,18 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     };
                     if(createRequest.Skills != null)
                     {
+                        var duplicateSkillIds = createRequest.Skills
+                          .Where(s => s.SkillID.HasValue)
+                          .GroupBy(s => s.SkillID)
+                          .Where(g => g.Count() > 1)
+                          .Select(g => g.Key)
+                          .ToList();
+
+                        if (duplicateSkillIds.Any())
+                        {
+                            return new BusinessResult(400, $"Duplicate skill found. Please check again");
+                        }
+
                         foreach (var skill in createRequest.Skills)
                         {
                             if(skill.SkillID != null && skill.ScoreOfSkill != null)
@@ -853,7 +877,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 catch (Exception ex)
                 {
                     await transaction.RollbackAsync();
-                    return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
+                    return new BusinessResult(Const.ERROR_EXCEPTION, Const.ERROR_MESSAGE, ex.Message);
                 }
             }
         }

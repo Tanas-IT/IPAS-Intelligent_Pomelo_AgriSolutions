@@ -87,6 +87,7 @@ namespace CapstoneProject_SP25_IPAS_API.Payload
             public const string SoftedDeletePlantLot = Base + "/plant-lots/softed-delete";
             public const string checkCriteriaForLot = Base + "/plant-lots/criteria/check-criteria";
             public const string MarkUsedPlantLot = Base + "/plant-lots/mark-used";
+            public const string GetAllPlantPlotForSelected = Base + "/plant-lots/get-for-selected-filter";
         }
 
         public static class Resource
@@ -372,6 +373,7 @@ namespace CapstoneProject_SP25_IPAS_API.Payload
             public const string getHarvestSelectedToPlantRecord = prefix + "/plants/can-harvert";
             public const string importPlantFromExcel = prefix + "/plant/record/import-excel";
             public const string exportCSV = prefix + "/export-csv";
+            public const string exportCSVPlantRecord = prefix + "/plant-record/export-csv";
 
             //public const string getAllCropOfLandPlot = prefix + "/get-crop-of-landplot";
             //public const string getAllCropOfFarmForSelect = prefix + "/get-crop-of-farm-selected";

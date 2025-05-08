@@ -324,8 +324,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         orderBy = x => x.OrderByDescending(x => x.ProcessId);
                         break;
                 }
-                string includeProperties = "GrowthStage,Farm,MasterType,SubProcesses";
-                var entities = await _unitOfWork.ProcessRepository.Get(filter, orderBy, includeProperties, paginationParameter.PageIndex, paginationParameter.PageSize);
+                var entities = await _unitOfWork.ProcessRepository.GetProcessPaging(filter, orderBy, paginationParameter.PageIndex, paginationParameter.PageSize);
                 var pagin = new PageEntity<ProcessModel>();
                 pagin.List = _mapper.Map<IEnumerable<ProcessModel>>(entities).ToList();
                 pagin.TotalRecord = await _unitOfWork.ProcessRepository.Count(filter);
@@ -555,7 +554,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     var todayForProcess = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, timeZoneForProcess);
                     var newProcessModified = new CreateManyProcessModel()
                     {
-                        ProcessName = modifiedProcessName + " modifiled on " + $"{todayForProcess}",
+                        ProcessName = modifiedProcessName + " - modifiled on " + $"{todayForProcess}",
                         IsActive = updateProcessModel.IsActive != null ? updateProcessModel.IsActive : checkProcessHasUsed.IsActive,
                         IsSample = checkProcessHasUsed.IsSample,
                         ListPlan = updateProcessModel.ListPlan != null ? listPlanUpdate : listPlanCreate,
@@ -1119,7 +1118,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         {
                             foreach (var planInProcess in checkExistProcess.Plans)
                             {
-                                if (planInProcess.StartDate <= DateTime.Now.Date)
+                                if (planInProcess.IsSample == false)
                                 {
                                     hasActivePlan = true;
                                     failedProcessNames.Add(checkExistProcess.ProcessName);
@@ -1141,7 +1140,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                 {
                                     foreach (var planInSub in subProcess.Plans)
                                     {
-                                        if (planInSub.StartDate <= DateTime.Now.Date)
+                                        if (planInSub.IsSample == false)
                                         {
                                             hasActivePlan = true;
                                             failedProcessNames.Add(checkExistProcess.ProcessName);
@@ -1194,13 +1193,13 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     if (failedProcessNames.Any())
                     {
                         string messageError = string.Join(", ", failedProcessNames);
-                        return new BusinessResult(Const.FAIL_SOFT_DELETE_PROCESS_CODE,
-                            $"Delete {messageError} failed");
+                        return new BusinessResult(400,
+                            $"Delete {messageError} failed because it has been used");
                     }
                 }
 
                 // Nếu danh sách processId rỗng hoặc null
-                return new BusinessResult(Const.WARNING_GET_PROCESS_DOES_NOT_EXIST_CODE, Const.WARNING_GET_PROCESS_DOES_NOT_EXIST_MSG);
+                return new BusinessResult(400, Const.WARNING_GET_PROCESS_DOES_NOT_EXIST_MSG);
             }
             catch (Exception ex)
             {

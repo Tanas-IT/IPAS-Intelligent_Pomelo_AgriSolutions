@@ -38,6 +38,7 @@ function PlantLotDetail() {
   const fetchPlantLot = async () => {
     await new Promise((resolve) => setTimeout(resolve, 500)); // ⏳ Delay 1 giây
     try {
+      if (!shouldRefetch && lot && lot.plantLotId === Number(lotId)) return;
       const res = await plantLotService.getPlantLot(Number(lotId));
       if (res.statusCode === 200) {
         setLot(res.data);
@@ -68,7 +69,7 @@ function PlantLotDetail() {
     if (lot?.isFromGrafted) {
       fetchGraftedPlants();
     }
-  }, [lot?.isFromGrafted, graftedPage]);
+  }, [lot?.isFromGrafted, graftedPage, shouldRefetch]);
 
   const handleDelete = async (id: number | undefined) => {
     const res = await plantLotService.deleteLots([id] as number[]);

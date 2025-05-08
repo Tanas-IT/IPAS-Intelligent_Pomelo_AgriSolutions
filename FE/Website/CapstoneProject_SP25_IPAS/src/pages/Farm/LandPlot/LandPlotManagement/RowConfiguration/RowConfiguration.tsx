@@ -19,8 +19,19 @@ const RowConfiguration: React.FC<RowConfigurationProps> = React.memo(
     const { metricUnit } = useVirtualPlotConfigStore();
 
     const handleAutoFill = () => {
-      const plotAuto = generateValidPlotAutoFillData(plotLength, plotWidth);
-      form.setFieldsValue(plotAuto);
+      // const plotAuto = generateValidPlotAutoFillData(plotLength, plotWidth);
+      // form.setFieldsValue(plotAuto);
+      form.setFieldsValue({
+        [createPlotFormFields.rowLength]: 20,
+        [createPlotFormFields.rowWidth]: 5,
+        [createPlotFormFields.numberOfRows]: 15,
+        [createPlotFormFields.rowSpacing]: 1,
+        [createPlotFormFields.rowsPerLine]: 17,
+        [createPlotFormFields.lineSpacing]: 1,
+        [createPlotFormFields.rowOrientation]: "Vertical",
+        [createPlotFormFields.plantsPerRow]: 4,
+        [createPlotFormFields.plantSpacing]: 5,
+      });
       setIsDirty(true);
     };
 

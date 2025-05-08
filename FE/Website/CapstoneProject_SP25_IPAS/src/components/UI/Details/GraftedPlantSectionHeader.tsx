@@ -31,7 +31,7 @@ const GraftedPlantSectionHeader = ({
   onAddNewIssue?: () => void;
   onExport?: () => void;
 }) => {
-  const { graftedPlant, setGraftedPlant } = useGraftedPlantStore();
+  const { graftedPlant, setGraftedPlant, markForRefetch } = useGraftedPlantStore();
   const cuttingGraftedModal = useModal();
   const [isLoading, setIsLoading] = useState(false);
 
@@ -46,6 +46,7 @@ const GraftedPlantSectionHeader = ({
       );
       if (res.statusCode === 200) {
         setGraftedPlant({ ...graftedPlant, isCompleted: true });
+        markForRefetch();
         toast.success(res.message);
       } else {
         toast.warning(res.message);
@@ -74,7 +75,7 @@ const GraftedPlantSectionHeader = ({
             {!graftedPlant.isDead &&
               (!graftedPlant.isCompleted ? (
                 <Button type="primary" onClick={cuttingGraftedModal.showModal} ghost>
-                  <Icons.check /> Complete & Move to Lot
+                  <Icons.check /> Mark as Completed
                 </Button>
               ) : (
                 <Flex gap={10}>
