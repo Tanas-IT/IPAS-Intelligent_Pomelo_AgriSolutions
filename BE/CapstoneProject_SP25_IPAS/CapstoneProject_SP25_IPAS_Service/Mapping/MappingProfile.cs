@@ -600,6 +600,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Mapping
                                                                         ReplaceUserFullName = uwl.User.FullName,
                                                                         ReplaceUserAvatar = uwl.User.AvatarURL,
                                                                         ReplaceUserIsRepoter = uwl.IsReporter,
+                                                                        StatusOfUserWorkLog = uwl.StatusOfUserWorkLog,
                                                                         // Lấy thông tin nhân viên thay thế
                                                                         UserId = src.UserWorkLogs
                                                                             .Where(r => r.ReplaceUserId == uwl.UserId)
@@ -614,6 +615,10 @@ namespace CapstoneProject_SP25_IPAS_Service.Mapping
                                                                         Avatar = src.UserWorkLogs
                                                                             .Where(r => r.ReplaceUserId == uwl.UserId)
                                                                             .Select(r => r.User.AvatarURL)
+                                                                            .FirstOrDefault(),
+                                                                        ReplaceStatusOfUserWorkLog = src.UserWorkLogs
+                                                                            .Where(r => r.ReplaceUserId == uwl.UserId)
+                                                                            .Select(r => r.StatusOfUserWorkLog)
                                                                             .FirstOrDefault()
                                                                     })
                                                                     .ToList()))
