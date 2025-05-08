@@ -235,8 +235,6 @@ function PlantLotCriteria() {
       deleteConfirmModal.hideModal();
     }
   };
-  console.log(initialCriteria);
-  console.log(criteriaGroups);
 
   return (
     <Flex className={style.contentDetailWrapper}>

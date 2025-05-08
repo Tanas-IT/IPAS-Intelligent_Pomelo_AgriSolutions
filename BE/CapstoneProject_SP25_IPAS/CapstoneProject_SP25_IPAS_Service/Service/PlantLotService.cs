@@ -639,6 +639,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         }
                         if (updatePlantLotRequestModel.IsPass.HasValue && updatePlantLotRequestModel.IsPass == true)
                         {
+                            if(checkExistPlantLot.IsFromGrafted == true && checkExistPlantLot.PreviousQuantity.Value == 0)
+                                return new BusinessResult(400, "Your Plant lot is 0 quantity. Can not be completed");
 
                             // check dk can de nhap va dieu kien danh gia chat luong truoc khi trong
                             var requiredCondition = await _unitOfWork.SystemConfigRepository.GetAllNoPaging(x =>
@@ -829,6 +831,34 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 Func<IQueryable<PlantLot>, IOrderedQueryable<PlantLot>> orderBy = x => x.OrderByDescending(od => od.PlantLotId)!;
                 //string includeProperties = "Partner";
                 //var plantLot = await _unitOfWork.PlantLotRepository.GetAllNoPaging(x => x.FarmID == farmId && x.isDeleted == false, includeProperties: includeProperties, orderBy: orderBy);
+                var plantLot = await _unitOfWork.PlantLotRepository.GetAllNoPaging(filter: filter, orderBy: orderBy);
+                if (plantLot != null)
+                {
+                    var result = _mapper.Map<IEnumerable<ForSelectedModels>>(plantLot);
+                    return new BusinessResult(Const.SUCCESS_GET_PLANT_LOT_BY_ID_CODE, Const.SUCCESS_GET_PLANT_LOT_BY_ID_MESSAGE, result);
+                }
+                else
+                {
+                    return new BusinessResult(Const.WARNING_GET_PLANT_LOT_BY_ID_DOES_NOT_EXIST_CODE, Const.WARNING_GET_PLANT_LOT_BY_ID_DOES_NOT_EXIST_MSG);
+                }
+            }
+            catch (Exception ex)
+            {
+
+                return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
+            }
+        }
+
+        public async Task<BusinessResult> GetAllForSelectedByFarmId(int farmId, bool? isFromGrafted)
+        {
+            try
+            {
+                Expression<Func<PlantLot, bool>> filter = x => x.FarmID == farmId && x.IsDeleted == false;
+                if (isFromGrafted.HasValue && isFromGrafted == true)
+                    filter = filter.And(x => x.IsFromGrafted == isFromGrafted);
+                else if (isFromGrafted.HasValue && isFromGrafted == false)
+                    filter = filter.And(x => x.IsFromGrafted == isFromGrafted);
+                Func<IQueryable<PlantLot>, IOrderedQueryable<PlantLot>> orderBy = x => x.OrderByDescending(od => od.PlantLotId)!;
                 var plantLot = await _unitOfWork.PlantLotRepository.GetAllNoPaging(filter: filter, orderBy: orderBy);
                 if (plantLot != null)
                 {

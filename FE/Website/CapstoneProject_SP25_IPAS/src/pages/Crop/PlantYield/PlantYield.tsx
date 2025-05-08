@@ -30,6 +30,7 @@ import dayjs from "dayjs";
 import { harvestService } from "@/services";
 import { GetHarvestStatisticPlants } from "@/payloads";
 import { useNavigate } from "react-router-dom";
+import { usePlantStore } from "@/stores";
 
 const { Title, Text } = Typography;
 const { RangePicker } = DatePicker;
@@ -43,6 +44,7 @@ const PlantYield = () => {
   const [topX, setTopX] = useState<number | null>(null);
   const [productType, setProductType] = useState<number>();
   const [harvestData, setHarvestData] = useState<GetHarvestStatisticPlants[]>([]);
+  const { setPlantId } = usePlantStore();
 
   const fetchDataInYear = async () => {
     if (!yearRange || !topX || !productType) return;
@@ -87,6 +89,7 @@ const PlantYield = () => {
   ];
 
   const handleClick = (plantId: number) => {
+    setPlantId(plantId);
     navigate(ROUTES.FARM_PLANT_DETAIL(plantId), {
       state: { productType, yearRange: yearRange?.map((t) => t.toISOString()) },
     });

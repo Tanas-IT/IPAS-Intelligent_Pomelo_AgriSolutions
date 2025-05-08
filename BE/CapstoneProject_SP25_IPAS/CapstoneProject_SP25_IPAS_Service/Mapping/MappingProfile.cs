@@ -141,6 +141,9 @@ namespace CapstoneProject_SP25_IPAS_Service.Mapping
                  .ForMember(dest => dest.ProcessMasterTypeModel, opt => opt.MapFrom(src => src.MasterType))
                  .ForMember(dest => dest.ProcessGrowthStageModel, opt => opt.MapFrom(src => src.GrowthStage))
                  .ForMember(dest => dest.MasterTypeId, opt => opt.MapFrom(src => src.MasterTypeId))
+                 .ForMember(dest => dest.IsInUse, opt => opt.MapFrom(src => src.Plans.Any(p => p.IsSample == false) ||
+                              src.SubProcesses.Any(sp =>
+                                  sp.Plans.Any(p => p.IsSample == false))))
                  .ForMember(dest => dest.listPlanIsSampleTrue, opt => opt.MapFrom(src => src.Plans.Where(x => x.IsDeleted == false && x.IsSample == true)))
                  .ForMember(dest => dest.listPlanIsSampleFalse, opt => opt.MapFrom(src => src.Plans.Where(x => x.IsDeleted == false && x.IsSample == false)))
                  .ForMember(dest => dest.SubProcesses, opt => opt.MapFrom(src => src.SubProcesses.Where(x => x.ProcessId == src.ProcessId && x.IsDeleted == false)))

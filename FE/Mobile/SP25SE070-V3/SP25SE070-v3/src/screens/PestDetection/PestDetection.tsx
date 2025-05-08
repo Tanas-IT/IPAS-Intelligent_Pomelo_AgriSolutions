@@ -148,6 +148,11 @@ const PestDetectionScreen = () => {
         const imageUrl = await uploadToCloudinary(file);
         setSelectedImageUrl(imageUrl);
         setDetectionResults(null);
+      } catch (error) {
+        Toast.show({
+          type: "error",
+          text2: "Cannot upload image to Cloudinary",
+        });
         setHasDetected(false);
       } finally {
         setIsLoading(false);

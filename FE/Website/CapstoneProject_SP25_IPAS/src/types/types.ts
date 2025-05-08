@@ -139,6 +139,7 @@ export type FilterPlantState = {
   landRowIds: string[];
   cultivarIds: string[];
   growthStageIds: string[];
+  plantLotIds: string[];
   healthStatus: string[];
   isLocated: boolean | null;
   isDead: boolean | null;

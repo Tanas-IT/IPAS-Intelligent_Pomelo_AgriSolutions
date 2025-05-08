@@ -93,6 +93,7 @@ namespace CapstoneProject_SP25_IPAS_Common.Constants
         public const string RECORD_AFTER_DATE = "RecordAfterDate";
         public const string EDIT_RECORD_IN_DAYS = "EditInDay";
         public const string ALLOW_AREA_DEVIATION_PERCENT = "AllowAreaDeviationPercent";
+        public const string CREATE_GRAFTED_ENABLE_DATE = "CreateGraftedEnableDate";
         #endregion
 
         public static readonly HashSet<string> ADDABLE_CONFIG_GROUP = new HashSet<string>

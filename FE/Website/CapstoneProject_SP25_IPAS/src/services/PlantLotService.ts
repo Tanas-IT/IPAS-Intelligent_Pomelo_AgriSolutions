@@ -136,6 +136,12 @@ export const getPlantLotSelected = async (isFromGrafted?: boolean) => {
   }));
 };
 
+export const getAllPlantLotSelected = async () => {
+  const res = await axiosAuth.axiosJsonRequest.get(`plant-lots/get-for-selected-filter`);
+  const apiResponse = res.data as ApiResponse<GetPlantLot[]>;
+  return apiResponse;
+};
+
 export const fillPlantToPlot = async (
   landPlotId: number,
   plantLotId: number,
