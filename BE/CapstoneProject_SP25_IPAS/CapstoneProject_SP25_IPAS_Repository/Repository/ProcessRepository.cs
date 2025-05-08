@@ -5,6 +5,7 @@ using System;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
+using System.Linq.Expressions;
 using System.Numerics;
 using System.Text;
 using System.Threading.Tasks;
@@ -90,6 +91,42 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
                                 .ThenInclude(x => x.Plans)
                                 .FirstOrDefaultAsync(p => p.ProcessId == processId);
             return result;
+        }
+        public async Task<IEnumerable<Process>> GetProcessPaging(
+          Expression<Func<Process, bool>> filter = null!,
+          Func<IQueryable<Process>, IOrderedQueryable<Process>> orderBy = null!,
+          int? pageIndex = null, // Optional parameter for pagination (page number)
+          int? pageSize = null)  // Optional parameter for pagination (number of records per page)
+        {
+            IQueryable<Process> query = dbSet;
+
+            if (filter != null)
+            {
+                query = query.Where(filter);
+            }
+            query = query
+                    .Include(x => x.GrowthStage)
+                    .Include(x => x.Farm)
+                    .Include(x => x.Plans)
+                    .Include(x => x.MasterType)
+                    .Include(x => x.SubProcesses)
+                    .ThenInclude(x => x.Plans);
+            if (orderBy != null)
+            {
+                query = orderBy(query);
+            }
+
+            // Implementing pagination
+            if (pageIndex.HasValue && pageSize.HasValue)
+            {
+                // Ensure the pageIndex and pageSize are valid
+                int validPageIndex = pageIndex.Value > 0 ? pageIndex.Value - 1 : 0;
+                int validPageSize = pageSize.Value > 0 ? pageSize.Value : 5; // Assuming a default pageSize of 10 if an invalid value is passed
+
+                query = query.Skip(validPageIndex * validPageSize).Take(validPageSize);
+            }
+
+            return await query.AsNoTracking().ToListAsync();
         }
     }
 }

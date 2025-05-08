@@ -137,7 +137,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
                             if (checkTime < minTime || checkTime > maxTime)
                             {
-                                throw new Exception($"Time of work ({checkTime} minutes) does not valid! It must be in range {minTime} - {maxTime} minutes.");
+                                return new BusinessResult(400, $"Time of work ({checkTime} minutes) does not valid! It must be in range {minTime} - {maxTime} minutes.");
                             }
                         }
                     }
@@ -1160,7 +1160,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
                             if (checkTime < minTime || checkTime > maxTime)
                             {
-                                throw new Exception($"Time of work ({checkTime} minutes) does not valid! It must be in range {minTime} - {maxTime} minutes.");
+                                return new BusinessResult(400,$"Time of work ({checkTime} minutes) does not valid! It must be in range {minTime} - {maxTime} minutes.");
                             }
                         }
                     }
@@ -1699,7 +1699,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                                                    );
                 foreach (var customeDate in createPlanModel.CustomDates)
                 {
-                    if (customeDate.Date >= currentDate.Date.Date && customeDate.Date <= plan.EndDate.Value.Date)
+                    if (customeDate.Date >= currentDate.Date && customeDate.Date <= plan.EndDate.Value.Date)
                     {
                         var tempModel = conflictCustomDates.Contains(customeDate)
                             ? new CreatePlanModel(createPlanModel) { ListEmployee = null }
