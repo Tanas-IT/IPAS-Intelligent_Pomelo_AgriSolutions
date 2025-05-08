@@ -36,14 +36,10 @@ const EmployeeTable: React.FC<EmployeeTableProps> = ({
 }) => {
   const [replacingStates, setReplacingStates] = useState<{ [key: number]: number | null }>({});
   const [employee, setEmployee] = useState<EmployeeType[]>([]);
-<<<<<<< HEAD
   const { styles } = useStyle();
-=======
   console.log("replacingStates", replacingStates);
   console.log("employees", employees);
   console.log("tempReporterId", tempReporterId);
-
->>>>>>> 9df3ead7a3f523ee2b7b35faaa1f5bddb5883446
 
   useEffect(() => {
     const fetchEmployees = async () => {
@@ -71,7 +67,6 @@ const EmployeeTable: React.FC<EmployeeTableProps> = ({
       onUpdateReplacingStates(newState);
       console.log("tempReporterId", tempReporterId);
       console.log("replacedUserId", replacedUserId);
-
 
       if (tempReporterId === replacedUserId) {
         console.log("vo day");
@@ -128,10 +123,10 @@ const EmployeeTable: React.FC<EmployeeTableProps> = ({
             status === "Received"
               ? "green"
               : status === "Replaced" || status === "BeReplaced"
-                ? "orange"
-                : status
-                  ? "red"
-                  : "gray"
+              ? "orange"
+              : status
+              ? "red"
+              : "gray"
           }
         >
           {status || "Not Yet"}
@@ -154,7 +149,6 @@ const EmployeeTable: React.FC<EmployeeTableProps> = ({
         // const isCurrentReporter = record.userId === tempReporterId;
         // console.log("isCurrentReporter", isCurrentReporter);
 
-
         // // 2. Check nếu đang là user bị thay thế (nằm trong keys của replacingStates)
         // const isBeingReplaced = Object.keys(replacingStates).includes(String(record.userId));
         // console.log("isBeingReplaced", isBeingReplaced);
@@ -165,9 +159,7 @@ const EmployeeTable: React.FC<EmployeeTableProps> = ({
 
         // const isChecked = isCurrentReporter || isBeingReplaced || isReplacingSomeone;
         const isCurrentReporter =
-  record.userId === tempReporterId ||
-  replacingStates[record.userId] === tempReporterId;
-
+          record.userId === tempReporterId || replacingStates[record.userId] === tempReporterId;
 
         return (
           <Radio
