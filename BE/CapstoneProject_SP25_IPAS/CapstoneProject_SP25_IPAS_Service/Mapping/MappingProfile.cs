@@ -282,6 +282,13 @@ namespace CapstoneProject_SP25_IPAS_Service.Mapping
               .ForMember(dest => dest.PlanId, opt => opt.MapFrom(src => src.PlanId))
               .ForMember(dest => dest.PlanCode, opt => opt.MapFrom(src => src.PlanCode))
               .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status))
+           .ForMember(dest => dest.ProcessType, opt => opt.MapFrom(src =>
+                                                src.Process != null && src.Process.MasterType != null
+                                                    ? src.Process.MasterType.MasterTypeName
+                                                    : (src.SubProcess != null && src.SubProcess.Process != null && src.SubProcess.Process.MasterType != null
+                                                        ? src.SubProcess.Process.MasterType.MasterTypeName
+                                                        : null)
+                                            ))
               .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.IsActive))
               .ForMember(dest => dest.PlanName, opt => opt.MapFrom(src => src.PlanName))
               .ForMember(dest => dest.PlanDetail, opt => opt.MapFrom(src => src.PlanDetail))

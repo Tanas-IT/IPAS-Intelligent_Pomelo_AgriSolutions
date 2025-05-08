@@ -13,6 +13,7 @@ namespace CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.PlanModel
         public bool? IsActive { get; set; }
 
         public string? PlanName { get; set; }
+        public string? ProcessType { get; set; }
 
         public string? PlanCode { get; set; }
 
