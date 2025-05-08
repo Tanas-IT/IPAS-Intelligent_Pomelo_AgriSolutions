@@ -519,7 +519,7 @@ const AddPlan = () => {
         })),
         dayOfWeek,
         dayOfMonth,
-        customDates: customDates.map((date) => date.toISOString()),
+        customDates: customDates.map(date => date.format('YYYY-MM-DD')),
         startDate: adjustedStartDate.toISOString(),
         endDate: adjustedEndDate.toISOString(),
         startTime: startTime,

@@ -515,5 +515,21 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
 
             return NotFound(result.Message);
         }
+
+        [HttpGet(APIRoutes.Harvest.exportCSVPlantRecord)]
+        //[HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)},{nameof(RoleEnum.EMPLOYEE)}")]
+        //[CheckUserFarmAccess]
+        //[FarmExpired]
+        public async Task<IActionResult> exportCSVPlantRecord([FromQuery] int plantId)
+        {
+            var result = await _harvestHistoryService.ExportPlantHarvestRecord(plantId);
+
+            if (result.Data is ExportFileResult file && file.FileBytes?.Length > 0)
+            {
+                return File(file.FileBytes, file.ContentType, file.FileName);
+            }
+
+            return NotFound(result.Message);
+        }
     }
 }

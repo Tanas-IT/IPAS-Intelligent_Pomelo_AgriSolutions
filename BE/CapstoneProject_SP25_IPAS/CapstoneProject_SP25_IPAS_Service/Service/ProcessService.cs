@@ -324,8 +324,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         orderBy = x => x.OrderByDescending(x => x.ProcessId);
                         break;
                 }
-                string includeProperties = "GrowthStage,Farm,MasterType,SubProcesses";
-                var entities = await _unitOfWork.ProcessRepository.Get(filter, orderBy, includeProperties, paginationParameter.PageIndex, paginationParameter.PageSize);
+                var entities = await _unitOfWork.ProcessRepository.GetProcessPaging(filter, orderBy, paginationParameter.PageIndex, paginationParameter.PageSize);
                 var pagin = new PageEntity<ProcessModel>();
                 pagin.List = _mapper.Map<IEnumerable<ProcessModel>>(entities).ToList();
                 pagin.TotalRecord = await _unitOfWork.ProcessRepository.Count(filter);
@@ -555,7 +554,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     var todayForProcess = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, timeZoneForProcess);
                     var newProcessModified = new CreateManyProcessModel()
                     {
-                        ProcessName = modifiedProcessName + " modifiled on " + $"{todayForProcess}",
+                        ProcessName = modifiedProcessName + " - modifiled on " + $"{todayForProcess}",
                         IsActive = updateProcessModel.IsActive != null ? updateProcessModel.IsActive : checkProcessHasUsed.IsActive,
                         IsSample = checkProcessHasUsed.IsSample,
                         ListPlan = updateProcessModel.ListPlan != null ? listPlanUpdate : listPlanCreate,

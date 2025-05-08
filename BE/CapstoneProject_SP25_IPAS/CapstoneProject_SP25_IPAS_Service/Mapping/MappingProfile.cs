@@ -141,6 +141,9 @@ namespace CapstoneProject_SP25_IPAS_Service.Mapping
                  .ForMember(dest => dest.ProcessMasterTypeModel, opt => opt.MapFrom(src => src.MasterType))
                  .ForMember(dest => dest.ProcessGrowthStageModel, opt => opt.MapFrom(src => src.GrowthStage))
                  .ForMember(dest => dest.MasterTypeId, opt => opt.MapFrom(src => src.MasterTypeId))
+                 .ForMember(dest => dest.IsInUse, opt => opt.MapFrom(src => src.Plans.Any(p => p.IsSample == false) ||
+                              src.SubProcesses.Any(sp =>
+                                  sp.Plans.Any(p => p.IsSample == false))))
                  .ForMember(dest => dest.listPlanIsSampleTrue, opt => opt.MapFrom(src => src.Plans.Where(x => x.IsDeleted == false && x.IsSample == true)))
                  .ForMember(dest => dest.listPlanIsSampleFalse, opt => opt.MapFrom(src => src.Plans.Where(x => x.IsDeleted == false && x.IsSample == false)))
                  .ForMember(dest => dest.SubProcesses, opt => opt.MapFrom(src => src.SubProcesses.Where(x => x.ProcessId == src.ProcessId && x.IsDeleted == false)))
@@ -279,6 +282,13 @@ namespace CapstoneProject_SP25_IPAS_Service.Mapping
               .ForMember(dest => dest.PlanId, opt => opt.MapFrom(src => src.PlanId))
               .ForMember(dest => dest.PlanCode, opt => opt.MapFrom(src => src.PlanCode))
               .ForMember(dest => dest.Status, opt => opt.MapFrom(src => src.Status))
+           .ForMember(dest => dest.ProcessType, opt => opt.MapFrom(src =>
+                                                src.Process != null && src.Process.MasterType != null
+                                                    ? src.Process.MasterType.MasterTypeName
+                                                    : (src.SubProcess != null && src.SubProcess.Process != null && src.SubProcess.Process.MasterType != null
+                                                        ? src.SubProcess.Process.MasterType.MasterTypeName
+                                                        : null)
+                                            ))
               .ForMember(dest => dest.IsActive, opt => opt.MapFrom(src => src.IsActive))
               .ForMember(dest => dest.PlanName, opt => opt.MapFrom(src => src.PlanName))
               .ForMember(dest => dest.PlanDetail, opt => opt.MapFrom(src => src.PlanDetail))

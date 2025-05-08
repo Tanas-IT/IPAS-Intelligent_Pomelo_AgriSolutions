@@ -319,5 +319,11 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
             }
             await _context.SaveChangesAsync();
         }
+
+        public async Task<List<UserWorkLog>> GetListUserWorkLogByWorkLogIdWithNoInclude(int? workLogId)
+        {
+            var result = await _context.UserWorkLogs.Where(x => x.WorkLogId == workLogId).ToListAsync();
+            return result;
+        }
     }
 }

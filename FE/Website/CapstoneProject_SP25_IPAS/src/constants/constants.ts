@@ -166,6 +166,8 @@ export const ROUTES = {
   PRODUCT_DETAIL: (id: number) => `/classification/products/${id}/details`,
   PRODUCT_DETAIL_FROM_CROP: (cropId: number, productId: number) =>
     `/crop/${cropId}/classification/products/${productId}/details`,
+  PROCESS_DETAIL: (id: number) => `/processes/${id}`,
+  PLAN_DETAIL: (id: number) => `/plans/${id}`,
 };
 
 export const PLAN_TARGET_TYPE = {

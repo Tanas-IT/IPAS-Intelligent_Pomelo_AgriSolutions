@@ -29,6 +29,7 @@ namespace CapstoneProject_SP25_IPAS_BussinessObject.BusinessModel.ProcessModel
         public DateTime? EndDate { get; set; }
 
         public bool? IsDeleted { get; set; }
+        public bool? IsInUse { get; set; }
         public bool? IsSample { get; set; }
         public int? MasterTypeId { get; set; }
 

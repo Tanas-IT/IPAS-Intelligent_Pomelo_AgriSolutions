@@ -10,9 +10,12 @@ import { planColumns } from "./PlanColumn";
 import { TableTitle } from "./TableTitle";
 import { GetPlan } from "@/payloads/plan";
 import { FilterPlanState } from "@/types";
+import { ROUTES } from "@/constants";
+import { useNavigate } from "react-router-dom";
 
 function PlanList() {
   const deleteConfirmModal = useModal<{ ids: number[] }>();
+  const navigate = useNavigate();
 
   const { filters, updateFilters, applyFilters, clearFilters } = useFilters<FilterPlanState>(
     DEFAULT_PLAN_FILTERS,
@@ -94,6 +97,8 @@ function PlanList() {
               onDelete={() => deleteConfirmModal.showModal({ ids: [plan.planId] })}
             />
           )}
+          isOnRowEvent={true}
+          onRowDoubleClick={(record) => navigate(ROUTES.PLAN_DETAIL(record.planId))}
         />
 
         <NavigationDot

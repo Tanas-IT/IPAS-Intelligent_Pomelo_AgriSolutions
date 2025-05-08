@@ -72,6 +72,9 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
                     if (plantExist.IsPassed != true)
                         return new BusinessResult(400, "Mother Plant is not mark as PASS to grafted");
+                    var canCreateDate = await _unitOfWork.SystemConfigRepository.GetConfigValue(SystemConfigConst.CREATE_GRAFTED_ENABLE_DATE, (int)3);
+                    if(createRequest.GraftedDate.Value.Date.AddDays(canCreateDate) < DateTime.Now.Date || createRequest.GraftedDate.Value.Date.AddDays(-canCreateDate) > DateTime.Now.Date)
+                            return new BusinessResult(400, $"You only can create grafted plant in before or after {canCreateDate} day.");
                     // Create the new Plant entity from the request
                     //var jsonData = JsonConvert.DeserializeObject<PlantModel>(plantExist.Data!.ToString()!);
                     //var jsonData = plantExist.Data as PlantModel;
@@ -595,6 +598,10 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         return new BusinessResult(400, "This grafted has completed and seperated before. Please check again");
                     if (checkGraftedExist.PlantLotId.HasValue)
                         return new BusinessResult(400, "This grafted has in plant lot before. Please check again");
+                    var canCompleteDate = await _unitOfWork.SystemConfigRepository.GetConfigValue(SystemConfigConst.CAN_COMPLETE_GRAFTED_AFTER_DAY, (int)3);
+                    var requiredCompleteDate = checkGraftedExist.GraftedDate.Value.Date.AddDays(canCompleteDate);
+                    if (DateTime.Now.Date < requiredCompleteDate)
+                        return new BusinessResult(400, $"You can only complete the grafted plant after {canCompleteDate} days from the grafted date.");
                     //var requiredCondition = _masterTypeConfig.GraftedCriteriaApply!.GraftedEvaluationApply ?? new List<string>();
                     var requiredCondition = await _unitOfWork.SystemConfigRepository.GetAllNoPaging(x => x.ConfigGroup.ToLower().Equals(SystemConfigConst.GRAFTED_EVALUATION_APPLY));
                     var requiredList = requiredCondition.Select(x => x.ConfigKey).ToList() ?? new List<string>();
@@ -610,7 +617,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                             return new BusinessResult(Const.WARNING_GET_PLANT_LOT_BY_ID_DOES_NOT_EXIST_CODE, Const.WARNING_GET_PLANT_LOT_BY_ID_DOES_NOT_EXIST_MSG);
                         if (checkPlantLotExist.MasterTypeId != checkGraftedExist.Plant!.MasterTypeId)
                             return new BusinessResult(400, "This Plantlot not same cultivar with this plant");
-                        checkPlantLotExist.PreviousQuantity = checkPlantLotExist.PreviousQuantity.Value + 1;
+                        checkPlantLotExist.PreviousQuantity = checkPlantLotExist.PreviousQuantity.GetValueOrDefault() + 1;
                         _unitOfWork.PlantLotRepository.Update(checkPlantLotExist);
                         checkGraftedExist.PlantLotId = request.PlantLotId.Value;
                         //checkPlantLotExist.Status = GraftedPlantStatusConst.GROUPED;
@@ -634,7 +641,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 catch (Exception ex)
                 {
                     await transaction.RollbackAsync();
-                    return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
+                    return new BusinessResult(Const.ERROR_EXCEPTION, Const.ERROR_MESSAGE ,ex.Message);
                 }
             }
         }
@@ -768,7 +775,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 && x.GraftedDate!.Value.Year == DateTime.Now.Year);
 
             if (countGraftedInYear >= (maxGraftedBranches))
-                errors.Add($"This plant is growth in {plant.PlantingDate!.Value} can only grafted {maxGraftedBranches}.\nThis plant has already grafted {countGraftedInYear} times this year, no more grafting allowed.");
+                errors.Add($"This plant is growth in {plant.PlantingDate!.Value} just only can grafted {maxGraftedBranches} lefts.\nThis plant has already grafted {countGraftedInYear} times this year, no more grafting allowed.");
             //}
 
             return errors.Count > 0 ? string.Join("\n", errors) : null!;
@@ -810,7 +817,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             }
             catch (Exception ex)
             {
-                return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
+                return new BusinessResult(Const.ERROR_EXCEPTION, Const.ERROR_MESSAGE, ex.Message);
             }
         }
 
@@ -950,7 +957,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 catch (Exception ex)
                 {
                     await transaction.RollbackAsync();
-                    return new BusinessResult(500, ex.Message);
+                    return new BusinessResult(Const.ERROR_EXCEPTION, Const.ERROR_MESSAGE, ex.Message);
                 }
             }
 
@@ -1049,7 +1056,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 catch (Exception ex)
                 {
                     await transaction.RollbackAsync();
-                    return new BusinessResult(500, ex.Message);
+                    return new BusinessResult(Const.ERROR_EXCEPTION, Const.ERROR_MESSAGE, ex.Message);
                 }
             }
         }
@@ -1119,7 +1126,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 catch (Exception ex)
                 {
                     await transaction.RollbackAsync();
-                    return new BusinessResult(500, ex.Message);
+                    return new BusinessResult(Const.ERROR_EXCEPTION, Const.ERROR_MESSAGE, ex.Message);
                 }
             }
 

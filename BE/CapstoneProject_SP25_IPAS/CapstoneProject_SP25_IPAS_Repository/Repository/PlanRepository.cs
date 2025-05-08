@@ -145,6 +145,8 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
                 query = query.Where(filter);
             }
             query = query
+                    .Include(x => x.Process.MasterType)
+                    .Include(x => x.SubProcess.Process.MasterType)
                     .Include(x => x.GrowthStagePlans)
                     .ThenInclude(x => x.GrowthStage);
 

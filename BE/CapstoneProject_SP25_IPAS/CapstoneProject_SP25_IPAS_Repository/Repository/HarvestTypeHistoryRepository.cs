@@ -113,8 +113,23 @@ namespace CapstoneProject_SP25_IPAS_Repository.Repository
                                     .ThenInclude(x => x.LandPlot)
                                     .Include(x => x.Product)
                                     .Include(x => x.HarvestHistory)
+                                    .ThenInclude(x => x.Crop)
                                     .Include(x => x.User)
-                                    .Where(x => x.HarvestHistoryId == harvestId && x.PlantId != null).ToListAsync();
+                                    .Where(x => x.HarvestHistoryId == harvestId && x.PlantId != null).OrderBy(x => x.Plant.PlantCode).ThenBy(x => x.RecordDate).ToListAsync();
+            return result;
+        }
+
+        public async Task<List<ProductHarvestHistory>> GetPlantRecordToExport(int plantid)
+        {
+            var result = await _context.ProductHarvestHistories
+                                    .Include(x => x.Plant)
+                                    .ThenInclude(x => x.LandRow)
+                                    .ThenInclude(x => x.LandPlot)
+                                    .Include(x => x.Product)
+                                    .Include(x => x.HarvestHistory)
+                                    .ThenInclude(x => x.Crop)
+                                    .Include(x => x.User)
+                                    .Where(x => x.PlantId == plantid).OrderBy(x => x.HarvestHistoryId).ThenBy(x => x.RecordDate).ToListAsync();
             return result;
         }
     }

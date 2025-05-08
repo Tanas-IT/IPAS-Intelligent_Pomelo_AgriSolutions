@@ -31,5 +31,6 @@ namespace CapstoneProject_SP25_IPAS_Repository.IRepository
         public Task<List<UserWorkLog>> GetListUserWorkLogByWorkLogIdAndReplaceUserid(int workLogId, int replaceUserId);
         public Task PlusScoreForEmployee(int? workLogId);
         public Task<List<UserWorkLog>> GetListUserWorkLogWithNoWorkLogByWorkLogId(int workLogId);
+        public Task<List<UserWorkLog>> GetListUserWorkLogByWorkLogIdWithNoInclude(int? workLogId);
     }
 }
