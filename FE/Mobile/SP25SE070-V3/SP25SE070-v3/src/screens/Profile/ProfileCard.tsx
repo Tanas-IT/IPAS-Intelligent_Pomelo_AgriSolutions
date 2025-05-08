@@ -42,23 +42,15 @@ const ProfileCard: React.FC<ProfileCardProps> = ({
 
   useEffect(() => {
     const fetchUser = async () => {
-      try {
-        const res = await userService.getUser(Number(userId));
-
-        if (res.statusCode === 200 && res.data) {
-          setUserData(res.data);
-          setFormValues({
-            ...res.data,
-            dob: res.data.dob ? dayjs(res.data.dob) : null,
-          });
-        }
-      } catch (error) {
-        Toast.show({
-          type: "error",
-          text1: "Error",
-          text2: "Failed to fetch user data",
+      const res = await userService.getUser(Number(userId));
+      if (res.statusCode === 200 && res.data) {
+        setUserData(res.data);
+        setFormValues({
+          ...res.data,
+          dob: res.data.dob ? dayjs(res.data.dob) : null,
         });
       }
+
     };
     if (userId) {
       fetchUser();
@@ -79,45 +71,38 @@ const ProfileCard: React.FC<ProfileCardProps> = ({
   };
 
   const handleUpdate = async () => {
-    try {
-      const payload: UserRequest = {
-        userId: userData?.userId,
-        fullName: formValues.fullName,
-        email: formValues.email,
-        phoneNumber: formValues.phoneNumber,
-        dob: formatDateReq(formValues.dob || "") || "",
-        gender: formValues.gender,
-        roleName: userData?.roleName || "User",
+    const payload: UserRequest = {
+      userId: userData?.userId,
+      fullName: formValues.fullName,
+      email: formValues.email,
+      phoneNumber: formValues.phoneNumber,
+      dob: formatDateReq(formValues.dob || "") || "",
+      gender: formValues.gender,
+      roleName: userData?.roleName || "User",
+    };
+    const res = await userService.updateUser(payload);
+    if (res.statusCode === 200 && res.data) {
+      setUserData(res.data);
+      setIsChanged(false);
+      setIsEditing(false);
+
+      // Ánh xạ GetUser2 sang LoginResponse
+      const loginResponse: LoginResponse = {
+        authenModel: {
+          accessToken: accessToken || "",
+          refreshToken: refreshToken || "",
+        },
+        fullname: res.data.fullName,
+        avatar: res.data.avatarURL || "",
       };
-      const res = await userService.updateUser(payload);
-      if (res.statusCode === 200 && res.data) {
-        setUserData(res.data);
-        setIsChanged(false);
-        setIsEditing(false);
 
-        // Ánh xạ GetUser2 sang LoginResponse
-        const loginResponse: LoginResponse = {
-          authenModel: {
-            accessToken: accessToken || "",
-            refreshToken: refreshToken || "",
-          },
-          fullname: res.data.fullName,
-          avatar: res.data.avatarURL || "",
-        };
-
-        // Cập nhật auth store
-        setAuth(loginResponse, String(userId), roleId || "");
-        Toast.show({ type: "success", text1: "Success", text2: res.message });
-      } else {
-        Toast.show({ type: "error", text1: "Error", text2: res.message });
-      }
-    } catch (error) {
-      Toast.show({
-        type: "error",
-        text1: "Error",
-        text2: "Failed to update profile",
-      });
+      // Cập nhật auth store
+      setAuth(loginResponse, String(userId), roleId || "");
+      Toast.show({ type: "success", text1: "Success", text2: res.message });
+    } else {
+      Toast.show({ type: "error", text1: "Error", text2: res.message });
     }
+
   };
 
   const handleReset = () => {
@@ -173,10 +158,10 @@ const ProfileCard: React.FC<ProfileCardProps> = ({
               <TextCustom style={styles.dateText}>
                 {formValues.dob
                   ? formValues.dob.toLocaleDateString("en-GB", {
-                      day: "2-digit",
-                      month: "2-digit",
-                      year: "numeric",
-                    })
+                    day: "2-digit",
+                    month: "2-digit",
+                    year: "numeric",
+                  })
                   : "Select Date"}
               </TextCustom>
               <MaterialIcons name="calendar-today" size={20} color="#6B48FF" />
@@ -199,7 +184,7 @@ const ProfileCard: React.FC<ProfileCardProps> = ({
                   style={[
                     styles.radioOption,
                     formValues.gender === option.value &&
-                      styles.radioOptionSelected,
+                    styles.radioOptionSelected,
                   ]}
                   onPress={() => handleValuesChange("gender", option.value)}
                 >

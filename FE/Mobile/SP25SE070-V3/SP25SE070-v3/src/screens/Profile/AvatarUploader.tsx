@@ -72,12 +72,6 @@ const AvatarUploader: React.FC = () => {
         } else {
           Toast.show({ type: "error", text1: "Error", text2: res.message });
         }
-      } catch (error) {
-        Toast.show({
-          type: "error",
-          text1: "Error",
-          text2: "Failed to upload avatar",
-        });
       } finally {
         setIsUploading(false);
       }

@@ -67,7 +67,6 @@
     "react-native-tab-view": "^4.0.6",
     "react-native-toast-message": "^2.2.1",
     "rimraf": "^6.0.1",
-    "sp25se070-v3": "file:",
     "yup": "^1.6.1",
     "zustand": "^5.0.3"
   },
