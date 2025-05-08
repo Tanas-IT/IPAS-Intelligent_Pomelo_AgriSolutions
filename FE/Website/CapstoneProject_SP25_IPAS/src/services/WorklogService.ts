@@ -16,6 +16,7 @@ import {
   UpdateWorklogReq,
   WorklogStatusResponse,
 } from "@/payloads/worklog";
+import { buildParams } from "@/utils";
 
 // export const getWorklog = async () => {
 //     const res = await axiosAuth.axiosJsonRequest.get("work-log/get-all-schedule");
@@ -25,24 +26,15 @@ import {
 //     return apiResponse.data;
 // }
 
-export const getWorklog = async (filters: {
-  workDateFrom?: string;
-  workDateTo?: string;
-  growthStage?: string[];
-  status?: string[];
-  employees?: string[];
-  plan?: string[];
-  typePlan?: string[];
-}) => {
-  const params = {
-    workDateFrom: filters.workDateFrom,
-    workDateTo: filters.workDateTo,
-    growthStage: filters.growthStage?.join(","),
-    status: filters.status?.join(","),
-    employees: filters.employees?.join(","),
-    // typePlan: filters.plan?.join(','),
-    typePlan: filters.typePlan?.join(","),
-  };
+export const getWorklog = async (additionalParams?: Record<string, any>) => {
+  const params = buildParams(
+    undefined,
+    undefined,
+    undefined,
+    undefined,
+    undefined,
+    additionalParams,
+  );
 
   const res = await axiosAuth.axiosJsonRequest.get("work-log/get-all-schedule", { params });
   const apiResponse = res.data as ApiResponse<GetWorklog[]>;
