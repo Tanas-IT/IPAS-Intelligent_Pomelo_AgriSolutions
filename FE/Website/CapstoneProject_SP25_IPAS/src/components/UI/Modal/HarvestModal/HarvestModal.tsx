@@ -239,7 +239,7 @@ const HarvestModal = ({
 
           {/* Product Harvest History Section */}
           {!isUpdate && (
-            <fieldset className={`${style.formSection} ${style.larger}`}>
+            <fieldset className={`${style.formSection} ${style.formProductSection} ${style.larger}`}>
               <legend>Product Harvest</legend>
               <Form.List name="productHarvestHistory">
                 {(fields, { add, remove }) => (
@@ -300,7 +300,7 @@ const HarvestModal = ({
 
         {/* Add New Task Section */}
         {!isUpdate && (
-          <fieldset className={style.formSection}>
+          <fieldset className={`${style.formSection} ${style.formEmployeeSection}`}>
             <legend>New Task</legend>
             <Flex gap={20}>
               <FormFieldModal

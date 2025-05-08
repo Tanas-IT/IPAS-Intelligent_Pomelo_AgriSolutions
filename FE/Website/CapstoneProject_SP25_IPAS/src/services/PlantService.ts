@@ -286,6 +286,19 @@ export const exportPlants = async (
   return { blob: res.data, filename };
 };
 
+export const exportPlantHarvest = async (id: number): Promise<{ blob: Blob; filename: string }> => {
+  const res = await axiosAuth.axiosJsonRequest.get(
+    `harvests/plant-record/export-csv?plantId=${id}`,
+    {
+      responseType: "blob",
+    },
+  );
+
+  const filename = extractFilenameFromHeader(res.headers["content-disposition"]);
+
+  return { blob: res.data, filename };
+};
+
 export const getAvailableHarvestsForPlant = async (
   plantId: number,
 ): Promise<ApiResponse<AvailableHarvest[]>> => {

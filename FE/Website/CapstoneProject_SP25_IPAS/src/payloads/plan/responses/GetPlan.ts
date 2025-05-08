@@ -15,6 +15,7 @@ export interface GetPlan {
   processId: number;
   cropName: string;
   cropId: number;
+  processType: string;
   growthStages: GrowthStages[];
   masterTypeName: string;
   masterTypeId: number;
@@ -91,7 +92,7 @@ interface PlantModel {
 interface RowModel {
   landRowId: number;
   rowIndex: number;
-  plants: PlantModel[]
+  plants: PlantModel[];
 }
 
 export interface PlanTargetModel {

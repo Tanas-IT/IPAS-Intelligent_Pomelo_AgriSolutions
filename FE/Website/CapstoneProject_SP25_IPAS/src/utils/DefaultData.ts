@@ -12,6 +12,7 @@ import {
   FilterMasterTypeState,
   FilterPartnerState,
   FilterPaymentHistoryState,
+  FilterPlanState,
   FilterPlantLotState,
   FilterPlantState,
   FilterUserState,
@@ -182,6 +183,16 @@ export const DEFAULT_PLANT_FILTERS: FilterPlantState = {
   isLocated: null,
   isDead: null,
   isPassed: null,
+};
+
+export const DEFAULT_PLAN_FILTERS: FilterPlanState = {
+  createDateFrom: "",
+  createDateTo: "",
+  growStages: [] as string[],
+  processTypes: [] as string[],
+  frequency: [] as string[],
+  isActive: null,
+  assignor: [] as string[],
 };
 
 export const DEFAULT_GRAFTED_PLANT_FILTERS: FilterGraftedPlantState = {

@@ -146,6 +146,16 @@ export type FilterPlantState = {
   isPassed: boolean | null;
 };
 
+export type FilterPlanState = {
+  createDateFrom: string;
+  createDateTo: string;
+  growStages: string[];
+  processTypes: string[];
+  frequency: string[];
+  isActive: boolean | null;
+  assignor: string[];
+};
+
 export type FilterGraftedPlantState = {
   plantIds: string[];
   plantLotIds: string[];

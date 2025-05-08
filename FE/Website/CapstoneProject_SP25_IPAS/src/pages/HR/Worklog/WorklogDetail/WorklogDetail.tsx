@@ -19,7 +19,7 @@ import {
   UpdateWorklogReq,
 } from "@/payloads/worklog";
 import { formatDate, formatDateW, getUserId } from "@/utils";
-import { GetCropDetail, PlanTarget, PlanTargetModel } from "@/payloads";
+import { PlanTarget, PlanTargetModel } from "@/payloads";
 import { ConfirmModal, CustomButton, Loading, Tooltip, UserAvatar } from "@/components";
 import PlanTargetTable from "@/pages/Plan/PlanDetails/PlanTargetTable";
 import AttendanceModal from "./AttendanceModal";
@@ -728,27 +728,19 @@ function WorklogDetail() {
           <span style={{ marginRight: 6 }}>{icon}</span>
           {rawStatus}
         </Tag>
-        <Flex style={{ marginLeft: "auto" }} gap={15}>
-          <Button
-            ghost
-            style={{
-              fontWeight: 500,
-              borderWidth: 2,
-              color: "#20461e",
-              backgroundColor: "#bcd379",
-            }}
-            onClick={handleTakeAttendance}
-          >
-            Take Attendance
-          </Button>
-          <Flex>
-            <ActionMenuWorklog
-              worklogId={worklogDetail?.workLogId || 0}
-              onDelete={() => deleteConfirmModal.showModal({ id: worklogDetail?.workLogId })}
-              worklogStatus={worklogDetail?.status}
-            />
-          </Flex>
-        </Flex>
+        <Button
+          ghost
+          style={{
+            fontWeight: 500,
+            borderWidth: 1,
+            color: "#20461e",
+            backgroundColor: "#bcd379",
+          }}
+          onClick={handleTakeAttendance}
+        >
+          <Icons.users />
+          Take Attendance
+        </Button>
       </Flex>
       <label className={style.subTitle}>Code: {worklogDetail?.workLogCode || "laggg"}</label>
 
@@ -759,32 +751,20 @@ function WorklogDetail() {
             <label className={style.createdBy}>{worklogDetail?.assignorName || "laggg"}</label>
             <label className={style.textCreated}>created this plan</label>
             <label className={style.createdDate}>{formatDateW(worklogDetail?.date ?? "2")}</label>
-            <Button
-              onClick={() => setIsModalOpen(true)}
-              style={{
-                fontWeight: 500,
-                borderWidth: 2,
-                borderColor: "#20461e",
-                color: "#20461e",
-              }}
-            >
+            <Button type="primary" ghost onClick={() => setIsModalOpen(true)}>
               View Dependency Worklogs
             </Button>
 
             <Button
+              type="primary"
               onClick={() => setIsConfirmModalOpen(true)}
-              style={{
-                fontWeight: 500,
-                backgroundColor: "#fee69c",
-                color: "#20461e",
-              }}
-              ghost
               disabled={
                 !worklogDetail?.status ||
                 !["Not Started", "In Progress"].includes(worklogDetail.status)
               }
+              ghost
             >
-              <Icons.check />Mark as complete
+              <Icons.check /> Mark as Completed
             </Button>
           </Flex>
           <Flex vertical gap={10} className={style.info}>
@@ -1135,16 +1115,14 @@ function WorklogDetail() {
         worklogId={worklogDetail?.workLogId || 0}
       />
 
-      <Modal
-        title="Confirm Completion"
-        open={isConfirmModalOpen}
-        onOk={handleConfirm}
+      <ConfirmModal
+        visible={isConfirmModalOpen}
+        onConfirm={handleConfirm}
         onCancel={() => setIsConfirmModalOpen(false)}
-        okText="Yes"
-        cancelText="No"
-      >
-        <p>Are you sure you want to mark this worklog as completed?</p>
-      </Modal>
+        actionType="update"
+        title="Confirm Completion"
+        description="Are you sure you want to mark this worklog as completed?"
+      />
       <ToastContainer />
     </div>
   );
