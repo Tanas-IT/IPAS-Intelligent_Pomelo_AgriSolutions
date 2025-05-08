@@ -1,17 +1,5 @@
 import React, { useEffect, useState } from "react";
-import {
-  Form,
-  Input,
-  DatePicker,
-  TimePicker,
-  Select,
-  Row,
-  Col,
-  Divider,
-  Modal,
-  Flex,
-} from "antd";
-import moment, { Moment } from "moment";
+import { Form, DatePicker, Select, Row, Col, Divider, Modal, Flex } from "antd";
 import { CustomButton, InfoField, Section, Tooltip } from "@/components";
 import style from "./PlanList.module.scss";
 import dayjs, { Dayjs } from "dayjs";
@@ -20,11 +8,17 @@ import AssignEmployee from "./AssignEmployee";
 import { Icons } from "@/assets";
 import { useNavigate } from "react-router-dom";
 import { PATHS } from "@/routes";
-import { useCropCurrentOption, useGrowthStageOptions, useLocalStorage, useMasterTypeOptions, useNotifications, useUnsavedChangesWarning } from "@/hooks";
 import {
-  fetchPlantLotsByUnitAndGrowthStage,
+  useCropCurrentOption,
+  useGrowthStageOptions,
+  useLocalStorage,
+  useMasterTypeOptions,
+  useUnsavedChangesWarning,
+  usePlantOfRowOptions,
+  useGraftedPlantOptions,
+} from "@/hooks";
+import {
   fetchProcessesOfFarm,
-  fetchUserInfoByRole,
   getFarmId,
   getGrowthStageOfProcess,
   getTypeOfProcess,
@@ -45,22 +39,14 @@ import {
 import { toast } from "react-toastify";
 import { PlanRequest } from "@/payloads/plan/requests/PlanRequest";
 import PlanTarget from "./PlanTarget";
-import useLandRowOptions from "@/hooks/useLandRowOptions";
-import useLandPlotOptions from "@/hooks/useLandPlotOptions";
-import useGraftedPlantOptions from "@/hooks/useGraftedPlantOptions";
-import usePlantOfRowOptions from "@/hooks/usePlantOfRowOptions";
 import isBetween from "dayjs/plugin/isBetween";
 import { SelectOption } from "@/types";
-import usePlantLotOptions from "@/hooks/usePlantLotOptions";
-import { Rule } from "antd/es/form";
+
 import { EmployeeWithSkills } from "@/payloads/worklog";
 
 dayjs.extend(isBetween);
 
-const { RangePicker } = DatePicker;
-
 type OptionType<T = string | number> = { value: T; label: string };
-type EmployeeType = { fullName: string; avatarURL: string; userId: number };
 
 const AddPlan = () => {
   const navigate = useNavigate();
@@ -74,7 +60,6 @@ const AddPlan = () => {
   const [isLoading, setIsLoading] = useState(false);
   const [isFormDirty, setIsFormDirty] = useState(false);
   const [selectedIds, setSelectedIds] = useState<number[]>([]);
-  const [selectedLandPlot, setSelectedLandPlot] = useState<number | null>(null);
   const [selectedEmployees, setSelectedEmployees] = useState<EmployeeWithSkills[]>([]);
   const [selectedReporter, setSelectedReporter] = useState<number | null>(null);
   const [errorMessage, setErrorMessage] = useState("");
@@ -85,7 +70,6 @@ const AddPlan = () => {
   const [customDates, setCustomDates] = useState<Dayjs[]>([]); // Frequency: none
   const [dayOfWeek, setDayOfWeek] = useState<number[]>([]); // Frequency: weekly
   const [dayOfMonth, setDayOfMonth] = useState<number[]>([]); // Frequency: monthly
-  const [selectedLandRow, setSelectedLandRow] = useState<number | null>(null);
   const [selectedGrowthStage, setSelectedGrowthStage] = useState<number[]>([]);
   const [isLockedGrowthStage, setIsLockedGrowthStage] = useState<boolean>(false);
   const [checked, setChecked] = useState<boolean>(false);
@@ -93,20 +77,16 @@ const AddPlan = () => {
   const [isTargetDisabled, setIsTargetDisabled] = useState<boolean>(true);
   const [isCropDisabled, setIsCropDisabled] = useState<boolean>(false);
   const [masterTypeGrafting, setMasterTypeGrafting] = useState<number[]>([]);
-  const [masterTypePlantLot, setMasterTypePlantLot] = useState<number[]>([]);
 
   const { options: growthStageOptions } = useGrowthStageOptions(false);
-  const { options: landPlots } = useLandPlotOptions();
-  const { options: landRowOptions } = useLandRowOptions(selectedLandPlot);
-  const { options: plantsOptions } = usePlantOfRowOptions(selectedLandRow);
-  // const { options: plantLotOptions } = usePlantLotOptions();
+
+  const { options: plantsOptions } = usePlantOfRowOptions(null);
   const { options: graftedPlantsOptions } = useGraftedPlantOptions(farmId);
   const { options: cropOptions } = useCropCurrentOption();
   const { options: processTypeOptions } = useMasterTypeOptions(MASTER_TYPE.WORK, false);
 
   const [selectedCrop, setSelectedCrop] = useState<number | null>(null);
   const [landPlotOfCropOptions, setLandPlotOfCropOptions] = useState<SelectOption[]>([]);
-  // const [processTypeOptions, setProcessTypeOptions] = useState<SelectOption[]>([]);
   const [plantLotOptions, setPlantLotOptions] = useState<SelectOption[]>([]);
 
   const [dateRange, setDateRange] = useState<[Dayjs, Dayjs] | null>(null);
@@ -117,7 +97,9 @@ const AddPlan = () => {
     if (selectedCrop) {
       form.setFieldValue("listLandPlotOfCrop", []);
       cropService.getLandPlotOfCrop(selectedCrop).then((data) => {
-        setLandPlotOfCropOptions(data.data.map((item) => ({ value: item.landPlotId, label: item.landPlotName })));
+        setLandPlotOfCropOptions(
+          data.data.map((item) => ({ value: item.landPlotId, label: item.landPlotName })),
+        );
       });
     } else {
       setLandPlotOfCropOptions([]);
@@ -131,7 +113,9 @@ const AddPlan = () => {
 
         if (result.statusCode === 200) {
           setMasterTypeGrafting(result.data.map((m) => m.id));
-          setProcessFarmOptions(await processService.getProcessOfFarmByMasterType(result.data.map((m) => m.id)));
+          setProcessFarmOptions(
+            await processService.getProcessOfFarmByMasterType(result.data.map((m) => m.id)),
+          );
         } else {
           setProcessFarmOptions(await processService.getProcessOfFarmByMasterType([]));
         }
@@ -139,8 +123,9 @@ const AddPlan = () => {
         const result = await masterTypeService.getProcessTypeSelect("PlantLot");
 
         if (result.statusCode === 200) {
-          setMasterTypePlantLot(result.data.map((m) => m.id));
-          setProcessFarmOptions(await processService.getProcessOfFarmByMasterType(result.data.map((m) => m.id)));
+          setProcessFarmOptions(
+            await processService.getProcessOfFarmByMasterType(result.data.map((m) => m.id)),
+          );
         } else {
           setProcessFarmOptions(await processService.getProcessOfFarmByMasterType([]));
         }
@@ -212,7 +197,6 @@ const AddPlan = () => {
       } else {
         form.setFieldValue("growthStageId", [growthStageId]);
         if (growthStageId) {
-
           setSelectedGrowthStage([growthStageId]);
         }
         form.setFieldsValue({ planTargetModel: [] });
@@ -226,7 +210,7 @@ const AddPlan = () => {
     }
   };
   const handleDateRangeChange = (dates: (Dayjs | null)[] | null) => {
-    if (!dates || dates.some(date => date === null)) {
+    if (!dates || dates.some((date) => date === null)) {
       setDateRange(null);
       setDateError("Please select a valid date range!");
       form.setFieldsValue({ dateRange: null });
@@ -241,7 +225,8 @@ const AddPlan = () => {
     if (frequency === "None" && customDates.length === 1) {
       Modal.confirm({
         title: "Adjust Date Range",
-        content: "You have selected only one custom date. Do you want to adjust the date range to match this date?",
+        content:
+          "You have selected only one custom date. Do you want to adjust the date range to match this date?",
         onOk: () => {
           const newDateRange = [customDates[0], customDates[0]] as [Dayjs, Dayjs];
           setDateRange(newDateRange);
@@ -270,11 +255,13 @@ const AddPlan = () => {
     setDateError(null);
     setCustomDates(validDates);
     if (frequency === "None" && validDates.length === 1) {
-      const isDateRangeAdjusted = startDate.isSame(validDates[0], "day") && endDate.isSame(validDates[0], "day");
+      const isDateRangeAdjusted =
+        startDate.isSame(validDates[0], "day") && endDate.isSame(validDates[0], "day");
       if (!isDateRangeAdjusted) {
         Modal.confirm({
           title: "Adjust Date Rangetttttt",
-          content: "You have selected only one custom date. Do you want to adjust the date range to match this date?",
+          content:
+            "You have selected only one custom date. Do you want to adjust the date range to match this date?",
           onOk: () => {
             const newDateRange = [validDates[0], validDates[0]] as [Dayjs, Dayjs];
             setDateRange(newDateRange);
@@ -296,9 +283,8 @@ const AddPlan = () => {
         title: "Adjust Date Range",
         content: "The selected date range is too short. Do you want to adjust it?",
         onOk: () => {
-          const newEndDate = value === "Weekly"
-            ? dateRange[0].add(6, "day")
-            : dateRange[0].add(1, "month");
+          const newEndDate =
+            value === "Weekly" ? dateRange[0].add(6, "day") : dateRange[0].add(1, "month");
           setDateRange([dateRange[0], newEndDate]);
         },
         onCancel: () => {
@@ -317,7 +303,7 @@ const AddPlan = () => {
 
   // const handleAssignMember = () => setIsModalOpen(true);
   const handleAssignClick = () => {
-    if (!form.getFieldValue('masterTypeId')) {
+    if (!form.getFieldValue("masterTypeId")) {
       setShowWorkTypeWarning(true);
       return;
     }
@@ -353,13 +339,23 @@ const AddPlan = () => {
     const validDays = days.filter((day) => isDayInRange(day, startDate, endDate, type));
 
     if (validDays.length === 0) {
-      setDateError(`All selected ${type === "weekly" ? "days" : "dates"} are not within the date range. Please select again.`);
+      setDateError(
+        `All selected ${
+          type === "weekly" ? "days" : "dates"
+        } are not within the date range. Please select again.`,
+      );
       return false;
     }
 
     // Có ngày không hợp lệ
     if (validDays.length < days.length) {
-      setDateError(`Some selected ${type === "weekly" ? "days" : "dates"} are not within the date range. Only valid ${type === "weekly" ? "days" : "dates"} will be saved.`);
+      setDateError(
+        `Some selected ${
+          type === "weekly" ? "days" : "dates"
+        } are not within the date range. Only valid ${
+          type === "weekly" ? "days" : "dates"
+        } will be saved.`,
+      );
       if (type === "weekly") {
         setDayOfWeek(validDays);
       } else if (type === "monthly") {
@@ -379,13 +375,18 @@ const AddPlan = () => {
       } else if (type === "monthly") {
         targetDate = startDate.date(selectedDay);
       }
-      const isDateRangeAdjusted = startDate.isSame(targetDate, "day") && endDate.isSame(targetDate, "day");
+      const isDateRangeAdjusted =
+        startDate.isSame(targetDate, "day") && endDate.isSame(targetDate, "day");
 
       if (!isDateRangeAdjusted) {
         return new Promise((resolve) => {
           Modal.confirm({
             title: "Adjust Date Range",
-            content: `You have selected only one ${type === "weekly" ? "day" : "date"}. Do you want to adjust the date range to match this ${type === "weekly" ? "day" : "date"}?`,
+            content: `You have selected only one ${
+              type === "weekly" ? "day" : "date"
+            }. Do you want to adjust the date range to match this ${
+              type === "weekly" ? "day" : "date"
+            }?`,
             onOk: () => {
               const selectedDay = validDays[0];
               let targetDate = startDate.clone();
@@ -420,40 +421,40 @@ const AddPlan = () => {
     return true;
   };
 
-
-
   const handleSubmit = async (values: any) => {
     try {
       const { dateRange, timeRange, planTargetModel, frequency, graftedPlant, plantLot } = values;
       const startDate = new Date(dateRange?.[0]);
       const endDate = new Date(dateRange?.[1]);
 
-      const adjustedStartDate = new Date(startDate.getTime() - startDate.getTimezoneOffset() * 60000);
+      const adjustedStartDate = new Date(
+        startDate.getTime() - startDate.getTimezoneOffset() * 60000,
+      );
       const adjustedEndDate = new Date(endDate.getTime() - endDate.getTimezoneOffset() * 60000);
 
-    const startTime = timeRange?.[0]?.toDate().toLocaleTimeString();
-    const endTime = timeRange?.[1]?.toDate().toLocaleTimeString();
-    if (frequency === "Weekly" && dayOfWeek.length === 0) {
-      toast.warning("Please select at least one custom date for Weekly frequency.");
-      return;
-    }
+      const startTime = timeRange?.[0]?.toDate().toLocaleTimeString();
+      const endTime = timeRange?.[1]?.toDate().toLocaleTimeString();
+      if (frequency === "Weekly" && dayOfWeek.length === 0) {
+        toast.warning("Please select at least one custom date for Weekly frequency.");
+        return;
+      }
 
-    if (frequency === "Monthly" && dayOfMonth.length === 0) {
-      toast.warning("Please select at least one day for Monthly frequency.");
-      return;
-    }
+      if (frequency === "Monthly" && dayOfMonth.length === 0) {
+        toast.warning("Please select at least one day for Monthly frequency.");
+        return;
+      }
 
-    if (assignorId === undefined) {
-      toast.warning("Please select at least one employee.");
-      return;
-    }
+      if (assignorId === undefined) {
+        toast.warning("Please select at least one employee.");
+        return;
+      }
 
-    if (!selectedCrop && planTargetModel.length === 0 && targetType === "regular") {
-      toast.warning("Please select at least one plan target.");
-      return;
-    }
-    const graftedPlantIDs = graftedPlant || [];
-    const plantLotIDs = plantLot || [];
+      if (!selectedCrop && planTargetModel.length === 0 && targetType === "regular") {
+        toast.warning("Please select at least one plan target.");
+        return;
+      }
+      const graftedPlantIDs = graftedPlant || [];
+      const plantLotIDs = plantLot || [];
 
       let formattedPlanTargetModel;
       // Format planTargetModel
@@ -461,7 +462,11 @@ const AddPlan = () => {
         formattedPlanTargetModel = planTargetModel.map((target: any) => {
           return {
             landPlotID: target.landPlotID ?? 0,
-            landRowID: target.landRowID ? (Array.isArray(target.landRowID) ? target.landRowID : [target.landRowID]) : [],
+            landRowID: target.landRowID
+              ? Array.isArray(target.landRowID)
+                ? target.landRowID
+                : [target.landRowID]
+              : [],
             plantID: target.plantID ?? [],
             graftedPlantID: [],
             plantLotID: [],
@@ -469,23 +474,27 @@ const AddPlan = () => {
           };
         });
       } else if (targetType === "plantLot") {
-        formattedPlanTargetModel = [{
-          landPlotID: undefined,
-          landRowID: [],
-          plantID: [],
-          graftedPlantID: [],
-          plantLotID: plantLotIDs,
-          unit: targetType,
-        }];
+        formattedPlanTargetModel = [
+          {
+            landPlotID: undefined,
+            landRowID: [],
+            plantID: [],
+            graftedPlantID: [],
+            plantLotID: plantLotIDs,
+            unit: targetType,
+          },
+        ];
       } else if (targetType === "graftedPlant") {
-        formattedPlanTargetModel = [{
-          landPlotID: undefined,
-          landRowID: [],
-          plantID: [],
-          graftedPlantID: graftedPlantIDs,
-          plantLotID: [],
-          unit: targetType,
-        }];
+        formattedPlanTargetModel = [
+          {
+            landPlotID: undefined,
+            landRowID: [],
+            plantID: [],
+            graftedPlantID: graftedPlantIDs,
+            plantLotID: [],
+            unit: targetType,
+          },
+        ];
       }
 
       const planData: PlanRequest = {
@@ -516,7 +525,7 @@ const AddPlan = () => {
         startTime: startTime,
         endTime: endTime,
         planTargetModel: formattedPlanTargetModel,
-        listLandPlotOfCrop: values.listLandPlotOfCrop
+        listLandPlotOfCrop: values.listLandPlotOfCrop,
       };
 
       const result = await planService.addPlan(planData);
@@ -542,16 +551,15 @@ const AddPlan = () => {
 
     // setPlantLotOptions((await usePlantLotOptions()).options);
     const plantLots = await plantLotService.getPlantLotSelected();
-    setPlantLotOptions(plantLots)
+    setPlantLotOptions(plantLots);
   };
 
   const fetchEmployee = async () => {
     const response = await worklogService.getEmployeesByWorkSkill(Number(farmId));
     if (response.statusCode === 200) {
-
       setEmployee(response.data);
     }
-  }
+  };
 
   const workTypeId = Form.useWatch(addPlanFormFields.masterTypeId, form);
 
@@ -569,7 +577,6 @@ const AddPlan = () => {
 
     fetchEmployee();
   }, [workTypeId]);
-
 
   useEffect(() => {
     fetchData();
@@ -595,7 +602,19 @@ const AddPlan = () => {
             }}
           />
         </Tooltip>
-        <h2 className={style.title}>Add Plan</h2>
+        <Flex justify="space-between" style={{width: "100%"}}>
+          <h2 className={style.title}>Add Plan</h2>
+          {/* FORM ACTIONS */}
+          <Flex gap={10} justify="end" className={style.btnGroup}>
+            <CustomButton label="Clear" isCancel handleOnClick={() => form.resetFields()} />
+            <CustomButton
+              label="Add Plan"
+              htmlType="submit"
+              isLoading={isLoading}
+              disabled={isLoading}
+            />
+          </Flex>
+        </Flex>
       </Flex>
       <Divider />
       <Form
@@ -610,7 +629,6 @@ const AddPlan = () => {
           title="Basic Information"
           subtitle="Enter the basic information for the care plan."
         >
-
           <Row gutter={16}>
             <Col span={12}>
               <Flex vertical>
@@ -633,8 +651,11 @@ const AddPlan = () => {
                       setTargetType(undefined);
                     }
                     handleChangeProcess(undefined);
-                  }}>
-                  <a style={{ fontSize: "14px", color: "blueviolet", textDecoration: "underline" }}>Clear</a>
+                  }}
+                >
+                  <a style={{ fontSize: "14px", color: "blueviolet", textDecoration: "underline" }}>
+                    Clear
+                  </a>
                 </div>
               </Flex>
             </Col>
@@ -728,8 +749,11 @@ const AddPlan = () => {
                     form.setFieldValue("cropId", undefined);
                     form.setFieldValue("listLandPlotOfCrop", []);
                     setIsTargetDisabled(false);
-                  }}>
-                  <a style={{ fontSize: "14px", color: "blueviolet", textDecoration: "underline" }}>Clear</a>
+                  }}
+                >
+                  <a style={{ fontSize: "14px", color: "blueviolet", textDecoration: "underline" }}>
+                    Clear
+                  </a>
                 </div>
               </Flex>
             </Col>
@@ -741,7 +765,9 @@ const AddPlan = () => {
                   {
                     validator: (_: any, value: any) => {
                       if (selectedCrop && (!value || value.length === 0)) {
-                        return Promise.reject(new Error("Please select at least one Land Plot for the Crop!"));
+                        return Promise.reject(
+                          new Error("Please select at least one Land Plot for the Crop!"),
+                        );
                       }
                       return Promise.resolve();
                     },
@@ -835,21 +861,25 @@ const AddPlan = () => {
             >
               {employee.map((emp) => (
                 <Select.Option key={emp.userId} value={emp.userId} label={emp.fullName}>
-                  <div style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: 12,
-                    padding: "8px 12px",
-                    borderRadius: 8,
-                    transition: "all 0.2s",
-                  }}>
+                  <div
+                    style={{
+                      display: "flex",
+                      alignItems: "center",
+                      gap: 12,
+                      padding: "8px 12px",
+                      borderRadius: 8,
+                      transition: "all 0.2s",
+                    }}
+                  >
                     {/* Avatar */}
-                    <div style={{
-                      position: "relative",
-                      width: 32,
-                      height: 32,
-                      flexShrink: 0
-                    }}>
+                    <div
+                      style={{
+                        position: "relative",
+                        width: 32,
+                        height: 32,
+                        flexShrink: 0,
+                      }}
+                    >
                       <img
                         src={emp.avatarURL}
                         alt={emp.fullName}
@@ -858,65 +888,78 @@ const AddPlan = () => {
                           height: "100%",
                           borderRadius: "50%",
                           objectFit: "cover",
-                          border: "2px solid #e6f7ff"
+                          border: "2px solid #e6f7ff",
                         }}
                         crossOrigin="anonymous"
                       />
                     </div>
 
-                    <div style={{
-                      flex: 1,
-                      minWidth: 0
-                    }}>
-                      <div style={{
-                        fontWeight: 500,
-                        color: "rgba(0, 0, 0, 0.88)",
-                        whiteSpace: "nowrap",
-                        overflow: "hidden",
-                        textOverflow: "ellipsis"
-                      }}>
+                    <div
+                      style={{
+                        flex: 1,
+                        minWidth: 0,
+                      }}
+                    >
+                      <div
+                        style={{
+                          fontWeight: 500,
+                          color: "rgba(0, 0, 0, 0.88)",
+                          whiteSpace: "nowrap",
+                          overflow: "hidden",
+                          textOverflow: "ellipsis",
+                        }}
+                      >
                         {emp.fullName}
                       </div>
 
-                      <div style={{
-                        display: "flex",
-                        gap: 6,
-                        marginTop: 4,
-                        flexWrap: "wrap"
-                      }}>
-                        {emp.skillWithScore.slice(0, 3).map(skill => (
-                          <div key={skill.skillName} style={{
-                            display: "flex",
-                            alignItems: "center",
-                            background: skill.score >= 7 ? "#f6ffed" : "#fafafa",
-                            border: `1px solid ${skill.score >= 7 ? "#b7eb8f" : "#d9d9d9"}`,
-                            borderRadius: 4,
-                            padding: "2px 6px",
-                            fontSize: 12,
-                            lineHeight: 1
-                          }}>
+                      <div
+                        style={{
+                          display: "flex",
+                          gap: 6,
+                          marginTop: 4,
+                          flexWrap: "wrap",
+                        }}
+                      >
+                        {emp.skillWithScore.slice(0, 3).map((skill) => (
+                          <div
+                            key={skill.skillName}
+                            style={{
+                              display: "flex",
+                              alignItems: "center",
+                              background: skill.score >= 7 ? "#f6ffed" : "#fafafa",
+                              border: `1px solid ${skill.score >= 7 ? "#b7eb8f" : "#d9d9d9"}`,
+                              borderRadius: 4,
+                              padding: "2px 6px",
+                              fontSize: 12,
+                              lineHeight: 1,
+                            }}
+                          >
                             <Icons.grade
                               width={12}
                               height={12}
                               style={{
                                 marginRight: 4,
-                                color: "yellow"
+                                color: "yellow",
                               }}
                             />
-                            <span style={{
-                              color: "rgba(0, 0, 0, 0.65)"
-                            }}>
+                            <span
+                              style={{
+                                color: "rgba(0, 0, 0, 0.65)",
+                              }}
+                            >
                               {skill.skillName} <strong>{skill.score}</strong>
                             </span>
                           </div>
                         ))}
                         {emp.skillWithScore.length > 3 && (
-                          <div style={{
-                            background: "#f0f0f0",
-                            borderRadius: 4,
-                            padding: "2px 6px",
-                            fontSize: 12
-                          }}>
+                          <div
+                            style={{
+                              background: "#f0f0f0",
+                              borderRadius: 4,
+                              padding: "2px 6px",
+                              fontSize: 12,
+                            }}
+                          >
                             +{emp.skillWithScore.length - 3}
                           </div>
                         )}
@@ -1034,7 +1077,12 @@ const AddPlan = () => {
         {/* FORM ACTIONS */}
         <Flex gap={10} justify="end" className={style.btnGroup}>
           <CustomButton label="Clear" isCancel handleOnClick={() => form.resetFields()} />
-          <CustomButton label="Add Plan" htmlType="submit" isLoading={isLoading} disabled={isLoading} />
+          <CustomButton
+            label="Add Plan"
+            htmlType="submit"
+            isLoading={isLoading}
+            disabled={isLoading}
+          />
         </Flex>
       </Form>
       {isModalVisible && (

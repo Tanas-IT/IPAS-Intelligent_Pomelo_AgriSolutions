@@ -1,31 +1,23 @@
 import { Flex } from "antd";
 import style from "./PlanList.module.scss";
-import { ActionMenuPlant, ConfirmModal, NavigationDot, SectionTitle, Table } from "@/components";
-import { GetPlant } from "@/payloads";
-import { useFetchData, useModal, useTableDelete } from "@/hooks";
-import { useEffect, useState } from "react";
-import { getOptions } from "@/utils";
+import { ActionMenuPlan, ConfirmModal, NavigationDot, SectionTitle, Table } from "@/components";
+import { useFetchData, useFilters, useModal, useTableDelete } from "@/hooks";
+import { useEffect } from "react";
+import { DEFAULT_PLAN_FILTERS, getOptions } from "@/utils";
 import { planService } from "@/services";
-import ActionMenuPlan from "@/components/UI/ActionMenu/ActionMenuPlan";
 import PlanFilter from "./PlanFilter";
 import { planColumns } from "./PlanColumn";
 import { TableTitle } from "./TableTitle";
 import { GetPlan } from "@/payloads/plan";
-import { toast } from "react-toastify";
-
+import { FilterPlanState } from "@/types";
 
 function PlanList() {
-  const [filters, setFilters] = useState({
-    createDateFrom: "",
-    createDateTo: "",
-    growStages: [] as string[],
-    processTypes: [] as string[],
-    status: [] as string[],
-    frequency: [] as string[],
-    isActive: [] as string[],
-    assignor: [] as string[],
-  });
-  const deleteConfirmModal = useModal<{ ids: number[]  }>();
+  const deleteConfirmModal = useModal<{ ids: number[] }>();
+
+  const { filters, updateFilters, applyFilters, clearFilters } = useFilters<FilterPlanState>(
+    DEFAULT_PLAN_FILTERS,
+    () => fetchData(1),
+  );
 
   const {
     data,
@@ -33,6 +25,7 @@ function PlanList() {
     totalRecords,
     totalPages,
     sortField,
+    sortDirection,
     rotation,
     handleSortChange,
     currentPage,
@@ -49,56 +42,30 @@ function PlanList() {
 
   useEffect(() => {
     fetchData();
-  }, [currentPage, rowsPerPage, sortField, searchValue, filters]);
+  }, [currentPage, rowsPerPage, sortField, sortDirection, searchValue]);
 
   const { handleDelete } = useTableDelete(
-      {
-        deleteFunction: planService.deletePlan,
-        fetchData,
-        onSuccess: () => {
-          deleteConfirmModal.hideModal();
-        },
+    {
+      deleteFunction: planService.deletePlan,
+      fetchData,
+      onSuccess: () => {
+        deleteConfirmModal.hideModal();
       },
-      {
-        currentPage,
-        rowsPerPage,
-        totalRecords,
-        handlePageChange,
-      },
-    );
-
-  const updateFilters = (key: string, value: any) => {
-    setFilters((prev) => {
-      const newFilters = { ...prev, [key]: value };
-      return newFilters;
-    });
-  };
-
-  const handleApply = () => {
-    fetchData();
-  };
-
-  const handleClear = () => {
-    setFilters({
-      createDateFrom: "",
-      createDateTo: "",
-      growStages: [],
-      processTypes: [],
-      status: [],
-      frequency: [],
-      isActive: [],
-      assignor: [],
-    });
-  };
-
-
+    },
+    {
+      currentPage,
+      rowsPerPage,
+      totalRecords,
+      handlePageChange,
+    },
+  );
 
   const filterContent = (
     <PlanFilter
       filters={filters}
       updateFilters={updateFilters}
-      onClear={handleClear}
-      onApply={handleApply}
+      onClear={clearFilters}
+      onApply={applyFilters}
     />
   );
 

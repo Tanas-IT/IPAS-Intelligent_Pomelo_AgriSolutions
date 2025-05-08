@@ -7,6 +7,7 @@ import { EmployeeWithSkills, GetAttendanceList, GetWorklogDetail } from "@/paylo
 import { worklogService } from "@/services";
 import { toast } from "react-toastify";
 import { worklog } from "@/assets/images/images";
+import { useStyle } from "@/hooks";
 
 type EmployeeType = { fullName: string; avatarURL: string; userId: number };
 
@@ -35,22 +36,19 @@ const EmployeeTable: React.FC<EmployeeTableProps> = ({
 }) => {
   const [replacingStates, setReplacingStates] = useState<{ [key: number]: number | null }>({});
   const [employee, setEmployee] = useState<EmployeeType[]>([]);
+  const { styles } = useStyle();
 
   useEffect(() => {
     const fetchEmployees = async () => {
-      try {
-        const farmId = getFarmId();
-        const response = await worklogService.getEmployeesByWorkSkill(
-          Number(farmId),
-          worklog?.masterTypeId,
-        );
-        if (response.statusCode === 200) {
-          setEmployee(response.data);
-        } else {
-          toast.warning("Failed to fetch employees");
-        }
-      } catch (error) {
-        toast.warning("Error fetching employees");
+      const farmId = getFarmId();
+      const response = await worklogService.getEmployeesByWorkSkill(
+        Number(farmId),
+        worklog?.masterTypeId,
+      );
+      if (response.statusCode === 200) {
+        setEmployee(response.data);
+      } else {
+        toast.warning("Failed to fetch employees");
       }
     };
     fetchEmployees();
@@ -94,8 +92,9 @@ const EmployeeTable: React.FC<EmployeeTableProps> = ({
     {
       title: "User Name",
       dataIndex: "fullName",
+      align: "center" as const,
       render: (text: string, record: GetUser) => (
-        <Flex align="center" gap={8}>
+        <Flex align="center" justify="center" gap={8}>
           <Image
             src={record.avatarURL || Images.avatar}
             width={32}
@@ -110,6 +109,7 @@ const EmployeeTable: React.FC<EmployeeTableProps> = ({
     {
       title: "Status",
       dataIndex: "statusOfUser",
+      align: "center" as const,
       render: (status: string | undefined) => (
         <Tag
           color={
@@ -128,6 +128,7 @@ const EmployeeTable: React.FC<EmployeeTableProps> = ({
     },
     {
       title: "Role",
+      align: "center" as const,
       render: (_: any, record: GetAttendanceList) => (
         <Tag color={record.isReporter ? "blue" : "default"}>
           {record.isReporter ? "Reporter" : "Employee"}
@@ -136,6 +137,7 @@ const EmployeeTable: React.FC<EmployeeTableProps> = ({
     },
     {
       title: "Reporter",
+      align: "center" as const,
       render: (_: any, record: GetUser) => {
         // console.log('[DEBUG]', {
         //   currentUserId: record.userId,
@@ -160,6 +162,7 @@ const EmployeeTable: React.FC<EmployeeTableProps> = ({
     },
     {
       title: "Replacement",
+      align: "center" as const,
       render: (_: any, record: GetUser) => {
         const isReplacing = replacingStates[record.userId] !== undefined;
 
@@ -269,7 +272,14 @@ const EmployeeTable: React.FC<EmployeeTableProps> = ({
     },
   ];
 
-  return <Table dataSource={employees} columns={columns} rowKey="userId" />;
+  return (
+    <Table
+      className={`${styles.customeTable2}`}
+      dataSource={employees}
+      columns={columns}
+      rowKey="userId"
+    />
+  );
 };
 
 export default EmployeeTable;

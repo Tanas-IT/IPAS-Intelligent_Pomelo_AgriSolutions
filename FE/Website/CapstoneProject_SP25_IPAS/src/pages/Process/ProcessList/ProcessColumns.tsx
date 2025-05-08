@@ -8,25 +8,29 @@ export const processColumns: TableColumn<GetProcessList>[] = [
   {
     header: "Process Code",
     field: "processCode",
-    accessor: (process) => <TableCell value={process.processCode} isCopyable={true}/>,
+    accessor: (process) => <TableCell value={process.processCode} isCopyable={true} />,
     width: 150,
   },
   {
     header: "Process Name",
     field: "processName",
-    accessor: (process) => <TableCell value={process.processName}/>,
+    accessor: (process) => <TableCell value={process.processName} />,
     width: 300,
   },
   {
     header: "Created Date",
     field: "createDate",
-    accessor: (process) =>  <TableCell value={process.createDate ? new Date(process.createDate).toLocaleDateString() : "N/A"}/>,
+    accessor: (process) => (
+      <TableCell
+        value={process.createDate ? new Date(process.createDate).toLocaleDateString() : "N/A"}
+      />
+    ),
     width: 150,
   },
   {
     header: "Type",
     field: "processMasterTypeModel",
-    accessor: (process) =>  <TableCell value={process?.processMasterTypeModel?.masterTypeName}/>,
+    accessor: (process) => <TableCell value={process?.processMasterTypeModel?.masterTypeName} />,
     width: 150,
   },
   {

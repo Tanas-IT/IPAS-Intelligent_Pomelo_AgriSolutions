@@ -23,14 +23,11 @@ const EditableTimeRangeField: React.FC<EditableTimeRangeFieldProps> = ({
 
   const handleTimeRangeChange = (
     dates: [dayjs.Dayjs | null, dayjs.Dayjs | null] | null,
-    dateStrings: [string, string]
+    dateStrings: [string, string],
   ) => {
     if (dates) {
       const [start, end] = dates;
-      onChange([
-        start ? start.format("HH:mm:ss") : "",
-        end ? end.format("HH:mm:ss") : "",
-      ]);
+      onChange([start ? start.format("HH:mm:ss") : "", end ? end.format("HH:mm:ss") : ""]);
     } else {
       onChange(["", ""]);
     }

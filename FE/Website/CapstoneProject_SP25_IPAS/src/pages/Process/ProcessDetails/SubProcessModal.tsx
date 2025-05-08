@@ -24,13 +24,9 @@ const SubProcessModal: React.FC<SubProcessModalProps> = ({
   initialValues,
 }) => {
   const [form] = Form.useForm();
-  const farmId = Number(getFarmId());
-  const { options: processTypeOptions } = useMasterTypeOptions(MASTER_TYPE.PROCESS, false);
-  const [growthStageOptions, setGrowthStageOptions] = useState<OptionType<number>[]>([]);
 
   const handleSave = () => {
     form.validateFields().then((values) => {
-
       onSave(values);
       form.resetFields();
       onClose();
@@ -42,13 +38,6 @@ const SubProcessModal: React.FC<SubProcessModalProps> = ({
       form.setFieldsValue(initialValues);
     }
   }, [initialValues, form]);
-
-  useEffect(() => {
-    const fetchData = async () => {
-      setGrowthStageOptions(await fetchGrowthStageOptions(farmId));
-    };
-    fetchData();
-  }, []);
 
   return (
     <ModalForm
