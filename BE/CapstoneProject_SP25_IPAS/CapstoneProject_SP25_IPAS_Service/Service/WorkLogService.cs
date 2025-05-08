@@ -2119,9 +2119,13 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 };
                 await _unitOfWork.NotificationRepository.Insert(addNotification);
                 var saveChange = await _unitOfWork.SaveAsync();
+                var allUserWorkLogs = await _unitOfWork.UserWorkLogRepository
+                            .GetListUserWorkLogByWorkLogIdWithNoInclude(changeEmployeeOfWorkLog.WorkLogId);
+
                 foreach (var changeEmployee in changeEmployeeOfWorkLog.ListEmployeeUpdate)
                 {
-                    var getUserToUpdate = await _unitOfWork.UserWorkLogRepository.GetByCondition(x => x.WorkLogId == changeEmployeeOfWorkLog.WorkLogId && x.UserId == changeEmployee.OldUserId);
+                    var getUserToUpdate = allUserWorkLogs
+                                            .FirstOrDefault(x => x.UserId == changeEmployee.OldUserId);
                     if (getUserToUpdate == null)
                         return new BusinessResult(400, "WorkLog does not exist");
                     if (changeEmployee.OldUserId == changeEmployee.NewUserId)
