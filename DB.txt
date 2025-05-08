@@ -2205,7 +2205,8 @@ VALUES
 ('ValidationVariable','EditInDay', '3', 'int', N'Số ngày có thể chỉnh sửa sau khi đã được ghi nhận'),
 ('ValidationVariable','RecordAfterDate', '3', 'int', N'Sau bao nhiêu ngày có thể ghi nhận thu hoạch'),
 ('ValidationVariable','AllowAreaDeviationPercent', '15', 'double', N'Phần trăm diện tích chênh lệch khi tạo thửa-hàng'),
-('ValidationVariable','CreateGraftedEnableDate', '3', 'int', N'Số ngày chiết cành được phép tạo trước hoặc sau.');
+('ValidationVariable','CreateGraftedEnableDate', '3', 'int', N'Số ngày chiết cành được phép tạo trước hoặc sau.'),
+('ValidationVariable','CanCompleteGraftedAfterDay', '0', 'int', N'Số ngày chiết cành được phép hoàn thành trước hoặc sau.');
 
 
 -- Criteria Apply

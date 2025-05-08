@@ -17,6 +17,7 @@ type FeedbackModalProps = {
   managerId: number;
   onSuccess: () => void;
   feedbackData?: TaskFeedback;
+  statuss?: string;
 };
 
 const FeedbackModal = ({
@@ -27,17 +28,19 @@ const FeedbackModal = ({
   managerId,
   onSuccess,
   feedbackData,
+  statuss,
 }: FeedbackModalProps) => {
   const [form] = Form.useForm();
-  const [status, setStatus] = useState<string>(""); // Mặc định là "Done"
-  const [statusOptions, setStatusOptions] = useState<{ value: string; label: string }[]>([]); // Lưu danh sách từ API
-  const [loadingStatuses, setLoadingStatuses] = useState<boolean>(false); // Trạng thái loading khi fetch
+  const [status, setStatus] = useState<string>("");
+  const [statusOptions, setStatusOptions] = useState<{ value: string; label: string }[]>([]);
+  const [loadingStatuses, setLoadingStatuses] = useState<boolean>(false);
   const isUpdate = feedbackData !== undefined && Object.keys(feedbackData).length > 0;
+  console.log("feedbackData", feedbackData);
+  
 
-  // Fetch status options từ API khi modal mở
   useEffect(() => {
     const fetchStatusOptions = async () => {
-      if (isOpen && statusOptions.length === 0) { // Chỉ fetch nếu chưa có dữ liệu
+      if (isOpen && statusOptions.length === 0) {
         setLoadingStatuses(true);
         try {
           const response = await worklogService.getWorklogStatus();
@@ -45,7 +48,7 @@ const FeedbackModal = ({
             const statuses = (response.data as { status: string[] }).status;
             const options = statuses.map(status => ({
               value: status,
-              label: status, // Dùng cùng giá trị cho value và label
+              label: status,
             }));
             setStatusOptions(options);
           } else {
@@ -62,14 +65,13 @@ const FeedbackModal = ({
     fetchStatusOptions();
   }, [isOpen]);
 
-  // Cập nhật form khi modal mở
   useEffect(() => {
     if (isOpen) {
       if (isUpdate && feedbackData) {
         form.setFieldsValue({
           content: feedbackData.content,
-          status: feedbackData.status || "Redo",
-          reason: feedbackData.reason,
+          status: statuss || "Redo",
+          reason: feedbackData.reasonDelay,
         });
         setStatus(feedbackData.status || "Redo");
       } else {

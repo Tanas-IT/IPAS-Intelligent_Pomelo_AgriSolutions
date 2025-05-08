@@ -47,14 +47,11 @@ const RecordYieldTab: React.FC = () => {
 
   useEffect(() => {
     const fetchHarvests = async () => {
-      try {
-        const response = await PlantService.getAvailableHarvestsForPlant(
-          plant.plantId
-        );
-        setAvailableHarvests(response.data);
-      } catch (error) {
-        // console.error("Fetch available harvests error:", error);
-      }
+      const response = await PlantService.getAvailableHarvestsForPlant(
+        plant.plantId
+      );
+      setAvailableHarvests(response.data);
+
     };
     fetchHarvests();
   }, [plant]);
@@ -82,13 +79,6 @@ const RecordYieldTab: React.FC = () => {
         setRecords((prev) => (reset ? newRecords : [...prev, ...newRecords]));
         setTotalPage(response.data.totalPage);
         setPage(pageNum);
-      } catch (error: any) {
-        // console.error("Fetch error:", error);
-        Toast.show({
-          type: "error",
-          text1: "Error",
-          text2: "Failed to load records.",
-        });
       } finally {
         setLoading(false);
       }
@@ -133,7 +123,6 @@ const RecordYieldTab: React.FC = () => {
       } else {
         Toast.show({
           type: "error",
-          text1: "Error",
           text2: res.message,
         });
       }
@@ -161,7 +150,6 @@ const RecordYieldTab: React.FC = () => {
     } else {
       Toast.show({
         type: "error",
-        text1: "Error",
         text2: res.message,
       });
     }

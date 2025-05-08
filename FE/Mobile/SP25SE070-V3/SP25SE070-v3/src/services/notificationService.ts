@@ -10,13 +10,8 @@ export const getNotificationByUser = async (
   if (isRead !== undefined) {
     url += `&isRead=${isRead}`;
   }
-  try {
-    const res = await axiosAuth.axiosJsonRequest.get(url);
-
-    return res.data as ApiResponse<GetNotification[]>;
-  } catch (error) {
-    throw error;
-  }
+  const res = await axiosAuth.axiosJsonRequest.get(url);
+  return res.data as ApiResponse<GetNotification[]>;
 };
 
 export const markAsRead = async (
@@ -24,16 +19,14 @@ export const markAsRead = async (
   status?: string,
   notificationId?: number
 ): Promise<ApiResponse<Object>> => {
-  try {
-    const res = await axiosAuth.axiosJsonRequest.post(
-      `mark-notification-is-read?userId=${userId}`,
-      {
-        notificationId,
-        status,
-      }
-    );
-    return res.data as ApiResponse<Object>;
-  } catch (error) {
-    throw error;
-  }
+
+  const res = await axiosAuth.axiosJsonRequest.post(
+    `mark-notification-is-read?userId=${userId}`,
+    {
+      notificationId,
+      status,
+    }
+  );
+  return res.data as ApiResponse<Object>;
+
 };

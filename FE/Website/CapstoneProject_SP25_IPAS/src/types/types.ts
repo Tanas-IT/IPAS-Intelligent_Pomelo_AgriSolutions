@@ -7,6 +7,7 @@ export interface ActionMenuItem {
   label: string | React.ReactNode;
   onClick?: () => void;
   isCloseOnClick?: boolean;
+  disabled?: boolean;
 }
 
 export interface Farm {

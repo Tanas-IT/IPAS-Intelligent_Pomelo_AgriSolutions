@@ -79,7 +79,7 @@ namespace CapstoneProject_SP25_IPAS_Common.Constants
         #endregion
         #endregion
 
-        #region CONFIG LAND
+        #region SYSTEMVARIABLE
         // Cấu hình sử dụng trong tạo farm
         public const string MIN_LENGTH = "MinLength";
         public const string MIN_WIDTH = "MinWidth";
@@ -94,6 +94,7 @@ namespace CapstoneProject_SP25_IPAS_Common.Constants
         public const string EDIT_RECORD_IN_DAYS = "EditInDay";
         public const string ALLOW_AREA_DEVIATION_PERCENT = "AllowAreaDeviationPercent";
         public const string CREATE_GRAFTED_ENABLE_DATE = "CreateGraftedEnableDate";
+        public const string CAN_COMPLETE_GRAFTED_AFTER_DAY = "CanCompleteGraftedAfterDay";
         #endregion
 
         public static readonly HashSet<string> ADDABLE_CONFIG_GROUP = new HashSet<string>

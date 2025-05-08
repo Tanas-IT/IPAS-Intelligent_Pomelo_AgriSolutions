@@ -394,7 +394,7 @@ function AIProcessDetails() {
       planTargetInProcess: form.getFieldValue(processFormFields.planTarget),
       listSubProcess: [
         ...convertTreeToList(treeData),
-        ...convertDeletedNodesToList(deletedNodes),
+        // ...convertDeletedNodesToList(deletedNodes),
       ].filter((sub) => sub.status !== "no_change"),
       listPlan: ListPlan,
     };

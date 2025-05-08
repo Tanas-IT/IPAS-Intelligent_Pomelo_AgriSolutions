@@ -271,36 +271,6 @@ function PlanDetail() {
             {planDetail?.startDate ? formatDateW(planDetail?.startDate) : ""}
           </label>
         </Flex>
-        <Flex gap={15}>
-          <label className={style.textUpdated}>Assigned To:</label>
-          {planDetail?.listEmployee.map((employee, index) => (
-            <div className={style.containerUser}>
-              <Image
-                src={employee?.avatarURL}
-                crossOrigin="anonymous"
-                width={27}
-                height={27}
-                className={style.avatar}
-              />
-              <span className={style.name}>{employee?.fullName}</span>
-            </div>
-          ))}
-        </Flex>
-        <Flex gap={15}>
-          <label className={style.textUpdated}>Reporter:</label>
-          {planDetail?.listReporter.map((report, index) => (
-            <div className={style.containerUser}>
-              <Image
-                src={report?.avatarURL}
-                crossOrigin="anonymous"
-                width={27}
-                height={27}
-                className={style.avatar}
-              />
-              <span className={style.name}>{report?.fullName}</span>
-            </div>
-          ))}
-        </Flex>
       </Flex>
 
       <Divider className={style.divider} />
@@ -434,9 +404,8 @@ function PlanDetail() {
                   {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((day, index) => (
                     <span
                       key={index}
-                      className={`${style.weekDay} ${
-                        planDetail.dayOfWeek.includes(index) ? style.active : ""
-                      }`}
+                      className={`${style.weekDay} ${planDetail.dayOfWeek.includes(index) ? style.active : ""
+                        }`}
                     >
                       {day}
                     </span>
@@ -451,9 +420,8 @@ function PlanDetail() {
                     return (
                       <span
                         key={day}
-                        className={`${style.monthDay} ${
-                          JSON.parse(planDetail.dayOfMonth).includes(day) ? style.active : ""
-                        }`}
+                        className={`${style.monthDay} ${JSON.parse(planDetail.dayOfMonth).includes(day) ? style.active : ""
+                          }`}
                       >
                         {day}
                       </span>
