@@ -2827,8 +2827,15 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     getUserWorkLog.ReplaceUserId = null;
                     if (getUserWorkLog.IsDeleted == true)
                     {
-                       
+                        var getWorkLogToCheck = await _unitOfWork.WorkLogRepository.GetByCondition(x => x.WorkLogId == getUserWorkLog.WorkLogId);
+                        if(getWorkLogToCheck != null && getWorkLogToCheck.Status.Equals(getStatusNotStarted))
+                        {
+                            getUserWorkLog.StatusOfUserWorkLog = null;
+                        }
+                        else
+                        {
                             getUserWorkLog.StatusOfUserWorkLog = getStatusReceived;
+                        }
                     }
                     else
                     {
