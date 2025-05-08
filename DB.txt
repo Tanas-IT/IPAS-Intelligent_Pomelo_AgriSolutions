@@ -2204,7 +2204,8 @@ VALUES
 ('ValidationVariable','MinPlantOfLandRow', '1', 'int', N'Số cây tối thiểu 1 Hàng'),
 ('ValidationVariable','EditInDay', '3', 'int', N'Số ngày có thể chỉnh sửa sau khi đã được ghi nhận'),
 ('ValidationVariable','RecordAfterDate', '3', 'int', N'Sau bao nhiêu ngày có thể ghi nhận thu hoạch'),
-('ValidationVariable','AllowAreaDeviationPercent', '15', 'double', N'Phần trăm diện tích chênh lệch khi tạo thửa-hàng');
+('ValidationVariable','AllowAreaDeviationPercent', '15', 'double', N'Phần trăm diện tích chênh lệch khi tạo thửa-hàng'),
+('ValidationVariable','CreateGraftedEnableDate', '3', 'int', N'Số ngày chiết cành được phép tạo trước hoặc sau.');
 
 
 -- Criteria Apply

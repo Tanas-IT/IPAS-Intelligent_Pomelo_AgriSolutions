@@ -73,8 +73,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     if (plantExist.IsPassed != true)
                         return new BusinessResult(400, "Mother Plant is not mark as PASS to grafted");
                     var canCreateDate = await _unitOfWork.SystemConfigRepository.GetConfigValue(SystemConfigConst.CREATE_GRAFTED_ENABLE_DATE, (int)3);
-                    if(createRequest.GraftedDate.Value.Date.AddDays(3) >= DateTime.Now.Date || createRequest.GraftedDate.Value.Date.AddDays(-3) >= DateTime.Now.Date)
-                            return new BusinessResult(400, $"You only can create grafted plant in range {canCreateDate} date.");
+                    if(createRequest.GraftedDate.Value.Date.AddDays(canCreateDate) < DateTime.Now.Date || createRequest.GraftedDate.Value.Date.AddDays(-canCreateDate) > DateTime.Now.Date)
+                            return new BusinessResult(400, $"You only can create grafted plant in before or after {canCreateDate} day.");
                     // Create the new Plant entity from the request
                     //var jsonData = JsonConvert.DeserializeObject<PlantModel>(plantExist.Data!.ToString()!);
                     //var jsonData = plantExist.Data as PlantModel;
@@ -771,7 +771,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 && x.GraftedDate!.Value.Year == DateTime.Now.Year);
 
             if (countGraftedInYear >= (maxGraftedBranches))
-                errors.Add($"This plant is growth in {plant.PlantingDate!.Value} can only grafted {maxGraftedBranches}.\nThis plant has already grafted {countGraftedInYear} times this year, no more grafting allowed.");
+                errors.Add($"This plant is growth in {plant.PlantingDate!.Value} just only can grafted {maxGraftedBranches} lefts.\nThis plant has already grafted {countGraftedInYear} times this year, no more grafting allowed.");
             //}
 
             return errors.Count > 0 ? string.Join("\n", errors) : null!;

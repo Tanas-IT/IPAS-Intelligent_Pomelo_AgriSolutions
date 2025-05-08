@@ -98,7 +98,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             }
             catch (Exception ex)
             {
-                return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
+                return new BusinessResult(Const.ERROR_EXCEPTION, Const.ERROR_MESSAGE, ex.Message);
             }
         }
 
@@ -195,7 +195,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             }
             catch (Exception ex)
             {
-                return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
+                return new BusinessResult(Const.ERROR_EXCEPTION, Const.ERROR_MESSAGE, ex.Message);
             }
         }
 
@@ -244,7 +244,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             }
             catch (Exception ex)
             {
-                return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
+                return new BusinessResult(Const.ERROR_EXCEPTION, Const.ERROR_MESSAGE, ex.Message);
             }
         }
 
@@ -267,7 +267,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             }
             catch (Exception ex)
             {
-                return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
+                return new BusinessResult(Const.ERROR_EXCEPTION, Const.ERROR_MESSAGE, ex.Message);
             }
         }
 
@@ -289,7 +289,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             }
             catch (Exception ex)
             {
-                return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
+                return new BusinessResult(Const.ERROR_EXCEPTION, Const.ERROR_MESSAGE, ex.Message);
             }
         }
 
@@ -323,7 +323,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             }
             catch (Exception ex)
             {
-                return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
+                return new BusinessResult(Const.ERROR_EXCEPTION, Const.ERROR_MESSAGE, ex.Message);
             }
         }
 
