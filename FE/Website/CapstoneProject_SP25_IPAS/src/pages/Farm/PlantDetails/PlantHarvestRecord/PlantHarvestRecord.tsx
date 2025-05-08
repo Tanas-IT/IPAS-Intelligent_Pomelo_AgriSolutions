@@ -13,7 +13,11 @@ import style from "./PlantHarvestRecord.module.scss";
 import { useEffect, useState } from "react";
 import { Dayjs } from "dayjs";
 import { formatDate, formatDayMonthAndTime } from "@/utils";
-import { CreateHarvestRecordRequest, GetPlantRecord, UpdateProductHarvestRequest } from "@/payloads";
+import {
+  CreateHarvestRecordRequest,
+  GetPlantRecord,
+  UpdateProductHarvestRequest,
+} from "@/payloads";
 import {
   DEFAULT_RECORDS_IN_DETAIL,
   MASTER_TYPE,
@@ -144,10 +148,12 @@ function PlantHarvestRecord() {
     }
   };
 
+  const handleOpenRecordModal = () => newRecordModal.showModal();
+
   if (isFirstLoad) return <LoadingSkeleton rows={10} />;
   return (
     <Flex className={style.contentDetailWrapper}>
-      <PlantSectionHeader onAddNewRecord={newRecordModal.showModal} />
+      <PlantSectionHeader onAddNewRecord={handleOpenRecordModal} />
       <Divider className={style.divider} />
       <Flex className={style.contentSectionBody} vertical>
         <Flex gap={20}>

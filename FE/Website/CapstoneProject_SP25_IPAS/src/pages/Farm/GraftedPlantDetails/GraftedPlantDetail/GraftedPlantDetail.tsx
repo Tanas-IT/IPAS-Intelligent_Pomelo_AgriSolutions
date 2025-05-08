@@ -17,7 +17,6 @@ import { useEffect, useState } from "react";
 import { formatDayMonth } from "@/utils";
 import { graftedPlantService } from "@/services";
 import { GetGraftedPlantDetail, GraftedPlantRequest } from "@/payloads";
-import { ROUTES } from "@/constants";
 import { useGraftedPlantStore } from "@/stores";
 import { useModal, useTableUpdate } from "@/hooks";
 import { toast } from "react-toastify";
@@ -27,7 +26,7 @@ function GraftedPlantDetail() {
   const navigate = useNavigate();
   const location = useLocation();
   const pathnames = location.pathname.split("/");
-  const lotId = pathnames[pathnames.length - 2];
+  const graftedId = pathnames[pathnames.length - 2];
   const { graftedPlant, setGraftedPlant, shouldRefetch } = useGraftedPlantStore();
   const [isLoading, setIsLoading] = useState<boolean>(true);
   const formModal = useModal<GetGraftedPlantDetail>();
@@ -58,12 +57,13 @@ function GraftedPlantDetail() {
 
     doDownload(url, `QRCode-${graftedPlant?.graftedPlantCode}.svg`);
   };
-  const baseUrl = import.meta.env.VITE_APP_BASE_URL;
 
   const fetchGraftedPlant = async () => {
     await new Promise((resolve) => setTimeout(resolve, 500)); // ⏳ Delay 1 giây
     try {
-      const res = await graftedPlantService.getGraftedPlant(Number(lotId));
+      if (!shouldRefetch && graftedPlant && graftedPlant.graftedPlantId === Number(graftedId))
+        return;
+      const res = await graftedPlantService.getGraftedPlant(Number(graftedId));
       if (res.statusCode === 200) {
         setGraftedPlant(res.data);
       }
@@ -74,7 +74,7 @@ function GraftedPlantDetail() {
 
   useEffect(() => {
     fetchGraftedPlant();
-  }, [lotId, shouldRefetch]);
+  }, [graftedId, shouldRefetch]);
 
   const handleDelete = async (id: number | undefined) => {
     const res = await graftedPlantService.deleteGraftedPlants([id] as number[]);

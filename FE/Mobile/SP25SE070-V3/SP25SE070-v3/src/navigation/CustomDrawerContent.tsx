@@ -8,8 +8,6 @@ import {
   Platform,
 } from "react-native";
 import { DrawerContentComponentProps } from "@react-navigation/drawer";
-import { useTheme } from "@gluestack-ui/themed";
-
 import { LinearGradient } from "expo-linear-gradient";
 import theme from "@/theme";
 import { AvatarImage, CustomIcon, TextCustom } from "@/components";
@@ -25,19 +23,18 @@ export default function CustomDrawerContent(
 ) {
   const { roleId, avatarUrl, fullName, farmName } = useAuthStore();
   const isUser = roleId === UserRole.User.toString();
-  const theme = useTheme();
   const STATUS_BAR_HEIGHT =
     Platform.OS === "android" ? StatusBar.currentHeight || 0 : 0;
   const handleLogout = useLogout();
 
   const menuItems = [
+    {
+      label: "Farm Picker",
+      icon: "barn",
+      screen: ROUTE_NAMES.FARM.FARM_PICKER,
+    },
     ...(!isUser
       ? [
-          {
-            label: "Farm Picker",
-            icon: "barn",
-            screen: ROUTE_NAMES.FARM.FARM_PICKER,
-          },
           {
             label: "Home",
             icon: "home",
@@ -50,12 +47,20 @@ export default function CustomDrawerContent(
       icon: "message-text",
       screen: ROUTE_NAMES.EXPERT_RESPONSE,
     },
-    { label: "Profile", icon: "account", screen: ROUTE_NAMES.MAIN.PROFILE },
-    { label: "Settings", icon: "cog", screen: "Settings" },
+    {
+      label: "Profile",
+      icon: "account",
+      screen: ROUTE_NAMES.MAIN.PROFILE,
+    },
+    {
+      label: "Settings",
+      icon: "cog",
+      screen: "Settings",
+    },
   ];
 
   const handleMenuPress = async (screen: string) => {
-    if (screen === ROUTE_NAMES.FARM.FARM_PICKER) {
+    if (screen === ROUTE_NAMES.FARM.FARM_PICKER && !isUser) {
       const res = await AuthService.refreshTokenOutFarm();
       if (res.statusCode === 200) {
         const roleId = getRoleId(res.data.authenModel.accessToken);

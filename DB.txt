@@ -518,7 +518,7 @@ CREATE TABLE ipas.dbo.Plant (
 	CONSTRAINT PK__Plant__98FE46BC7EA4DAD0 PRIMARY KEY (PlantID),
 	CONSTRAINT Plant_GrowthStage_FK FOREIGN KEY (GrowthStageID) REFERENCES ipas.dbo.GrowthStage(GrowthStageID),
 	CONSTRAINT Plant_LandRow_FK FOREIGN KEY (LandRowID) REFERENCES ipas.dbo.LandRow(LandRowID),
-	CONSTRAINT Plant_PlantLot_FK FOREIGN KEY (PlantLotID) REFERENCES ipas.dbo.PlantLot(PlantLotID),
+	CONSTRAINT Plant_PlantLot_FK FOREIGN KEY (PlantLotID) REFERENCES ipas.dbo.PlantLot(PlantLotID) ON DELETE SET NULL,
 	CONSTRAINT Plant_MasterType_FK FOREIGN KEY (MasterTypeID) REFERENCES ipas.dbo.MasterType(MasterTypeID) ON DELETE SET NULL
 );
 -- ipas.dbo.PlantGrowthHistory definition
@@ -1166,7 +1166,7 @@ INSERT INTO ipas.dbo.GrowthStage (GrowthStageCode, GrowthStageName, MonthAgeStar
 VALUES
 ('GS101', 'Germination Stage', 0, 6, 0, 1, 0, GETDATE(), NULL, 'Seed begins to sprout and establish roots'),
 ('GS102', 'Seedling Stage', 7, 24, 0, 1, 0, GETDATE(), 'Grafted,Harvest', 'Young plant starts growing leaves and roots'),
-('GS103', 'Vegetative Growth Stage', 25, 48, 0, 1, 0, GETDATE(), NULL, 'Tree develops canopy and root system'),
+('GS103', 'Vegetative Growth Stage', 25, 48, 0, 1, 0, GETDATE(), 'Harvest', 'Tree develops canopy and root system'),
 ('GS104', 'Flowering Stage', 49, 60, 0, 1, 0, GETDATE(), 'Harvest', 'Tree reaches maturity and starts flowering'),
 ('GS105', 'Fruiting & Harvest Stage', 61, 120, 0, 1, 0, GETDATE(), 'Grafted,Harvest', 'Fruits mature and are ready for harvest');
 
@@ -1650,8 +1650,8 @@ VALUES
     (31, 10, N'kg', 10800.0, 10300.0, 180, 210, 4),  -- HarvestHistoryID 4
     (32, 10, N'kg', 11200.5, 10700.0, 190, 220, 5),  -- HarvestHistoryID 5
     (31, 10, N'kg', 11500.4, 11000.0, 200, 230, 6),  -- HarvestHistoryID 6
-    (32, 10, N'kg', 11800.3, 11300.0, 210, 240, 7),  -- HarvestHistoryID 7
-    (31, 10, N'kg', 12200.2, 11700.0, 220, 250, 8),  -- HarvestHistoryID 8
+    (30, 10, N'kg', 11800.3, 11300.0, 50, 0, 7),  -- HarvestHistoryID 7
+    (30, 10, N'kg', 12200.2, 11700.0, 150, 140, 8),  -- HarvestHistoryID 8
 
 	    -- PlantID 1
     (32, 1, N'kg', 5200.0, 4800.0, 80, 75, 1),  -- HarvestHistoryID 1
@@ -1790,6 +1790,7 @@ VALUES
 ('ORD009', 'Order for Premium Package', 200000, 'Bronze order', '2025-02-01', '2025-02-01', '2026-01-31', 1, 3, 'Paid'),
 ('ORD010', 'Order for Starter Package', 50000, 'Custom order', '2025-03-25', '2025-03-25', '2025-05-24', 3, 3, 'Paid');
 
+
 INSERT INTO ipas.dbo.Partner (PartnerCode, PartnerName, Province, PhoneNumber, Email, CreateDate, UpdateDate, [National],  District, Ward, Description, Major, Status, ContactName, Note, BusinessField, FarmID)
 VALUES 
 ('P001', 'Southern Vietnam Plant Seedling JSC', 'Hanoi', '0123456789', 'partner1@example.com', GETDATE(), NULL, 'Vietnam',  'Ba Dinh', 'Kim Ma', 'Leading partner in agriculture', 'Provider', 'Active', 'Nguyen Van A', 'Trusted partner', 'Farming', 1),
@@ -1804,36 +1805,37 @@ VALUES
 ('P010', 'Partner Five', 'Hai Phong', '0567894321', 'partner5@example.com', GETDATE(), NULL, 'Vietnam',  'Le Chan', 'Niem Nghia', 'Distributor of farming equipment', 'Customer', 'Pending', 'Hoang Thi E', 'Partnering with local farmers', 'Machinery', 1);
 
 INSERT INTO ipas.dbo.PlantLot 
-(PlantLotCode, PlantLotName, PreviousQuantity, InputQuantity, LastQuantity, UsedQuantity, Unit, Status, ImportedDate, Note, PartnerID, PlantLotReferenceID, FarmID, IsDeleted, MasterTypeId, IsPassed) 
+(PlantLotCode, PlantLotName, PreviousQuantity, InputQuantity, LastQuantity, UsedQuantity, Unit, Status, ImportedDate, Note, PartnerID, PlantLotReferenceID, FarmID, IsDeleted, MasterTypeId, IsPassed, IsFromGrafted) 
 VALUES
 -- Lô cha
-('PL001', 'Plant Lot A', 100, 80, 70, 70, 'Plant', 'Active', '2024-06-01', 'Good condition', 1, NULL, 1, 0, 9, 1),
-('PL002', 'Plant Lot B', 200, 180, 150, 150, 'Plant', 'Active', '2024-06-05', 'Stored in warehouse', 1, NULL, 1, 0, 9, 1),
-('PL003', 'Plant Lot C', 150, 130, 120, 120, 'Plant', 'Active', '2024-06-10', 'Requires monitoring', 1, NULL, 1, 0, 9, 1),
+('PL001', 'Plant Lot A', 100, 80, 70, 70, 'Plant', 'Used', '2024-06-01', 'Good condition', 1, NULL, 1, 0, 9, 1,0),
+('PL002', 'Plant Lot B', 200, 180, 150, 150, 'Plant', 'Used', '2024-06-05', 'Stored in warehouse', 1, NULL, 1, 0, 9, 1,0),
+('PL003', 'Plant Lot C', 150, 130, 120, 120, 'Plant', 'Used', '2024-06-10', 'Requires monitoring', 1, NULL, 1, 0, 9, 1,0),
+('PL007', 'Grafted Lot C', 0, NULL, NULL, 0, 'Plant', 'Pending', '2024-06-10', 'Requires monitoring', 1, NULL, 1, 0, 9, 0,1),
 
 -- Lô con (b? sung s? lu?ng thi?u, dã ki?m tra và s? d?ng h?t)
-('PL004', 'Plant Lot A - Extra', 30, 30, 30, 30, 'Plant', 'Active', '2024-06-02', 'Additional for PL001', 1, 1, 1, 0, 9, 1),
-('PL005', 'Plant Lot B - Extra', 50, 50, 50, 50, 'Plant', 'Active', '2024-06-06', 'Additional for PL002', 1, 2, 1, 0, 9, 1),
-('PL006', 'Plant Lot C - Extra', 30, 30, 30, 30, 'Plant', 'Active', '2024-06-11', 'Additional for PL003', 1, 3, 1, 0, 9, 1);
+('PL004', 'Plant Lot A - Extra', 30, 30, 30, 30, 'Plant', 'Used', '2024-06-02', 'Additional for PL001', 1, 1, 1, 0, 9, 1,0),
+('PL005', 'Plant Lot B - Extra', 50, 50, 50, 50, 'Plant', 'Used', '2024-06-06', 'Additional for PL002', 1, 2, 1, 0, 9, 1,0),
+('PL006', 'Plant Lot C - Extra', 30, 30, 30, 30, 'Plant', 'Used', '2024-06-11', 'Additional for PL003', 1, 3, 1, 0, 9, 1,0);
 
 INSERT INTO ipas.dbo.GraftedPlant 
 (GraftedPlantCode, GraftedPlantName, SeparatedDate, Status, GraftedDate, Note, MotherPlantID, IsDeleted,isCompleted ,PlantLotID, FarmID) 
 VALUES
-('GP001', 'Grafted Plant A', '2024-01-15', 'Healthy', '2024-01-10', 'Good condition', 1, 0 ,0 , 3, 1),
-('GP002', 'Grafted Plant B', '2024-02-10', 'Healthy', '2024-02-01', 'Needs monitoring', 2, 0, 0 ,3, 1),
-('GP003', 'Grafted Plant C',  '2024-03-05', 'Healthy', '2024-02-25', 'Strong growth', 3, 0, 0 ,3, 1),
-('GP004', 'Grafted Plant D',  '2024-04-20', 'Issue', '2024-04-10', 'Requires extra care', 4, 0, 0 ,3, 1),
-('GP005', 'Grafted Plant E',  '2024-05-12', 'Healthy', '2024-05-01', 'Excellent condition', 5, 0,0 , 3, 1),
-('GP006', 'Grafted Plant F',  '2024-06-10', 'Healthy', '2024-06-01', 'Stable condition', 6, 0, 0 ,3, 1),
-('GP007', 'Grafted Plant G',  '2024-07-15', 'Issue', '2024-07-05', 'Showing good progress', 7, 0 ,0, 3, 1),
-('GP008', 'Grafted Plant H',  '2024-08-20', 'Healthy', '2024-08-10', 'Needs more nutrients', 8, 0, 0 ,3, 1),
-('GP009', 'Grafted Plant I',  '2024-09-10', 'Healthy', '2024-09-01', 'No issues', 9, 0, 0 ,3, 2),
-('GP010', 'Grafted Plant J',  '2024-10-05', 'Healthy', '2024-09-25', 'Urgent care required', 10, 0,0 , 3, 2),
-('GP011', 'Grafted Plant K',  '2024-11-12', 'Used', '2024-11-01', 'Needs more light', 1, 0,0 , 3, 2),
-('GP012', 'Grafted Plant L', '2024-12-08', 'Used', '2024-12-01', 'Great potential', 2, 0, 0 ,3, 2),
-('GP013', 'Grafted Plant M', '2025-01-15', 'Used', '2025-01-05', 'Prone to pests', 3, 0, 0 ,3, 2),
-('GP014', 'Grafted Plant N', '2025-02-20', 'Healthy', '2025-02-10', 'Strong and steady', 4, 0, 0 ,3, 2),
-('GP015', 'Grafted Plant O',  '2025-03-10', 'Healthy', '2025-03-01', 'Requires urgent intervention', 5, 0, 0 ,3, 2);
+('GP001', 'Grafted Plant A', '2024-01-15', 'Healthy', '2024-01-10', 'Good condition', 1, 0 ,1 , 3, 1),
+('GP002', 'Grafted Plant B', '2024-02-10', 'Healthy', '2024-02-01', 'Needs monitoring', 2, 0, 0 ,NULL, 1),
+('GP003', 'Grafted Plant C',  '2024-03-05', 'Healthy', '2024-02-25', 'Strong growth', 3, 0, 0 ,NULL, 1),
+('GP004', 'Grafted Plant D',  '2024-04-20', 'Issue', '2024-04-10', 'Requires extra care', 4, 0, 0 ,NULL, 1),
+('GP005', 'Grafted Plant E',  '2024-05-12', 'Healthy', '2024-05-01', 'Excellent condition', 5, 0,0 , NULL, 1),
+('GP006', 'Grafted Plant F',  '2024-06-10', 'Healthy', '2024-06-01', 'Stable condition', 6, 0, 0 ,NULL, 1),
+('GP007', 'Grafted Plant G',  '2024-07-15', 'Issue', '2024-07-05', 'Showing good progress', 7, 0 ,0, NULL, 1),
+('GP008', 'Grafted Plant H',  '2024-08-20', 'Healthy', '2024-08-10', 'Needs more nutrients', 8, 0, 0 ,NULL, 1),
+('GP009', 'Grafted Plant I',  '2024-09-10', 'Healthy', '2024-09-01', 'No issues', 9, 0, 0 ,NULL, 2),
+('GP010', 'Grafted Plant J',  '2024-10-05', 'Healthy', '2024-09-25', 'Urgent care required', 10, 0,0 , NULL, 2),
+('GP011', 'Grafted Plant K',  '2024-11-12', 'Used', '2024-11-01', 'Needs more light', 1, 0,0 , NULL, 2),
+('GP012', 'Grafted Plant L', '2024-12-08', 'Used', '2024-12-01', 'Great potential', 2, 0, 0 ,NULL, 2),
+('GP013', 'Grafted Plant M', '2025-01-15', 'Used', '2025-01-05', 'Prone to pests', 3, 0, 0 ,NULL, 2),
+('GP014', 'Grafted Plant N', '2025-02-20', 'Healthy', '2025-02-10', 'Strong and steady', 4, 0, 0 ,NULL, 2),
+('GP015', 'Grafted Plant O',  '2025-03-10', 'Healthy', '2025-03-01', 'Requires urgent intervention', 5, 0, 0 ,NULL, 2);
 
 
 INSERT INTO [dbo].[SubProcess]
@@ -2197,7 +2199,7 @@ VALUES
 ('ValidationVariable','MinWidth', '1', 'double', N'Ðộ dài tối đa'),
 ('ValidationVariable','MinArea', '1', 'double', N'Diện tích tối thiểu'),
 ('ValidationVariable','MinRowOfLandPlot', '1', 'int', N'Số hàng tôi thiểu của 1 LandPlot'),
-('ValidationVariable','CoordiantionPointRequired', '3', 'int', N'Số điểm tối đa của thửa plantLot'),
+('ValidationVariable','CoordiantionPointRequired', '3', 'int', N'Số điểm tối thiểu của thửa'),
 ('ValidationVariable','MinDistancePlant', '0.1', 'double', N'Khoảng cách tối thiểu giữa các cây'),
 ('ValidationVariable','MinPlantOfLandRow', '1', 'int', N'Số cây tối thiểu 1 Hàng'),
 ('ValidationVariable','EditInDay', '3', 'int', N'Số ngày có thể chỉnh sửa sau khi đã được ghi nhận'),
@@ -2580,7 +2582,7 @@ INSERT INTO [dbo].[Report]
     ([ReportCode], [Description], [CreateDate], [QuestionOfUser], [AnswerFromExpert],
      [ImageURL], [IsTrainned], [AnswererID], [QuestionerID])
 VALUES
-    ('REP001', N'Report description 1', '2025-04-01 10:00:00', N'What is the disease with white spots on the plant?', N'It is powdery mildew.', 'https://res.cloudinary.com/dgshx4n2c/image/upload/v1744012238/hemiriqcnbaa1ult00r7.jpg', 1, 2, 10),
+    ('REP001', N'Report description 1', '2025-04-01 10:00:00', N'What is the disease with white spots on the plant?', N'It is powdery mildew.', 'https://res.cloudinary.com/dgshx4n2c/image/upload/v1746596869/uwfriwc7pdm0fxlzm8cb.png', 1, 2, 10),
     ('REP002', N'Report description 2', '2025-04-01 11:30:00', N'Leaves turn yellow and fall off, why?', N'The plant lacks potassium.', 'https://res.cloudinary.com/dm1xkvrjf/image/upload/v1745401510/aagnvvljdwdg9ahhbpul.jpg', 0, 3, 11),
     ('REP003', N'Report description 3', '2025-04-02 09:00:00', N'The plant is stunted and grows slowly?', N'Lack of light and nutrients.', 'https://res.cloudinary.com/dm1xkvrjf/image/upload/v1745401511/zzjgrfdz02hezroai7dp.jpg', 1, 1, 12),
     ('REP004', N'Report description 4', '2025-04-02 14:15:00', N'Leaves curl up, is it due to pests?', N'Could be aphids or thrips.', 'https://res.cloudinary.com/dm1xkvrjf/image/upload/v1745414859/occrn00xqosqryt9iqkf.jpg', 0, 4, 13),
@@ -2599,13 +2601,13 @@ VALUES
     ('REP017', N'Report description 17', '2025-04-09 07:10:00', N'Leaves are yellow with blotches?', N'Lack of micronutrients or virus infection.', 'https://res.cloudinary.com/dm1xkvrjf/image/upload/v1745401512/lgrox1gf3bkgk4osouz0.jpg', 0, 3, 14),
     ('REP018', N'Report description 18', '2025-04-09 12:50:00', N'Plant grows well but bears no fruit?', N'Might need pollination or change of variety.', 'https://res.cloudinary.com/dm1xkvrjf/image/upload/v1745401513/e6wx4derx2la4n3hlimk.jpg', 1, 4, 15),
     ('REP019', N'Report description 19', '2025-04-09 16:30:00', N'Tree sheds many leaves after flowering?', N'Nutrient or temperature shock.', 'https://res.cloudinary.com/dm1xkvrjf/image/upload/v1745401513/ir0xhkcwfrw0yrklwvkg.jpg', 1, 2, 10),
-    ('REP020', N'Report description 20', '2025-04-09 18:15:00', N'Can lime powder be used for soil treatment?', N'Yes, but apply with proper dosage.', 'https://res.cloudinary.com/dm1xkvrjf/image/upload/v1745402524/yzgilheic2u2gelst2yt.jpg', 0, 1, 11);
+    ('REP020', N'Report description 20', '2025-04-09 18:15:00', N'Can lime powder be used for soil treatment?', NULL, 'https://res.cloudinary.com/dm1xkvrjf/image/upload/v1745402524/yzgilheic2u2gelst2yt.jpg', 0, NULL, 11);
 	
 	-- =============================================
 -- 1. Insert Process: Quy trình mẫu chăm sóc cây bưởi bị sâu vẽ bùa
 -- =============================================
 INSERT INTO Process (ProcessCode, ProcessName, isDefault, isActive, isSample, CreateDate, IsDeleted, FarmID, MasterTypeID, PlanTargetInProcess)
-VALUES (N'PR001', N'Quy trình chăm sóc cây bưởi bị sâu vẽ bùa', 1, 1, 0, GETDATE(), 0, 1,12, 1);
+VALUES (N'PR001', N'Quy trình chăm sóc cây bưởi bị loét', 1, 1, 0, GETDATE(), 0, 1,12, 1);
 
 DECLARE @ProcessId INT = SCOPE_IDENTITY();
 
@@ -2729,7 +2731,7 @@ DECLARE @GroupKey  NVARCHAR(MAX) = CAST(NEWID() AS NVARCHAR(MAX));
 -- Lấy ID Process mẫu
 SELECT TOP 1 @TemplateProcessId = ProcessID 
 FROM Process
-WHERE ProcessCode = 'PR001'; -- Quy trình mẫu Chăm sóc bưởi
+WHERE ProcessCode = 'PR007'; -- Quy trình mẫu Chăm sóc bưởi
 
 -- ==========================================
 -- 2. Khai báo cursor duyệt SubProcess
@@ -2883,7 +2885,7 @@ WHILE @k <= 10
 BEGIN
     DECLARE @CropID INT = 9 ;
     DECLARE @Code NVARCHAR(10) = 'HH' + RIGHT('00' + CAST(100 + @k AS NVARCHAR),3);
-    DECLARE @DaysAgo INT = 1 + ABS(CHECKSUM(NEWID())) % 30; -- random từ 1-30 ngày trước
+    DECLARE @DaysAgo INT = 1 + ABS(CHECKSUM(NEWID())) % 10; -- random từ 1-15 ngày trước
     DECLARE @HarvestDate DATETIME = DATEADD(DAY, -@DaysAgo, GETDATE());
 
     INSERT INTO [ipas].dbo.HarvestHistory 
@@ -2910,7 +2912,7 @@ BEGIN
         DECLARE @PlantID INT = 9 + ABS(CHECKSUM(NEWID())) % 12; -- 9-20
         DECLARE @Revenue FLOAT = 1000 + ABS(CHECKSUM(NEWID())) % 500;
         DECLARE @CostPrice FLOAT = @Revenue - 100;
-        DECLARE @QuantityNeed INT = 10 + ABS(CHECKSUM(NEWID())) % 20;
+        DECLARE @QuantityNeed INT = 100 + ABS(CHECKSUM(NEWID())) % 22;
         DECLARE @ActualQuantity INT = @QuantityNeed + ABS(CHECKSUM(NEWID())) % 10;
 
         INSERT INTO [ipas].dbo.ProductHarvestHistory 

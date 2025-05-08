@@ -366,6 +366,7 @@ function HarvestDays() {
           cancelConfirmModal.hideModal();
           formModal.hideModal();
           recordModal.hideModal();
+          importModal.hideModal();
         }}
         onCancel={cancelConfirmModal.hideModal}
       />

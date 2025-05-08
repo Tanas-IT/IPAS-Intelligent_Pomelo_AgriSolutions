@@ -17,11 +17,11 @@ import style from "./PlantOverview.module.scss";
 import dayjs from "dayjs";
 import { useMasterTypeOptions, useSystemConfigOptions } from "@/hooks";
 import { MASTER_TYPE, SYSTEM_CONFIG_GROUP } from "@/constants";
-import { harvestService } from "@/services";
+import { harvestService, plantService } from "@/services";
 import { GetHarvestStatisticOfPlant } from "@/payloads";
 import { usePlantStore } from "@/stores";
 import { Icons } from "@/assets";
-import { PlantSectionHeader } from "@/components";
+import { LoadingSkeleton, PlantSectionHeader } from "@/components";
 const { Text } = Typography;
 const { RangePicker } = DatePicker;
 
@@ -31,19 +31,40 @@ interface PlantOverviewProps {
 }
 
 function PlantOverview({ productType, timeline }: PlantOverviewProps) {
+  const [isLoading, setIsLoading] = useState<boolean>(true);
   const { options: productOptions } = useMasterTypeOptions(MASTER_TYPE.PRODUCT);
   const [yearRange, setYearRange] = useState<[dayjs.Dayjs, dayjs.Dayjs]>(() => {
     const currentYear = dayjs().year();
     return [dayjs().subtract(1, "year"), dayjs(currentYear.toString(), "YYYY")];
   });
+  const pathnames = location.pathname.split("/");
+  const plantId = pathnames[pathnames.length - 2];
   const [selectedProduct, setSelectedProduct] = useState<number | string>();
   const [harvestData, setHarvestData] = useState<GetHarvestStatisticOfPlant | null>(null);
-  const { plant, plantId } = usePlantStore();
+  const { plant, setPlant, setPlantId } = usePlantStore();
   const { options, loading } = useSystemConfigOptions(
     SYSTEM_CONFIG_GROUP.YIELD_THRESHOLD,
     undefined,
     true,
   );
+
+  const fetchPlant = async () => {
+    await new Promise((resolve) => setTimeout(resolve, 500)); // ⏳ Delay 1 giây
+    try {
+      if (plant && plant.plantId === Number(plantId)) return;
+      const res = await plantService.getPlant(Number(plantId));
+      if (res.statusCode === 200) {
+        setPlant(res.data);
+        setPlantId(res.data.plantId);
+      }
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  useEffect(() => {
+    fetchPlant();
+  }, []);
 
   useEffect(() => {
     if (productType !== undefined && timeline?.length === 2) {
@@ -57,12 +78,12 @@ function PlantOverview({ productType, timeline }: PlantOverviewProps) {
   const fetchData = async () => {
     if (!selectedProduct || !yearRange || (!plant && !plantId)) return;
 
-    const resolvedPlantId = plant?.plantId ?? plantId; // ✅ Lấy ID từ plant hoặc plantId
-    if (resolvedPlantId === null) return;
+    const resolvedPlantId = plant?.plantId ?? plantId;
+    if (!selectedProduct || !yearRange || !resolvedPlantId) return;
 
     const [fromYear, toYear] = [yearRange[0].year(), yearRange[1].year()];
     const res = await harvestService.getHarvestStatisticOfPlant({
-      plantId: resolvedPlantId,
+      plantId: Number(resolvedPlantId),
       yearFrom: fromYear,
       yearTo: toYear,
       productId: Number(selectedProduct),
@@ -94,6 +115,8 @@ function PlantOverview({ productType, timeline }: PlantOverviewProps) {
     })) ?? [];
 
   const shouldRotateLabels = chartData.length > 6; // Nếu nhiều hơn 6 điểm thì xoay
+
+  if (isLoading) return <LoadingSkeleton rows={10} />;
 
   return (
     <Flex className={style.contentDetailWrapper} vertical>

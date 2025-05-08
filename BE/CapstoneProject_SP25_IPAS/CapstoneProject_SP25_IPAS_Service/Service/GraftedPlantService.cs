@@ -72,6 +72,9 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
                     if (plantExist.IsPassed != true)
                         return new BusinessResult(400, "Mother Plant is not mark as PASS to grafted");
+                    var canCreateDate = await _unitOfWork.SystemConfigRepository.GetConfigValue(SystemConfigConst.CREATE_GRAFTED_ENABLE_DATE, (int)3);
+                    if(createRequest.GraftedDate.Value.Date.AddDays(3) >= DateTime.Now.Date || createRequest.GraftedDate.Value.Date.AddDays(-3) >= DateTime.Now.Date)
+                            return new BusinessResult(400, $"You only can create grafted plant in range {canCreateDate} date.");
                     // Create the new Plant entity from the request
                     //var jsonData = JsonConvert.DeserializeObject<PlantModel>(plantExist.Data!.ToString()!);
                     //var jsonData = plantExist.Data as PlantModel;
@@ -961,6 +964,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             {
                 try
                 {
+                    var timeZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
+                    var today = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, timeZone);
                     //  1️ Kiểm tra GraftedPlant có tồn tại không
                     var graftedPlant = await _unitOfWork.GraftedPlantRepository.GetByCondition(x => x.GraftedPlantId == request.graftedId && x.IsDeleted == false);
                     if (graftedPlant == null)
@@ -1007,7 +1012,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     {
                         PlantCode = $"{CodeAliasEntityConst.PLANT}{code}-{DateTime.Now.ToString("ddMMyy")}-{Util.SplitByDash(motherPlant.PlantCode!).First()}",
                         PlantName = $"{graftedPlant.GraftedPlantName} + {code}",
-                        PlantingDate = DateTime.Now,
+                        PlantingDate = today,
                         CreateDate = DateTime.Now,
                         HealthStatus = graftedPlant.Status,
                         MasterTypeId = motherPlant.MasterTypeId ?? null, // Lấy MasterTypeId từ MotherPlant

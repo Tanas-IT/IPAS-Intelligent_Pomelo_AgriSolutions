@@ -112,12 +112,6 @@ function Farm() {
     },
   });
 
-  //   const { handleAdd, isAdding } = useTableAdd({
-  //     addService: userService.createUser,
-  //     fetchData: fetchData,
-  //     onSuccess: () => formModal.hideModal(),
-  //   });
-
   const handleChangeStatus = async (
     ids?: number[] | string[],
     type?: "activate" | "deactivate",

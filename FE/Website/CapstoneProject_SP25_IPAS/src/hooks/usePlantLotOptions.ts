@@ -1,6 +1,5 @@
 import { useState, useEffect } from "react";
 import { plantLotService } from "@/services";
-import { ApiResponse, GetPlantLot } from "@/payloads";
 
 interface SelectOption {
   value: number | string;

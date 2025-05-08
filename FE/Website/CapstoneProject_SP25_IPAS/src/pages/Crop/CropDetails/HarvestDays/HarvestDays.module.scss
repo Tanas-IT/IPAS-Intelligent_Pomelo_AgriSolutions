@@ -154,6 +154,7 @@
     }
 
     .fileName {
+      max-width: 12rem;
       font-weight: bold;
       color: vars.$color_primary;
     }

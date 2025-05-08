@@ -260,8 +260,8 @@ function PlantLotCriteria() {
                 if (conditionGroups.length === 0) return false; // Không có tiêu chí "Condition" nào
 
                 return conditionGroups.every((group) =>
-                  group.criteriaList.every((item) =>
-                    initialCriteria.hasOwnProperty(item.criteriaId),
+                  group.criteriaList.every(
+                    (item) => initialCriteria[item.criteriaId] != null, // !== null && !== undefined
                   ),
                 );
               })();

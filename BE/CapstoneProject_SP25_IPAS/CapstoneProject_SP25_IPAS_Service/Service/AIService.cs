@@ -219,21 +219,21 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     {
                         if (result.Count() > 0)
                         {
-                            return new BusinessResult(Const.SUCCESS_PREDICT_IMAGE_BY_FILE_CODE, Const.SUCCESS_PREDICT_IMAGE_BY_FILE_MSG, result);
+                            return new BusinessResult(Const.SUCCESS_PREDICT_IMAGE_BY_URL_CODE, Const.SUCCESS_PREDICT_IMAGE_BY_URL_MSG, result);
                         }
                         else
                         {
-                            return new BusinessResult(400, "Can not detect diseases on that image");
+                            return new BusinessResult(404, "Can not detect diseases on that image");
 
                         }
                     }
-                    return new BusinessResult(Const.FAIL_PREDICT_IMAGE_BY_FILE_CODE, Const.FAIL_PREDICT_IMAGE_BY_FILE_MSG);
+                    return new BusinessResult(Const.FAIL_PREDICT_IMAGE_BY_URL_CODE, Const.FAIL_PREDICT_IMAGE_BY_URL_MSG);
 
                 }
             }
             catch (Exception ex)
             {
-                return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
+                return new BusinessResult(400, "Can not detect diseases on that image");
             }
         }
 
@@ -286,7 +286,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             catch (Exception ex)
             {
                 // Xử lý lỗi
-                return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
+                return new BusinessResult(400, "Can not detect diseases on that image");
             }
         }
 
