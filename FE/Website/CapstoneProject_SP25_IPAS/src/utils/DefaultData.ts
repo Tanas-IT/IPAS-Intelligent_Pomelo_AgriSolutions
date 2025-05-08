@@ -16,6 +16,7 @@ import {
   FilterPlantLotState,
   FilterPlantState,
   FilterUserState,
+  FilterWorkLogState,
   LogoState,
 } from "@/types";
 
@@ -193,6 +194,15 @@ export const DEFAULT_PLAN_FILTERS: FilterPlanState = {
   frequency: [] as string[],
   isActive: null,
   assignor: [] as string[],
+};
+
+export const DEFAULT_WORK_LOG_FILTERS: FilterWorkLogState = {
+  workDateFrom: "",
+  workDateTo: "",
+  growthStage: [] as string[],
+  status: [] as string[],
+  employees: [] as string[],
+  typePlan: [] as string[],
 };
 
 export const DEFAULT_GRAFTED_PLANT_FILTERS: FilterGraftedPlantState = {
