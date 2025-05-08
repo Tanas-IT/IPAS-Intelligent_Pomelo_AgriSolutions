@@ -2054,18 +2054,18 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     }
                     if (startTime >= endTime)
                     {
-                        throw new Exception("Start time must be less than End Time");
+                        return new BusinessResult(400,"Start time must be less than End Time");
                     }
                     if (changeEmployeeOfWorkLog.DateWork.Value.Date == DateTime.Now.Date)
                     {
                         if (startTime <= vietnamTimeOfDay)
                         {
-                            throw new Exception("Start time must be later than the current time");
+                            return new BusinessResult(400,"Start time must be later than the current time");
                         }
 
                         if (endTime <= startTime)
                         {
-                            throw new Exception("End time must be greater than start time");
+                            return new BusinessResult(400,"End time must be greater than start time");
                         }
                     }
 
@@ -2082,7 +2082,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
                         if (checkTime < minTime || checkTime > maxTime)
                         {
-                            throw new Exception($"Time of work ({checkTime} minutes) does not valid! It must be in range {minTime} - {maxTime} minutes.");
+                           return new BusinessResult(400,$"Time of work ({checkTime} minutes) does not valid! It must be in range {minTime} - {maxTime} minutes.");
                         }
                     }
                     getWorkLog.Date = changeEmployeeOfWorkLog.DateWork;
@@ -2107,7 +2107,15 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 {
                     checkDate = getWorkLog.Date.Value;
                 }
-                await _unitOfWork.WorkLogRepository.CheckConflictTaskOfEmployee(startCheckTime, endCheckTime, checkDate, changeEmployeeOfWorkLog.ListEmployeeUpdate.Select(x => x.NewUserId).ToList(), changeEmployeeOfWorkLog.WorkLogId);
+
+                try
+                {
+                    await _unitOfWork.WorkLogRepository.CheckConflictTaskOfEmployee(startCheckTime, endCheckTime, checkDate, changeEmployeeOfWorkLog.ListEmployeeUpdate.Select(x => x.NewUserId).ToList(), changeEmployeeOfWorkLog.WorkLogId);
+                }
+                catch (Exception ex)
+                {
+                    return new BusinessResult(400, ex.Message);
+                }
 
 
 
