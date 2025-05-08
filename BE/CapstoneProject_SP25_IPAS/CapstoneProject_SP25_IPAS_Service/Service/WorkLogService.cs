@@ -2347,7 +2347,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             }
             catch (Exception ex)
             {
-                return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
+                return new BusinessResult(Const.ERROR_EXCEPTION, Const.ERROR_MESSAGE);
             }
         }
 
@@ -2808,6 +2808,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
        .GetConfigValue(SystemConfigConst.FAILED.Trim(), "Failed");
                 var getStatusRedo = await _unitOfWork.SystemConfigRepository
       .GetConfigValue(SystemConfigConst.REDO.Trim(), "Redo");
+                var getStatusNotStarted = await _unitOfWork.SystemConfigRepository
+    .GetConfigValue(SystemConfigConst.REDO.Trim(), "Not Started");
                 if (getUserWorkLog != null)
                 {
                     if (getUserWorkLog.StatusOfUserWorkLog != null)
@@ -2825,7 +2827,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     getUserWorkLog.ReplaceUserId = null;
                     if (getUserWorkLog.IsDeleted == true)
                     {
-                        getUserWorkLog.StatusOfUserWorkLog = getStatusReceived;
+                       
+                            getUserWorkLog.StatusOfUserWorkLog = getStatusReceived;
                     }
                     else
                     {
