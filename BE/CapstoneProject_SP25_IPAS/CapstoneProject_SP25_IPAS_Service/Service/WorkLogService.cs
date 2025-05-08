@@ -721,8 +721,11 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 var users = await _unitOfWork.UserRepository.GetAllNoPaging();
                 if (!string.IsNullOrEmpty(scheduleFilter.Assignee))
                 {
-                    var assignees = scheduleFilter.Assignee.Split(',', StringSplitOptions.TrimEntries).Select(x => x.ToLower()).ToList();
-                    var assigneeIds = users.Where(u => assignees.Contains(u.FullName.ToLower())).Select(u => u.UserId).ToList();
+                    var assignees = scheduleFilter.Assignee.Split(',', StringSplitOptions.TrimEntries).ToList();
+                    var assigneeIds = users
+                                    .Where(u => assignees.Contains(u.FullName))
+                                    .Select(u => u.UserId)
+                                    .ToList();
 
                     filter = filter.And(x => x.UserWorkLogs.Any(uwl => assigneeIds.Contains(uwl.UserId)));
                 }
