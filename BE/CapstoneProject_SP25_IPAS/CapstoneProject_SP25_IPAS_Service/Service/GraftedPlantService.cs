@@ -768,7 +768,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 && x.GraftedDate!.Value.Year == DateTime.Now.Year);
 
             if (countGraftedInYear >= (maxGraftedBranches))
-                errors.Add($"This plant has already grafted {countGraftedInYear} times this year, no more grafting allowed.");
+                errors.Add($"This plant is growth in {plant.PlantingDate!.Value} can only grafted {maxGraftedBranches}.\nThis plant has already grafted {countGraftedInYear} times this year, no more grafting allowed.");
             //}
 
             return errors.Count > 0 ? string.Join("\n", errors) : null!;

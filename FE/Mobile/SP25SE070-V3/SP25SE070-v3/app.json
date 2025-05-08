@@ -4,7 +4,7 @@
     "slug": "SP25SE070-v3",
     "version": "1.0.0",
     "orientation": "portrait",
-    "icon": "./src/assets/logo-removebg-preview1.png",
+    "icon": "./src/assets/logo-removebg-preview2.png",
     "userInterfaceStyle": "light",
     "newArchEnabled": true,
     "splash": {
@@ -23,7 +23,7 @@
     },
     "android": {
       "adaptiveIcon": {
-        "foregroundImage": "./src/assets/logo-removebg-preview.png",
+        "foregroundImage": "./src/assets/logo-removebg-preview2.png",
         "backgroundColor": "#ffffff"
       },
       "permissions": [

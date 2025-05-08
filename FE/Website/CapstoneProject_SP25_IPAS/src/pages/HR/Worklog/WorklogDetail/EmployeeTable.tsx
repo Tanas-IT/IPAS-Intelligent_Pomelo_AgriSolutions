@@ -35,6 +35,10 @@ const EmployeeTable: React.FC<EmployeeTableProps> = ({
 }) => {
   const [replacingStates, setReplacingStates] = useState<{ [key: number]: number | null }>({});
   const [employee, setEmployee] = useState<EmployeeType[]>([]);
+  console.log("replacingStates", replacingStates);
+  console.log("employees", employees);
+  console.log("tempReporterId", tempReporterId);
+
 
   useEffect(() => {
     const fetchEmployees = async () => {
@@ -64,8 +68,13 @@ const EmployeeTable: React.FC<EmployeeTableProps> = ({
     setReplacingStates((prev) => {
       const newState = { ...prev, [replacedUserId]: replacementUserId };
       onUpdateReplacingStates(newState);
+      console.log("tempReporterId", tempReporterId);
+      console.log("replacedUserId", replacedUserId);
+
 
       if (tempReporterId === replacedUserId) {
+        console.log("vo day");
+
         onUpdateTempReporter(replacementUserId);
       }
 
@@ -116,10 +125,10 @@ const EmployeeTable: React.FC<EmployeeTableProps> = ({
             status === "Received"
               ? "green"
               : status === "Replaced" || status === "BeReplaced"
-              ? "orange"
-              : status
-              ? "red"
-              : "gray"
+                ? "orange"
+                : status
+                  ? "red"
+                  : "gray"
           }
         >
           {status || "Not Yet"}
@@ -137,24 +146,30 @@ const EmployeeTable: React.FC<EmployeeTableProps> = ({
     {
       title: "Reporter",
       render: (_: any, record: GetUser) => {
-        // console.log('[DEBUG]', {
-        //   currentUserId: record.userId,
-        //   tempReporterId,
-        //   isMatch: record.userId === tempReporterId,
-        //   typeCheck: {
-        //     userIdType: typeof record.userId,
-        //     reporterIdType: typeof tempReporterId
-        //   }
-        // });
+        // const isCurrentReporter = record.userId === tempReporterId;
+        // console.log("isCurrentReporter", isCurrentReporter);
+
+
+        // // 2. Check nếu đang là user bị thay thế (nằm trong keys của replacingStates)
+        // const isBeingReplaced = Object.keys(replacingStates).includes(String(record.userId));
+        // console.log("isBeingReplaced", isBeingReplaced);
+
+        // // 3. Check nếu đang là user thay thế (nằm trong values của replacingStates)
+        // const isReplacingSomeone = Object.values(replacingStates).includes(record.userId);
+        // console.log("isReplacingSomeone", isReplacingSomeone);
+
+        // const isChecked = isCurrentReporter || isBeingReplaced || isReplacingSomeone;
+        const isCurrentReporter =
+  record.userId === tempReporterId ||
+  replacingStates[record.userId] === tempReporterId;
+
 
         return (
           <Radio
-            checked={record.userId === tempReporterId}
+            checked={isCurrentReporter}
             onChange={() => onUpdateTempReporter(record.userId)}
             disabled={!isEditable}
-          >
-            {record.fullName}
-          </Radio>
+          />
         );
       },
     },
@@ -166,6 +181,12 @@ const EmployeeTable: React.FC<EmployeeTableProps> = ({
         const availableReplacements = employee.filter(
           (emp) => emp.userId !== record.userId && !employees.some((e) => e.userId === emp.userId),
         );
+        // const availableReplacements = employee.filter(
+        //   (emp) =>
+        //     emp.userId !== record.userId &&
+        //     !employees.some((e) => e.userId === emp.userId) &&
+        //     !Object.values(replacingStates).includes(emp.userId) // Loại bỏ nhân viên đã được chọn làm thay thế
+        // );
 
         return isEditable ? (
           isReplacing ? (

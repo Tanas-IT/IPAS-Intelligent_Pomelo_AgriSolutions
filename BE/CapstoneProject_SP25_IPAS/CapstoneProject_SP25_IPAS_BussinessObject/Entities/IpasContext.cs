@@ -94,8 +94,6 @@ public partial class IpasContext : DbContext
 
     public virtual DbSet<UserWorkLog> UserWorkLogs { get; set; }
 
-    public virtual DbSet<Warning> Warnings { get; set; }
-
     public virtual DbSet<WorkLog> WorkLogs { get; set; }
     public virtual DbSet<Type_Type> Type_Types { get; set; }
     public virtual DbSet<PlanNotification> PlanNotifications { get; set; }
@@ -207,7 +205,6 @@ public partial class IpasContext : DbContext
                 .HasMaxLength(100)
                 .UseCollation("SQL_Latin1_General_CP1_CI_AS");
             entity.Property(e => e.IsActive).HasColumnName("isActive");
-            entity.Property(e => e.IsDefault).HasColumnName("isDefault");
 
             entity.HasOne(d => d.MasterType).WithMany(p => p.Criterias)
                .HasForeignKey(d => d.MasterTypeID)
@@ -634,7 +631,7 @@ public partial class IpasContext : DbContext
             entity.Property(e => e.NotificationId).HasColumnName("NotificationID");
             entity.Property(e => e.Content).UseCollation("SQL_Latin1_General_CP1_CI_AS");
             entity.Property(e => e.CreateDate).HasColumnType("datetime");
-            entity.Property(e => e.SenderID).HasColumnName("SenderID");
+            entity.Property(e => e.UserID).HasColumnName("UserID");
             entity.Property(e => e.Link)
                 .HasMaxLength(100)
                 .UseCollation("SQL_Latin1_General_CP1_CI_AS");
@@ -652,7 +649,7 @@ public partial class IpasContext : DbContext
                 .HasConstraintName("Notification_MasterType_FK");
 
             entity.HasOne(d => d.Sender).WithMany(p => p.NotificationSenders)
-               .HasForeignKey(d => d.SenderID)
+               .HasForeignKey(d => d.UserID)
                .OnDelete(DeleteBehavior.Cascade)
                .HasConstraintName("FK_Notification_Sender");
         });
@@ -810,9 +807,6 @@ public partial class IpasContext : DbContext
             entity.Property(e => e.IsActive).HasColumnName("isActive");
             entity.Property(e => e.MasterTypeId).HasColumnName("MasterTypeID");
             entity.Property(e => e.Notes)
-                .HasMaxLength(255)
-                .UseCollation("SQL_Latin1_General_CP1_CI_AS");
-            entity.Property(e => e.PesticideName)
                 .HasMaxLength(255)
                 .UseCollation("SQL_Latin1_General_CP1_CI_AS");
             entity.Property(e => e.PlanCode)
@@ -1280,32 +1274,6 @@ public partial class IpasContext : DbContext
                 .HasConstraintName("FK__UserWorkL__WorkL__25518C17");
         });
 
-        modelBuilder.Entity<Warning>(entity =>
-        {
-            entity.HasKey(e => e.WarningId).HasName("Warning_PK");
-
-            entity.ToTable("Warning");
-
-            entity.Property(e => e.WarningId)
-                .ValueGeneratedNever()
-                .HasColumnName("WarningID");
-            entity.Property(e => e.CreateDate).HasColumnType("datetime");
-            entity.Property(e => e.Description).UseCollation("SQL_Latin1_General_CP1_CI_AS");
-            entity.Property(e => e.Level)
-                .HasMaxLength(200)
-                .UseCollation("SQL_Latin1_General_CP1_CI_AS");
-            entity.Property(e => e.Status)
-                .HasMaxLength(200)
-                .UseCollation("SQL_Latin1_General_CP1_CI_AS");
-            entity.Property(e => e.UpdateDate).HasColumnType("datetime");
-            entity.Property(e => e.WarningCode)
-                .HasMaxLength(100)
-                .UseCollation("SQL_Latin1_General_CP1_CI_AS");
-            entity.Property(e => e.WarningName)
-                .HasMaxLength(200)
-                .UseCollation("SQL_Latin1_General_CP1_CI_AS");
-        });
-
         modelBuilder.Entity<WorkLog>(entity =>
         {
             entity.HasKey(e => e.WorkLogId).HasName("PK__WorkLog__FE542DC2BB0A0EA4");
@@ -1319,7 +1287,6 @@ public partial class IpasContext : DbContext
             entity.Property(e => e.Status)
                 .HasMaxLength(50)
                 .UseCollation("SQL_Latin1_General_CP1_CI_AS");
-            entity.Property(e => e.WarningId).HasColumnName("WarningID");
             entity.Property(e => e.WorkLogCode)
                 .HasMaxLength(50)
                 .UseCollation("SQL_Latin1_General_CP1_CI_AS");
@@ -1329,10 +1296,6 @@ public partial class IpasContext : DbContext
                 .HasForeignKey(d => d.ScheduleId)
                 .OnDelete(DeleteBehavior.Cascade)
                 .HasConstraintName("FK__WorkLog__Schedul__236943A5");
-
-            entity.HasOne(d => d.Warning).WithMany(p => p.WorkLogs)
-                .HasForeignKey(d => d.WarningId)
-                .HasConstraintName("WorkLog_Warning_FK");
         });
 
         modelBuilder.Entity<LegalDocument>(entity =>

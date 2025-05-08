@@ -111,7 +111,6 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                 Priority = request.Priority,
                                 IsActive = true,
                                 IsDeleted = false,
-                                IsDefault = false,
                                 MinValue = request.MinValue,
                                 MaxValue = request.MaxValue,
                                 FrequencyDate = request.FrequencyDate,

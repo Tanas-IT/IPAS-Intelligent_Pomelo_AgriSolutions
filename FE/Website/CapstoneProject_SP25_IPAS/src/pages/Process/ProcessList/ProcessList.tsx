@@ -14,13 +14,14 @@ import TableTitle from "./TableTitle";
 import ProcessModal from "./AddProcessModal";
 import { useNavigate } from "react-router-dom";
 import AIGenerateModal from "./AIGenerateModal";
+import { ROUTES } from "@/constants";
 
 
 function ProcessList() {
   const navigate = useNavigate();
   const formModal = useModal<GetProcessList>();
   const aiModal = useModal();
-  const deleteConfirmModal = useModal<{ ids: number[]  }>();
+  const deleteConfirmModal = useModal<{ ids: number[] }>();
   const [filters, setFilters] = useState({
     createDateFrom: "",
     createDateTo: "",
@@ -86,26 +87,26 @@ function ProcessList() {
     />
   );
   const { handleDelete } = useTableDelete(
-      {
-        deleteFunction: processService.deleteProcess,
-        fetchData,
-        onSuccess: () => {
-          deleteConfirmModal.hideModal();
-        },
+    {
+      deleteFunction: processService.deleteProcess,
+      fetchData,
+      onSuccess: () => {
+        deleteConfirmModal.hideModal();
       },
-      {
-        currentPage,
-        rowsPerPage,
-        totalRecords,
-        handlePageChange,
-      },
-    );
+    },
+    {
+      currentPage,
+      rowsPerPage,
+      totalRecords,
+      handlePageChange,
+    },
+  );
 
-    const handleAIGenerate = (processName: string, isSample: boolean, masterTypeId: number, planTargetInProcess: number) => {
-      navigate(`/ai-process-details`, { state: { processName, isSample, masterTypeId, planTargetInProcess } });
-      aiModal.hideModal();
-    };
-  
+  const handleAIGenerate = (processName: string, isSample: boolean, masterTypeId: number, planTargetInProcess: number) => {
+    navigate(`/ai-process-details`, { state: { processName, isSample, masterTypeId, planTargetInProcess } });
+    aiModal.hideModal();
+  };
+
 
   return (
     <Flex className={style.container}>
@@ -133,6 +134,8 @@ function ProcessList() {
           caption="Process Management Table"
           notifyNoData="No data to display"
           renderAction={(process: GetProcessList) => <ActionMenuProcess id={process.processId} onDelete={() => deleteConfirmModal.showModal({ ids: [process.processId] })} />}
+          isOnRowEvent={true}
+          onRowDoubleClick={(record) => navigate(ROUTES.PROCESS_DETAIL(record.processId))}
         />
 
         <NavigationDot
@@ -148,7 +151,7 @@ function ProcessList() {
         isOpen={formModal.modalState.visible}
         onClose={formModal.hideModal}
         onSave={handleAdd} />
-        <AIGenerateModal
+      <AIGenerateModal
         isOpen={aiModal.modalState.visible}
         onClose={aiModal.hideModal}
         onGenerate={handleAIGenerate}

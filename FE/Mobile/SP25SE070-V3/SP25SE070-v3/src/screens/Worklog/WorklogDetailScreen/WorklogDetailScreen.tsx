@@ -68,10 +68,10 @@ const WorklogDetailScreen: React.FC<WorklogDetailScreenProps> = ({ route }) => {
   const currentUser = worklog?.listEmployee.find(
     (employee) => employee.userId === Number(userId)
   );
-  
+
   const currentUserStatus = currentUser?.statusOfUserWorkLog;
-  
-  
+
+
 
   const isUserRejected = () => {
     const isRejectedInEmployee =
@@ -128,27 +128,22 @@ const WorklogDetailScreen: React.FC<WorklogDetailScreenProps> = ({ route }) => {
         {
           text: "Yes",
           onPress: async () => {
-            try {
-              const payload = {
-                workLogId: Number(worklogId),
-                userId: Number(userId),
-              };
-              const res = await worklogService.cancelWorklog(payload);
-              if (res.statusCode === 200) {
-                Toast.show({
-                  type: "success",
-                  text1: "Worklog redo requested successfully",
-                });
-                fetchWorklogDetail();
-              } else {
-                Toast.show({
-                  type: "error",
-                  text1: "Redo worklog failed",
-                });
-              }
-            } catch (error) {
-              // console.error("Error redoing worklog:", error);
-              Alert.alert("Error", "Failed to redo worklog. Please try again.");
+            const payload = {
+              workLogId: Number(worklogId),
+              userId: Number(userId),
+            };
+            const res = await worklogService.cancelWorklog(payload);
+            if (res.statusCode === 200) {
+              Toast.show({
+                type: "success",
+                text1: "Worklog redo requested successfully",
+              });
+              fetchWorklogDetail();
+            } else {
+              Toast.show({
+                type: "error",
+                text1: "Redo worklog failed",
+              });
             }
           },
         },
@@ -169,35 +164,27 @@ const WorklogDetailScreen: React.FC<WorklogDetailScreenProps> = ({ route }) => {
         {
           text: "Yes",
           onPress: async () => {
-            try {
-              const payload: CancelWorklogRequest = {
-                workLogId: Number(worklogId),
-                userId: Number(userId),
-              };
-              const res = await worklogService.cancelWorklog(payload);
-              if (res.statusCode === 200) {
-                Toast.show({
-                  type: "success",
-                  text1: "Cancel worklog successfully",
-                });
-                fetchWorklogDetail();
-              } else {
-                Toast.show({
-                  type: "error",
-                  text1: "Cancel worklog failed",
-                });
-              }
-
-              setWorklog((prev) =>
-                prev ? { ...prev, status: "Cancelled" } : null
-              );
-            } catch (error) {
-              // console.error("Error cancelling worklog:", error);
-              Alert.alert(
-                "Error",
-                "Failed to cancel worklog. Please try again."
-              );
+            const payload: CancelWorklogRequest = {
+              workLogId: Number(worklogId),
+              userId: Number(userId),
+            };
+            const res = await worklogService.cancelWorklog(payload);
+            if (res.statusCode === 200) {
+              Toast.show({
+                type: "success",
+                text1: "Cancel worklog successfully",
+              });
+              fetchWorklogDetail();
+            } else {
+              Toast.show({
+                type: "error",
+                text1: "Cancel worklog failed",
+              });
             }
+
+            setWorklog((prev) =>
+              prev ? { ...prev, status: "Cancelled" } : null
+            );
           },
         },
       ],

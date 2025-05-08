@@ -12,9 +12,12 @@ import { planColumns } from "./PlanColumn";
 import { TableTitle } from "./TableTitle";
 import { GetPlan } from "@/payloads/plan";
 import { toast } from "react-toastify";
+import { useNavigate } from "react-router-dom";
+import { ROUTES } from "@/constants";
 
 
 function PlanList() {
+  const navigate = useNavigate();
   const [filters, setFilters] = useState({
     createDateFrom: "",
     createDateTo: "",
@@ -25,7 +28,7 @@ function PlanList() {
     isActive: [] as string[],
     assignor: [] as string[],
   });
-  const deleteConfirmModal = useModal<{ ids: number[]  }>();
+  const deleteConfirmModal = useModal<{ ids: number[] }>();
 
   const {
     data,
@@ -52,20 +55,20 @@ function PlanList() {
   }, [currentPage, rowsPerPage, sortField, searchValue, filters]);
 
   const { handleDelete } = useTableDelete(
-      {
-        deleteFunction: planService.deletePlan,
-        fetchData,
-        onSuccess: () => {
-          deleteConfirmModal.hideModal();
-        },
+    {
+      deleteFunction: planService.deletePlan,
+      fetchData,
+      onSuccess: () => {
+        deleteConfirmModal.hideModal();
       },
-      {
-        currentPage,
-        rowsPerPage,
-        totalRecords,
-        handlePageChange,
-      },
-    );
+    },
+    {
+      currentPage,
+      rowsPerPage,
+      totalRecords,
+      handlePageChange,
+    },
+  );
 
   const updateFilters = (key: string, value: any) => {
     setFilters((prev) => {
@@ -127,6 +130,9 @@ function PlanList() {
               onDelete={() => deleteConfirmModal.showModal({ ids: [plan.planId] })}
             />
           )}
+          isOnRowEvent={true}
+          onRowDoubleClick={(record) => navigate(ROUTES.PLAN_DETAIL(record.planId))}
+
         />
 
         <NavigationDot

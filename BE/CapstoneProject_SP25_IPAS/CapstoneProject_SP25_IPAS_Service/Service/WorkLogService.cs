@@ -207,14 +207,15 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
                     // 🔹 Lưu UserWorkLogs vào DB
                     await _unitOfWork.UserWorkLogRepository.InsertRangeAsync(userWorkLogs);
-
+                    var timeZoneNoti = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
+                    var todayNoti = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, timeZoneNoti);
                     var addNotification = new Notification()
                     {
                         Content = "Work " + addNewTaskModel.TaskName + " has just been created",
                         Title = NotifitationConst.WORKLOG,
                         IsRead = false,
                         MasterTypeId = 36,
-                        CreateDate = DateTime.Now,
+                        CreateDate = todayNoti,
                         NotificationCode = "NTF " + "_" + DateTime.Now.Date.ToString()
 
                     };
@@ -280,13 +281,15 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 var getWorkLog = await _unitOfWork.WorkLogRepository.GetByID(worklogId);
                 await _unitOfWork.WorkLogRepository.CheckConflictTaskOfEmployee(getWorkLog.ActualStartTime.Value, getWorkLog.ActualEndTime.Value, getWorkLog.Date.Value, newListEmployee);
                 var result = await _unitOfWork.WorkLogRepository.AssignTaskForUser(employeeId, worklogId, isRepoter);
+                var timeZoneNoti = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
+                var todayNoti = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, timeZoneNoti);
                 var addNotification = new Notification()
                 {
                     Content = getWorkLog.WorkLogName + " has changed employee. Please check schedule",
                     Title = NotifitationConst.WORKLOG,
                     IsRead = false,
                     MasterTypeId = 36,
-                    CreateDate = DateTime.Now,
+                    CreateDate = todayNoti,
                     NotificationCode = "NTF " + "_" + DateTime.Now.Date.ToString()
 
                 };
@@ -899,13 +902,15 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     }
                     _unitOfWork.UserWorkLogRepository.Update(findWorkLog);
                     await _unitOfWork.SaveAsync();
+                    var timeZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
+                    var today = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, timeZone);
                     var addNotification = new Notification()
                     {
                         Content = getUser.FullName + " has create note on " + getWorklog.WorkLogName + ". Please check it",
                         Title = "WorkLog",
                         IsRead = false,
                         MasterTypeId = 36,
-                        CreateDate = DateTime.Now,
+                        CreateDate = today,
                         NotificationCode = "NTF " + "_" + DateTime.Now.Date.ToString()
 
                     };
@@ -1329,7 +1334,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                             Title = "WorkLog",
                             IsRead = false,
                             MasterTypeId = 36,
-                            CreateDate = DateTime.Now,
+                            CreateDate = today,
                             NotificationCode = "NTF " + "_" + DateTime.Now.Date.ToString()
 
                         };
@@ -1653,7 +1658,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         Title = "WorkLog",
                         IsRead = false,
                         MasterTypeId = 36,
-                        CreateDate = DateTime.Now,
+                        CreateDate = today,
                         NotificationCode = "NTF " + "_" + DateTime.Now.Date.ToString()
 
                     };
@@ -1758,14 +1763,15 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
                 if (result > 0)
                 {
-
+                    var timeZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
+                    var today = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, timeZone);
                     var addNotification = new Notification()
                     {
                         Content = "Status of " + getWorkLogToUpdate.WorkLogName + " has adjusted. Please check it",
                         Title = "WorkLog",
                         IsRead = false,
                         MasterTypeId = 36,
-                        CreateDate = DateTime.Now,
+                        CreateDate = today,
                         NotificationCode = "NTF " + "_" + DateTime.Now.Date.ToString()
 
                     };
@@ -1892,7 +1898,8 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
                         // 🔹 Lưu UserWorkLogs vào DB
                         await _unitOfWork.UserWorkLogRepository.InsertRangeAsync(userWorkLogs);
-
+                        var timeZone = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
+                        var today = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, timeZone);
 
                         var addNotification = new Notification()
                         {
@@ -1900,7 +1907,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                             Title = "WorkLog",
                             IsRead = false,
                             MasterTypeId = 36,
-                            CreateDate = DateTime.Now,
+                            CreateDate = today,
                             NotificationCode = "NTF " + "_" + DateTime.Now.Date.ToString()
 
                         };
@@ -2094,14 +2101,15 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     }
                 }
                 _unitOfWork.WorkLogRepository.Update(getWorkLog);
-                
+                var timeZoneNoti = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
+                var todayNoti = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, timeZoneNoti);
                 var addNotification = new Notification()
                 {
                     Content = $"Worklog has new update. Please check schedule",
                     Title = "WorkLog",
                     IsRead = false,
                     MasterTypeId = 37,
-                    CreateDate = DateTime.Now,
+                    CreateDate = todayNoti,
                     NotificationCode = "NTF " + "_" + DateTime.Now.Date.ToString()
                 };
                 await _unitOfWork.NotificationRepository.Insert(addNotification);
@@ -2331,13 +2339,15 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 var getListManagerOfFarm = await _unitOfWork.UserFarmRepository.GetManagerOffarm(farmId);
                 var getUser = await _unitOfWork.UserRepository.GetByID(userId);
                 var getWorkLog = await _unitOfWork.WorkLogRepository.GetByID(workLogId);
+                var timeZoneNoti = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
+                var todayNoti = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, timeZoneNoti);
                 var addNotification = new Notification()
                 {
                     Content = getUser.FullName + " has cancelled " + getWorkLog.WorkLogName,
                     Title = "WorkLog",
                     IsRead = false,
                     MasterTypeId = 36,
-                    CreateDate = DateTime.Now,
+                    CreateDate = todayNoti,
                     NotificationCode = "NTF " + "_" + DateTime.Now.Date.ToString()
                 };
                 await _unitOfWork.NotificationRepository.Insert(addNotification);
@@ -2385,13 +2395,15 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         _unitOfWork.UserWorkLogRepository.Update(getUserWorkLogToCheckAttendance);
                     }
                 }
+                var timeZoneNoti = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
+                var todayNoti = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, timeZoneNoti);
                 var addNotification = new Notification()
                 {
                     Content = "Work " + getWorkLog.WorkLogName + " has taked attendance",
                     Title = "WorkLog",
                     IsRead = false,
                     MasterTypeId = 36,
-                    CreateDate = DateTime.Now,
+                    CreateDate = todayNoti,
                     NotificationCode = "NTF " + "_" + DateTime.Now.Date.ToString()
 
                 };
@@ -2500,13 +2512,15 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
 
                         }
                     }
+                    var timeZoneNoti = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
+                    var todayNoti = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, timeZoneNoti);
                     var addNotification = new Notification()
                     {
                         Content = "Work " + getWorkLog.WorkLogName + " has just been created",
                         Title = "WorkLog",
                         IsRead = false,
                         MasterTypeId = 36,
-                        CreateDate = DateTime.Now,
+                        CreateDate = todayNoti,
                         NotificationCode = "NTF " + "_" + DateTime.Now.Date.ToString()
 
                     };
@@ -2978,10 +2992,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                     IsActive = getExistPlan?.IsActive,
                     IsDeleted = false,
                     MasterTypeId = getExistPlan?.MasterTypeId,
-                    MaxVolume = getExistPlan?.MaxVolume,
-                    MinVolume = getExistPlan?.MinVolume,
                     Notes = getExistPlan?.Notes,
-                    PesticideName = getExistPlan?.PesticideName,
                     ResponsibleBy = getExistPlan?.ResponsibleBy,
                     ProcessId = getExistPlan?.ProcessId,
                     Status = "Active",
@@ -3087,7 +3098,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         Title = "WorkLog",
                         IsRead = false,
                         MasterTypeId = 36,
-                        CreateDate = DateTime.Now,
+                        CreateDate = today,
                         NotificationCode = "NTF " + "_" + DateTime.Now.Date.ToString()
 
                     };
@@ -3774,13 +3785,15 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                             }
                         }
                     }
+                    var timeZoneNoti = TimeZoneInfo.FindSystemTimeZoneById("SE Asia Standard Time");
+                    var todayNoti = TimeZoneInfo.ConvertTimeFromUtc(DateTime.UtcNow, timeZoneNoti);
                     var addNotification = new Notification()
                     {
                         Content = getUser.FullName + " has create note on " + getWorklog.WorkLogName + ". Please check it",
                         Title = "WorkLog",
                         IsRead = false,
                         MasterTypeId = 36,
-                        CreateDate = DateTime.Now,
+                        CreateDate = todayNoti,
                         NotificationCode = "NTF " + "_" + DateTime.Now.Date.ToString()
 
                     };

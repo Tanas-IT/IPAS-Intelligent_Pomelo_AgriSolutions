@@ -45,7 +45,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         IsRead = false,
                         Link = createNotificationModel.Link,
                         MasterTypeId = createNotificationModel.MasterTypeId,
-                        SenderID = createNotificationModel.SenderID,
+                        UserID = createNotificationModel.SenderID,
                         Title = createNotificationModel.Title,
                     };
                     if (createNotificationModel.ListReceiverId != null && createNotificationModel.ListReceiverId.Count > 0)
@@ -97,7 +97,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         IsRead = false,
                         Link = item.Link,
                         MasterTypeId = item.MasterTypeId,
-                        SenderID = item.UserId,
+                        UserID = item.UserId,
                         Title = item.Title,
                     };
                     createNoti.Add(newNotification);
@@ -153,7 +153,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         },
                         Sender = new SenderNotification()
                         {
-                            SenderId = notificationPlan.Notification.SenderID,
+                            SenderId = notificationPlan.Notification.UserID,
                             SenderName = notificationPlan.Notification.Sender != null ? notificationPlan.Notification.Sender.FullName : null,
                             SenderAvatar = notificationPlan.Notification.Sender != null ? notificationPlan.Notification.Sender.AvatarURL : null
                         }

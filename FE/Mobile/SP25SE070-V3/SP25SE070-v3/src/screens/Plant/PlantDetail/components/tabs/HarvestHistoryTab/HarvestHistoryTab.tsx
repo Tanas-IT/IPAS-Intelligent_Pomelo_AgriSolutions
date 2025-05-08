@@ -54,16 +54,9 @@ const HarvestHistoryTab: React.FC<{ plantId: number }> = ({ plantId }) => {
       } else {
         Toast.show({
           type: "error",
-          text1: "Error",
           text2: res.message || "Fetch error",
         });
       }
-    } catch (error: any) {
-      Toast.show({
-        type: "error",
-        text1: "Error",
-        text2: error.message || "Fetch error",
-      });
     } finally {
       setIsLoading(false);
     }

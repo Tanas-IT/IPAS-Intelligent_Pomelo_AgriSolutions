@@ -181,26 +181,6 @@ CREATE TABLE ipas.dbo.[User] (
 	CONSTRAINT FK__User__RoleID__40C49C62 FOREIGN KEY (RoleID) REFERENCES ipas.dbo.[Role](RoleID) ON DELETE CASCADE
 );
 
--- ipas.dbo.Warning definition
-
--- Drop table
-
--- DROP TABLE ipas.dbo.Warning;
-
-CREATE TABLE ipas.dbo.Warning (
-	WarningID int NOT NULL,
-	WarningCode nvarchar(100) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-	WarningName nvarchar(200) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-	Status nvarchar(200) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-	[Level] nvarchar(200) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-	Description nvarchar(MAX) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-        AffectedStage nvarchar(MAX) NULL,
-	CreateDate datetime NULL,
-	UpdateDate datetime NULL,
-	CONSTRAINT Warning_PK PRIMARY KEY (WarningID)
-);
-
-
 -- ipas.dbo.Criteria definition
 
 -- Drop table
@@ -219,7 +199,6 @@ CREATE TABLE ipas.dbo.Criteria (
 	isActive bit NULL  DEFAULT 1,
 	IsDeleted bit NULL default 0,
         FrequencyDate int NULL,
-        isDefault bit NULL,
 	MasterTypeID int NULL,
 	CONSTRAINT PK__Criteria__FE6ADB2D5F0540FD PRIMARY KEY (CriteriaID),
 	CONSTRAINT Criteria_MasterType_FK FOREIGN KEY (MasterTypeID) REFERENCES ipas.dbo.MasterType(MasterTypeID)
@@ -281,10 +260,6 @@ CREATE TABLE ipas.dbo.LandPlot (
 	Width float NULL,
  	RowperLine int NULL,
 	RowSpacing float NULL,
-        MinLength float NULL,
-        MaxLength float NULL,
-        MinWidth float NULL,
-        MaxWidth float NULL,
 	SoilType nvarchar(50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 	CreateDate datetime NULL,
 	UpdateDate datetime NULL,
@@ -347,10 +322,6 @@ CREATE TABLE ipas.dbo.LandRow (
 	Distance float NULL,
 	[Length] float NULL,
 	Width float NULL,
-        MinLength float NULL,
-        MaxLength float NULL,
-        MinWidth float NULL,
-        MaxWidth float NULL,
         MaxNumberOfPlant int NULL,
 	Direction nvarchar(50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 	CreateDate datetime NULL,
@@ -771,11 +742,11 @@ CREATE TABLE ipas.dbo.Notification (
 	Link nvarchar(100) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 	CreateDate datetime NULL,
 	MasterTypeID int NULL,
-	SenderID int NULL,
+	UserID int NULL,
         IsRead bit NULL,
 	CONSTRAINT PK__Notifica__20CF2E32F94B5C5B PRIMARY KEY (NotificationID),
 	CONSTRAINT Notification_MasterType_FK FOREIGN KEY (MasterTypeID) REFERENCES ipas.dbo.MasterType(MasterTypeID) ON DELETE CASCADE,
-	CONSTRAINT Notification_User_FK FOREIGN KEY (SenderID) REFERENCES ipas.dbo.[User](UserID)
+	CONSTRAINT Notification_User_FK FOREIGN KEY (UserID) REFERENCES ipas.dbo.[User](UserID)
 );
 
 
@@ -800,9 +771,6 @@ CREATE TABLE ipas.dbo.[Plan] (
 	Frequency nvarchar(50) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 	PlanName nvarchar(200) COLLATE Vietnamese_CI_AS NULL,
 	AssignorID int NULL,
-	PesticideName nvarchar(255) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
-	MaxVolume float NULL,
-	MinVolume float NULL,
 	KeyGroup nvarchar(MAX) NULL,
 	ProcessID int NULL,
 	CropID int NULL,
@@ -939,12 +907,10 @@ CREATE TABLE ipas.dbo.WorkLog (
         ActualStartTime time(7) NULL,
 	ActualEndTime time(7) NULL,
 	ScheduleID int NULL,
-	WarningID int NULL,
 	RedoWorkLogID int NULL,
 	ReasonDelay nvarchar(MAX) COLLATE SQL_Latin1_General_CP1_CI_AS NULL,
 	CONSTRAINT PK__WorkLog__FE542DC2BB0A0EA4 PRIMARY KEY (WorkLogID),
 	CONSTRAINT FK__WorkLog__Schedul__236943A5 FOREIGN KEY (ScheduleID) REFERENCES ipas.dbo.CarePlanSchedule(ScheduleID) ON DELETE CASCADE,
-	CONSTRAINT WorkLog_Warning_FK FOREIGN KEY (WarningID) REFERENCES ipas.dbo.Warning(WarningID)
 );
 
 
@@ -1785,10 +1751,9 @@ VALUES
 
 INSERT INTO ipas.dbo.Package (PackageCode, PackageName, PackagePrice, Duration, isActive, CreateDate, UpdateDate, Status)
 VALUES
-('PKG101', 'Premium Farm Package', 200000, 365, 1, GETDATE(), NULL, 'Active');
+('PKG101', 'Premium Farm Package', 200000, 365, 1, GETDATE(), NULL, 'Active'),
 ('PKG102', 'Standard Farm Package', 100000, 180, 1, GETDATE(), NULL, 'Active'),
-('PKG103', 'Starter Farm Package', 50000, 30, 1, GETDATE(), NULL, 'Active'),
-
+('PKG103', 'Starter Farm Package', 50000, 30, 1, GETDATE(), NULL, 'Active');
 
 INSERT INTO ipas.dbo.PackageDetail (PackageDetailCode, FeatureName, FeatureDescription, PackageID)
 VALUES
@@ -1824,7 +1789,6 @@ VALUES
 ('ORD008', 'Order for Standard Package', 100000, 'Silver order', '2024-12-01', '2024-12-01', '2025-05-30', 2, 3, 'Paid'),
 ('ORD009', 'Order for Premium Package', 200000, 'Bronze order', '2025-02-01', '2025-02-01', '2026-01-31', 1, 3, 'Paid'),
 ('ORD010', 'Order for Starter Package', 50000, 'Custom order', '2025-03-25', '2025-03-25', '2025-05-24', 3, 3, 'Paid');
-
 
 INSERT INTO ipas.dbo.Partner (PartnerCode, PartnerName, Province, PhoneNumber, Email, CreateDate, UpdateDate, [National],  District, Ward, Description, Major, Status, ContactName, Note, BusinessField, FarmID)
 VALUES 
@@ -1942,140 +1906,140 @@ VALUES
 
 INSERT INTO [dbo].[Plan] 
     ([Status], [PlanCode], [CreateDate], [StartDate], [EndDate], [UpdateDate], [isActive], [Notes], [PlanDetail], 
-     [ResponsibleBy], [Frequency], [PlanName], [AssignorID], [PesticideName], [MaxVolume], [MinVolume], [ProcessID], 
+     [ResponsibleBy], [Frequency], [PlanName], [AssignorID],[ProcessID], 
      [CropID], [IsDeleted], [MasterTypeID], [SubProcessID], [FarmID], [IsSample], [KeyGroup])
 VALUES
     ('Not Started', 'PLN001', GETDATE(), '2025-04-02', '2025-04-10', GETDATE(), 1, 'Plan for watering spraying', 'Watering for all tree in farm', 
-     'JohnDoe', NULL, 'Watering Plan', 3, NULL, 5.0, 2.0, NULL, NULL, 0, 15, 4, 1, 1, '00c889cf-3b65-4471-83ba-0a3362a5c9f4'),
+     'JohnDoe', NULL, 'Watering Plan', 3, NULL, NULL, 0, 15, 4, 1, 1, '00c889cf-3b65-4471-83ba-0a3362a5c9f4'),
     ('Done', 'PLN002', GETDATE(), '2025-05-01', '2025-05-01', GETDATE(), 1, 'Soil preparation', 'Detail 2', 
-     'JaneSmith', NULL, 'Soil Prep Plan', 3, NULL, NULL, NULL, NULL, NULL, 0, 18, 2, 1, 0,'cd108998-e339-4816-b798-97dffda9cda6'),
+     'JaneSmith', NULL, 'Soil Prep Plan', 3, NULL, NULL, 0, 18, 2, 1, 0,'cd108998-e339-4816-b798-97dffda9cda6'),
     ('Not Started', 'PLN003', GETDATE(), '2025-06-01', '2025-06-20', GETDATE(), 0, 'Harvesting completed', 'Detail 3', 
-     'AlexBrown', NULL, 'Harvest Plan', 3, NULL, NULL, NULL, 3, NULL, 1, 18, 3, 1, 0, 'a851c9fe-8ef3-467d-b41d-dacdf24010fc'),
+     'AlexBrown', NULL, 'Harvest Plan', 3, 3, NULL, 1, 18, 3, 1, 0, 'a851c9fe-8ef3-467d-b41d-dacdf24010fc'),
     ('Not Started', 'PLN004', GETDATE(), '2025-07-01', '2025-07-12', GETDATE(), 1, 'Irrigation management', 'Detail 4', 
-     'ChrisWhite', NULL, 'Irrigation Plan', 3, NULL, NULL, NULL, 4, NULL, 0, 18, 8, 1, 0, '81fc69c3-251d-4a33-97c8-ffef6fa0a5f0'),
+     'ChrisWhite', NULL, 'Irrigation Plan', 3,4, NULL, 0, 18, 8, 1, 0, '81fc69c3-251d-4a33-97c8-ffef6fa0a5f0'),
     ('Not Started', 'PLN005', GETDATE(), '2025-04-16', '2025-04-18', GETDATE(), 1, 'Fertilizer application', 'Detail 5', 
-     'EmilyGreen', NULL, 'Fertilization Plan', 3, 'Fertilizer X', 3.5, 1.5, NULL, NULL, 0, 16, 5, 1, 1, '00c889cf-3b65-4471-83ba-0a3362a5c9f4'),
+     'EmilyGreen', NULL, 'Fertilization Plan', 3, NULL, NULL, 0, 16, 5, 1, 1, '00c889cf-3b65-4471-83ba-0a3362a5c9f4'),
     ('Not Started', 'PLN006', GETDATE(), '2025-09-01', '2025-09-15', GETDATE(), 0, 'Weed control applied', 'Detail 6', 
-     'MichaelBlack', NULL, 'Weed Control Plan', 3, 'Herbicide Y', 4.0, 1.0, 6, NULL, 1, 15, 8, 1, 0, 'b8f47d67-e768-4330-885f-aeda5591d6ba'),
+     'MichaelBlack', NULL, 'Weed Control Plan', 3, 6, NULL, 1, 15, 8, 1, 0, 'b8f47d67-e768-4330-885f-aeda5591d6ba'),
 	 ('Not Started', 'PLN007', GETDATE(), '2025-04-19', '2025-04-20', GETDATE(), 1, 'Pest management', 'Detail 7', 
-     'SarahBlue', NULL, 'Pest Control Plan', 3, 'Pesticide B', 6.0, 2.5, NULL, NULL, 0, 18, 6, 1, 1, '00c889cf-3b65-4471-83ba-0a3362a5c9f4'),
+     'SarahBlue', NULL, 'Pest Control Plan', 3, NULL, NULL, 0, 18, 6, 1, 1, '00c889cf-3b65-4471-83ba-0a3362a5c9f4'),
 	 ('Not Started', 'PLN008', GETDATE(), '2025-04-21', '2025-04-25', GETDATE(), 1, 'Spraying', 'Detail 8', 
-     'SarahBlue', NULL, 'Spraying Plan', 3, 'Pesticide B', 6.0, 2.5, NULL, NULL, 0, 45, 7, 1, 1,'00c889cf-3b65-4471-83ba-0a3362a5c9f4'),
+     'SarahBlue', NULL, 'Spraying Plan', 3, NULL, NULL, 0, 45, 7, 1, 1,'00c889cf-3b65-4471-83ba-0a3362a5c9f4'),
     ('Not Started', 'PLN009', GETDATE(), '2025-11-01', '2025-11-30', GETDATE(), 1, 'New planting season', 'Detail 9', 
-     'DavidYellow', NULL, 'Planting Plan', 3, NULL, NULL, NULL, 8, NULL, 0, 17, 8, 1, 0, 'e2608ecb-55ac-4bfb-a225-57920dbb4f87'),
+     'DavidYellow', NULL, 'Planting Plan', 3, 8, NULL, 0, 17, 8, 1, 0, 'e2608ecb-55ac-4bfb-a225-57920dbb4f87'),
     ('Not Started', 'PLN010', GETDATE(), '2025-12-01', '2025-12-10', GETDATE(), 0, 'Post-harvest processing', 'Detail 10', 
-     'EmmaPurple', NULL, 'Processing Plan', 3, NULL, NULL, NULL, 9, NULL, 1, 18, 9, 1, 0, 'fbf70009-fb16-4930-a017-023210e8eca8'),
+     'EmmaPurple', NULL, 'Processing Plan', 3, 9, NULL, 1, 18, 9, 1, 0, 'fbf70009-fb16-4930-a017-023210e8eca8'),
     ('Done', 'PLN011', GETDATE(), '2026-01-01', '2026-01-15', GETDATE(), 1, 'Greenhouse maintenance', 'Detail 11', 
-     'DanielOrange', NULL, 'Maintenance Plan', 3, NULL, NULL, NULL, 10, NULL, 0, 19, 10, 1, 0, 'b3ddaee6-18a3-4a0e-804c-940af15f8017'),
+     'DanielOrange', NULL, 'Maintenance Plan', 3, 10, NULL, 0, 19, 10, 1, 0, 'b3ddaee6-18a3-4a0e-804c-940af15f8017'),
 ('Not Started', 'PLN011', GETDATE(), '2025-05-01', '2025-05-01', GETDATE(), 1, 
  N'Kiểm tra triệu chứng trên lá và quả', 
  N'Xác định mức độ lây lan của bệnh nhện đỏ', 
- 'NguyenVanB', NULL, N'Chẩn đoán bệnh', 3, NULL, 0.0, 0.0, 
+ 'NguyenVanB', NULL, N'Chẩn đoán bệnh', 3,
  NULL, NULL, 0, 18, 
  (SELECT SubProcessID FROM SubProcess WHERE SubProcessCode = 'SPC012'), 
  1, 1, 'bc57edbf-b64e-404c-8a56-c40eac2ef7cd'),
 ('Not Started', 'PLN012', GETDATE(), '2025-05-02', '2025-05-02', GETDATE(), 1, 
  N'Tỉa bỏ cành lá bị vàng, xoăn, có mạng nhện', 
  N'Giảm khả năng sinh sản và lây lan của nhện đỏ', 
- 'NguyenVanC', NULL, N'Cắt tỉa lá bệnh', 3, NULL, 0.0, 0.0, 
+ 'NguyenVanC', NULL, N'Cắt tỉa lá bệnh', 3,
  NULL, NULL, 0, 17, 
  (SELECT SubProcessID FROM SubProcess WHERE SubProcessCode = 'SPC013'), 
  1, 1, 'bc57edbf-b64e-404c-8a56-c40eac2ef7cd'),
 ('Not Started', 'PLN013', GETDATE(), '2025-05-03', '2025-05-04', GETDATE(), 1, 
  N'Phun thuốc trị nhện đỏ giai đoạn 1', 
  N'Phun Vertimec theo liều 10ml/8L nước', 
- 'NguyenVanA', NULL, N'Phun thuốc trị nhện đỏ', 3, 'Vertimec', 8.0, 5.0, 
+ 'NguyenVanA', NULL, N'Phun thuốc trị nhện đỏ', 3,
  NULL, NULL, 0, 16, 
  (SELECT SubProcessID FROM SubProcess WHERE SubProcessCode = 'SPC014'), 
  1, 1, 'bc57edbf-b64e-404c-8a56-c40eac2ef7cd'),
 ('Not Started', 'PLN014', GETDATE(), '2025-05-06', '2025-05-06', GETDATE(), 1, 
  N'Kiểm tra kết quả sau 3 ngày phun thuốc', 
  N'Theo dõi tỷ lệ lá mới bị nhiễm, hiệu quả trị bệnh', 
- 'NguyenVanD', NULL, N'Theo dõi sau điều trị', 3, NULL, 0.0, 0.0, 
+ 'NguyenVanD', NULL, N'Theo dõi sau điều trị', 3,
  NULL, NULL, 0, 18, 
  (SELECT SubProcessID FROM SubProcess WHERE SubProcessCode = 'SPC015'), 
  1, 1, 'bc57edbf-b64e-404c-8a56-c40eac2ef7cd'),
 ('Not Started', 'PLN015', GETDATE(), '2025-05-01', '2025-05-01', GETDATE(), 1, 
  N'Kiểm tra vỏ quả, lá và cành có dấu hiệu nứt nẻ, chai cứng', 
  N'Đánh giá mức độ tổn thương và giai đoạn bệnh sẹo', 
- 'NguyenVanE', NULL, N'Chẩn đoán bệnh sẹo', 3, NULL, 0.0, 0.0, 
+ 'NguyenVanE', NULL, N'Chẩn đoán bệnh sẹo', 3,
  NULL, NULL, 0, 18, 
  (SELECT SubProcessID FROM SubProcess WHERE SubProcessCode = 'SPC016'), 
  1, 1, 'b74ca116-d337-4c2f-a090-d7c8f55e20c2'),
 ('Not Started', 'PLN016', GETDATE(), '2025-05-02', '2025-05-02', GETDATE(), 1, 
  N'Cắt bỏ cành bệnh, làm sạch vết sẹo', 
  N'Dùng dao cạo sạch vết bệnh trên thân, sau đó rửa bằng nước vôi', 
- 'NguyenVanF', NULL, N'Xử lý vết bệnh', 3, NULL, 0.0, 0.0, 
+ 'NguyenVanF', NULL, N'Xử lý vết bệnh', 3,
  NULL, NULL, 0, 17, 
  (SELECT SubProcessID FROM SubProcess WHERE SubProcessCode = 'SPC017'), 
  1, 1, 'b74ca116-d337-4c2f-a090-d7c8f55e20c2'),
 ('Not Started', 'PLN017', GETDATE(), '2025-05-03', '2025-05-03', GETDATE(), 1, 
  N'Phun thuốc gốc đồng hoặc thuốc trị nấm lên vùng bị bệnh', 
  N'Sử dụng Copper-Zinc 25WP hoặc Boocdo liều lượng 10g/8L', 
- 'NguyenVanG', NULL, N'Phun thuốc bệnh sẹo', 3, 'Copper-Zinc 25WP', 8.0, 5.0, 
+ 'NguyenVanG', NULL, N'Phun thuốc bệnh sẹo', 3, 
  NULL, NULL, 0, 45, 
  (SELECT SubProcessID FROM SubProcess WHERE SubProcessCode = 'SPC018'), 
  1, 1, 'b74ca116-d337-4c2f-a090-d7c8f55e20c2'),
 ('Not Started', 'PLN018', GETDATE(), '2025-05-01', '2025-05-01', GETDATE(), 1, 
  N'Quan sát kỹ các đọt non, mặt dưới lá, cụm hoa', 
  N'Ghi nhận tỷ lệ nhiễm và mật độ rệp sáp', 
- 'NguyenVanI', NULL, N'Kiểm tra rệp sáp', 3, NULL, 0.0, 0.0, 
+ 'NguyenVanI', NULL, N'Kiểm tra rệp sáp', 3,
  NULL, NULL, 0, 18, 
  (SELECT SubProcessID FROM SubProcess WHERE SubProcessCode = 'SPC019'), 
  1, 1, '5d3bb12c-911b-4426-86cb-4d90fd48194a'),
 ('Not Started', 'PLN019', GETDATE(), '2025-05-02', '2025-05-02', GETDATE(), 1, 
  N'Loại bỏ những cành lá bị nhiễm nặng', 
  N'Cắt tỉa sạch sẽ trước khi phun thuốc để tăng hiệu quả', 
- 'NguyenVanJ', NULL, N'Vệ sinh và cắt tỉa', 3, NULL, 0.0, 0.0, 
+ 'NguyenVanJ', NULL, N'Vệ sinh và cắt tỉa', 3,
  NULL, NULL, 0, 17, 
  (SELECT SubProcessID FROM SubProcess WHERE SubProcessCode = 'SPC020'), 
  1, 1, '5d3bb12c-911b-4426-86cb-4d90fd48194a'),
 ('Not Started', 'PLN020', GETDATE(), '2025-05-03', '2025-05-03', GETDATE(), 1, 
  N'Sử dụng thuốc trị rệp sáp như Movento 150OD', 
  N'Pha 10ml thuốc/8L nước, phun đều toàn cây, tập trung vào nơi rệp xuất hiện', 
- 'NguyenVanK', NULL, N'Phun thuốc rệp sáp', 3, 'Movento 150OD', 8.0, 5.0, 
+ 'NguyenVanK', NULL, N'Phun thuốc rệp sáp', 3, 
  NULL, NULL, 0, 16, 
  (SELECT SubProcessID FROM SubProcess WHERE SubProcessCode = 'SPC021'), 
  1, 1, '5d3bb12c-911b-4426-86cb-4d90fd48194a'),
 ('Not Started', 'PLN021', GETDATE(), '2025-05-02', '2025-05-02', GETDATE(), 1, 
  N'Tìm kiếm dấu hiệu lỗ tròn, phân sâu quanh gốc', 
  N'Ghi lại vị trí bị sâu, chuẩn bị dụng cụ xử lý', 
- 'NguyenVanM', NULL, N'Kiểm tra sâu đục thân', 3, NULL, 0.0, 0.0, 
+ 'NguyenVanM', NULL, N'Kiểm tra sâu đục thân', 3,
  NULL, NULL, 0, 18, 
  (SELECT SubProcessID FROM SubProcess WHERE SubProcessCode = 'SPC022'), 
  1, 1, 'd37eabbb-a876-400f-8661-22b84776d73a'),
 ('Not Started', 'PLN022', GETDATE(), '2025-05-03', '2025-05-03', GETDATE(), 1, 
  N'Sử dụng que thép nhỏ hoặc dây kẽm luồn sâu vào lỗ', 
  N'Loại bỏ sâu thủ công, ghi nhận lỗ bị đục', 
- 'NguyenVanN', NULL, N'Gắp sâu đục thân', 3, NULL, 0.0, 0.0, 
+ 'NguyenVanN', NULL, N'Gắp sâu đục thân', 3,
  NULL, NULL, 0, 18, 
  (SELECT SubProcessID FROM SubProcess WHERE SubProcessCode = 'SPC023'), 
  1, 1, 'd37eabbb-a876-400f-8661-22b84776d73a'),
 ('Not Started', 'PLN023', GETDATE(), '2025-05-04', '2025-05-04', GETDATE(), 1, 
  N'Dùng xi lanh hoặc ống tiêm bơm thuốc vào lỗ', 
  N'Dùng thuốc Regent 800WG pha 1g/8L hoặc Sherpa 25EC', 
- 'NguyenVanO', NULL, N'Bơm thuốc trị sâu', 3, 'Regent 800WG', 5.0, 2.0, 
+ 'NguyenVanO', NULL, N'Bơm thuốc trị sâu', 3,
  NULL, NULL, 0, 45, 
  (SELECT SubProcessID FROM SubProcess WHERE SubProcessCode = 'SPC024'), 
  1, 1, 'd37eabbb-a876-400f-8661-22b84776d73a'),
 ('Not Started', 'PLN024', GETDATE(), '2025-05-02', '2025-05-02', GETDATE(), 1, 
  N'Quan sát triệu chứng lá vàng để xác định nguyên nhân cụ thể', 
  N'Phân biệt vàng lá do thiếu chất, bệnh hoặc tuyến trùng', 
- 'NguyenThiA', NULL, N'Chẩn đoán vàng lá', 3, NULL, 0.0, 0.0, 
+ 'NguyenThiA', NULL, N'Chẩn đoán vàng lá', 3,
  NULL, NULL, 0, 18, 
  (SELECT SubProcessID FROM SubProcess WHERE SubProcessCode = 'SPC025'), 
  1, 1, 'ce78e5ba-89aa-4b03-9ce9-a6b3b7bdccc4'),
 ('Not Started', 'PLN025', GETDATE(), '2025-05-03', '2025-05-03', GETDATE(), 1, 
  N'Bón thêm phân hữu cơ và phân lân cho cây', 
  N'Cải thiện pH đất và tăng cường hệ rễ cây', 
- 'NguyenThiB', NULL, N'Bón phân phục hồi', 3, NULL, 30.0, 10.0, 
+ 'NguyenThiB', NULL, N'Bón phân phục hồi', 3,
  NULL, NULL, 0, 16, 
  (SELECT SubProcessID FROM SubProcess WHERE SubProcessCode = 'SPC026'), 
  1, 1, 'ce78e5ba-89aa-4b03-9ce9-a6b3b7bdccc4'),
 ('Not Started', 'PLN026', GETDATE(), '2025-05-04', '2025-05-04', GETDATE(), 1, 
  N'Phun thuốc gốc đồng hoặc thuốc trị tuyến trùng nếu có', 
  N'Tùy theo kết quả chẩn đoán nguyên nhân', 
- 'NguyenThiC', NULL, N'Phun thuốc trị vàng lá', 3, 'Copper Hydroxide', 5.0, 2.0, 
+ 'NguyenThiC', NULL, N'Phun thuốc trị vàng lá', 3,
  NULL, NULL, 0, 45, 
  (SELECT SubProcessID FROM SubProcess WHERE SubProcessCode = 'SPC027'), 
  1, 1, 'ce78e5ba-89aa-4b03-9ce9-a6b3b7bdccc4')
@@ -2431,37 +2395,36 @@ INSERT INTO [dbo].[WorkLog]
            ,[ActualStartTime]
            ,[ActualEndTime]
            ,[ScheduleID]
-           ,[WarningID]
            ,[ReasonDelay]
 	   ,[RedoWorkLogID])
      VALUES
-           ('WL31162235' ,'Watering_on_Plot A','Not Started','2025-04-02 07:30:00',0,0,'07:30:00','09:00:00',1,NULL,NULL,NULL),
-		   ('WL31163456' ,'Watering_on_Plot A','Not Started','2025-04-03 07:30:00',0,0,'07:30:00','09:00:00',1,NULL,NULL,NULL),
-('WL31162237' ,'Watering_on_Plot A','Not Started','2025-04-04 07:30:00',0,0,'07:30:00','09:00:00',1,NULL,NULL,NULL),
-('WL31162238' ,'Watering_on_Plot A','Not Started','2025-04-05 07:30:00',0,0,'07:30:00','09:00:00',1,NULL,NULL,NULL),
-('WL31162239' ,'Watering_on_Plot A','Not Started','2025-04-06 07:30:00',0,0,'07:30:00','09:00:00',1,NULL,NULL,NULL),
-('WL31162240' ,'Watering_on_Plot A','Not Started','2025-04-07 07:30:00',0,0,'07:30:00','09:00:00',1,NULL,NULL,NULL),
-('WL31162242' ,'Watering_on_Plot A','Not Started','2025-04-08 07:30:00',0,0,'07:30:00','09:00:00',1,NULL,NULL,NULL),
-('WL31162243' ,'Watering_on_Plot A','Not Started','2025-04-09 07:30:00',0,0,'07:30:00','09:00:00',1,NULL,NULL,NULL),
-('WL31162244' ,'Watering_on_Plot A','Not Started','2025-04-10 07:30:00',0,0,'07:30:00','09:00:00',1,NULL,NULL,NULL),
+           ('WL31162235' ,'Watering_on_Plot A','Not Started','2025-04-02 07:30:00',0,0,'07:30:00','09:00:00',1,NULL,NULL),
+		   ('WL31163456' ,'Watering_on_Plot A','Not Started','2025-04-03 07:30:00',0,0,'07:30:00','09:00:00',1,NULL,NULL),
+('WL31162237' ,'Watering_on_Plot A','Not Started','2025-04-04 07:30:00',0,0,'07:30:00','09:00:00',1,NULL,NULL),
+('WL31162238' ,'Watering_on_Plot A','Not Started','2025-04-05 07:30:00',0,0,'07:30:00','09:00:00',1,NULL,NULL),
+('WL31162239' ,'Watering_on_Plot A','Not Started','2025-04-06 07:30:00',0,0,'07:30:00','09:00:00',1,NULL,NULL),
+('WL31162240' ,'Watering_on_Plot A','Not Started','2025-04-07 07:30:00',0,0,'07:30:00','09:00:00',1,NULL,NULL),
+('WL31162242' ,'Watering_on_Plot A','Not Started','2025-04-08 07:30:00',0,0,'07:30:00','09:00:00',1,NULL,NULL),
+('WL31162243' ,'Watering_on_Plot A','Not Started','2025-04-09 07:30:00',0,0,'07:30:00','09:00:00',1,NULL,NULL),
+('WL31162244' ,'Watering_on_Plot A','Not Started','2025-04-10 07:30:00',0,0,'07:30:00','09:00:00',1,NULL,NULL),
 
 
-		   ('WL31163456' ,'Fertilizing_on_Plot A','Not Started','2025-04-16 05:00:00',0,0,'05:00:00','07:00:00',5,NULL,NULL,NULL),
-('WL31162237' ,'Fertilizing_on_Plot A','Not Started','2025-04-17 05:00:00',0,0,'05:00:00','07:00:00',5,NULL,NULL,NULL),
-('WL31162238' ,'Fertilizing_on_Plot A','Not Started','2025-04-18 05:00:00',0,0,'05:00:00','07:00:00',5,NULL,NULL,NULL),
+		   ('WL31163456' ,'Fertilizing_on_Plot A','Not Started','2025-04-16 05:00:00',0,0,'05:00:00','07:00:00',5,NULL,NULL),
+('WL31162237' ,'Fertilizing_on_Plot A','Not Started','2025-04-17 05:00:00',0,0,'05:00:00','07:00:00',5,NULL,NULL),
+('WL31162238' ,'Fertilizing_on_Plot A','Not Started','2025-04-18 05:00:00',0,0,'05:00:00','07:00:00',5,NULL,NULL),
 
-('WL31162239' ,'Pest_Control_on_Plot A','Not Started','2025-04-19 14:00:00',0,0,'03:00:00','04:00:00',7,NULL,NULL,NULL),
-('WL31162240' ,'Pest_Control_on_Plot A','Not Started','2025-04-20 14:00:00',0,0,'03:00:00','04:00:00',7,NULL,NULL,NULL),
+('WL31162239' ,'Pest_Control_on_Plot A','Not Started','2025-04-19 14:00:00',0,0,'03:00:00','04:00:00',7,NULL,NULL),
+('WL31162240' ,'Pest_Control_on_Plot A','Not Started','2025-04-20 14:00:00',0,0,'03:00:00','04:00:00',7,NULL,NULL),
 
-('WL31162242' ,'Spaying_on_Plot A','Not Started','2025-04-21 05:00:00',0,0,'20:00:00','21:00:00',8,NULL,NULL,NULL),
-('WL31162243' ,'Spaying_on_Plot A','Not Started','2025-04-22 05:00:00',0,0,'20:00:00','21:00:00',8,NULL,NULL,NULL),
-('WL31162244' ,'Spaying_on_Plot A','Not Started','2025-04-23 05:00:00',0,0,'20:00:00','21:00:00',8,NULL,NULL,NULL),
-('WL31162245' ,'Spaying_on_Plot A','Not Started','2025-04-24 05:00:00',0,0,'20:00:00','21:00:00',8,NULL,NULL,NULL),
-('WL31162246' ,'Spaying_on_Plot A','Not Started','2025-04-25 05:00:00',0,0,'20:00:00','21:00:00',8,NULL,NULL,NULL),
+('WL31162242' ,'Spaying_on_Plot A','Not Started','2025-04-21 05:00:00',0,0,'20:00:00','21:00:00',8,NULL,NULL),
+('WL31162243' ,'Spaying_on_Plot A','Not Started','2025-04-22 05:00:00',0,0,'20:00:00','21:00:00',8,NULL,NULL),
+('WL31162244' ,'Spaying_on_Plot A','Not Started','2025-04-23 05:00:00',0,0,'20:00:00','21:00:00',8,NULL,NULL),
+('WL31162245' ,'Spaying_on_Plot A','Not Started','2025-04-24 05:00:00',0,0,'20:00:00','21:00:00',8,NULL,NULL),
+('WL31162246' ,'Spaying_on_Plot A','Not Started','2025-04-25 05:00:00',0,0,'20:00:00','21:00:00',8,NULL,NULL),
 
-('WL31162247' ,'Pruning_on__Plot A','Done','2025-04-19 09:30:00',0,0,'19:30:00','20:30:00',2,NULL,NULL,NULL),
-('WL31162248' ,'Grafting_on__Plot A','Redo','2025-04-17 09:30:00',0,0,'19:30:00','20:30:00',2,NULL,NULL,22),
-('WL31162248' ,'Redo Grafting_on__Plot A','Done','2025-04-20 09:30:00',0,0,'10:30:00','11:30:00',2,NULL,NULL,NULL);
+('WL31162247' ,'Pruning_on__Plot A','Done','2025-04-19 09:30:00',0,0,'19:30:00','20:30:00',2,NULL,NULL),
+('WL31162248' ,'Grafting_on__Plot A','Redo','2025-04-17 09:30:00',0,0,'19:30:00','20:30:00',2,NULL,22),
+('WL31162248' ,'Redo Grafting_on__Plot A','Done','2025-04-20 09:30:00',0,0,'10:30:00','11:30:00',2,NULL,NULL);
 -- Insert UserWorkLog
 INSERT INTO [dbo].[UserWorkLog]
            ([WorkLogID]

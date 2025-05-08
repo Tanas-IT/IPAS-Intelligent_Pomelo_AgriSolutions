@@ -182,7 +182,7 @@ export const styles = StyleSheet.create({
     backgroundColor: theme.colors.color_bg_tag_owner,
   },
   ownerText: {
-    color: theme.colors.color_tag_owner,
+    color: theme.colors.color_tag_owner ,
     borderColor: "transparent",
   },
   other: {

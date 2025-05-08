@@ -6,12 +6,11 @@ import { PATHS } from "@/routes";
 import { CustomButton, Loading } from "@/components";
 import { useEffect, useState } from "react";
 import { authService, farmService } from "@/services";
-import { LOCAL_STORAGE_KEYS, MESSAGES, UserRole, UserRolesStr } from "@/constants";
-import { formatDate, getRoleId, getUserId } from "@/utils";
+import { LOCAL_STORAGE_KEYS, MESSAGES, UserRolesStr } from "@/constants";
+import { formatDate, getRoleId } from "@/utils";
 import { toast } from "react-toastify";
 import { GetFarmPicker } from "@/payloads";
 import { useFarmStore } from "@/stores";
-import { useLocalStorage } from "@/hooks";
 const Text = Typography;
 
 function FarmPicker() {
@@ -85,34 +84,23 @@ function FarmPicker() {
   };
 
   // const handleCreateNewFarm = async () => {
+  //   const farmExpiredDate = useFarmStore.getState().farmExpiredDate;
+  //   const isExpired = farmExpiredDate ? new Date(farmExpiredDate) < new Date() : true;
 
-  //   try {
-  //     const farmExpiredDate = useFarmStore.getState().farmExpiredDate;
-  //     const isExpired = farmExpiredDate ? new Date(farmExpiredDate) < new Date() : true;
-
-  //     if (isExpired) {
-  //       toast.warning(
-  //         farmExpiredDate
-  //           ? "Your farm's package has expired. Please purchase a new package."
-  //           : "You have not purchased a package. Please buy one before creating a farm."
-  //       );
-  //       navigate(PATHS.PACKAGE.PACKAGE_PURCHASE);
-  //     } else {
-  //       navigate(PATHS.FARM.CREATE_FARM);
-  //     }
-  //   } catch (error) {
-  //     console.error("Error checking subscription:", error);
-  //     toast.warning(MESSAGES.ERROR_OCCURRED);
+  //   if (isExpired) {
+  //     toast.warning(
+  //       farmExpiredDate
+  //         ? "Your farm's package has expired. Please purchase a new package."
+  //         : "You have not purchased a package. Please buy one before creating a farm.",
+  //     );
+  //     navigate(PATHS.PACKAGE.PACKAGE_PURCHASE);
+  //   } else {
+  //     navigate(PATHS.FARM.CREATE_FARM);
   //   }
   // };
 
   const handleCreateNewFarm = async () => {
-    try {
-      navigate(PATHS.FARM.CREATE_FARM);
-    } catch (error) {
-      console.error("Error checking subscription:", error);
-      toast.warning(MESSAGES.ERROR_OCCURRED);
-    }
+    navigate(PATHS.FARM.CREATE_FARM);
   };
 
   if (loading) return <Loading />;
