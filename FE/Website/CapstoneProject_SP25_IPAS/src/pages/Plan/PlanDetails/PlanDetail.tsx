@@ -1,9 +1,9 @@
 import { PATHS } from "@/routes";
 import style from "./PlanDetail.module.scss";
 import { Link, useNavigate, useParams } from "react-router-dom";
-import { Divider, Flex, Image, Tag, Tooltip, Progress, Card, Empty, Spin } from "antd";
+import { Divider, Flex, Image, Tag, Progress, Card, Empty, Spin } from "antd";
 import { Icons, Images } from "@/assets";
-import { CustomButton, Loading } from "@/components";
+import { CustomButton, Loading, Tooltip, UserAvatar } from "@/components";
 import StatusTag from "@/components/UI/StatusTag/StatusTag";
 import { useCallback, useEffect, useState } from "react";
 import { planService } from "@/services";
@@ -17,10 +17,6 @@ import {
 import PlanTargetTable from "./PlanTargetTable";
 import { formatDate, formatDateW, getFarmId } from "@/utils";
 import ProcessFlow from "./ProcessFlow";
-
-interface GeneralCalendarProps {
-  selectedDays: number[];
-}
 
 interface PlanTarget {
   type: "Plot" | "Row" | "Plant" | "Plant Lot" | "Grafted Plant";
@@ -254,7 +250,7 @@ function PlanDetail() {
       <Divider className={style.divider} />
       <Flex className={style.contentSectionTitleLeft}>
         <p className={style.title}>{planDetail?.planName}</p>
-        <Tooltip title="Hello">
+        <Tooltip title="Plan">
           <Icons.tag className={style.iconTag} />
         </Tooltip>
         <Tag className={`${style.statusTag} ${style.normal}`}>{planDetail?.status}</Tag>
@@ -264,12 +260,30 @@ function PlanDetail() {
       {/* Assigned Info */}
       <Flex vertical gap={10} className={style.contentSectionUser}>
         <Flex vertical={false} gap={15}>
-          <Image src={Images.avatar} width={25} className={style.avt} />
+          <UserAvatar avatarURL={Images.avatar || undefined} size={30} />
           <label className={style.createdBy}>{planDetail?.assignorName}</label>
           <label className={style.textCreated}>created this plan</label>
           <label className={style.createdDate}>
             {planDetail?.startDate ? formatDateW(planDetail?.startDate) : ""}
           </label>
+        </Flex>
+        <Flex gap={15}>
+          <label className={style.textUpdated}>Assigned To:</label>
+          {planDetail?.listEmployee.map((employee, index) => (
+            <div className={style.containerUser}>
+              <UserAvatar avatarURL={employee?.avatarURL || undefined} size={27} />
+              <span className={style.name}>{employee?.fullName}</span>
+            </div>
+          ))}
+        </Flex>
+        <Flex gap={15}>
+          <label className={style.textUpdated}>Reporter:</label>
+          {planDetail?.listReporter.map((report, index) => (
+            <div className={style.containerUser}>
+              <UserAvatar avatarURL={report?.avatarURL || undefined} size={27} />
+              <span className={style.name}>{report?.fullName}</span>
+            </div>
+          ))}
         </Flex>
       </Flex>
 
@@ -404,8 +418,9 @@ function PlanDetail() {
                   {["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"].map((day, index) => (
                     <span
                       key={index}
-                      className={`${style.weekDay} ${planDetail.dayOfWeek.includes(index) ? style.active : ""
-                        }`}
+                      className={`${style.weekDay} ${
+                        planDetail.dayOfWeek.includes(index) ? style.active : ""
+                      }`}
                     >
                       {day}
                     </span>
@@ -420,8 +435,9 @@ function PlanDetail() {
                     return (
                       <span
                         key={day}
-                        className={`${style.monthDay} ${JSON.parse(planDetail.dayOfMonth).includes(day) ? style.active : ""
-                          }`}
+                        className={`${style.monthDay} ${
+                          JSON.parse(planDetail.dayOfMonth).includes(day) ? style.active : ""
+                        }`}
                       >
                         {day}
                       </span>

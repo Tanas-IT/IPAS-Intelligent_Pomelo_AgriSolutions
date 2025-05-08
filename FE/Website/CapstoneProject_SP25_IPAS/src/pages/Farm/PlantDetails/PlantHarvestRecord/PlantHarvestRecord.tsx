@@ -27,6 +27,7 @@ import {
 import { usePlantStore } from "@/stores";
 import { harvestService, plantService } from "@/services";
 import {
+  useExportFile,
   useMasterTypeOptions,
   useModal,
   useModifyPermission,
@@ -148,12 +149,15 @@ function PlantHarvestRecord() {
     }
   };
 
+  const useHandleExport = useExportFile(plantService.exportPlantHarvest);
+  const handleExport = () => useHandleExport(plant.plantId);
+
   const handleOpenRecordModal = () => newRecordModal.showModal();
 
   if (isFirstLoad) return <LoadingSkeleton rows={10} />;
   return (
     <Flex className={style.contentDetailWrapper}>
-      <PlantSectionHeader onAddNewRecord={handleOpenRecordModal} />
+      <PlantSectionHeader onAddNewRecord={handleOpenRecordModal} onExport={handleExport} />
       <Divider className={style.divider} />
       <Flex className={style.contentSectionBody} vertical>
         <Flex gap={20}>

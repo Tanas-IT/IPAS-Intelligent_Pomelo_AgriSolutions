@@ -183,6 +183,7 @@ const PlanDetailsTable: React.FC<PlanDetailsTableProps> = ({
         if (record.type !== "plan") return null;
         return (
           <Form.Item
+            className={style.formTable}
             name={[record.planId, "planName"]}
             rules={[{ required: true, message: "Plan name is required" }]}
           >
@@ -199,7 +200,7 @@ const PlanDetailsTable: React.FC<PlanDetailsTableProps> = ({
       render: (text: string, record: DataSourceNode) => {
         if (record.type !== "plan") return null;
         return (
-          <Form.Item name={[record.planId, "planNote"]}>
+          <Form.Item className={style.formTable} name={[record.planId, "planNote"]}>
             <Input placeholder="Enter plan note" />
           </Form.Item>
         );
@@ -213,7 +214,7 @@ const PlanDetailsTable: React.FC<PlanDetailsTableProps> = ({
       render: (text: string, record: DataSourceNode) => {
         if (record.type !== "plan") return null;
         return (
-          <Form.Item name={[record.planId, "planDetail"]}>
+          <Form.Item className={style.formTable} name={[record.planId, "planDetail"]}>
             <Input placeholder="Enter plan detail" />
           </Form.Item>
         );
@@ -227,8 +228,8 @@ const PlanDetailsTable: React.FC<PlanDetailsTableProps> = ({
       render: (text: string, record: DataSourceNode) => {
         if (record.type !== "plan") return null;
         return (
-          <div style={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
-            <Form.Item name={[record.planId, "masterTypeId"]}>
+          <Flex align="center" justify="center">
+            <Form.Item className={style.formTable} name={[record.planId, "masterTypeId"]}>
               <Select placeholder="Select type of work">
                 {workTypeOptions.map((option) => (
                   <Option key={option.value} value={option.value}>
@@ -237,7 +238,7 @@ const PlanDetailsTable: React.FC<PlanDetailsTableProps> = ({
                 ))}
               </Select>
             </Form.Item>
-          </div>
+          </Flex>
         );
       },
     },
@@ -249,7 +250,7 @@ const PlanDetailsTable: React.FC<PlanDetailsTableProps> = ({
       render: (text: string, record: DataSourceNode) => {
         if (record.type !== "plan") return null;
         return (
-          <Flex align="center" gap={8}>
+          <Flex align="center" justify="center" gap={8}>
             <span className={record.schedule?.startDate ? style.hasSchedule : style.noSchedule}>
               {record.schedule?.startDate ? "Configured" : "Not configured"}
             </span>

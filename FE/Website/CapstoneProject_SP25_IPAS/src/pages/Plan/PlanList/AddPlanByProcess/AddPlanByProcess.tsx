@@ -15,12 +15,7 @@ import { addPlanFormFields, frequencyOptions, MASTER_TYPE } from "@/constants";
 import dayjs, { Dayjs } from "dayjs";
 import PlanTarget from "../PlanTarget";
 import style from "./AddPlanByProcess.module.scss";
-import {
-  useGrowthStageOptions,
-  useLandPlotOptions,
-  useLandRowOptions,
-  useMasterTypeOptions,
-} from "@/hooks";
+import { useGrowthStageOptions, useMasterTypeOptions } from "@/hooks";
 import { Icons, Images } from "@/assets";
 import {
   Plan,

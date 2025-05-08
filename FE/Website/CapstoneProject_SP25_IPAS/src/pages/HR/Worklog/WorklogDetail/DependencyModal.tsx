@@ -1,7 +1,8 @@
-import React, { useState, useEffect } from 'react';
-import { Button, Modal, Table, TableColumnsType } from 'antd';
-import { worklogService } from '@/services';
-import { DependencyWorklog, Worklog } from '@/payloads/worklog';
+import React, { useState, useEffect } from "react";
+import { Button, Modal, Table, TableColumnsType } from "antd";
+import { worklogService } from "@/services";
+import { DependencyWorklog, Worklog } from "@/payloads/worklog";
+import { useStyle } from "@/hooks";
 
 interface DependencyModalProps {
   isOpen: boolean;
@@ -12,6 +13,7 @@ interface DependencyModalProps {
 const DependencyModal: React.FC<DependencyModalProps> = ({ isOpen, onClose, worklogId }) => {
   const [plans, setPlans] = useState<DependencyWorklog[]>([]);
   const [loading, setLoading] = useState(false);
+  const { styles } = useStyle();
 
   useEffect(() => {
     const fetchDependencies = async () => {
@@ -22,7 +24,7 @@ const DependencyModal: React.FC<DependencyModalProps> = ({ isOpen, onClose, work
         if (response.statusCode === 200) {
           setPlans(response.data || []);
         } else {
-          console.error('Failed to fetch dependencies:', response.message);
+          console.error("Failed to fetch dependencies:", response.message);
         }
       } finally {
         setLoading(false);
@@ -36,61 +38,61 @@ const DependencyModal: React.FC<DependencyModalProps> = ({ isOpen, onClose, work
 
   const planColumns: TableColumnsType<DependencyWorklog> = [
     {
-      title: 'Plan Name',
-      dataIndex: 'planName',
-      key: 'planName',
+      title: "Plan Name",
+      dataIndex: "planName",
+      key: "planName",
     },
     {
-      title: 'Start Date',
-      dataIndex: 'startDate',
-      key: 'startDate',
+      title: "Start Date",
+      dataIndex: "startDate",
+      key: "startDate",
       render: (date: string) => new Date(date).toLocaleDateString(),
     },
     {
-      title: 'End Date',
-      dataIndex: 'endDate',
-      key: 'endDate',
+      title: "End Date",
+      dataIndex: "endDate",
+      key: "endDate",
       render: (date: string) => new Date(date).toLocaleDateString(),
     },
     {
-      title: 'Status',
-      key: 'status',
+      title: "Status",
+      key: "status",
       render: (_, record: DependencyWorklog) =>
-        record.workLogs.length > 0 ? record.workLogs[0].status : 'No Worklogs',
+        record.workLogs.length > 0 ? record.workLogs[0].status : "No Worklogs",
     },
     {
-      title: 'Order',
-      key: 'order',
-      render: () => 'N/A', // Nếu không có trường order, để tạm N/A
+      title: "Order",
+      key: "order",
+      render: () => "N/A", // Nếu không có trường order, để tạm N/A
     },
   ];
 
   // Cột cho bảng Worklog (trong phần mở rộng)
   const worklogColumns: TableColumnsType<Worklog> = [
     {
-      title: 'Worklog Name',
-      dataIndex: 'workLogName',
-      key: 'workLogName',
+      title: "Worklog Name",
+      dataIndex: "workLogName",
+      key: "workLogName",
     },
     {
-      title: 'Start Time',
-      dataIndex: 'startTime',
-      key: 'startTime',
+      title: "Start Time",
+      dataIndex: "startTime",
+      key: "startTime",
     },
     {
-      title: 'End Time',
-      dataIndex: 'endTime',
-      key: 'endTime',
+      title: "End Time",
+      dataIndex: "endTime",
+      key: "endTime",
     },
     {
-      title: 'Status',
-      dataIndex: 'status',
-      key: 'status',
+      title: "Status",
+      dataIndex: "status",
+      key: "status",
     },
     {
-      title: 'Date',
-      dataIndex: 'date',
-      key: 'date',
+      title: "Date",
+      dataIndex: "date",
+      key: "date",
       render: (date: string) => new Date(date).toLocaleDateString(),
     },
   ];
@@ -121,7 +123,7 @@ const DependencyModal: React.FC<DependencyModalProps> = ({ isOpen, onClose, work
           dataSource={record.workLogs}
           rowKey="workLogId"
           pagination={false}
-          locale={{ emptyText: 'No worklogs found' }}
+          locale={{ emptyText: "No worklogs found" }}
         />
       </>
     );
@@ -147,6 +149,7 @@ const DependencyModal: React.FC<DependencyModalProps> = ({ isOpen, onClose, work
         <>
           <style>{tableStyles}</style>
           <Table
+            className={`${styles.customeTable2}`}
             columns={planColumns}
             dataSource={plans}
             rowKey="planId"

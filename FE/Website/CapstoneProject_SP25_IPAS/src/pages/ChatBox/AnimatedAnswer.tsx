@@ -30,9 +30,9 @@ const AnimatedAnswer = ({ data, onDone }: { data: AnswerData; onDone?: () => voi
         if (intervalRef.current) clearInterval(intervalRef.current);
         setTimeout(() => {
           setStep((prev) => prev + 1);
-        }, 100);
+        }, 10);
       }
-    }, 20);
+    }, 15);
     return () => {
       if (intervalRef.current) clearInterval(intervalRef.current);
     };

@@ -44,6 +44,7 @@ export { default as ActionMenuUser } from "@/components/UI/ActionMenu/ActionMenu
 export { default as ActionMenuFarm } from "@/components/UI/ActionMenu/ActionMenuFarm";
 export { default as ActionMenuPackage } from "@/components/UI/ActionMenu/ActionMenuPackage";
 export { default as ActionMenuTag } from "@/components/UI/ActionMenu/ActionMenuTag";
+export { default as ActionMenuPlan } from "@/components/UI/ActionMenu/ActionMenuPlan";
 export { default as NavigationDot } from "@/components/UI/Pagination/NavigationDot/NavigationDot";
 export { default as FilterFooter } from "@/components/UI/FilterFooter/FilterFooter";
 export { default as PricingCard } from "@/components/UI/PricingCard/PricingCard";

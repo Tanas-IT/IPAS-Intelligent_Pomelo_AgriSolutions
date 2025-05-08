@@ -57,60 +57,49 @@ const EditWorklogModal: React.FC<EditWorklogModalProps> = ({
   const isEditable = worklog?.status === "Not Started" || worklog?.status === "In Progress";
   const isTimeAndDateEditable = worklog?.status === "Not Started";
   console.log("tempReporterId", tempReporterId);
-  
 
   const fetchEmployees = async () => {
-    try {
-      const farmId = getFarmId();
-      const response = await worklogService.getEmployeesByWorkSkill(
-        Number(farmId),
-        worklog?.masterTypeId,
-      );
-      if (response.statusCode === 200) {
-        setEmployee(response.data);
-      } else {
-        toast.warning("Failed to fetch employees");
-      }
-    } catch (error) {
-      toast.warning("Error fetching employees");
+    const farmId = getFarmId();
+    const response = await worklogService.getEmployeesByWorkSkill(
+      Number(farmId),
+      worklog?.masterTypeId,
+    );
+    if (response.statusCode === 200) {
+      setEmployee(response.data);
+    } else {
+      toast.warning("Failed to fetch employees");
     }
   };
 
   const fetchListAttendance = async () => {
-    try {
-      const result = await worklogService.getEmpListForUpdate(Number(id));
-      if (result.statusCode === 200) {
-        setList(result.data);
+    const result = await worklogService.getEmpListForUpdate(Number(id));
+    if (result.statusCode === 200) {
+      setList(result.data);
 
-        if (initialReporterId) {
-          setTempReporterId(initialReporterId);
-        } else {
-          if (worklog && worklog?.replacementEmployee?.length > 0) {
-            const replacementReporter = worklog.replacementEmployee.find(
-              (emp) => emp.replaceUserIsRepoter,
-            );
-            if (replacementReporter) {
-              setTempReporterId(replacementReporter.replaceUserId);
-              return;
-            }
-          }
-          if (worklog && worklog?.reporter?.length > 0) {
-            const reporterEmp = worklog.reporter.find((emp) => emp.isReporter);
-            if (reporterEmp) {
-              setTempReporterId(reporterEmp.userId);
-            }
-            //   else {
-            //     console.log("[DEBUG] No reporter found in worklog.reporter");
-            //   }
-            // } else {
-            //   console.log("[DEBUG] No worklog.reporter available");
+      if (initialReporterId) {
+        setTempReporterId(initialReporterId);
+      } else {
+        if (worklog && worklog?.replacementEmployee?.length > 0) {
+          const replacementReporter = worklog.replacementEmployee.find(
+            (emp) => emp.replaceUserIsRepoter,
+          );
+          if (replacementReporter) {
+            setTempReporterId(replacementReporter.replaceUserId);
+            return;
           }
         }
-      } else {
-        toast.warning("Failed to fetch attendance list");
+        if (worklog && worklog?.reporter?.length > 0) {
+          const reporterEmp = worklog.reporter.find((emp) => emp.isReporter);
+          if (reporterEmp) {
+            setTempReporterId(reporterEmp.userId);
+          }
+          //   else {
+          //     console.log("[DEBUG] No reporter found in worklog.reporter");
+          //   }
+          // } else {
+          //   console.log("[DEBUG] No worklog.reporter available");
+        }
       }
-    } catch (error) {
-      toast.warning("Error fetching attendance list");
     }
   };
 
@@ -131,7 +120,7 @@ const EditWorklogModal: React.FC<EditWorklogModalProps> = ({
 
   const handleUpdateTempReporter = (userId: number) => {
     console.log("userId", userId);
-    
+
     if (typeof userId === "number") {
       setTempReporterId(userId);
     }
@@ -139,10 +128,10 @@ const EditWorklogModal: React.FC<EditWorklogModalProps> = ({
 
   // const handleUpdateReplacingStates = (states: { [key: number]: number | null }) => {
   //   setReplacingStates(states);
-  //   const reporterReplacement = Object.entries(states).find(([replacedId]) => 
+  //   const reporterReplacement = Object.entries(states).find(([replacedId]) =>
   //     worklog?.reporter?.some(r => r.userId === Number(replacedId) && r.isReporter)
   //   );
-  
+
   //   // Nếu có reporter bị thay thế, cập nhật tempReporterId
   //   if (reporterReplacement && reporterReplacement[1]) {
   //     setTempReporterId(reporterReplacement[1]);
@@ -151,14 +140,12 @@ const EditWorklogModal: React.FC<EditWorklogModalProps> = ({
 
   const handleUpdateReplacingStates = (states: { [key: number]: number | null }) => {
     setReplacingStates(states);
-  
+
     const replacement = states[tempReporterId!];
     if (typeof replacement === "number") {
       setTempReporterId(replacement);
     }
   };
-  
-  
 
   const handleSave = () => {
     onSave(tempReporterId, replacingStates);
@@ -191,22 +178,27 @@ const EditWorklogModal: React.FC<EditWorklogModalProps> = ({
         worklog={worklog}
       />
 
-      <Flex vertical gap={16} style={{ marginTop: 16 }}>
-        <label>Working Time:</label>
-        <EditableTimeRangeField
-          value={selectedTimeRange}
-          onChange={onTimeRangeChange}
-          disabled={!isTimeAndDateEditable}
-        />
-        <label>Date:</label>
-        <DatePicker
-          value={selectedDate ? dayjs(selectedDate) : null}
-          onChange={(date) => {
-            const selectedDateString = date ? date.format("YYYY-MM-DD") : "";
-            onDateChange(selectedDateString);
-          }}
-          disabled={!isTimeAndDateEditable}
-        />
+      <Flex style={{ width: "100%", margin: "8px 0" }} gap={20}>
+        <Flex vertical style={{ width: "100%" }}>
+          <label>Date:</label>
+          <DatePicker
+            value={selectedDate ? dayjs(selectedDate) : null}
+            onChange={(date) => {
+              const selectedDateString = date ? date.format("YYYY-MM-DD") : "";
+              onDateChange(selectedDateString);
+            }}
+            disabled={!isTimeAndDateEditable}
+          />
+        </Flex>
+        <Flex vertical style={{ width: "100%" }}>
+          <label>Working Time:</label>
+          <EditableTimeRangeField
+            value={selectedTimeRange}
+            onChange={onTimeRangeChange}
+            style={{ width: "100%" }}
+            disabled={!isTimeAndDateEditable}
+          />
+        </Flex>
       </Flex>
     </Modal>
   );

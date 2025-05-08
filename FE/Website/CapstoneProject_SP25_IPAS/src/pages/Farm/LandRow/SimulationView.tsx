@@ -7,7 +7,7 @@ import { AddNewPlotDrawer } from "@/pages";
 import { Icons } from "@/assets";
 import { usePanZoom } from "@/hooks";
 import { landPlotService } from "@/services";
-import { isManager } from "@/utils";
+import { isOwner } from "@/utils";
 import ColorGuide from "./ColorGuide";
 
 interface SimulationViewProps {
@@ -29,7 +29,7 @@ const SimulationView: FC<SimulationViewProps> = ({ plotId }) => {
     handleMouseMove,
     handleMouseUp,
   } = usePanZoom();
-  const notManagerIn = !isManager();
+  const isOwnerLogin = isOwner();
   const [isGuidePopupVisible, setGuidePopupVisible] = useState(false);
 
   const closeDrawer = () => setIsDrawerVisible(false);
@@ -69,13 +69,14 @@ const SimulationView: FC<SimulationViewProps> = ({ plotId }) => {
             Orientation: {plotData.isRowHorizontal ? "Horizontal" : "Vertical"}
           </span>
           <Flex gap={20} wrap="wrap" justify="end">
-            {notManagerIn && (
+            <div style={{ visibility: isOwnerLogin ? "visible" : "hidden" }}>
               <MapControls
                 icon={<Icons.edit />}
                 label="Modify Plot Layout"
                 onClick={() => showDrawer()}
               />
-            )}
+            </div>
+
             <Popover
               content={<ColorGuide onClose={() => setGuidePopupVisible(false)} />}
               trigger="click"
