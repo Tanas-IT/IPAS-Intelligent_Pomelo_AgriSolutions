@@ -1,10 +1,10 @@
 import { Button, Flex, Select, Space } from "antd";
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import style from "./WorklogFilter.module.scss";
 import { FilterFooter, FormFieldFilter } from "@/components";
 import { useGrowthStageOptions, useMasterTypeOptions, useUserInFarmByRole } from "@/hooks";
-import { MASTER_TYPE } from "@/constants";
-import { worklogStatusOptions } from "@/utils";
+import { MASTER_TYPE, UserRole } from "@/constants";
+import { isManager, isOwner, worklogStatusOptions } from "@/utils";
 
 type FilterProps = {
   filters: {
@@ -22,10 +22,17 @@ type FilterProps = {
 
 const WorklogFilter = ({ filters, updateFilters, onClear, onApply }: FilterProps) => {
   const [localFilters, setLocalFilters] = useState(filters);
+  const isOwnerLogin = isOwner();
+  const isManagerLogin = isManager();
 
   const { options: processTypeOptions } = useMasterTypeOptions(MASTER_TYPE.WORK, true);
-  const { options: growthStageOptions } = useGrowthStageOptions(true);
-  const listRole = [5, 4];
+
+  const listRole = useMemo(() => {
+    if (isOwnerLogin) return [UserRole.Manager, UserRole.Employee];
+    if (isManagerLogin) return [UserRole.Employee];
+    return [];
+  }, [isOwnerLogin, isManagerLogin]);
+
   const { options } = useUserInFarmByRole(listRole);
 
   const isFilterEmpty = !(
@@ -45,18 +52,6 @@ const WorklogFilter = ({ filters, updateFilters, onClear, onApply }: FilterProps
   };
 
   // Xử lý khi nhấn Clear
-  // const handleClear = () => {
-  //   setLocalFilters({
-  //     workDateFrom: "",
-  //     workDateTo: "",
-  //     growthStage: [],
-  //     status: [],
-  //     employees: [],
-  //     plan: [],
-  //     typePlan: [],
-  //   });
-  //   onClear();
-  // };
   useEffect(() => {
     setLocalFilters(filters);
   }, [filters]);
@@ -75,10 +70,10 @@ const WorklogFilter = ({ filters, updateFilters, onClear, onApply }: FilterProps
   };
 
   return (
-    <Flex className={style.filterContent}>
+    <Flex className={`${style.filterContent} ${style.filterContentMinW}`}>
       <Space direction="vertical" size={16} style={{ width: "100%" }}>
         {/* Date Range */}
-        <FormFieldFilter
+        {/* <FormFieldFilter
           label="Date"
           fieldType="date"
           value={[localFilters.workDateFrom, localFilters.workDateTo]}
@@ -89,32 +84,25 @@ const WorklogFilter = ({ filters, updateFilters, onClear, onApply }: FilterProps
               workDateTo: dates?.[1] ? dates[1].format("YYYY-MM-DD") : "",
             }));
           }}
-        />
-
-        <Flex gap={20}>
-          <FormFieldFilter
-            label="Growth Stage"
-            fieldType="select"
-            value={localFilters.growthStage}
-            options={growthStageOptions}
-            onChange={(value) => setLocalFilters((prev) => ({ ...prev, growthStage: value }))}
-          />
-          <FormFieldFilter
-            label="Process Type"
-            fieldType="select"
-            value={localFilters.typePlan}
-            options={processTypeOptions}
-            onChange={(value) => setLocalFilters((prev) => ({ ...prev, typePlan: value }))}
-          />
-        </Flex>
+        /> */}
 
         <FormFieldFilter
-          label="Employee"
+          label="Process Type"
           fieldType="select"
-          value={localFilters.employees}
-          options={options}
-          onChange={(value) => setLocalFilters((prev) => ({ ...prev, employees: value }))}
+          value={localFilters.typePlan}
+          options={processTypeOptions}
+          onChange={(value) => setLocalFilters((prev) => ({ ...prev, typePlan: value }))}
         />
+
+        {(isOwnerLogin || isManagerLogin) && (
+          <FormFieldFilter
+            label="Employee"
+            fieldType="select"
+            value={localFilters.employees}
+            options={options}
+            onChange={(value) => setLocalFilters((prev) => ({ ...prev, employees: value }))}
+          />
+        )}
 
         <FormFieldFilter
           label="Status"

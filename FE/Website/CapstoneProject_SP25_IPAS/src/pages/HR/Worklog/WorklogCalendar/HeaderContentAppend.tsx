@@ -1,7 +1,6 @@
 import { Icons } from "@/assets";
 import { CustomButton } from "@/components";
 import { Flex, Popover } from "antd";
-import { useNavigate } from "react-router-dom";
 
 interface HeaderContentAppendProps {
   addModal: {
@@ -21,7 +20,6 @@ const statusLegend = [
 ];
 
 const HeaderContentAppend: React.FC<HeaderContentAppendProps> = ({ filterContent, addModal }) => {
-  const navigate = useNavigate();
   const legendContent = (
     <Flex gap="small" vertical>
       {statusLegend.map((item) => (
@@ -42,12 +40,30 @@ const HeaderContentAppend: React.FC<HeaderContentAppendProps> = ({ filterContent
 
   return (
     <Flex gap={10}>
-      <Popover zIndex={999} content={filterContent} trigger="click" placement="bottomRight">
+      <Popover
+        zIndex={9}
+        content={filterContent}
+        trigger="click"
+        placement="bottomRight"
+        overlayInnerStyle={{
+          boxShadow: "0px 4px 12px rgba(0, 0, 0, 0.2)",
+          borderRadius: "8px",
+        }}
+      >
         <>
           <CustomButton label="Filter" icon={<Icons.filter />} />
         </>
       </Popover>
-      <Popover zIndex={999} content={legendContent} trigger="click" placement="bottomRight">
+      <Popover
+        zIndex={9}
+        content={legendContent}
+        trigger="click"
+        placement="bottomRight"
+        overlayInnerStyle={{
+          boxShadow: "0px 4px 12px rgba(0, 0, 0, 0.2)",
+          borderRadius: "8px",
+        }}
+      >
         <>
           <CustomButton label="Show Legend" icon={<Icons.info />} />
         </>

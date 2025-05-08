@@ -1,66 +1,71 @@
 @use "@/styles/variables.scss" as vars;
 @use "@/styles/share.scss" as shared;
+
 .filterContent {
   @include shared.filterContent;
 }
 
-.filterContent {
-  padding: 10px;
-  width: 400px;
-  box-shadow: 0 7px 12px rgba(0, 0, 0, 0.1);
-
-  input,
-  label,
-  span {
-    font-size: 16px !important;
-  }
-
-  .title {
-    color: vars.$color_primary !important;
-    font-weight: bold;
-    margin-bottom: 4px;
-  }
-
-  .section {
-    max-width: 24vw;
-    flex-direction: column;
-    margin-bottom: 10px;
-  }
-
-  .sectionStatus {
-    flex-direction: row;
-    margin-bottom: 10px;
-
-    .statusGroup {
-      flex-direction: column;
-      margin-left: 10px;
-    }
-  }
-
-  .titleModal {
-    font-size: 20px;
-    font-weight: lighter;
-  }
-
-  .sectionConfirm {
-    flex-direction: row;
-    margin-bottom: 10px;
-    label {
-      margin-right: 10px;
-    }
-    .ant-checkbox-wrapper {
-      display: flex;
-      align-items: center;
-    }
-  }
-
-  .sectionEmployee,
-  .sectionPlan {
-    flex-direction: column;
-    margin-bottom: 10px;
-    
-    .ant-select {
-      width: 100%;
-    }
-  }
+.filterContentMinW {
+  min-width: 35vw;
 }
+
+// .filterContent {
+//   padding: 10px;
+//   width: 400px;
+//   box-shadow: 0 7px 12px rgba(0, 0, 0, 0.1);
+
+//   input,
+//   label,
+//   span {
+//     font-size: 16px !important;
+//   }
+
+//   .title {
+//     color: vars.$color_primary !important;
+//     font-weight: bold;
+//     margin-bottom: 4px;
+//   }
+
+//   .section {
+//     max-width: 24vw;
+//     flex-direction: column;
+//     margin-bottom: 10px;
+//   }
+
+//   .sectionStatus {
+//     flex-direction: row;
+//     margin-bottom: 10px;
+
+//     .statusGroup {
+//       flex-direction: column;
+//       margin-left: 10px;
+//     }
+//   }
+
+//   .titleModal {
+//     font-size: 20px;
+//     font-weight: lighter;
+//   }
+
+//   .sectionConfirm {
+//     flex-direction: row;
+//     margin-bottom: 10px;
+//     label {
+//       margin-right: 10px;
+//     }
+//     .ant-checkbox-wrapper {
+//       display: flex;
+//       align-items: center;
+//     }
+//   }
+
+//   .sectionEmployee,
+//   .sectionPlan {
+//     flex-direction: column;
+//     margin-bottom: 10px;
+
+//     .ant-select {
+//       width: 100%;
+//     }
+//   }
+// }

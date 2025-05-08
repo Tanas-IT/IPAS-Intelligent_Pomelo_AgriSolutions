@@ -9,6 +9,8 @@ const useUserInFarmByRole = (listRole: number[], isDetail: boolean = false) => {
 
   useEffect(() => {
     const fetchOptions = async () => {
+      if (listRole.length === 0) return;
+
       try {
         const farmId = getFarmId();
         const result: ApiResponse<GetUserInFarm[]> = await farmService.getUserInFarmByRole(

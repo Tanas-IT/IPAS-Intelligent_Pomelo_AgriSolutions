@@ -146,6 +146,15 @@ export type FilterPlantState = {
   isPassed: boolean | null;
 };
 
+export type FilterWorkLogState = {
+  workDateFrom: string;
+  workDateTo: string;
+  growthStage: string[];
+  status: string[];
+  employees: string[];
+  typePlan: string[];
+};
+
 export type FilterPlanState = {
   createDateFrom: string;
   createDateTo: string;
