@@ -186,3 +186,9 @@ export const updateStatusWorklog = async (
   const apiResponse = res.data as ApiResponse<Object>;
   return apiResponse;
 };
+
+export const deleteWorklog = async (id: number): Promise<ApiResponse<Object>> => {
+  const res = await axiosAuth.axiosJsonRequest.delete(`work-log/${id}`);
+  const apiResponse = res.data as ApiResponse<Object>;
+  return apiResponse;
+};

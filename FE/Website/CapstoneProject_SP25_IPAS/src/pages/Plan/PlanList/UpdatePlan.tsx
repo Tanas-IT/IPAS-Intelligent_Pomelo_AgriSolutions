@@ -97,6 +97,7 @@ const UpdatePlan = () => {
   const [dateRange, setDateRange] = useState<[Dayjs, Dayjs] | null>(null);
   const [dateError, setDateError] = useState<string | null>(null);
   const [planData, setPlanData] = useState<GetPlan>();
+  const [planMasterTypeId, setPlanMasterTypeId] = useState<number | null>(null);
 
   const dateFormat = "YYYY/MM/DD";
   const timeFormat = "HH:mm:ss";
@@ -123,6 +124,30 @@ const UpdatePlan = () => {
       setLandPlotOfCropOptions([]);
     }
   }, [selectedCrop]);
+
+  const fetchEmployees = async (masterTypeId: number) => {
+    try {
+      const response = await worklogService.getEmployeesByWorkSkill(Number(farmId), masterTypeId);
+
+      if (response.statusCode === 200) {
+        setEmployee(response.data);
+      } else {
+        console.error("Failed to fetch employees:", response.message);
+      }
+    } catch (error) {
+      console.error("Error fetching employees:", error);
+    }
+  };
+
+  useEffect(() => {
+    if (planMasterTypeId !== null) {
+      fetchEmployees(planMasterTypeId);
+    } else {
+      setEmployee([]);
+      setSelectedEmployees([]);
+      setSelectedIds([]);
+    }
+  }, [planMasterTypeId]);
 
   useEffect(() => {
     const updateProcessFarmOptions = async () => {
@@ -173,8 +198,7 @@ const UpdatePlan = () => {
 
     if (validDays.length === 0) {
       setDateError(
-        `All selected ${
-          type === "weekly" ? "days" : "dates"
+        `All selected ${type === "weekly" ? "days" : "dates"
         } are not within the date range. Please select again.`,
       );
       return false;
@@ -183,10 +207,8 @@ const UpdatePlan = () => {
     // Có ngày không hợp lệ
     if (validDays.length < days.length) {
       setDateError(
-        `Some selected ${
-          type === "weekly" ? "days" : "dates"
-        } are not within the date range. Only valid ${
-          type === "weekly" ? "days" : "dates"
+        `Some selected ${type === "weekly" ? "days" : "dates"
+        } are not within the date range. Only valid ${type === "weekly" ? "days" : "dates"
         } will be saved.`,
       );
       if (type === "weekly") {
@@ -215,11 +237,9 @@ const UpdatePlan = () => {
         return new Promise((resolve) => {
           Modal.confirm({
             title: "Adjust Date Range",
-            content: `You have selected only one ${
-              type === "weekly" ? "day" : "date"
-            }. Do you want to adjust the date range to match this ${
-              type === "weekly" ? "day" : "date"
-            }?`,
+            content: `You have selected only one ${type === "weekly" ? "day" : "date"
+              }. Do you want to adjust the date range to match this ${type === "weekly" ? "day" : "date"
+              }?`,
             onOk: () => {
               const selectedDay = validDays[0];
               let targetDate = startDate.clone();
@@ -476,7 +496,7 @@ const UpdatePlan = () => {
       listLandPlotOfCrop: values.listLandPlotOfCrop,
     };
     console.log("planDataPayload", planDataPayload);
-    
+
 
     if (id) {
       const result = await planService.updatePlan(planDataPayload);
@@ -504,91 +524,92 @@ const UpdatePlan = () => {
     }
   };
 
-  useEffect(() => {
-    const fetchData = async () => {
-      setIsLoading(true);
-      try {
-        setProcessFarmOptions(await fetchProcessesOfFarm(farmId, true));
-        const response = await worklogService.getEmployeesByWorkSkill(Number(farmId));
-        if (response.statusCode === 200) {
-          setEmployee(response.data);
-        }
+  const fetchData = async () => {
+    setIsLoading(true);
+    try {
+      setProcessFarmOptions(await fetchProcessesOfFarm(farmId, true));
+      const response = await worklogService.getEmployeesByWorkSkill(Number(farmId));
+      if (response.statusCode === 200) {
+        setEmployee(response.data);
+      }
 
-        if (id) {
-          const result = await planService.getPlanDetail(id);
+      if (id) {
+        const result = await planService.getPlanDetail(id);
 
-          if (result) {
-            setPlanData(result);
-            const target = determineTargetType(result.planTargetModels);
-            const parsedCustomDates = result.customDates
-              ? JSON.parse(result.customDates).map((date: string) => moment(date))
-              : [];
-            const startDate = result.startDate ? dayjs(result.startDate, dateFormat) : null;
-            const endDate = result.endDate ? dayjs(result.endDate, dateFormat) : null;
-            const startTime = result.startTime ? dayjs(result.startTime, timeFormat) : null;
-            const endTime = result.endTime ? dayjs(result.endTime, timeFormat) : null;
-            const mergedEmployees = [...result.listReporter, ...result.listEmployee];
-            setSelectedEmployees(mergedEmployees);
-            setSelectedReporter(result.listReporter?.[0]?.userId || null);
-            form.setFieldValue("planTarget", target);
-            form.setFieldsValue({
-              planName: result.planName,
-            });
-            form.setFieldsValue({
-              planId: result.planId,
-              planName: result.planName,
-              planDetail: result.planDetail,
-              notes: result.notes,
-              frequency: result.frequency,
-              processId: result.processId,
-              growthStageId: result.growthStages.map((g) => g.id),
-              cropId: result.cropId,
-              listLandPlotOfCrop: result.listLandPlotOfCrop.map((l) => l.id),
-              isActive: result.isActive,
-              customDates: parsedCustomDates,
-              masterTypeId: result.masterTypeId,
-              dateRange: [startDate, endDate],
-              timeRange: [startTime, endTime],
-            });
-            if (target === "regular") {
-              setIsTargetDisabled(false);
-            } else if (target === "plantLot" || target === "graftedPlant") {
-              setIsCropDisabled(true);
-            }
-            setTargetType(target);
-            form.setFieldValue(
-              "listLandPlotOfCrop",
-              result.listLandPlotOfCrop.map((l) => l.id),
-            );
-            if (result.processId) {
-              setIsLockedGrowthStage(true);
-            }
-            if (result.cropId) {
-              setSelectedCrop(result.cropId);
-              setIsTargetDisabled(true);
-            }
-            setDateRange([startDate, endDate] as [Dayjs, Dayjs]);
-            setSelectedGrowthStage(result.growthStages.map((g) => g.id));
-            setFrequency(result.frequency || "None");
-            const parsedDayOfMonth = result.dayOfMonth ? JSON.parse(result.dayOfMonth) : [];
-            setDayOfMonth(parsedDayOfMonth);
-            setDayOfWeek(result.dayOfWeek || []);
-            setSelectedIds(mergedEmployees?.map((emp) => emp.userId) || []);
-          } else {
-            navigate("/404");
-            return;
+        if (result) {
+          setPlanData(result);
+          setPlanMasterTypeId(result.masterTypeId);
+          const target = determineTargetType(result.planTargetModels);
+          const parsedCustomDates = result.customDates
+            ? JSON.parse(result.customDates).map((date: string) => moment(date))
+            : [];
+          const startDate = result.startDate ? dayjs(result.startDate, dateFormat) : null;
+          const endDate = result.endDate ? dayjs(result.endDate, dateFormat) : null;
+          const startTime = result.startTime ? dayjs(result.startTime, timeFormat) : null;
+          const endTime = result.endTime ? dayjs(result.endTime, timeFormat) : null;
+          const mergedEmployees = [...result.listReporter, ...result.listEmployee];
+          setSelectedEmployees(mergedEmployees);
+          setSelectedReporter(result.listReporter?.[0]?.userId || null);
+          form.setFieldValue("planTarget", target);
+          form.setFieldsValue({
+            planName: result.planName,
+          });
+          form.setFieldsValue({
+            planId: result.planId,
+            planName: result.planName,
+            planDetail: result.planDetail,
+            notes: result.notes,
+            frequency: result.frequency,
+            processId: result.processId,
+            growthStageId: result.growthStages.map((g) => g.id),
+            cropId: result.cropId,
+            listLandPlotOfCrop: result.listLandPlotOfCrop.map((l) => l.id),
+            isActive: result.isActive,
+            customDates: parsedCustomDates,
+            masterTypeId: result.masterTypeId,
+            dateRange: [startDate, endDate],
+            timeRange: [startTime, endTime],
+          });
+          if (target === "regular") {
+            setIsTargetDisabled(false);
+          } else if (target === "plantLot" || target === "graftedPlant") {
+            setIsCropDisabled(true);
           }
+          setTargetType(target);
+          form.setFieldValue(
+            "listLandPlotOfCrop",
+            result.listLandPlotOfCrop.map((l) => l.id),
+          );
+          if (result.processId) {
+            setIsLockedGrowthStage(true);
+          }
+          if (result.cropId) {
+            setSelectedCrop(result.cropId);
+            setIsTargetDisabled(true);
+          }
+          setDateRange([startDate, endDate] as [Dayjs, Dayjs]);
+          setSelectedGrowthStage(result.growthStages.map((g) => g.id));
+          setFrequency(result.frequency || "None");
+          const parsedDayOfMonth = result.dayOfMonth ? JSON.parse(result.dayOfMonth) : [];
+          setDayOfMonth(parsedDayOfMonth);
+          setDayOfWeek(result.dayOfWeek || []);
+          setSelectedIds(mergedEmployees?.map((emp) => emp.userId) || []);
         } else {
           navigate("/404");
           return;
         }
-      } catch (error) {
-        console.error("Lỗi khi fetch dữ liệu:", error);
-      } finally {
-        setIsLoading(false);
+      } else {
+        navigate("/404");
+        return;
       }
-    };
+    } catch (error) {
+      console.error("Lỗi khi fetch dữ liệu:", error);
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
+  useEffect(() => {
     fetchData();
   }, [id, form]);
 
@@ -646,7 +667,7 @@ const UpdatePlan = () => {
                 {planData?.hasNonSampleProcess ? (
                   <Form.Item
                     label="Process Name"
-                    // name={addPlanFormFields.processId}
+                  // name={addPlanFormFields.processId}
                   >
                     <Input disabled value={planData.processName} />
                   </Form.Item>
@@ -971,6 +992,10 @@ const UpdatePlan = () => {
             isEditing={true}
             type="select"
             hasFeedback={false}
+            onChange={(value) => {
+              setPlanMasterTypeId(value);
+              fetchEmployees(value);
+            }}
           />
           <AssignEmployee
             members={selectedEmployees}
@@ -992,7 +1017,7 @@ const UpdatePlan = () => {
               onChange={setSelectedIds}
               optionLabelProp="label"
             >
-              {employee.map((emp) => (
+              {/* {employee.map((emp) => (
                 <Select.Option key={emp.userId} value={emp.userId} label={emp.fullName}>
                   <div style={{ display: "flex", alignItems: "center", gap: 8 }}>
                     <img
@@ -1002,6 +1027,98 @@ const UpdatePlan = () => {
                       crossOrigin="anonymous"
                     />
                     <span>{emp.fullName}</span>
+                  </div>
+                </Select.Option>
+              ))} */}
+              {employee.map((emp) => (
+                <Select.Option key={emp.userId} value={emp.userId} label={emp.fullName}>
+                  <div style={{
+                    display: "flex",
+                    alignItems: "center",
+                    gap: 12,
+                    padding: "8px 12px",
+                    borderRadius: 8,
+                    transition: "all 0.2s",
+                  }}>
+                    {/* Avatar */}
+                    <div style={{
+                      position: "relative",
+                      width: 32,
+                      height: 32,
+                      flexShrink: 0
+                    }}>
+                      <img
+                        src={emp.avatarURL}
+                        alt={emp.fullName}
+                        style={{
+                          width: "100%",
+                          height: "100%",
+                          borderRadius: "50%",
+                          objectFit: "cover",
+                          border: "2px solid #e6f7ff"
+                        }}
+                        crossOrigin="anonymous"
+                      />
+                    </div>
+
+                    <div style={{
+                      flex: 1,
+                      minWidth: 0
+                    }}>
+                      <div style={{
+                        fontWeight: 500,
+                        color: "rgba(0, 0, 0, 0.88)",
+                        whiteSpace: "nowrap",
+                        overflow: "hidden",
+                        textOverflow: "ellipsis"
+                      }}>
+                        {emp.fullName}
+                      </div>
+
+                      <div style={{
+                        display: "flex",
+                        gap: 6,
+                        marginTop: 4,
+                        flexWrap: "wrap"
+                      }}>
+                        {emp.skillWithScore.slice(0, 3).map(skill => (
+                          <div key={skill.skillName} style={{
+                            display: "flex",
+                            alignItems: "center",
+                            background: skill.score >= 7 ? "#f6ffed" : "#fafafa",
+                            border: `1px solid ${skill.score >= 7 ? "#b7eb8f" : "#d9d9d9"}`,
+                            borderRadius: 4,
+                            padding: "2px 6px",
+                            fontSize: 12,
+                            lineHeight: 1
+                          }}>
+                            <Icons.grade
+                              width={12}
+                              height={12}
+                              style={{
+                                marginRight: 4,
+                                color: "yellow"
+                              }}
+                            />
+                            <span style={{
+                              color: "rgba(0, 0, 0, 0.65)"
+                            }}>
+                              {skill.skillName} <strong>{skill.score}</strong>
+                            </span>
+                          </div>
+                        ))}
+                        {emp.skillWithScore.length > 3 && (
+                          <div style={{
+                            background: "#f0f0f0",
+                            borderRadius: 4,
+                            padding: "2px 6px",
+                            fontSize: 12
+                          }}>
+                            +{emp.skillWithScore.length - 3}
+                          </div>
+                        )}
+                      </div>
+                    </div>
                   </div>
                 </Select.Option>
               ))}

@@ -31,12 +31,14 @@ const ActionMenu: React.FC<ActionMenuProps> = ({ title, items, visible, setVisib
           <div key={index}>
             <Space
               onClick={() => {
-                item.onClick?.();
-                if (item.isCloseOnClick !== false) {
-                  setMenuVisible(false);
+                if (!item.disabled) {
+                  item.onClick?.();
+                  if (item.isCloseOnClick !== false) {
+                    setMenuVisible(false);
+                  }
                 }
               }}
-              className={style.popupButton}
+              className={`${style.popupButton} ${item.disabled ? style.disabled : ''}`}
               direction="horizontal"
             >
               <Flex className={style.popupIcon}>{item.icon}</Flex>

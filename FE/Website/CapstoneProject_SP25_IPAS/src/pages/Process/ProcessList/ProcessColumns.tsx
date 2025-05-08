@@ -18,6 +18,16 @@ export const processColumns: TableColumn<GetProcessList>[] = [
     width: 300,
   },
   {
+    header: "In Use",
+    field: "isInUse",
+    accessor: (process) => (
+      <Tag color={process.isInUse ? "blue" : "orange"}>
+        {process.isInUse ? "In Use" : "Not In Use"}
+      </Tag>
+    ),
+    width: 100,
+  },
+  {
     header: "Created Date",
     field: "createDate",
     accessor: (process) =>  <TableCell value={process.createDate ? new Date(process.createDate).toLocaleDateString() : "N/A"}/>,

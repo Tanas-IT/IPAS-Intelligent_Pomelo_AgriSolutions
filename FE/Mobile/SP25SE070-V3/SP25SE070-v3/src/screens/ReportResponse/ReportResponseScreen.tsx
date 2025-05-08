@@ -64,12 +64,7 @@ const ReportResponseScreen = () => {
       });
 
       setReports(response.data);
-    } catch (error) {
-      //   Toast.show({
-      //     type: "error",
-      //     text1: "Lỗi",
-      //     text2: "Không tải được danh sách báo cáo",
-      //   });
+   
     } finally {
       setLoading(false);
     }

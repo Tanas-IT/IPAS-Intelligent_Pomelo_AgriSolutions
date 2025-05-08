@@ -56,6 +56,8 @@ const EditWorklogModal: React.FC<EditWorklogModalProps> = ({
   const [replacingStates, setReplacingStates] = useState<{ [key: number]: number | null }>({});
   const isEditable = worklog?.status === "Not Started" || worklog?.status === "In Progress";
   const isTimeAndDateEditable = worklog?.status === "Not Started";
+  console.log("tempReporterId", tempReporterId);
+  
 
   const fetchEmployees = async () => {
     try {
@@ -70,7 +72,6 @@ const EditWorklogModal: React.FC<EditWorklogModalProps> = ({
         toast.warning("Failed to fetch employees");
       }
     } catch (error) {
-      console.error("Error fetching employees:", error);
       toast.warning("Error fetching employees");
     }
   };
@@ -109,7 +110,6 @@ const EditWorklogModal: React.FC<EditWorklogModalProps> = ({
         toast.warning("Failed to fetch attendance list");
       }
     } catch (error) {
-      console.error("Error fetching attendance list:", error);
       toast.warning("Error fetching attendance list");
     }
   };
@@ -130,14 +130,35 @@ const EditWorklogModal: React.FC<EditWorklogModalProps> = ({
   };
 
   const handleUpdateTempReporter = (userId: number) => {
+    console.log("userId", userId);
+    
     if (typeof userId === "number") {
       setTempReporterId(userId);
     }
   };
 
+  // const handleUpdateReplacingStates = (states: { [key: number]: number | null }) => {
+  //   setReplacingStates(states);
+  //   const reporterReplacement = Object.entries(states).find(([replacedId]) => 
+  //     worklog?.reporter?.some(r => r.userId === Number(replacedId) && r.isReporter)
+  //   );
+  
+  //   // Nếu có reporter bị thay thế, cập nhật tempReporterId
+  //   if (reporterReplacement && reporterReplacement[1]) {
+  //     setTempReporterId(reporterReplacement[1]);
+  //   }
+  // };
+
   const handleUpdateReplacingStates = (states: { [key: number]: number | null }) => {
     setReplacingStates(states);
+  
+    const replacement = states[tempReporterId!];
+    if (typeof replacement === "number") {
+      setTempReporterId(replacement);
+    }
   };
+  
+  
 
   const handleSave = () => {
     onSave(tempReporterId, replacingStates);

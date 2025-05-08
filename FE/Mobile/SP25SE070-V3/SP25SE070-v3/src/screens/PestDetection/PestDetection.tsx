@@ -33,6 +33,7 @@ const PestDetectionScreen = () => {
   const [detectionResults, setDetectionResults] = useState<
     PestDetectionResult[] | null
   >(null);
+  const [hasDetected, setHasDetected] = useState(false);
   const [isReportModalVisible, setIsReportModalVisible] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const fadeAnim = useRef(new Animated.Value(0)).current;
@@ -40,14 +41,14 @@ const PestDetectionScreen = () => {
   const CLOUD_NAME = process.env.EXPO_PUBLIC_CLOUD_NAME;
 
   useEffect(() => {
-    if (detectionResults !== null) {
+    if (hasDetected && selectedImageUri) {
       Animated.timing(fadeAnim, {
         toValue: 1,
         duration: 500,
         useNativeDriver: true,
       }).start();
     }
-  }, [detectionResults]);
+  }, [hasDetected, selectedImageUri]);
 
   // Yêu cầu quyền truy cập
   const requestPermission = async (type: "library" | "camera") => {
@@ -81,7 +82,6 @@ const PestDetectionScreen = () => {
       console.warn("File does not exist or size is undefined:", uri);
       return 0;
     } catch (error) {
-      // console.error("Error getting file size:", error);
       return 0;
     }
   };
@@ -100,31 +100,28 @@ const PestDetectionScreen = () => {
     formData.append("upload_preset", UPLOAD_PRESET);
     formData.append("cloud_name", CLOUD_NAME);
 
-    try {
-      const response = await fetch(
-        `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`,
-        {
-          method: "POST",
-          body: formData,
-        }
-      );
-      const result = await response.json();
-      if (result.secure_url) {
-        if (fileSize > MAX_FILE_SIZE) {
-          const optimizedUrl = result.secure_url.replace(
-            "/upload/",
-            "/upload/w_1600,q_auto,f_auto,fl_lossy/"
-          );
-          return optimizedUrl;
-        }
-        return result.secure_url;
-      } else {
-        throw new Error("Failed to upload to Cloudinary");
+
+    const response = await fetch(
+      `https://api.cloudinary.com/v1_1/${CLOUD_NAME}/image/upload`,
+      {
+        method: "POST",
+        body: formData,
       }
-    } catch (error) {
-      // console.error("Error uploading to Cloudinary:", error);
-      throw error;
+    );
+    const result = await response.json();
+    if (result.secure_url) {
+      if (fileSize > MAX_FILE_SIZE) {
+        const optimizedUrl = result.secure_url.replace(
+          "/upload/",
+          "/upload/w_1600,q_auto,f_auto,fl_lossy/"
+        );
+        return optimizedUrl;
+      }
+      return result.secure_url;
+    } else {
+      throw new Error("Failed to upload to Cloudinary");
     }
+
   };
   const handleSelectFromLibrary = async () => {
     const hasPermission = await requestPermission("library");
@@ -151,12 +148,7 @@ const PestDetectionScreen = () => {
         const imageUrl = await uploadToCloudinary(file);
         setSelectedImageUrl(imageUrl);
         setDetectionResults(null);
-      } catch (error) {
-        Toast.show({
-          type: "error",
-          text1: "Error",
-          text2: "Cannot upload image to Cloudinary",
-        });
+        setHasDetected(false);
       } finally {
         setIsLoading(false);
       }
@@ -188,12 +180,7 @@ const PestDetectionScreen = () => {
         const imageUrl = await uploadToCloudinary(file);
         setSelectedImageUrl(imageUrl);
         setDetectionResults(null);
-      } catch (error) {
-        Toast.show({
-          type: "error",
-          text1: "Error",
-          text2: "The file size must be less than 4MB",
-        });
+        setHasDetected(false);
       } finally {
         setIsLoading(false);
       }
@@ -207,6 +194,7 @@ const PestDetectionScreen = () => {
     }
 
     setIsLoading(true);
+    setHasDetected(true);
 
     try {
       const response = await PestDetectionService.predictDiseaseByUrl(
@@ -237,7 +225,7 @@ const PestDetectionScreen = () => {
           visibilityTime: 4000,
           position: "bottom",
         });
-        setDetectionResults(null);
+        setDetectionResults([]);
       } else {
         Toast.show({
           type: "error",
@@ -249,7 +237,6 @@ const PestDetectionScreen = () => {
       // console.error("Error detecting pest:", error);
       Toast.show({
         type: "error",
-        text1: "Error",
         text2: "An error occurred while detecting pest",
       });
     } finally {
@@ -261,32 +248,25 @@ const PestDetectionScreen = () => {
     setSelectedImageUri(null);
     setSelectedImageUrl(null);
     setDetectionResults(null);
+    setHasDetected(false);
     fadeAnim.setValue(0);
   };
 
   const handleSubmitReport = async (data: PestReportRequest) => {
-    try {
-      const res = await PestDetectionService.createReport(data);
-      if (res.statusCode === 200) {
-        Toast.show({
-          type: "success",
-          text1: "Submit report successfully",
-        });
-      } else {
-        Toast.show({
-          type: "error",
-          text1: "Duplicate Error",
-          text2: res.message || "Unknown error",
-        });
-      }
-    } catch (error) {
-      // console.error("Error submitting report:", error);
+    const res = await PestDetectionService.createReport(data);
+    if (res.statusCode === 200) {
+      Toast.show({
+        type: "success",
+        text1: "Submit report successfully",
+      });
+    } else {
       Toast.show({
         type: "error",
-        text1: "Error",
-        text2: "An error occurred while submitting report",
+        text1: "Duplicate Error",
+        text2: res.message || "Unknown error",
       });
     }
+
   };
 
   if (isLoading) {
@@ -310,7 +290,90 @@ const PestDetectionScreen = () => {
         <Text style={styles.title}>Pest Detection</Text>
       </View>
 
-      {detectionResults === null ? (
+      {hasDetected && selectedImageUri ? (
+        <Animated.View style={{ opacity: fadeAnim }}>
+          <View style={[styles.resultImageContainer, theme.shadow.default]}>
+            <Image
+              source={{ uri: selectedImageUri! }}
+              style={styles.resultImage}
+            />
+            <TextCustom style={styles.resultTitle}>Results</TextCustom>
+            <TextCustom style={styles.resultSubTitle}>
+              This result is for consultation purposes only. Reporting it as
+              consumed would be inaccurate.
+            </TextCustom>
+          </View>
+          <View style={styles.resultContainer}>
+            {detectionResults && detectionResults.length > 0 ? (
+              detectionResults.map((result, index) => (
+                <View
+                  key={index}
+                  style={[styles.resultItem, theme.shadow.default]}
+                >
+                  <TextCustom style={styles.resultText}>
+                    {result.tagName}
+                  </TextCustom>
+                  <View style={styles.progressContainer}>
+                    <Progress.Bar
+                      progress={result.probability}
+                      width={270}
+                      height={7}
+                      color={theme.colors.primary}
+                      unfilledColor={theme.colors.secondary}
+                      borderColor="none"
+                    />
+                    <TextCustom style={styles.percentageText}>
+                      {(result.probability * 100).toFixed(2)}%
+                    </TextCustom>
+                  </View>
+                </View>
+              ))
+            ) : (
+              <TextCustom style={styles.noResultText}>
+                This image cannot be detected. You can still report this image.
+              </TextCustom>
+            )}
+          </View>
+          <View style={styles.actionButtons}>
+            <TouchableOpacity
+              style={[
+                styles.actionButton,
+                { backgroundColor: theme.colors.secondary },
+              ]}
+              onPress={() => setIsReportModalVisible(true)}
+            >
+              <TextCustom
+                style={[
+                  styles.actionButtonText,
+                  { color: theme.colors.primary },
+                ]}
+              >
+                Report
+              </TextCustom>
+            </TouchableOpacity>
+            <TouchableOpacity
+              style={[
+                styles.actionButton,
+                {
+                  borderColor: theme.colors.primary,
+                  backgroundColor: "white",
+                  borderWidth: 1,
+                },
+              ]}
+              onPress={handleClear}
+            >
+              <TextCustom
+                style={[
+                  styles.actionButtonText,
+                  { color: theme.colors.primary },
+                ]}
+              >
+                Clear
+              </TextCustom>
+            </TouchableOpacity>
+          </View>
+        </Animated.View>
+      ) : (
         <>
           <View style={styles.imageContainer}>
             {selectedImageUri ? (
@@ -375,89 +438,6 @@ const PestDetectionScreen = () => {
             </TouchableOpacity>
           </View>
         </>
-      ) : (
-        <Animated.View style={{ opacity: fadeAnim }}>
-          <View style={[styles.resultImageContainer, theme.shadow.default]}>
-            <Image
-              source={{ uri: selectedImageUri! }}
-              style={styles.resultImage}
-            />
-            <TextCustom style={styles.resultTitle}>Results</TextCustom>
-            <TextCustom style={styles.resultSubTitle}>
-              This result is for consultation purposes only. Reporting it as
-              consumed would be inaccurate.
-            </TextCustom>
-          </View>
-          <View style={styles.resultContainer}>
-          {detectionResults.length > 0 ? (
-              detectionResults.map((result, index) => (
-                <View
-                  key={index}
-                  style={[styles.resultItem, theme.shadow.default]}
-                >
-                  <TextCustom style={styles.resultText}>
-                    {result.tagName}
-                  </TextCustom>
-                  <View style={styles.progressContainer}>
-                    <Progress.Bar
-                      progress={result.probability}
-                      width={270}
-                      height={7}
-                      color={theme.colors.primary}
-                      unfilledColor={theme.colors.secondary}
-                      borderColor="none"
-                    />
-                    <TextCustom style={styles.percentageText}>
-                      {(result.probability * 100).toFixed(2)}%
-                    </TextCustom>
-                  </View>
-                </View>
-              ))
-            ) : (
-              <TextCustom style={styles.noResultText}>
-                No pests detected. You can still report this image.
-              </TextCustom>
-            )}
-          </View>
-          <View style={styles.actionButtons}>
-            <TouchableOpacity
-              style={[
-                styles.actionButton,
-                { backgroundColor: theme.colors.secondary },
-              ]}
-              onPress={() => setIsReportModalVisible(true)}
-            >
-              <TextCustom
-                style={[
-                  styles.actionButtonText,
-                  { color: theme.colors.primary },
-                ]}
-              >
-                Report
-              </TextCustom>
-            </TouchableOpacity>
-            <TouchableOpacity
-              style={[
-                styles.actionButton,
-                {
-                  borderColor: theme.colors.primary,
-                  backgroundColor: "white",
-                  borderWidth: 1,
-                },
-              ]}
-              onPress={handleClear}
-            >
-              <TextCustom
-                style={[
-                  styles.actionButtonText,
-                  { color: theme.colors.primary },
-                ]}
-              >
-                Clear
-              </TextCustom>
-            </TouchableOpacity>
-          </View>
-        </Animated.View>
       )}
 
       <ReportModal

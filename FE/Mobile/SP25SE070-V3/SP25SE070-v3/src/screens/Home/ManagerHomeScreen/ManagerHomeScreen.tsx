@@ -134,9 +134,6 @@ const ManagerHomeScreen = () => {
           }))
         );
       } finally {
-        // catch (error: any) {
-        //   console.error("Error fetching manager home:", error);
-        // }
         setLoading(false);
       }
     };
@@ -243,13 +240,13 @@ const ManagerHomeScreen = () => {
                 iconName="close-circle-outline"
                 value={workOverview.rejected}
                 label="Rejected"
-                // onPress={() => navigation.navigate(ROUTE_NAMES.WORKLOG.WORKLOG_LIST, { filter: 'rejected' })}
+              // onPress={() => navigation.navigate(ROUTE_NAMES.WORKLOG.WORKLOG_LIST, { filter: 'rejected' })}
               />
               <WorkItem
                 iconName="refresh-outline"
                 value={workOverview.redo}
                 label="Redo"
-                // onPress={() => navigation.navigate(ROUTE_NAMES.WORKLOG.WORKLOG_LIST, { filter: 'redo' })}
+              // onPress={() => navigation.navigate(ROUTE_NAMES.WORKLOG.WORKLOG_LIST, { filter: 'redo' })}
               />
             </View>
             <View style={styles.workRow}>

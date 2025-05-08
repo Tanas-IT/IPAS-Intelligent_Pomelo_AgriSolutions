@@ -3,6 +3,7 @@ export interface GetProcessList {
     processCode: string;
     processName: string;
     isActive: boolean;
+    isInUse: boolean;
     createDate: Date;
     updateDate: Date;
     isDeleted: boolean;

@@ -53,12 +53,6 @@ const EmployeeHomeScreen = () => {
 
       setMetrics(metricsResponse.data);
       setTodaysTasks(tasksResponse.data);
-    } catch (error: any) {
-      Toast.show({
-        type: "error",
-        text1: "Error",
-        text2: error.message || "Failed to fetch",
-      });
     } finally {
       setLoading(false);
     }
