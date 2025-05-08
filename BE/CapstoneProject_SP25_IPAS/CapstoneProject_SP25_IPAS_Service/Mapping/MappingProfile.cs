@@ -627,7 +627,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Mapping
                                                                         StatusOfUserWorkLog = group.First().StatusOfUserWorkLog,
                                                                         IsReporter = group.First().IsReporter
                                                                     }).ToList()))
-            .ForMember(dest => dest.Reporter, opt => opt.MapFrom(src => src.UserWorkLogs.Where(x => x.IsReporter == true)
+            .ForMember(dest => dest.Reporter, opt => opt.MapFrom(src => src.UserWorkLogs.Where(x => x.IsReporter == true && x.IsDeleted == false)
                                                                     .GroupBy(user => user.UserId)
                                                                     .Select(group => new ReporterModel
                                                                     {
