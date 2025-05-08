@@ -7,6 +7,7 @@ import { EmployeeWithSkills, GetAttendanceList, GetWorklogDetail } from "@/paylo
 import { worklogService } from "@/services";
 import { toast } from "react-toastify";
 import { worklog } from "@/assets/images/images";
+import { useStyle } from "@/hooks";
 
 type EmployeeType = { fullName: string; avatarURL: string; userId: number };
 
@@ -35,26 +36,22 @@ const EmployeeTable: React.FC<EmployeeTableProps> = ({
 }) => {
   const [replacingStates, setReplacingStates] = useState<{ [key: number]: number | null }>({});
   const [employee, setEmployee] = useState<EmployeeType[]>([]);
+  const { styles } = useStyle();
   console.log("replacingStates", replacingStates);
   console.log("employees", employees);
   console.log("tempReporterId", tempReporterId);
 
-
   useEffect(() => {
     const fetchEmployees = async () => {
-      try {
-        const farmId = getFarmId();
-        const response = await worklogService.getEmployeesByWorkSkill(
-          Number(farmId),
-          worklog?.masterTypeId,
-        );
-        if (response.statusCode === 200) {
-          setEmployee(response.data);
-        } else {
-          toast.warning("Failed to fetch employees");
-        }
-      } catch (error) {
-        toast.warning("Error fetching employees");
+      const farmId = getFarmId();
+      const response = await worklogService.getEmployeesByWorkSkill(
+        Number(farmId),
+        worklog?.masterTypeId,
+      );
+      if (response.statusCode === 200) {
+        setEmployee(response.data);
+      } else {
+        toast.warning("Failed to fetch employees");
       }
     };
     fetchEmployees();
@@ -70,7 +67,6 @@ const EmployeeTable: React.FC<EmployeeTableProps> = ({
       onUpdateReplacingStates(newState);
       console.log("tempReporterId", tempReporterId);
       console.log("replacedUserId", replacedUserId);
-
 
       if (tempReporterId === replacedUserId) {
         console.log("vo day");
@@ -103,8 +99,9 @@ const EmployeeTable: React.FC<EmployeeTableProps> = ({
     {
       title: "User Name",
       dataIndex: "fullName",
+      align: "center" as const,
       render: (text: string, record: GetUser) => (
-        <Flex align="center" gap={8}>
+        <Flex align="center" justify="center" gap={8}>
           <Image
             src={record.avatarURL || Images.avatar}
             width={32}
@@ -119,16 +116,17 @@ const EmployeeTable: React.FC<EmployeeTableProps> = ({
     {
       title: "Status",
       dataIndex: "statusOfUser",
+      align: "center" as const,
       render: (status: string | undefined) => (
         <Tag
           color={
             status === "Received"
               ? "green"
               : status === "Replaced" || status === "BeReplaced"
-                ? "orange"
-                : status
-                  ? "red"
-                  : "gray"
+              ? "orange"
+              : status
+              ? "red"
+              : "gray"
           }
         >
           {status || "Not Yet"}
@@ -137,6 +135,7 @@ const EmployeeTable: React.FC<EmployeeTableProps> = ({
     },
     {
       title: "Role",
+      align: "center" as const,
       render: (_: any, record: GetAttendanceList) => (
         <Tag color={record.isReporter ? "blue" : "default"}>
           {record.isReporter ? "Reporter" : "Employee"}
@@ -145,10 +144,10 @@ const EmployeeTable: React.FC<EmployeeTableProps> = ({
     },
     {
       title: "Reporter",
+      align: "center" as const,
       render: (_: any, record: GetUser) => {
         // const isCurrentReporter = record.userId === tempReporterId;
         // console.log("isCurrentReporter", isCurrentReporter);
-
 
         // // 2. Check nếu đang là user bị thay thế (nằm trong keys của replacingStates)
         // const isBeingReplaced = Object.keys(replacingStates).includes(String(record.userId));
@@ -160,9 +159,7 @@ const EmployeeTable: React.FC<EmployeeTableProps> = ({
 
         // const isChecked = isCurrentReporter || isBeingReplaced || isReplacingSomeone;
         const isCurrentReporter =
-  record.userId === tempReporterId ||
-  replacingStates[record.userId] === tempReporterId;
-
+          record.userId === tempReporterId || replacingStates[record.userId] === tempReporterId;
 
         return (
           <Radio
@@ -175,6 +172,7 @@ const EmployeeTable: React.FC<EmployeeTableProps> = ({
     },
     {
       title: "Replacement",
+      align: "center" as const,
       render: (_: any, record: GetUser) => {
         const isReplacing = replacingStates[record.userId] !== undefined;
 
@@ -290,7 +288,14 @@ const EmployeeTable: React.FC<EmployeeTableProps> = ({
     },
   ];
 
-  return <Table dataSource={employees} columns={columns} rowKey="userId" />;
+  return (
+    <Table
+      className={`${styles.customeTable2}`}
+      dataSource={employees}
+      columns={columns}
+      rowKey="userId"
+    />
+  );
 };
 
 export default EmployeeTable;

@@ -242,20 +242,6 @@ const ChatBox = () => {
     }
   };
 
-  const handleUploadImage = async (file: File) => {
-    // try {
-    // const res = await ChatBoxService.uploadImage(file);
-    //   if (res.statusCode === 200 && res.data?.url) {
-    //     const imageMarkdown = `![image](${res.data.url})`;
-    //     setMessageInput((prev) => `${prev}\n${imageMarkdown}`);
-    //   } else {
-    //     toast.warning("Tải ảnh thất bại");
-    //   }
-    // } catch (error) {
-    //   toast.warning("Có lỗi khi tải ảnh");
-    // }
-  };
-
   const scrollToBottom = () => {
     if (chatBoxRef.current) {
       chatBoxRef.current.scrollTop = chatBoxRef.current.scrollHeight;

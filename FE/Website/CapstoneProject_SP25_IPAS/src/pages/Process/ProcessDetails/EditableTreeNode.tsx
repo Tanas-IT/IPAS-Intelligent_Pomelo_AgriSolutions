@@ -19,7 +19,8 @@ const EditableTreeNode: React.FC<EditableTreeNodeProps> = ({
       value={title}
       onChange={(e) => onChange(e.target.value)}
       onBlur={onBlur}
-      autoFocus />
+      autoFocus
+    />
   ) : (
     title
   );

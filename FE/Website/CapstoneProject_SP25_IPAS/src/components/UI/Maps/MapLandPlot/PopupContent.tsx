@@ -4,7 +4,7 @@ import { Button, Flex, Tag, Typography } from "antd";
 const { Text } = Typography;
 import { GetLandPlot } from "@/payloads";
 import { Icons } from "@/assets";
-import { formatDate, isManager } from "@/utils";
+import { formatDate, isOwner } from "@/utils";
 import PlotDetailItem from "../PlotDetailItem/PlotDetailItem";
 
 interface PopupContentProps {
@@ -22,7 +22,8 @@ const PopupContent: React.FC<PopupContentProps> = ({
   onUpdatePlot = () => {},
   onDeletePlot = () => {},
 }) => {
-  const notManagerIn = !isManager();
+  const isOwnerLogin = isOwner();
+
   return (
     <div className={style.popupContainer}>
       <Flex className={style.popupHeader}>
@@ -82,7 +83,7 @@ const PopupContent: React.FC<PopupContentProps> = ({
         </Flex>
       </Flex>
       <Flex className={style.popupFooter}>
-        {notManagerIn && (
+        {isOwnerLogin ? (
           <Flex gap={20}>
             <Button
               type="primary"
@@ -99,6 +100,8 @@ const PopupContent: React.FC<PopupContentProps> = ({
               Update
             </Button>
           </Flex>
+        ) : (
+          <div></div>
         )}
 
         <Button

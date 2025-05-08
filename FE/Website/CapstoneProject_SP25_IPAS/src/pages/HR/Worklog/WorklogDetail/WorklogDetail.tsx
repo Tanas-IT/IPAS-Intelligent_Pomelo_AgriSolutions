@@ -19,7 +19,7 @@ import {
   UpdateWorklogReq,
 } from "@/payloads/worklog";
 import { formatDate, formatDateW, getUserId } from "@/utils";
-import { GetCropDetail, PlanTarget, PlanTargetModel } from "@/payloads";
+import { PlanTarget, PlanTargetModel } from "@/payloads";
 import { ConfirmModal, CustomButton, Loading, Tooltip, UserAvatar } from "@/components";
 import PlanTargetTable from "@/pages/Plan/PlanDetails/PlanTargetTable";
 import AttendanceModal from "./AttendanceModal";
@@ -234,89 +234,47 @@ function WorklogDetail() {
     try {
       const listEmployeeUpdate: ListEmployeeUpdate[] = [];
 
-      // Handle reporter replacement
+      // Xử lý thay đổi reporter qua Radio hoặc thay reporter
+      if (tempReporterId && tempReporterId !== initialReporterId) {
+        listEmployeeUpdate.push({
+          oldUserId: initialReporterId!,
+          newUserId: tempReporterId,
+          isReporter: true,
+          status: "update",
+        });
+      }
+
+      // Xử lý thay thế nhân viên qua replacingStates
       if (replacingStates) {
-        // Object.entries(replacingStates).forEach(([replaceUserId, replacementUserId]) => {
-        //   if (replacementUserId !== null) {
-        //     const replaceUserIdNum = Number(replaceUserId);
-        //     let isReporterReplacement = false;
-        //     if (worklogDetail?.replacementEmployee?.length > 0) {
-        //       const replacementReporter = worklogDetail.replacementEmployee.find(
-        //         (emp) => emp.replaceUserIsRepoter && emp.replaceUserId === replaceUserIdNum,
-        //       );
-        //       if (replacementReporter) {
-        //         isReporterReplacement = true;
-        //         // console.log("[DEBUG] Found reporter in replacementEmployee:", replacementReporter);
-        //       }
-        //     }
+        console.log("[DEBUG] replacingStates:", replacingStates);
+        console.log("[DEBUG] tempReporterId:", tempReporterId);
+        console.log("[DEBUG] initialReporterId:", initialReporterId);
 
-        //     if (!isReporterReplacement && worklogDetail?.reporter?.length > 0) {
-        //       isReporterReplacement = worklogDetail.reporter.some(
-        //         (rep) => rep.isReporter && rep.userId === replaceUserIdNum,
-        //       );
-        //       if (isReporterReplacement) {
-        //         // console.log("[DEBUG] Found reporter in reporter:", replaceUserIdNum);
-        //       }
-        //     }
-
-        //     if (isReporterReplacement) {
-        //       listEmployeeUpdate.push({
-        //         oldUserId: replaceUserIdNum,
-        //         newUserId: replacementUserId,
-        //         isReporter: true,
-        //         status: "update",
-        //       });
-
-        //       if (tempReporterId === replaceUserIdNum) {
-        //         tempReporterId = replacementUserId;
-        //       }
-        //     } else {
-        //       const targetUser = [...worklogDetail.listEmployee, ...worklogDetail.reporter].find(
-        //         (user) => user.userId === replaceUserIdNum,
-        //       );
-
-        //       if (targetUser) {
-        //         listEmployeeUpdate.push({
-        //           oldUserId: replaceUserIdNum,
-        //           newUserId: replacementUserId,
-        //           isReporter: false,
-        //           status: targetUser.statusOfUserWorkLog === "Rejected" ? "add" : "update",
-        //         });
-        //       }
-        //     }
-        //   }
-        // });
         Object.entries(replacingStates).forEach(([replaceUserId, replacementUserId]) => {
           if (replacementUserId !== null) {
             const replaceUserIdNum = Number(replaceUserId);
-        
             const isReplacingReporter =
               worklogDetail?.reporter?.some((rep) => rep.isReporter && rep.userId === replaceUserIdNum);
-        
-            if (isReplacingReporter) {
-              // 👇 Tách riêng việc chuyển role reporter
-              if (tempReporterId && tempReporterId !== replaceUserIdNum) {
-                listEmployeeUpdate.push({
-                  oldUserId: replaceUserIdNum,
-                  newUserId: tempReporterId,
-                  isReporter: true,
-                  status: "update",
-                });
-              }
-        
-              // 👇 Đồng thời vẫn phải replace người này nếu có
+
+            console.log("[DEBUG] replaceUserId:", replaceUserIdNum, "isReplacingReporter:", isReplacingReporter);
+
+            if (isReplacingReporter && !listEmployeeUpdate.some(
+              (item) => item.oldUserId === replaceUserIdNum && item.isReporter
+            )) {
+              // Trường hợp thay thế trực tiếp reporter (nếu chưa được thêm từ Radio)
               listEmployeeUpdate.push({
                 oldUserId: replaceUserIdNum,
                 newUserId: replacementUserId,
-                isReporter: false,
+                isReporter: true,
                 status: "update",
               });
-            } else {
-              // Trường hợp không phải reporter
+            } else if (!isReplacingReporter) {
+              // Trường hợp thay thế nhân viên không phải reporter
               const targetUser = [...worklogDetail.listEmployee, ...worklogDetail.reporter].find(
                 (user) => user.userId === replaceUserIdNum,
               );
-        
+              console.log("[DEBUG] targetUser:", targetUser);
+
               if (targetUser) {
                 listEmployeeUpdate.push({
                   oldUserId: replaceUserIdNum,
@@ -328,23 +286,8 @@ function WorklogDetail() {
             }
           }
         });
-        
       }
 
-      if (tempReporterId && tempReporterId !== initialReporterId) {
-        const existingUpdate = listEmployeeUpdate.find(
-          (item) => item.isReporter && item.oldUserId === initialReporterId,
-        );
-
-        if (!existingUpdate) {
-          listEmployeeUpdate.push({
-            oldUserId: initialReporterId!,
-            newUserId: tempReporterId,
-            isReporter: true,
-            status: "update",
-          });
-        }
-      }
       const payload: UpdateWorklogReq = {
         workLogId: Number(id),
       };
@@ -373,7 +316,6 @@ function WorklogDetail() {
         return;
       }
       console.log("[DEBUG] Payload for updateWorklog:", payload);
-      
 
       const response = await worklogService.updateWorklog(payload);
 
@@ -439,7 +381,6 @@ function WorklogDetail() {
       toast.warning("An error occurred while updating the worklog.");
     }
   };
-
   const handleDeleteFeedback = async () => {
     if (!selectedFeedbackToDelete) return;
 
@@ -787,27 +728,19 @@ function WorklogDetail() {
           <span style={{ marginRight: 6 }}>{icon}</span>
           {rawStatus}
         </Tag>
-        <Flex style={{ marginLeft: "auto" }} gap={15}>
-          <Button
-            ghost
-            style={{
-              fontWeight: 500,
-              borderWidth: 2,
-              color: "#20461e",
-              backgroundColor: "#bcd379",
-            }}
-            onClick={handleTakeAttendance}
-          >
-            Take Attendance
-          </Button>
-          <Flex>
-            <ActionMenuWorklog
-              worklogId={worklogDetail?.workLogId || 0}
-              onDelete={() => deleteConfirmModal.showModal({ id: worklogDetail?.workLogId })}
-              worklogStatus={worklogDetail?.status}
-            />
-          </Flex>
-        </Flex>
+        <Button
+          ghost
+          style={{
+            fontWeight: 500,
+            borderWidth: 1,
+            color: "#20461e",
+            backgroundColor: "#bcd379",
+          }}
+          onClick={handleTakeAttendance}
+        >
+          <Icons.users />
+          Take Attendance
+        </Button>
       </Flex>
       <label className={style.subTitle}>Code: {worklogDetail?.workLogCode || "laggg"}</label>
 
@@ -818,32 +751,20 @@ function WorklogDetail() {
             <label className={style.createdBy}>{worklogDetail?.assignorName || "laggg"}</label>
             <label className={style.textCreated}>created this plan</label>
             <label className={style.createdDate}>{formatDateW(worklogDetail?.date ?? "2")}</label>
-            <Button
-              onClick={() => setIsModalOpen(true)}
-              style={{
-                fontWeight: 500,
-                borderWidth: 2,
-                borderColor: "#20461e",
-                color: "#20461e",
-              }}
-            >
+            <Button type="primary" ghost onClick={() => setIsModalOpen(true)}>
               View Dependency Worklogs
             </Button>
 
             <Button
+              type="primary"
               onClick={() => setIsConfirmModalOpen(true)}
-              style={{
-                fontWeight: 500,
-                backgroundColor: "#fee69c",
-                color: "#20461e",
-              }}
-              ghost
               disabled={
                 !worklogDetail?.status ||
                 !["Not Started", "In Progress"].includes(worklogDetail.status)
               }
+              ghost
             >
-              <Icons.check />Mark as complete
+              <Icons.check /> Mark as Completed
             </Button>
           </Flex>
           <Flex vertical gap={10} className={style.info}>
@@ -1194,16 +1115,14 @@ function WorklogDetail() {
         worklogId={worklogDetail?.workLogId || 0}
       />
 
-      <Modal
-        title="Confirm Completion"
-        open={isConfirmModalOpen}
-        onOk={handleConfirm}
+      <ConfirmModal
+        visible={isConfirmModalOpen}
+        onConfirm={handleConfirm}
         onCancel={() => setIsConfirmModalOpen(false)}
-        okText="Yes"
-        cancelText="No"
-      >
-        <p>Are you sure you want to mark this worklog as completed?</p>
-      </Modal>
+        actionType="update"
+        title="Confirm Completion"
+        description="Are you sure you want to mark this worklog as completed?"
+      />
       <ToastContainer />
     </div>
   );
