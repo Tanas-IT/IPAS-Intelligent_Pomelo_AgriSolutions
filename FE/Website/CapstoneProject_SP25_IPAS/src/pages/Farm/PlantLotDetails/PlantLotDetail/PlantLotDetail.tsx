@@ -341,7 +341,7 @@ function PlantLotDetail() {
               }}
               onRow={(record) => ({
                 onClick: () =>
-                  navigate(ROUTES.FARM_PLANT_LOT_ADDITIONAL(Number(lotId), record.plantLotId)),
+                  navigate(ROUTES.FARM_GRAFTED_PLANT_DETAIL(record.graftedPlantId)),
                 style: { cursor: "pointer" },
               })}
             />
