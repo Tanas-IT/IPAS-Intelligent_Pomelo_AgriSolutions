@@ -73,6 +73,8 @@ function PlanDetail() {
   const [processError, setProcessError] = useState<string | null>(null);
   const numOfCompleted = planDetail?.listWorkLog.filter((p) => p.status === "Done").length ?? 0;
   const total = planDetail?.listWorkLog.length;
+  console.log("planDetail", planDetail);
+  
 
   const [infoFieldsLeft, setInfoFieldsLeft] = useState([
     { label: "Crop", value: planDetail?.cropName || "No data", icon: Icons.growth },
@@ -96,12 +98,12 @@ function PlanDetail() {
         { label: "Crop", value: res?.cropName || "None", icon: Icons.growth },
         {
           label: "Growth Stage",
-          value: planDetail?.growthStages.map((g) => g.name).join(",") || "None",
+          value: res?.growthStages?.length ? res?.growthStages.map((g) => g.name).join(",") : "None",
           icon: Icons.plant,
         },
       ]);
       setInfoFieldsRight([
-        { label: "Process Name", value: res?.processName || "None", icon: Icons.process },
+        { label: "Process Name", value: res?.processName || res.subProcessName, icon: Icons.process },
         { label: "Type", value: res?.masterTypeName || "None", icon: Icons.category, isTag: true },
       ]);
 

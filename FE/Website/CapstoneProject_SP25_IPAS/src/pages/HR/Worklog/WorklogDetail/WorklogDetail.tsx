@@ -225,18 +225,186 @@ function WorklogDetail() {
     }
   };
 
+  // const handleSaveEdit = async (
+  //   tempReporterId?: number,
+  //   replacingStates?: { [key: number]: number | null },
+  // ) => {
+  //   if (!worklogDetail || !id) return;
+
+  //   try {
+  //     const listEmployeeUpdate: ListEmployeeUpdate[] = [];
+
+  //     // Xử lý thay đổi reporter qua Radio
+  //     if (tempReporterId && tempReporterId !== initialReporterId) {
+  //       console.log("[DEBUG] Adding from Radio:", { oldUserId: initialReporterId, newUserId: tempReporterId });
+  //       listEmployeeUpdate.push({
+  //         oldUserId: initialReporterId!,
+  //         newUserId: tempReporterId,
+  //         isReporter: true,
+  //         status: "update",
+  //       });
+  //     }
+
+  //     // Xử lý thay thế nhân viên qua replacingStates
+  //     if (replacingStates) {
+  //       console.log("[DEBUG] replacingStates:", replacingStates);
+  //       console.log("[DEBUG] tempReporterId:", tempReporterId);
+  //       console.log("[DEBUG] initialReporterId:", initialReporterId);
+
+  //       Object.entries(replacingStates).forEach(([replaceUserId, replacementUserId]) => {
+  //         if (replacementUserId !== null) {
+  //           const replaceUserIdNum = Number(replaceUserId);
+  //           const isReplacingReporter =
+  //             worklogDetail?.reporter?.some((rep) => rep.isReporter && rep.userId === replaceUserIdNum);
+
+  //           console.log("[DEBUG] replaceUserId:", replaceUserIdNum, "isReplacingReporter:", isReplacingReporter);
+
+  //           if (isReplacingReporter && !listEmployeeUpdate.some(
+  //             (item) => item.oldUserId === replaceUserIdNum && item.isReporter
+  //           )) {
+  //             // Trường hợp thay thế trực tiếp reporter
+  //             console.log("[DEBUG] Adding reporter replacement:", { oldUserId: replaceUserIdNum, newUserId: replacementUserId });
+  //             listEmployeeUpdate.push({
+  //               oldUserId: replaceUserIdNum,
+  //               newUserId: replacementUserId,
+  //               isReporter: true,
+  //               status: "update",
+  //             });
+  //           }
+
+  //           // Thêm phần tử non-reporter nếu không phải thay thế reporter hoặc thay thế reporter nhưng không trùng với tempReporterId
+  //           const targetUser = [...worklogDetail.listEmployee, ...worklogDetail.reporter].find(
+  //             (user) => user.userId === replaceUserIdNum,
+  //           );
+  //           console.log("[DEBUG] targetUser:", targetUser);
+
+  //           if (
+  //             targetUser &&
+  //             (!isReplacingReporter || (isReplacingReporter && replacementUserId !== tempReporterId)) &&
+  //             !listEmployeeUpdate.some(
+  //               (item) => item.oldUserId === replaceUserIdNum && item.newUserId === replacementUserId && !item.isReporter
+  //             )
+  //           ) {
+  //             console.log("[DEBUG] Adding non-reporter replacement:", { oldUserId: replaceUserIdNum, newUserId: replacementUserId });
+  //             listEmployeeUpdate.push({
+  //               oldUserId: replaceUserIdNum,
+  //               newUserId: replacementUserId,
+  //               isReporter: false,
+  //               status: targetUser.statusOfUserWorkLog === "Rejected" ? "add" : "update",
+  //             });
+  //           }
+  //         }
+  //       });
+  //     }
+
+  //     const payload: UpdateWorklogReq = {
+  //       workLogId: Number(id),
+  //     };
+  //     console.log("payload", payload);
+      
+
+  //     if (listEmployeeUpdate.length > 0) {
+  //       payload.listEmployeeUpdate = listEmployeeUpdate;
+  //     }
+
+  //     if (selectedDate && selectedDate !== worklogDetail.date) {
+  //       payload.dateWork = selectedDate;
+  //     }
+  //     if (selectedTimeRange[0] && selectedTimeRange[0] !== worklogDetail.actualStartTime) {
+  //       payload.startTime = selectedTimeRange[0];
+  //     }
+  //     if (selectedTimeRange[1] && selectedTimeRange[1] !== worklogDetail.actualEndTime) {
+  //       payload.endTime = selectedTimeRange[1];
+  //     }
+  //     if (
+  //       !payload.listEmployeeUpdate &&
+  //       !payload.dateWork &&
+  //       !payload.startTime &&
+  //       !payload.endTime
+  //     ) {
+  //       console.log("[DEBUG] No changes to save, exiting.");
+  //       toast.info("No changes to save.");
+  //       setIsEditModalVisible(false);
+  //       return;
+  //     }
+  //     console.log("[DEBUG] listEmployeeUpdate:", listEmployeeUpdate);
+  //     console.log("[DEBUG] Payload for updateWorklog:", payload);
+
+  //     const response = await worklogService.updateWorklog(payload);
+
+  //     if (response?.statusCode === 200) {
+  //       let updatedEmployees = worklogDetail.listEmployee;
+  //       let updatedReporter = worklogDetail.reporter;
+  //       let updatedReplacementEmployees = worklogDetail.replacementEmployee || [];
+
+  //       if (
+  //         tempReporterId &&
+  //         tempReporterId !== initialReporterId &&
+  //         typeof tempReporterId === "number"
+  //       ) {
+  //         updatedEmployees = worklogDetail.listEmployee.map((employee) => ({
+  //           ...employee,
+  //           isReporter: employee.userId === tempReporterId,
+  //         }));
+  //         updatedReporter = updatedEmployees.filter((emp) => emp.isReporter);
+  //         setInitialReporterId(tempReporterId);
+  //       }
+
+  //       if (replacingStates) {
+  //         updatedEmployees = worklogDetail.listEmployee.map((employee) => {
+  //           const replacementUserId = replacingStates[employee.userId];
+  //           if (replacementUserId !== undefined && replacementUserId !== null) {
+  //             return { ...employee, statusOfUserWorkLog: "BeReplaced" };
+  //           }
+  //           return employee;
+  //         });
+  //         updatedReporter = updatedReporter.map((rep) => {
+  //           const replacementUserId = replacingStates[rep.userId];
+  //           if (replacementUserId !== undefined && replacementUserId !== null) {
+  //             return { ...rep, statusOfUserWorkLog: "BeReplaced" };
+  //           }
+  //           return rep;
+  //         });
+  //         updatedReplacementEmployees = Object.entries(replacingStates)
+  //           .filter(([_, userId]) => userId !== null)
+  //           .map(([replaceUserId, userId]) => ({
+  //             replaceUserId: Number(replaceUserId),
+  //             userId: userId as number,
+  //           }));
+  //       }
+
+  //       setWorklogDetail({
+  //         ...worklogDetail,
+  //         listEmployee: updatedEmployees,
+  //         reporter: updatedReporter.length > 0 ? [updatedReporter[0]] : [],
+  //         replacementEmployee: updatedReplacementEmployees,
+  //         date: payload.dateWork || worklogDetail.date,
+  //         actualStartTime: payload.startTime || worklogDetail.actualStartTime,
+  //         actualEndTime: payload.endTime || worklogDetail.actualEndTime,
+  //       });
+
+  //       toast.success("Worklog updated successfully!");
+  //       await fetchPlanDetail();
+  //       setIsEditModalVisible(false);
+  //     } else {
+  //       toast.warning(response?.message || "Failed to update worklog.");
+  //     }
+  //   } catch (error) {
+  //     console.error("Error updating worklog:", error);
+  //     toast.warning("An error occurred while updating the worklog.");
+  //   }
+  // };
   const handleSaveEdit = async (
     tempReporterId?: number,
     replacingStates?: { [key: number]: number | null },
   ) => {
     if (!worklogDetail || !id) return;
-
+  
     try {
       const listEmployeeUpdate: ListEmployeeUpdate[] = [];
-
+  
       // Xử lý thay đổi reporter qua Radio
       if (tempReporterId && tempReporterId !== initialReporterId) {
-        console.log("[DEBUG] Adding from Radio:", { oldUserId: initialReporterId, newUserId: tempReporterId });
         listEmployeeUpdate.push({
           oldUserId: initialReporterId!,
           newUserId: tempReporterId,
@@ -244,26 +412,20 @@ function WorklogDetail() {
           status: "update",
         });
       }
-
+  
       // Xử lý thay thế nhân viên qua replacingStates
       if (replacingStates) {
-        console.log("[DEBUG] replacingStates:", replacingStates);
-        console.log("[DEBUG] tempReporterId:", tempReporterId);
-        console.log("[DEBUG] initialReporterId:", initialReporterId);
-
+  
         Object.entries(replacingStates).forEach(([replaceUserId, replacementUserId]) => {
           if (replacementUserId !== null) {
             const replaceUserIdNum = Number(replaceUserId);
             const isReplacingReporter =
-              worklogDetail?.reporter?.some((rep) => rep.isReporter && rep.userId === replaceUserIdNum);
-
-            console.log("[DEBUG] replaceUserId:", replaceUserIdNum, "isReplacingReporter:", isReplacingReporter);
-
+              worklogDetail?.reporter?.some((rep) => rep.isReporter && rep.userId === replaceUserIdNum) || false;
+  
+  
             if (isReplacingReporter && !listEmployeeUpdate.some(
               (item) => item.oldUserId === replaceUserIdNum && item.isReporter
             )) {
-              // Trường hợp thay thế trực tiếp reporter
-              console.log("[DEBUG] Adding reporter replacement:", { oldUserId: replaceUserIdNum, newUserId: replacementUserId });
               listEmployeeUpdate.push({
                 oldUserId: replaceUserIdNum,
                 newUserId: replacementUserId,
@@ -271,13 +433,38 @@ function WorklogDetail() {
                 status: "update",
               });
             }
-
-            // Thêm phần tử non-reporter nếu không phải thay thế reporter hoặc thay thế reporter nhưng không trùng với tempReporterId
-            const targetUser = [...worklogDetail.listEmployee, ...worklogDetail.reporter].find(
+  
+            // Tìm targetUser, ưu tiên replacementEmployee nếu user đã bị thay thế
+            let targetUser = [...worklogDetail.listEmployee, ...worklogDetail.reporter].find(
               (user) => user.userId === replaceUserIdNum,
             );
-            console.log("[DEBUG] targetUser:", targetUser);
-
+            let statusOfUser = targetUser?.statusOfUserWorkLog;
+  
+            if (!targetUser) {
+              const replacementEntry = worklogDetail.replacementEmployee?.find(
+                (rep) => rep.replaceUserId === replaceUserIdNum,
+              );
+              if (replacementEntry) {
+                targetUser = {
+                  userId: replaceUserIdNum,
+                  statusOfUserWorkLog: "BeReplaced",
+                  fullName: replacementEntry.replaceUserFullName || "Unknown",
+                  avatarURL: replacementEntry.replaceUserAvatar || "",
+                  isReporter: isReplacingReporter,
+                };
+                statusOfUser = "BeReplaced";
+              } else {
+                targetUser = {
+                  userId: replaceUserIdNum,
+                  statusOfUserWorkLog: "BeReplaced",
+                  fullName: "Unknown",
+                  avatarURL: "",
+                  isReporter: isReplacingReporter,
+                };
+                statusOfUser = "BeReplaced";
+              }
+            }
+  
             if (
               targetUser &&
               (!isReplacingReporter || (isReplacingReporter && replacementUserId !== tempReporterId)) &&
@@ -285,26 +472,34 @@ function WorklogDetail() {
                 (item) => item.oldUserId === replaceUserIdNum && item.newUserId === replacementUserId && !item.isReporter
               )
             ) {
-              console.log("[DEBUG] Adding non-reporter replacement:", { oldUserId: replaceUserIdNum, newUserId: replacementUserId });
               listEmployeeUpdate.push({
                 oldUserId: replaceUserIdNum,
                 newUserId: replacementUserId,
                 isReporter: false,
-                status: targetUser.statusOfUserWorkLog === "Rejected" ? "add" : "update",
+                status: statusOfUser === "Rejected" ? "add" : "update",
+              });
+            } else {
+              console.log("[DEBUG] Skipped adding replacement:", {
+                targetUserExists: !!targetUser,
+                isReplacingReporter,
+                replacementUserId,
+                tempReporterId,
+                listEmployeeUpdate,
               });
             }
           }
         });
+      } else {
       }
-
+  
       const payload: UpdateWorklogReq = {
         workLogId: Number(id),
       };
-
+  
       if (listEmployeeUpdate.length > 0) {
         payload.listEmployeeUpdate = listEmployeeUpdate;
       }
-
+  
       if (selectedDate && selectedDate !== worklogDetail.date) {
         payload.dateWork = selectedDate;
       }
@@ -314,27 +509,25 @@ function WorklogDetail() {
       if (selectedTimeRange[1] && selectedTimeRange[1] !== worklogDetail.actualEndTime) {
         payload.endTime = selectedTimeRange[1];
       }
+  
       if (
         !payload.listEmployeeUpdate &&
         !payload.dateWork &&
         !payload.startTime &&
         !payload.endTime
       ) {
-        console.log("[DEBUG] No changes to save, exiting.");
         toast.info("No changes to save.");
         setIsEditModalVisible(false);
         return;
       }
-      console.log("[DEBUG] listEmployeeUpdate:", listEmployeeUpdate);
-      console.log("[DEBUG] Payload for updateWorklog:", payload);
-
+  
       const response = await worklogService.updateWorklog(payload);
-
+  
       if (response?.statusCode === 200) {
         let updatedEmployees = worklogDetail.listEmployee;
         let updatedReporter = worklogDetail.reporter;
         let updatedReplacementEmployees = worklogDetail.replacementEmployee || [];
-
+  
         if (
           tempReporterId &&
           tempReporterId !== initialReporterId &&
@@ -347,7 +540,7 @@ function WorklogDetail() {
           updatedReporter = updatedEmployees.filter((emp) => emp.isReporter);
           setInitialReporterId(tempReporterId);
         }
-
+  
         if (replacingStates) {
           updatedEmployees = worklogDetail.listEmployee.map((employee) => {
             const replacementUserId = replacingStates[employee.userId];
@@ -368,9 +561,20 @@ function WorklogDetail() {
             .map(([replaceUserId, userId]) => ({
               replaceUserId: Number(replaceUserId),
               userId: userId as number,
+              replaceUserIsRepoter: worklogDetail.reporter.some(
+                (rep) => rep.userId === Number(replaceUserId) && rep.isReporter
+              ),
+              replaceUserFullName:
+                worklogDetail.listEmployee.find((emp) => emp.userId === Number(replaceUserId))?.fullName ||
+                worklogDetail.replacementEmployee?.find((rep) => rep.replaceUserId === Number(replaceUserId))?.replaceUserFullName ||
+                "Unknown",
+              replaceUserAvatar:
+                worklogDetail.listEmployee.find((emp) => emp.userId === Number(replaceUserId))?.avatarURL ||
+                worklogDetail.replacementEmployee?.find((rep) => rep.replaceUserId === Number(replaceUserId))?.replaceUserAvatar ||
+                "",
             }));
         }
-
+  
         setWorklogDetail({
           ...worklogDetail,
           listEmployee: updatedEmployees,
@@ -380,7 +584,7 @@ function WorklogDetail() {
           actualStartTime: payload.startTime || worklogDetail.actualStartTime,
           actualEndTime: payload.endTime || worklogDetail.actualEndTime,
         });
-
+  
         toast.success("Worklog updated successfully!");
         await fetchPlanDetail();
         setIsEditModalVisible(false);
@@ -752,6 +956,12 @@ function WorklogDetail() {
           <Icons.users />
           Take Attendance
         </Button>
+        <div style={{ marginLeft: "auto" }}>
+          <ActionMenuWorklog
+            worklogId={worklogDetail?.workLogId || 0}
+            onDelete={handleDelete}
+          />
+        </div>
       </Flex>
       <label className={style.subTitle}>Code: {worklogDetail?.workLogCode || "laggg"}</label>
 
