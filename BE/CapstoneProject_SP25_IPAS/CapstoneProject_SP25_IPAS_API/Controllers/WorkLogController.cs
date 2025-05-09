@@ -866,5 +866,29 @@ namespace CapstoneProject_SP25_IPAS_API.Controllers
                 return BadRequest(response);
             }
         }
+
+
+        [HttpGet(APIRoutes.WorkLog.DeleteNoteOfWorkLog, Name = "DeleteNoteOfWorkLog")]
+        [HybridAuthorize($"{nameof(RoleEnum.ADMIN)},{nameof(RoleEnum.OWNER)},{nameof(RoleEnum.MANAGER)},{nameof(RoleEnum.EMPLOYEE)}")]
+        [CheckUserFarmAccess]
+        //[FarmExpired]
+        public async Task<IActionResult> DeleteNoteOfWorkLog([FromQuery] int workLogId, [FromQuery] int userId)
+        {
+            try
+            {
+                var result = await _workLogService.DeleteNoteOfWorkLog(userId, workLogId);
+                return Ok(result);
+            }
+            catch (Exception ex)
+            {
+
+                var response = new BaseResponse()
+                {
+                    StatusCode = StatusCodes.Status400BadRequest,
+                    Message = ex.Message
+                };
+                return BadRequest(response);
+            }
+        }
     }
 }

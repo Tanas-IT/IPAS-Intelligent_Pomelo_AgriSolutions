@@ -43,5 +43,6 @@ namespace CapstoneProject_SP25_IPAS_Service.IService
         public Task<BusinessResult> GetDependentWorkLog(int workLogID);
         public Task<BusinessResult> NoteForWorkLogUseResourceFile(CreateNoteModelUseFile createNoteModel, int farmId);
         public Task<BusinessResult> FilterEmployeeByTarget(string? target, int farmId);
+        public Task<BusinessResult> DeleteNoteOfWorkLog(int userId, int workLogId);
     }
 }
