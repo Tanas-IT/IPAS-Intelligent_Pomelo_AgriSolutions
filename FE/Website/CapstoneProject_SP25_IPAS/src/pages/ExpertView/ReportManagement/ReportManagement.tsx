@@ -130,25 +130,12 @@ const ReportManagementScreen = () => {
 
   const handleClickReTraining = async () => {
     setReTrainingLoading(true);
-    // try {
-    //   const res = await expertService.reTraining();
-    //   if (res.statusCode === 200) {
-    //     toast.success('AI re-training has been successfully completed.');
-    //   } else {
-    //     toast.warning('An error occurred during re-training.');
-    //   }
-    // } catch (error) {
-    //   toast.warning('An unexpected error occurred.');
-    // } finally {
-    //   setReTrainingLoading(false);
-    // }
     try {
-      await new Promise((resolve) => setTimeout(resolve, 30000));
-      toast.success("AI re-training has been successfully completed.");
-    } catch (error) {
-      toast.warning("An unexpected error occurred.");
+      const res = expertService.reTraining();
     } finally {
-      setReTrainingLoading(false);
+      setTimeout(() => {
+        setReTrainingLoading(false);
+      }, 30000)
     }
   };
 
