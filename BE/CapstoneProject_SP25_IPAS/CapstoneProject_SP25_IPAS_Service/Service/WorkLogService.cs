@@ -3912,5 +3912,32 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
             }
         }
+
+        public async Task<BusinessResult> DeleteNoteOfWorkLog(int userId, int workLogId)
+        {
+            try
+            {
+                var deleteNoteWorkLog = await _unitOfWork.UserWorkLogRepository.GetByCondition(x => x.UserId == userId && x.WorkLogId == workLogId);
+                if (deleteNoteWorkLog != null)
+                {
+                    deleteNoteWorkLog.Issue = null;
+                    deleteNoteWorkLog.Notes = null;
+                    _unitOfWork.UserWorkLogRepository.Update(deleteNoteWorkLog);
+                };
+                var result = await _unitOfWork.SaveAsync();
+                if(result > 0)
+                {
+                    return new BusinessResult(200, "Delete note of worklog success");
+                }
+                return new BusinessResult(400, "Delete note of worklog failed");
+
+
+            }
+            catch (Exception ex)
+            {
+
+                return new BusinessResult(400, Const.ERROR_MESSAGE, ex.Message);
+            }
+        }
     }
 }
