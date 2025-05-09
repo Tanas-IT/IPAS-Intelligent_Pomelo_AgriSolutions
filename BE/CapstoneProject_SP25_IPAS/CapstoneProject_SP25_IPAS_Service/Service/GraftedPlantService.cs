@@ -58,7 +58,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         return new BusinessResult(Const.WARNING_GET_PLANT_NOT_EXIST_CODE, Const.WARNING_GET_PLANT_NOT_EXIST_MSG);
 
                     // Kiểm tra các điều kiện để chiết cành
-                    var validationResult = await CheckPlantConditionGrafted(createRequest.PlantId);
+                    var validationResult = await CheckPlantConditionGrafted(createRequest.PlantId, createRequest.TotalNumber);
                     if (!string.IsNullOrEmpty(validationResult))
                         return new BusinessResult(400, validationResult);
 
@@ -753,7 +753,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             return (int)Math.Floor(maxBranches);
         }
 
-        public async Task<string> CheckPlantConditionGrafted(int plantId)
+        public async Task<string> CheckPlantConditionGrafted(int plantId, int numberCreate)
         {
             var errors = new List<string>();
             var plant = await _unitOfWork.PlantRepository.getById(plantId);
@@ -773,9 +773,9 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             var countGraftedInYear = await _unitOfWork.GraftedPlantRepository.Count(x => x.MotherPlantId == plantId
                 && !x.IsDeleted!.Value
                 && x.GraftedDate!.Value.Year == DateTime.Now.Year);
-
+            countGraftedInYear += numberCreate;
             if (countGraftedInYear >= (maxGraftedBranches))
-                errors.Add($"This plant is growth in {plant.PlantingDate!.Value} just only can grafted {maxGraftedBranches} lefts.\nThis plant has already grafted {countGraftedInYear} times this year, no more grafting allowed.");
+                errors.Add($"This plant is growth in {plant.PlantingDate!.Value.ToString("dd/MM/yyyy")} just only can grafted {maxGraftedBranches} lefts.\nThis plant has already grafted {countGraftedInYear} times this year, no more grafting allowed.");
             //}
 
             return errors.Count > 0 ? string.Join("\n", errors) : null!;
