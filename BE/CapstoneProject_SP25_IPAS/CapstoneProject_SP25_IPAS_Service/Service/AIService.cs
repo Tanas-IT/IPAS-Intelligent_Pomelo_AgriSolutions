@@ -956,7 +956,7 @@ const generationConfig = {
 
                 if (iteration.Status != "Completed")
                 {
-                    return new BusinessResult(500, $"Training failed with status: {iteration.Status}");
+                    return new BusinessResult(400, $"Training failed with status: {iteration.Status}");
                 }
 
 
