@@ -960,6 +960,7 @@ function WorklogDetail() {
           <ActionMenuWorklog
             worklogId={worklogDetail?.workLogId || 0}
             onDelete={handleDelete}
+            worklogStatus={worklogDetail?.status || ""}
           />
         </div>
       </Flex>

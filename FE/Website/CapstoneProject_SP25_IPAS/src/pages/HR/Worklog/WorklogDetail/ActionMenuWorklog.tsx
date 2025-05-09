@@ -14,6 +14,8 @@ const ActionMenuWorklog: FC<ActionMenuWorklogProps> = ({
     onDelete,
     worklogStatus
 }) => {
+    console.log("worklogStatus", worklogStatus);
+    
     const actionItems: ActionMenuItem[] = [
         {
             icon: <Icons.delete />,
