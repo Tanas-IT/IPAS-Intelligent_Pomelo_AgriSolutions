@@ -480,7 +480,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 var landRow = await _unitOfWork.LandRowRepository.GetByCondition(filter: filter, includeProperties: includeProperties);
                 if (landRow == null)
                     return new BusinessResult(Const.WARNING_ROW_NOT_EXIST_CODE, Const.WARNING_ROW_NOT_EXIST_MSG);
-                if (!landRow.TreeAmount.HasValue || landRow.TreeAmount.Value == landRow.Plants.Count())
+                if (!landRow.TreeAmount.HasValue || landRow.TreeAmount.Value == landRow.Plants.Count(x => x.IsDead == false))
                     return new BusinessResult(Const.SUCCESS_GET_ROWS_SUCCESS_CODE, "This row has no index to plant");
 
                 // Danh sách index có thể trồng từ 1 đến TreeAmount
