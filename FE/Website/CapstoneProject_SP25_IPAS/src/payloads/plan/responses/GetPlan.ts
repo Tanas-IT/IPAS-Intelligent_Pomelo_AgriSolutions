@@ -41,6 +41,7 @@ export interface GetPlan {
   pesticideName: string;
   listLandPlotOfCrop: ListLandPlotOfCrop[];
   hasNonSampleProcess: boolean;
+  subProcessName: string;
 }
 
 interface ListLandPlotOfCrop {
