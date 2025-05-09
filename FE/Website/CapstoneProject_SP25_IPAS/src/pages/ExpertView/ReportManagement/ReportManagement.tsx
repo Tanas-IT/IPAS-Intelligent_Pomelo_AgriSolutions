@@ -120,8 +120,7 @@ const ReportManagementScreen = () => {
     }
   };
 
-  const handleViewDetails = (report: GetReportResponse) => {
-  };
+  const handleViewDetails = (report: GetReportResponse) => {};
 
   const handleAddToTraining = (report: GetReportResponse) => {
     setSelectedReportId(report.reportID);
@@ -130,13 +129,12 @@ const ReportManagementScreen = () => {
 
   const handleClickReTraining = async () => {
     setReTrainingLoading(true);
-    try {
-      const res = expertService.reTraining();
-    } finally {
-      setTimeout(() => {
-        setReTrainingLoading(false);
-      }, 30000)
-    }
+
+    expertService.reTraining();
+
+    setTimeout(() => {
+      setReTrainingLoading(false);
+    }, 30000);
   };
 
   const columns = getReportColumns(handleReply, handleViewDetails, handleAddToTraining);
@@ -198,7 +196,6 @@ const ReportManagementScreen = () => {
     });
   };
 
-
   return (
     <Flex className={style.reportManagementScreen} vertical gap={16}>
       {reTrainingLoading && <IPASLoading message="IPAS is powering up... Please hang tight!" />}
@@ -213,7 +210,8 @@ const ReportManagementScreen = () => {
           }}
           onClick={confirmReTraining}
           disabled={reTrainingLoading}
-        >Re-training AI
+        >
+          Re-training AI
         </Button>
       </Flex>
       <Row gutter={[16, 16]} className={style.overview}>
