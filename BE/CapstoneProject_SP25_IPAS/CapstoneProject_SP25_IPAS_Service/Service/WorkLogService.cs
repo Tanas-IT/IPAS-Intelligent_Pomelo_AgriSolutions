@@ -721,8 +721,11 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 var users = await _unitOfWork.UserRepository.GetAllNoPaging();
                 if (!string.IsNullOrEmpty(scheduleFilter.Assignee))
                 {
-                    var assignees = scheduleFilter.Assignee.Split(',', StringSplitOptions.TrimEntries).Select(x => x.ToLower()).ToList();
-                    var assigneeIds = users.Where(u => assignees.Contains(u.FullName.ToLower())).Select(u => u.UserId).ToList();
+                    var assignees = scheduleFilter.Assignee.Split(',', StringSplitOptions.TrimEntries).ToList();
+                    var assigneeIds = users
+                                    .Where(u => assignees.Contains(u.FullName))
+                                    .Select(u => u.UserId)
+                                    .ToList();
 
                     filter = filter.And(x => x.UserWorkLogs.Any(uwl => assigneeIds.Contains(uwl.UserId)));
                 }
@@ -3907,6 +3910,33 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
             {
 
                 return new BusinessResult(Const.ERROR_EXCEPTION, ex.Message);
+            }
+        }
+
+        public async Task<BusinessResult> DeleteNoteOfWorkLog(int userId, int workLogId)
+        {
+            try
+            {
+                var deleteNoteWorkLog = await _unitOfWork.UserWorkLogRepository.GetByCondition(x => x.UserId == userId && x.WorkLogId == workLogId);
+                if (deleteNoteWorkLog != null)
+                {
+                    deleteNoteWorkLog.Issue = null;
+                    deleteNoteWorkLog.Notes = null;
+                    _unitOfWork.UserWorkLogRepository.Update(deleteNoteWorkLog);
+                };
+                var result = await _unitOfWork.SaveAsync();
+                if(result > 0)
+                {
+                    return new BusinessResult(200, "Delete note of worklog success");
+                }
+                return new BusinessResult(400, "Delete note of worklog failed");
+
+
+            }
+            catch (Exception ex)
+            {
+
+                return new BusinessResult(400, Const.ERROR_MESSAGE, ex.Message);
             }
         }
     }

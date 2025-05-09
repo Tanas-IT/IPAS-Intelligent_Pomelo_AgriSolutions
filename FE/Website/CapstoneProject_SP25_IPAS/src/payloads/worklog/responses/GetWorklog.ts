@@ -136,6 +136,7 @@ export interface ReplacementEmployee {
   replaceUserFullName?: string;
   replaceUserAvatar?: string;
   replaceUserIsRepoter?: boolean;
+  statusOfUserWorkLog?: string;
 }
 
 export interface GetWorklogNote {

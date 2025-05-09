@@ -414,6 +414,7 @@ namespace CapstoneProject_SP25_IPAS_API.Payload
             public const string FilterEmployeeByWorkLogId = prefix + "/filter-employee";
             public const string GetDependencyWorkLog = prefix + "/get-dependency-worklog/{id}";
             public const string FilterEmployeeByTarget = prefix + "/filter-employee-target";
+            public const string DeleteNoteOfWorkLog = prefix + "/delete-note";
 
         }
 

@@ -127,7 +127,7 @@ const NotificationScreen = () => {
             >
               <AntDesign name="reload1" size={20} color="#333" />
             </TouchableOpacity>
-            <TouchableOpacity
+            {/* <TouchableOpacity
               onPress={() => markAllAsRead()}
               style={styles.actionButton}
               disabled={unreadCount === 0}
@@ -137,7 +137,7 @@ const NotificationScreen = () => {
                 size={20} 
                 color={unreadCount === 0 ? "#ccc" : "#333"} 
               />
-            </TouchableOpacity>
+            </TouchableOpacity> */}
           </View>
         </View>
         <SegmentedControl

@@ -45,9 +45,9 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 {
                     _logger.LogError(ex, "An error occurred while updating WorkLog statuses.");
                 }
+                await Task.Delay(_interval, stoppingToken); // Kiểm tra mỗi ngày
             }
 
-            await Task.Delay(_interval, stoppingToken); // Kiểm tra mỗi ngày
         }
 
 

@@ -1070,34 +1070,37 @@ VALUES
  'https://res.cloudinary.com/dgshx4n2c/image/upload/v1738660419/rzaub3vswgnfzvunvuov.jpg', 
  N'Tân Bình', N'Ðồng Nai', N'Vĩnh Cửu', 100.5, 'Clay', 'Tropical', GETDATE(), GETDATE(), 0, 'Active', 200, 150, 'Farm specializing in tropical fruits'),
 
-('F002', 'Farm B', N'456 Blue Avenue', 107.6297, 11.8231,
- 'https://res.cloudinary.com/dgshx4n2c/image/upload/v1738660419/rzaub3vswgnfzvunvuov.jpg',
- N'Ward 2', N'Province Y', N'District 2', 200.0, 'Loam', 'Temperate', GETDATE(), GETDATE(), 0, 'Active', 300, 250, 'Farm focused on vegetables and grains'),
+('F002', N'Mekong Star Farm', N'45 Lê Văn Việt', 106.800321, 10.850234,
+ 'https://res.cloudinary.com/demo/image/upload/sample.jpg', 
+ N'Hiệp Phú', N'Hồ Chí Minh', N'Thủ Đức', 120.0, 'Sandy', 'Tropical', GETDATE(), GETDATE(), 0, 'Active', 180, 140, N'Major supplier of organic mangoes'),
 
-('F003', 'Farm C', N'789 Binh Duong', 107.6297, 11.8231,
- 'https://res.cloudinary.com/dgshx4n2c/image/upload/v1738660419/rzaub3vswgnfzvunvuov.jpg', 
- N'Ward 2', N'Province Y', N'District 2', 200.0, 'Loam', 'Temperate', GETDATE(), GETDATE(), 0, 'Active', 300, 250, 'Farm focused on vegetables and grains'),
+('F003', N'Green Valley Citrus', N'12/5 Nguyễn Huệ', 105.932128, 11.020045,
+ 'https://res.cloudinary.com/demo/image/upload/sample.jpg', 
+ N'Phú Hội', N'Bình Dương', N'Tân Uyên', 80.0, 'Loam', 'Subtropical', GETDATE(), GETDATE(), 0, 'Active', 160, 130, N'Citrus farm focused on clean production'),
 
-('F004', 'Farm D', N'910 Dong Nai', 107.6297, 11.8231,
- 'https://res.cloudinary.com/dgshx4n2c/image/upload/v1738660419/rzaub3vswgnfzvunvuov.jpg', 
- N'Ward 2', N'Province Y', N'District 2', 200.0, 'Loam', 'Temperate', GETDATE(), GETDATE(), 0, 'Active', 300, 250, 'Farm focused on vegetables and grains'),
+('F004', N'Bình Phước Pepper Farm', N'Tổ 8, Ấp 3, Xã Tiến Hưng', 106.987562, 11.425662,
+ 'https://res.cloudinary.com/demo/image/upload/sample.jpg', 
+ N'Tiến Hưng', N'Bình Phước', N'Đồng Xoài', 60.0, 'Red soil', 'Tropical', GETDATE(), GETDATE(), 0, 'Active', 140, 120, N'Specializing in high-quality pepper'),
 
-('F005', 'Farm E', N'911 Long An', 107.6297, 11.8231,
- 'https://res.cloudinary.com/dgshx4n2c/image/upload/v1738660419/rzaub3vswgnfzvunvuov.jpg', 
- N'Ward 2', N'Province Y', N'District 2', 200.0, 'Loam', 'Temperate', GETDATE(), GETDATE(), 0, 'Active', 300, 250, 'Farm focused on vegetables and grains'),
+('F005', N'Lâm Đồng Strawberry Garden', N'Khu phố 4, Đường Phan Đình Phùng', 108.438903, 11.940234,
+ 'https://res.cloudinary.com/demo/image/upload/sample.jpg', 
+ N'Phường 2', N'Lâm Đồng', N'Đà Lạt', 40.0, 'Volcanic', 'Temperate', GETDATE(), GETDATE(), 0, 'Active', 90, 80, N'Highland strawberry production'),
 
-('F006', 'Farm F', N'159 Can Gio', 107.6297, 11.8231,
- 'https://res.cloudinary.com/dgshx4n2c/image/upload/v1738660419/rzaub3vswgnfzvunvuov.jpg', 
- N'Ward 2', N'Province Y', N'District 2', 200.0, 'Loam', 'Temperate', GETDATE(), GETDATE(), 0, 'Active', 300, 250, 'Farm focused on vegetables and grains'),
+('F006', N'Tiền Giang Dragon Fruit Farm', N'Ấp Bắc, P.5', 106.352334, 10.402112,
+ 'https://res.cloudinary.com/demo/image/upload/sample.jpg', 
+ N'Phường 5', N'Tiền Giang', N'Mỹ Tho', 70.0, 'Sandy loam', 'Tropical', GETDATE(), GETDATE(), 0, 'Active', 130, 110, N'Dragon fruit for domestic & export markets'),
 
-('F007', 'Farm G', N'567 Tien Giang', 107.6297, 11.8231,
- 'https://res.cloudinary.com/dgshx4n2c/image/upload/v1738660419/rzaub3vswgnfzvunvuov.jpg', 
- N'Ward 2', N'Province Y', N'District 2', 200.0, 'Loam', 'Temperate', GETDATE(), GETDATE(), 0, 'Active', 300, 250, 'Farm focused on vegetables and grains'),
+('F007', N'Long An Organic Farm', N'Ấp Tân An, Xã Long Hựu', 106.512345, 10.567890,
+ 'https://res.cloudinary.com/demo/image/upload/sample.jpg', 
+ N'Long Hựu', N'Long An', N'Cần Đước', 90.0, 'Loam', 'Tropical', GETDATE(), GETDATE(), 0, 'Active', 150, 125, N'Specializing in safe vegetables'),
 
-('F008', 'Farm H', N'789 Kien Giang', 107.6297, 11.8231,
- 'https://res.cloudinary.com/dgshx4n2c/image/upload/v1738660419/rzaub3vswgnfzvunvuov.jpg', 
- N'Ward 3', N'Province Z', N'District 3', 150.0, 'Sandy', 'Arid', GETDATE(), GETDATE(), 0, 'Inactive', 400, 350, 'Farm for livestock breeding');
+('F008', N'Bến Tre Coconut Farm', N'Ấp 6, Xã Phú Nhuận', 106.380912, 10.232111,
+ 'https://res.cloudinary.com/demo/image/upload/sample.jpg', 
+ N'Phú Nhuận', N'Bến Tre', N'Châu Thành', 150.0, 'Alluvial', 'Tropical', GETDATE(), GETDATE(), 0, 'Active', 210, 160, N'Coconut farm with modern irrigation'),
 
+('F009', N'Nha Trang Herbal Garden', N'Xã Vĩnh Thái, Đường Võ Nguyên Giáp', 109.202134, 12.251099,
+ 'https://res.cloudinary.com/demo/image/upload/sample.jpg', 
+ N'Vĩnh Thái', N'Khánh Hòa', N'Nha Trang', 50.0, 'Silty', 'Tropical', GETDATE(), GETDATE(), 0, 'Active', 100, 90, N'Herbs and medicinal plants');
 
 INSERT INTO [ipas].[dbo].[Role] ([RoleName], [isSystem])
 VALUES
@@ -2204,9 +2207,7 @@ VALUES
 ('ValidationVariable','MinPlantOfLandRow', '1', 'int', N'Số cây tối thiểu 1 Hàng'),
 ('ValidationVariable','EditInDay', '3', 'int', N'Số ngày có thể chỉnh sửa sau khi đã được ghi nhận'),
 ('ValidationVariable','RecordAfterDate', '3', 'int', N'Sau bao nhiêu ngày có thể ghi nhận thu hoạch'),
-('ValidationVariable','AllowAreaDeviationPercent', '15', 'double', N'Phần trăm diện tích chênh lệch khi tạo thửa-hàng'),
-('ValidationVariable','CreateGraftedEnableDate', '3', 'int', N'Số ngày chiết cành được phép tạo trước hoặc sau.'),
-('ValidationVariable','CanCompleteGraftedAfterDay', '0', 'int', N'Số ngày chiết cành được phép hoàn thành trước hoặc sau.');
+('ValidationVariable','AllowAreaDeviationPercent', '15', 'double', N'Phần trăm diện tích chênh lệch khi tạo thửa-hàng');
 
 
 -- Criteria Apply
