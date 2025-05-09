@@ -97,7 +97,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                         var landrowExist = await _unitOfWork.LandRowRepository.GetByCondition(x => x.LandRowId == plantCreateRequest.LandRowId, "Plants,LandPlot");
                         if (landrowExist == null)
                             return new BusinessResult(Const.WARNING_ROW_NOT_EXIST_CODE, Const.WARNING_ROW_NOT_EXIST_MSG);
-                        if (landrowExist.Plants.Count >= landrowExist.TreeAmount)
+                        if (landrowExist.Plants.Count(x => x.IsDead == false && x.IsDeleted == false) >= landrowExist.TreeAmount)
                             return new BusinessResult(Const.WARNING_PLANT_IN_LANDROW_FULL_CODE, Const.WARNING_PLANT_IN_LANDROW_FULL_MSG);
                         if (landrowExist.Plants.Any(x => x.PlantIndex == plantCreateRequest.PlantIndex && x.IsDead == false && x.IsDeleted == false))
                             return new BusinessResult(400, $"Index {plantCreateRequest.PlantIndex} in row {landrowExist.RowIndex} has exist plant");
@@ -360,9 +360,9 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 {
                     filter = filter.And(x => x.LandRow!.RowIndex >= request.RowIndexFrom && x.LandRow.RowIndex <= request.RowIndexTo);
                 }
-                if (request.PassedDateFrom.HasValue && request.PassedDateTo.HasValue)
+                if (request.PlantingDateFrom.HasValue && request.PlantingDateTo.HasValue)
                 {
-                    filter = filter.And(x => x.PassedDate >= request.PassedDateFrom && x.PassedDate <= request.PassedDateTo);
+                    filter = filter.And(x => x.PlantingDate >= request.PlantingDateFrom && x.PlantingDate <= request.PlantingDateTo);
                 }
                 if (request.PlantIndexFrom.HasValue && request.PlantIndexTo.HasValue)
                 {
@@ -371,9 +371,9 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                 if (request.isPassed.HasValue)
                 {
                     filter = filter.And(x => x.IsPassed == request.isPassed);
-                    if (request.PlantingDateFrom.HasValue && request.PlantingDateTo.HasValue)
+                    if (request.PassedDateFrom.HasValue && request.PassedDateTo.HasValue)
                     {
-                        filter = filter.And(x => x.PlantingDate >= request.PlantingDateFrom && x.PlantingDate <= request.PlantingDateTo);
+                        filter = filter.And(x => x.PassedDate >= request.PassedDateFrom && x.PassedDate <= request.PassedDateTo);
                     }
                 }
 
@@ -715,6 +715,7 @@ namespace CapstoneProject_SP25_IPAS_Service.Service
                                 LandRowId = landRow!.LandRowId,
                                 MasterTypeId = masterType!.MasterTypeId,
                                 IsDeleted = false,
+                                IsDead = false,
                                 FarmId = 1,
                             };
                             //newPlant.GrowthStageID = growthStage?.GrowthStageID;
